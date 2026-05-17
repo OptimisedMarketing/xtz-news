@@ -55,12 +55,18 @@
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
 
-  /* BODY: pure black background like the original */
+  /* BODY: pure black background, Circe as primary font (matches original) */
   body {
     background-color: #000 !important;
     color: #fff;
+    font-family: 'Circe', sans-serif !important;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Headings use CeraPro (matches original left-side font) */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Cera Pro', 'CeraPro', 'Circe', sans-serif;
   }
 
   img { max-width: 100%; height: auto; }

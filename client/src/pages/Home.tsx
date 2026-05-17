@@ -50,7 +50,7 @@ function HeroSection({ posts }: { posts: any[] }) {
       {/* Container: matches original's col-md-8 + col-md-4 grid */}
       <div
         className="container"
-        style={{ display: "flex", alignItems: "stretch", padding: "0 1.25rem", gap: 0 }}
+        style={{ display: "flex", alignItems: "stretch", padding: "0 1.25rem", gap: 0, background: "#000" }}
       >
         {/* ── LEFT: Hero slider — ~67% width, matches original's col-md-8 ── */}
         <div

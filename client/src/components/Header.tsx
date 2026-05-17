@@ -29,20 +29,6 @@ const NAV_ITEMS = [
   { label: "CONTACT", href: "/contact" },
 ];
 
-// Nav link style — matches original exactly
-const navLinkStyle: React.CSSProperties = {
-  fontSize: "0.72rem",
-  fontWeight: 700,
-  letterSpacing: "0.06em",
-  textTransform: "uppercase",
-  color: "rgba(255,255,255,0.85)",
-  padding: "0.4rem 0.6rem",
-  display: "block",
-  textDecoration: "none",
-  whiteSpace: "nowrap",
-  transition: "color 0.2s",
-};
-
 export default function Header({ onSearchOpen }: HeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
@@ -81,15 +67,29 @@ export default function Header({ onSearchOpen }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-50" ref={dropdownRef}>
-      {/* ── Top bar: XTZ.NEWS + TEZOS TOKEN TRACKER ── */}
-      {/* Original: #123262 bg, 36px height */}
-      <div style={{ background: "#123262", borderBottom: "1px solid rgba(255,255,255,0.1)", height: "36px", display: "flex", alignItems: "center" }}>
-        <div className="container" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <Link href="/" style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.8)", textDecoration: "none" }}>
+      {/* ── Top bar: ONLY XTZ.NEWS + TEZOS TOKEN TRACKER on the RIGHT ── */}
+      {/* Original: both links are on the RIGHT side only, nothing on left */}
+      <div style={{
+        background: "#123262",
+        borderBottom: "1px solid rgba(255,255,255,0.1)",
+        height: "36px",
+        display: "flex",
+        alignItems: "center",
+      }}>
+        <div className="container" style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "1.5rem" }}>
+          {/* XTZ.NEWS link — top right */}
+          <Link href="/" style={{
+            fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.12em",
+            textTransform: "uppercase", color: "rgba(255,255,255,0.8)", textDecoration: "none",
+          }}>
             XTZ.NEWS
           </Link>
-          <a href="https://crunchy.network/" target="_blank" rel="noopener noreferrer"
-            style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.8)", display: "flex", alignItems: "center", gap: "0.35rem", textDecoration: "none" }}>
+          {/* TEZOS TOKEN TRACKER — top right */}
+          <a href="https://crunchy.network/" target="_blank" rel="noopener noreferrer" style={{
+            fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.12em",
+            textTransform: "uppercase", color: "rgba(255,255,255,0.8)",
+            display: "flex", alignItems: "center", gap: "0.35rem", textDecoration: "none",
+          }}>
             <ExternalLink size={10} />
             TEZOS TOKEN TRACKER
           </a>
@@ -97,19 +97,18 @@ export default function Header({ onSearchOpen }: HeaderProps) {
       </div>
 
       {/* ── Main header: Logo | Nav | Controls | MENU ── */}
-      {/* Original: #05152e bg, ~60px height (not 80px) */}
       <div style={{ background: "#05152e", borderBottom: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "stretch" }}>
-        <div className="container" style={{ display: "flex", alignItems: "center", height: "60px", flex: 1, padding: "0 1.25rem" }}>
-          {/* Logo — original is ~130x102 natural size, displayed at ~65px height */}
-          <Link href="/" style={{ flexShrink: 0, marginRight: "1.25rem", display: "flex", alignItems: "center" }}>
+        <div className="container" style={{ display: "flex", alignItems: "center", height: "72px", flex: 1 }}>
+          {/* Logo — larger to match original (~130px wide) */}
+          <Link href="/" style={{ flexShrink: 0, marginRight: "1.5rem", display: "flex", alignItems: "center" }}>
             <img
               src="/manus-storage/xtz-logo-square_c6689606.png"
               alt="XTZ.News"
-              style={{ height: "65px", width: "auto" }}
+              style={{ height: "80px", width: "auto" }}
             />
           </Link>
 
-          {/* Desktop Nav — tighter spacing to match original */}
+          {/* Desktop Nav — 14px, weight 600, tighter spacing */}
           <nav className="hidden lg:flex" style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
             {NAV_ITEMS.map((item) => (
               <div key={item.label} style={{ position: "relative" }}>
@@ -117,7 +116,13 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                   <>
                     <button
                       onClick={() => setOpenDropdown(openDropdown === item.label ? null : item.label)}
-                      style={{ ...navLinkStyle, background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.2rem" }}
+                      style={{
+                        fontSize: "0.8rem", fontWeight: 600, letterSpacing: "0.04em",
+                        textTransform: "uppercase", color: "rgba(255,255,255,0.85)",
+                        background: "none", border: "none", padding: "0.5rem 0.65rem",
+                        cursor: "pointer", display: "flex", alignItems: "center", gap: "0.2rem",
+                        transition: "color 0.2s", whiteSpace: "nowrap",
+                      }}
                       onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#fff")}
                       onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.85)")}
                     >
@@ -125,10 +130,20 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                       <ChevronDown size={10} style={{ transform: openDropdown === item.label ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
                     </button>
                     {openDropdown === item.label && (
-                      <div style={{ position: "absolute", top: "100%", left: 0, minWidth: "160px", background: "#05152e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", boxShadow: "0 8px 32px rgba(0,0,0,0.6)", zIndex: 100, padding: "0.25rem 0" }}>
+                      <div style={{
+                        position: "absolute", top: "100%", left: 0, minWidth: "160px",
+                        background: "#05152e", border: "1px solid rgba(255,255,255,0.1)",
+                        borderRadius: "4px", boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+                        zIndex: 100, padding: "0.25rem 0",
+                      }}>
                         {item.children.map((child) => (
                           <Link key={child.label} href={child.href}
-                            style={{ display: "block", padding: "0.5rem 1rem", fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", textDecoration: "none", transition: "all 0.2s" }}
+                            style={{
+                              display: "block", padding: "0.5rem 1rem",
+                              fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.04em",
+                              textTransform: "uppercase", color: "rgba(255,255,255,0.7)",
+                              textDecoration: "none", transition: "all 0.2s",
+                            }}
                             onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#fff"; (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.05)"; }}
                             onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.7)"; (e.currentTarget as HTMLElement).style.background = "none"; }}
                           >
@@ -139,7 +154,13 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                     )}
                   </>
                 ) : (
-                  <Link href={item.href} style={navLinkStyle}
+                  <Link href={item.href}
+                    style={{
+                      display: "block", padding: "0.5rem 0.65rem",
+                      fontSize: "0.8rem", fontWeight: 600, letterSpacing: "0.04em",
+                      textTransform: "uppercase", color: "rgba(255,255,255,0.85)",
+                      textDecoration: "none", transition: "color 0.2s", whiteSpace: "nowrap",
+                    }}
                     onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#fff")}
                     onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.85)")}
                   >
@@ -150,14 +171,14 @@ export default function Header({ onSearchOpen }: HeaderProps) {
             ))}
           </nav>
 
-          {/* Search + dark mode icons */}
+          {/* Search + dark mode */}
           <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginLeft: "auto" }}>
-            <button onClick={onSearchOpen} className="dark-mode-toggle" aria-label="Search"><Search size={15} /></button>
-            <button onClick={toggleDarkMode} className="dark-mode-toggle" aria-label="Toggle dark mode">{darkMode ? <Sun size={15} /> : <Moon size={15} />}</button>
+            <button onClick={onSearchOpen} className="dark-mode-toggle" aria-label="Search"><Search size={16} /></button>
+            <button onClick={toggleDarkMode} className="dark-mode-toggle" aria-label="Toggle dark mode">{darkMode ? <Sun size={16} /> : <Moon size={16} />}</button>
           </div>
         </div>
 
-        {/* ── MENU button — solid blue, spans full header height (top bar + main row = 96px total) ── */}
+        {/* ── MENU button — solid blue, spans full height (36px top bar + 72px main = 108px) ── */}
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label="Toggle menu"
@@ -165,18 +186,17 @@ export default function Header({ onSearchOpen }: HeaderProps) {
             background: "#2c7df7",
             border: "none",
             color: "#fff",
-            width: "77px",
-            // Spans both top bar (36px) and main header (60px) = 96px total, achieved via negative margin
-            height: "96px",
+            width: "80px",
+            height: "108px",
             marginTop: "-36px",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            gap: "0.4rem",
+            gap: "0.5rem",
             cursor: "pointer",
             flexShrink: 0,
-            fontSize: "0.6rem",
+            fontSize: "0.65rem",
             fontWeight: 900,
             letterSpacing: "0.12em",
             textTransform: "uppercase",
@@ -187,31 +207,39 @@ export default function Header({ onSearchOpen }: HeaderProps) {
           onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "#2c7df7")}
         >
           {mobileOpen ? (
-            <X size={20} />
+            <X size={22} />
           ) : (
-            <svg width="22" height="16" viewBox="0 0 22 16" fill="none">
-              <rect width="22" height="2.5" rx="1.25" fill="white"/>
-              <rect y="6.75" width="22" height="2.5" rx="1.25" fill="white"/>
-              <rect y="13.5" width="22" height="2.5" rx="1.25" fill="white"/>
+            <svg width="24" height="18" viewBox="0 0 24 18" fill="none">
+              <rect width="24" height="3" rx="1.5" fill="white"/>
+              <rect y="7.5" width="24" height="3" rx="1.5" fill="white"/>
+              <rect y="15" width="24" height="3" rx="1.5" fill="white"/>
             </svg>
           )}
           MENU
         </button>
       </div>
 
-      {/* Mobile Nav Drawer */}
+      {/* Mobile Nav */}
       {mobileOpen && (
         <div style={{ background: "#05152e", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
           <nav className="container" style={{ padding: "0.75rem 0", display: "flex", flexDirection: "column", gap: "0.25rem" }}>
             {NAV_ITEMS.map((item) => (
               <div key={item.label}>
-                <Link href={item.href} style={{ display: "block", padding: "0.6rem 0.75rem", fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.8)", textDecoration: "none", borderRadius: "3px" }}>
+                <Link href={item.href} style={{
+                  display: "block", padding: "0.6rem 0.75rem",
+                  fontSize: "0.8rem", fontWeight: 600, letterSpacing: "0.04em",
+                  textTransform: "uppercase", color: "rgba(255,255,255,0.8)", textDecoration: "none",
+                }}>
                   {item.label}
                 </Link>
                 {item.children && (
                   <div style={{ paddingLeft: "1rem" }}>
                     {item.children.map((child) => (
-                      <Link key={child.label} href={child.href} style={{ display: "block", padding: "0.4rem 0.75rem", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.5)", textDecoration: "none" }}>
+                      <Link key={child.label} href={child.href} style={{
+                        display: "block", padding: "0.4rem 0.75rem",
+                        fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.04em",
+                        textTransform: "uppercase", color: "rgba(255,255,255,0.5)", textDecoration: "none",
+                      }}>
                         {child.label}
                       </Link>
                     ))}
