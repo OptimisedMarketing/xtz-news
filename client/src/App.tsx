@@ -26,6 +26,7 @@ import AdminPostNew from "./pages/admin/AdminPostNew";
 import AdminCategories from "./pages/admin/AdminCategories";
 import AdminProjects from "./pages/admin/AdminProjects";
 import AdminSubmissions from "./pages/admin/AdminSubmissions";
+import AdminSubscribers from "./pages/admin/AdminSubscribers";
 import NotFound from "./pages/NotFound";
 
 function Router() {
@@ -54,6 +55,7 @@ function Router() {
       <Route path="/admin/categories" component={AdminCategories} />
       <Route path="/admin/projects" component={AdminProjects} />
       <Route path="/admin/submissions" component={AdminSubmissions} />
+      <Route path="/admin/subscribers" component={AdminSubscribers} />
 
       {/* Article pages — must be last to catch all slugs */}
       <Route path="/:slug" component={ArticlePage} />
