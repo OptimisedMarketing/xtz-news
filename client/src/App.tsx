@@ -1,38 +1,75 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import Layout from "./components/Layout";
+
+// Pages
 import Home from "./pages/Home";
+import ArticlePage from "./pages/ArticlePage";
+import CategoryPage from "./pages/CategoryPage";
+import TagPage from "./pages/TagPage";
+import CategoriesPage from "./pages/CategoriesPage";
+import ProjectsPage from "./pages/ProjectsPage";
+import ProjectDetailPage from "./pages/ProjectDetailPage";
+import TimelinePage from "./pages/TimelinePage";
+import WatchPage from "./pages/WatchPage";
+import SubmitArticlePage from "./pages/SubmitArticlePage";
+import ContactPage from "./pages/ContactPage";
+import AdvertisePage from "./pages/AdvertisePage";
+import SearchPage from "./pages/SearchPage";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminPosts from "./pages/admin/AdminPosts";
+import AdminPostEdit from "./pages/admin/AdminPostEdit";
+import AdminCategories from "./pages/admin/AdminCategories";
+import AdminProjects from "./pages/admin/AdminProjects";
+import AdminSubmissions from "./pages/admin/AdminSubmissions";
+import NotFound from "./pages/NotFound";
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
+      {/* Public routes */}
+      <Route path="/" component={Home} />
+      <Route path="/search" component={SearchPage} />
+      <Route path="/categories" component={CategoriesPage} />
+      <Route path="/category/:slug" component={CategoryPage} />
+      <Route path="/tag/:slug" component={TagPage} />
+      <Route path="/projects" component={ProjectsPage} />
+      <Route path="/tezos-projects" component={ProjectsPage} />
+      <Route path="/project/:slug" component={ProjectDetailPage} />
+      <Route path="/timeline" component={TimelinePage} />
+      <Route path="/watch" component={WatchPage} />
+      <Route path="/submit-article" component={SubmitArticlePage} />
+      <Route path="/contact" component={ContactPage} />
+      <Route path="/advertise" component={AdvertisePage} />
+
+      {/* Admin routes (protected inside components) */}
+      <Route path="/admin" component={AdminDashboard} />
+      <Route path="/admin/posts" component={AdminPosts} />
+      <Route path="/admin/posts/:id" component={AdminPostEdit} />
+      <Route path="/admin/categories" component={AdminCategories} />
+      <Route path="/admin/projects" component={AdminProjects} />
+      <Route path="/admin/submissions" component={AdminSubmissions} />
+
+      {/* Article pages — must be last to catch all slugs */}
+      <Route path="/:slug" component={ArticlePage} />
+
       <Route component={NotFound} />
     </Switch>
   );
 }
 
-// NOTE: About Theme
-// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
-//   to keep consistent foreground/background color across components
-// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
-
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider
-        defaultTheme="light"
-        // switchable
-      >
+      <ThemeProvider defaultTheme="dark">
         <TooltipProvider>
           <Toaster />
-          <Router />
+          <Layout>
+            <Router />
+          </Layout>
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
