@@ -57,6 +57,35 @@ const postsRouter = router({
       return withCats;
     }),
 
+  // Combined homepage query — single round trip for all homepage data
+  homepageData: publicProcedure.query(async () => {
+    const [latestRaw, mostReadRaw] = await Promise.all([
+      db.getLatestPosts(10, 0),
+      db.getMostReadPosts(8),
+    ]);
+
+    // Fetch all categories in parallel
+    const allPosts = [...latestRaw, ...mostReadRaw];
+    const uniqueIds = Array.from(new Set(allPosts.map((p) => p.id)));
+    const catsMap: Record<number, Awaited<ReturnType<typeof db.getPostCategories>>> = {};
+    await Promise.all(
+      uniqueIds.map(async (id) => {
+        catsMap[id] = await db.getPostCategories(id);
+      })
+    );
+
+    const withCats = (posts: typeof latestRaw) =>
+      posts.map((p) => ({ ...p, categories: catsMap[p.id] ?? [] }));
+
+    const latest = withCats(latestRaw);
+    const mostRead = withCats(mostReadRaw);
+    // Featured = top 6 from latest that are marked featured, fallback to latest
+    const featured = latest.filter((p) => p.isFeatured).slice(0, 6);
+    const featuredToShow = featured.length >= 3 ? featured : latest.slice(0, 6);
+
+    return { latest, mostRead, featured: featuredToShow };
+  }),
+
   bySlug: publicProcedure
     .input(z.object({ slug: z.string() }))
     .query(async ({ input }) => {
