@@ -80,7 +80,9 @@ function HeroSection({ latestPosts, mostReadPosts }: { latestPosts: any[]; mostR
 
   return (
     <section style={{ background: "#000" }}>
-      {/* Responsive flex: column on mobile, row on desktop */}
+      {/* Outer wrapper: black background fills full width */}
+      {/* Inner container: constrained with side gutters like the original */}
+      <div className="container" style={{ padding: "0 1.25rem" }}>
       <div style={{ display: "flex", flexDirection: "column" }}>
 
         {/* ── Hero image area ── */}
@@ -173,21 +175,19 @@ function HeroSection({ latestPosts, mostReadPosts }: { latestPosts: any[]; mostR
                 onMouseLeave={(e) => { if (!(activeTab === "latest" && i === current)) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
               >
                 <Link href={`/${p.slug}`} style={{ display: "block", padding: "0.875rem 1.25rem", textDecoration: "none" }} onClick={(e) => e.stopPropagation()}>
-                  <p style={{ fontSize: "0.9rem", fontWeight: 700, lineHeight: 1.45, color: "#fff", margin: 0 }}>{p.title}</p>
+                  <p style={{ fontSize: "1rem", fontWeight: 500, lineHeight: 1.5, color: "rgba(255,255,255,0.9)", margin: 0 }}>{p.title}</p>
                 </Link>
               </div>
             ))}
           </div>
         </div>
       </div>
+      </div>
 
       {/* Responsive CSS for desktop layout */}
       <style>{`
         @media (min-width: 1024px) {
-          .hero-image-area {
-            /* On desktop, hero is 67% width */
-          }
-          section > div {
+          section > div > div {
             flex-direction: row !important;
           }
           .hero-image-area {
