@@ -38,6 +38,30 @@ async function startServer() {
   registerStorageProxy(app);
   registerOAuthRoutes(app);
   app.use(uploadRouter);
+
+  // ─── SEO Redirects (WordPress → new site URL structure) ───────────────────
+  // 1. Legacy WordPress /tezos-projects/ → /projects
+  app.get("/tezos-projects", (req, res) => res.redirect(301, "/projects"));
+  app.get("/tezos-projects/", (req, res) => res.redirect(301, "/projects"));
+  // 2. Remove trailing slashes (WordPress used /slug/, new site uses /slug)
+  app.use((req, res, next) => {
+    if (req.path !== "/" && req.path.endsWith("/") && !req.path.startsWith("/api/")) {
+      const newPath = req.path.slice(0, -1) + (req.url.includes("?") ? req.url.slice(req.path.length) : "");
+      return res.redirect(301, newPath);
+    }
+    next();
+  });
+  // 3. Legacy WordPress /en/ prefix (WPML) → remove prefix
+  app.get("/en/*", (req, res) => {
+    const newPath = req.path.replace(/^\/en/, "") || "/";
+    res.redirect(301, newPath);
+  });
+  // 4. Legacy /fr/, /de/, /es/, /it/, /ja/, /ko/, /zh/ language prefixes → homepage
+  for (const lang of ["fr", "de", "es", "it", "ja", "ko", "zh", "uk", "hi"]) {
+    app.get(`/${lang}/*`, (req, res) => res.redirect(301, "/"));
+    app.get(`/${lang}`, (req, res) => res.redirect(301, "/"));
+  }
+  // ─────────────────────────────────────────────────────────────────────────
   // tRPC API
   app.use(
     "/api/trpc",
