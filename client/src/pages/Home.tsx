@@ -231,10 +231,10 @@ function HeroSection({ posts }: { posts: any[] }) {
                   onClick={(e) => e.stopPropagation()}
                 >
                   <p style={{
-                    fontSize: "0.82rem",
+                    fontSize: "0.95rem",
                     fontWeight: (activeTab === "latest" && i === current) ? 700 : 400,
                     lineHeight: 1.45,
-                    color: (activeTab === "latest" && i === current) ? "#fff" : "rgba(255,255,255,0.7)",
+                    color: (activeTab === "latest" && i === current) ? "#fff" : "rgba(255,255,255,0.75)",
                     display: "-webkit-box",
                     WebkitLineClamp: 3,
                     WebkitBoxOrient: "vertical",
