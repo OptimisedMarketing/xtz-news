@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { ChevronLeft, ChevronRight, Share2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import PostCard from "@/components/PostCard";
+import HomepageFilters from "@/components/HomepageFilters";
 
 function formatDate(date: Date | string | null | undefined) {
   if (!date) return "";
@@ -306,6 +307,9 @@ export default function Home() {
 
       {/* Ticker — show as soon as we have any posts */}
       <NewsTicker posts={latest.slice(0, 10)} />
+
+      {/* Search + Category filters */}
+      <HomepageFilters />
 
       {/* Most Popular */}
       <MostPopularCarousel posts={mostRead} />

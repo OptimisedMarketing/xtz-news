@@ -22,6 +22,7 @@ import SearchPage from "./pages/SearchPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminPosts from "./pages/admin/AdminPosts";
 import AdminPostEdit from "./pages/admin/AdminPostEdit";
+import AdminPostNew from "./pages/admin/AdminPostNew";
 import AdminCategories from "./pages/admin/AdminCategories";
 import AdminProjects from "./pages/admin/AdminProjects";
 import AdminSubmissions from "./pages/admin/AdminSubmissions";
@@ -48,6 +49,7 @@ function Router() {
       {/* Admin routes (protected inside components) */}
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/posts" component={AdminPosts} />
+      <Route path="/admin/posts/new" component={AdminPostNew} />
       <Route path="/admin/posts/:id" component={AdminPostEdit} />
       <Route path="/admin/categories" component={AdminCategories} />
       <Route path="/admin/projects" component={AdminProjects} />

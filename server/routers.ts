@@ -164,6 +164,26 @@ const postsRouter = router({
     .input(z.object({ limit: z.number().default(20), offset: z.number().default(0) }))
     .query(({ input }) => db.getAllPosts(input.limit, input.offset)),
 
+  adminCreate: adminProcedure
+    .input(z.object({
+      title: z.string().min(1),
+      slug: z.string().min(1),
+      content: z.string().optional(),
+      excerpt: z.string().optional(),
+      featuredImageUrl: z.string().optional(),
+      status: z.enum(["publish", "draft", "private"]).default("draft"),
+      isFeatured: z.boolean().default(false),
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      await db.createPost({
+        ...input,
+        publishedAt: input.status === "publish" ? new Date() : null,
+      });
+      return { success: true };
+    }),
+
   adminUpdate: adminProcedure
     .input(z.object({
       id: z.number(),

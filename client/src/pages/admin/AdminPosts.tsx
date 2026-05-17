@@ -38,7 +38,10 @@ export default function AdminPosts() {
             <Link href="/admin" className="text-white/40 hover:text-white"><ChevronLeft size={18} /></Link>
             <h1 className="text-xl font-black text-white">Posts</h1>
           </div>
-          <span className="text-sm text-white/40">{posts.length} shown</span>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-white/40">{posts.length} shown</span>
+            <Link href="/admin/posts/new" className="btn-primary text-xs py-1.5 px-3">+ New Article</Link>
+          </div>
         </div>
       </div>
 
