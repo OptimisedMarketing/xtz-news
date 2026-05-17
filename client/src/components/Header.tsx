@@ -99,12 +99,12 @@ export default function Header({ onSearchOpen }: HeaderProps) {
       {/* ── Main header: Logo | Nav | Controls | MENU ── */}
       <div style={{ background: "#05152e", borderBottom: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "stretch" }}>
         <div className="container" style={{ display: "flex", alignItems: "center", height: "72px", flex: 1 }}>
-          {/* Logo — larger to match original (~130px wide) */}
-          <Link href="/" style={{ flexShrink: 0, marginRight: "1.5rem", display: "flex", alignItems: "center" }}>
+          {/* Logo — positioned to straddle the top bar / main header boundary */}
+          <Link href="/" style={{ flexShrink: 0, marginRight: "1.5rem", display: "flex", alignItems: "center", position: "relative", zIndex: 10 }}>
             <img
               src="/manus-storage/xtz-logo-square_c6689606.png"
               alt="XTZ.News"
-              style={{ height: "80px", width: "auto" }}
+              style={{ height: "90px", width: "auto", marginTop: "-36px" }}
             />
           </Link>
 
