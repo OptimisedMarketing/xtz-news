@@ -177,27 +177,29 @@ function HeroSection({ posts }: { posts: any[] }) {
             flex: "0 0 33%",
             display: "flex",
             flexDirection: "column",
-            background: "#05152e",
-            borderLeft: "1px solid rgba(255,255,255,0.08)",
+            background: "#000",  // Original is pure black
+            borderLeft: "1px solid rgba(255,255,255,0.1)",
             position: "relative",
             minHeight: "511px",
           }}
         >
-          {/* Tab buttons */}
-          <div style={{ display: "flex", borderBottom: "1px solid rgba(255,255,255,0.1)", flexShrink: 0 }}>
+          {/* Tab buttons — original: active tab has solid blue fill, inactive is plain white text */}
+          <div style={{ display: "flex", borderBottom: "1px solid rgba(255,255,255,0.12)", flexShrink: 0 }}>
             {(["latest", "most-read"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 style={{
                   flex: 1,
-                  padding: "0.875rem 0.5rem",
+                  padding: "0.75rem 0.5rem",
                   fontSize: "0.65rem",
                   fontWeight: 700,
                   letterSpacing: "0.12em",
                   textTransform: "uppercase",
-                  color: activeTab === tab ? "#2c7df7" : "rgba(255,255,255,0.5)",
-                  background: "none",
+                  // Active: solid blue background + white text (matches original)
+                  // Inactive: transparent background + white text
+                  color: "#fff",
+                  background: activeTab === tab ? "#2c7df7" : "transparent",
                   border: "none",
                   borderBottom: activeTab === tab ? "2px solid #2c7df7" : "2px solid transparent",
                   cursor: "pointer",
@@ -209,36 +211,37 @@ function HeroSection({ posts }: { posts: any[] }) {
             ))}
           </div>
 
-          {/* Article list */}
-          <div style={{ flex: 1, overflowY: "auto", scrollbarWidth: "thin", scrollbarColor: "#2c7df7 #05152e" }}>
+          {/* Article list — original: black bg, thin grey dividers, generous padding, titles unclamped */}
+          <div style={{ flex: 1, overflowY: "auto" }}>
             {sidebarPosts.map((p, i) => (
               <div
                 key={p.id}
                 onClick={() => activeTab === "latest" && goTo(i)}
                 style={{
-                  borderBottom: "1px solid rgba(255,255,255,0.06)",
-                  background: (activeTab === "latest" && i === current) ? "rgba(44,125,247,0.06)" : "none",
-                  borderLeft: (activeTab === "latest" && i === current) ? "3px solid #2c7df7" : "3px solid transparent",
+                  // Thin white/grey divider between items
+                  borderBottom: "1px solid rgba(255,255,255,0.1)",
+                  // Active: left blue border + very subtle bg
+                  background: (activeTab === "latest" && i === current) ? "rgba(44,125,247,0.08)" : "transparent",
+                  borderLeft: (activeTab === "latest" && i === current) ? "4px solid #2c7df7" : "4px solid transparent",
                   transition: "background 0.2s",
                   cursor: "pointer",
                 }}
-                onMouseEnter={(e) => { if (!(activeTab === "latest" && i === current)) (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.03)"; }}
-                onMouseLeave={(e) => { if (!(activeTab === "latest" && i === current)) (e.currentTarget as HTMLElement).style.background = "none"; }}
+                onMouseEnter={(e) => { if (!(activeTab === "latest" && i === current)) (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.04)"; }}
+                onMouseLeave={(e) => { if (!(activeTab === "latest" && i === current)) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
               >
                 <Link
                   href={`/${p.slug}`}
-                  style={{ display: "block", padding: "0.875rem 1rem", textDecoration: "none" }}
+                  style={{ display: "block", padding: "1rem 1.25rem", textDecoration: "none" }}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <p style={{
-                    fontSize: "0.95rem",
+                    // Original: ~14px, weight 400, white, line-height 1.4, NOT clamped
+                    fontSize: "0.9rem",
                     fontWeight: (activeTab === "latest" && i === current) ? 700 : 400,
-                    lineHeight: 1.45,
-                    color: (activeTab === "latest" && i === current) ? "#fff" : "rgba(255,255,255,0.75)",
-                    display: "-webkit-box",
-                    WebkitLineClamp: 3,
-                    WebkitBoxOrient: "vertical",
-                    overflow: "hidden",
+                    lineHeight: 1.5,
+                    color: "#fff",
+                    margin: 0,
+                    // No line clamping — let titles wrap naturally like the original
                   }}>
                     {p.title}
                   </p>
@@ -246,9 +249,7 @@ function HeroSection({ posts }: { posts: any[] }) {
               </div>
             ))}
           </div>
-
-          {/* Blue vertical scrollbar indicator on right edge */}
-          <div style={{ position: "absolute", right: 0, top: "48px", bottom: 0, width: "4px", background: "#2c7df7", opacity: 0.9 }} />
+          {/* No blue scrollbar strip — original doesn't have it */}
         </div>
       </div>
     </section>
