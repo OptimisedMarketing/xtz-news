@@ -50,5 +50,5 @@
 
 ## Phase 8: Testing & Delivery
 - [x] Vitest unit tests for key procedures (20 tests passing)
-- [ ] Cross-browser check
-- [ ] Final checkpoint and deliver
+- [x] Cross-browser check
+- [x] Final checkpoint and deliver
