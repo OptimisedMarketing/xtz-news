@@ -1,24 +1,132 @@
+import { useState, useMemo } from "react";
 import { Link } from "wouter";
-import { Tag } from "lucide-react";
+import { Search, Tag, ArrowUpDown, TrendingUp, AlignLeft } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+
+type SortOption = "popular" | "alphabetical" | "recent";
 
 export default function CategoriesPage() {
   const { data: categories = [], isLoading } = trpc.categories.withImages.useQuery();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<SortOption>("popular");
+
   const active = categories.filter((c) => (c.postCount ?? 0) > 0);
+
+  const filtered = useMemo(() => {
+    let result = [...active];
+
+    // Filter by search
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter((c) => c.name.toLowerCase().includes(q));
+    }
+
+    // Sort
+    if (sortBy === "popular") {
+      result.sort((a, b) => (b.postCount ?? 0) - (a.postCount ?? 0));
+    } else if (sortBy === "alphabetical") {
+      result.sort((a, b) => a.name.localeCompare(b.name));
+    }
+    // "recent" keeps default order (insertion order = most recently added)
+
+    return result;
+  }, [active, searchQuery, sortBy]);
+
+  const sortOptions: { value: SortOption; label: string; icon: React.ReactNode }[] = [
+    { value: "popular", label: "Most Popular", icon: <TrendingUp size={13} /> },
+    { value: "alphabetical", label: "A–Z", icon: <AlignLeft size={13} /> },
+    { value: "recent", label: "Recently Added", icon: <ArrowUpDown size={13} /> },
+  ];
 
   return (
     <div style={{ background: "#000", minHeight: "100vh" }}>
       {/* Header */}
-      <div style={{ background: "#05152e", borderBottom: "1px solid rgba(255,255,255,0.1)", padding: "3rem 0 2.5rem" }}>
+      <div style={{ background: "#05152e", borderBottom: "1px solid rgba(255,255,255,0.1)", padding: "3rem 0 2rem" }}>
         <div className="container">
-          <h1 style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 900, color: "#fff", textTransform: "uppercase", letterSpacing: "0.02em", margin: 0 }}>
+          <h1 style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 900, color: "#fff", textTransform: "uppercase", letterSpacing: "0.02em", margin: "0 0 1.5rem" }}>
             ALL CATEGORIES
           </h1>
-          {!isLoading && (
-            <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.4)", marginTop: "0.5rem" }}>
-              {active.length} categories
-            </p>
-          )}
+
+          {/* Search + Sort controls */}
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.75rem" }}>
+            {/* Search bar */}
+            <div style={{ position: "relative", flex: "0 0 280px" }}>
+              <Search size={14} style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", color: "rgba(255,255,255,0.4)", pointerEvents: "none" }} />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search categories..."
+                style={{
+                  width: "100%",
+                  padding: "0.6rem 1rem 0.6rem 2.25rem",
+                  background: "rgba(255,255,255,0.07)",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  borderRadius: "3px",
+                  color: "#fff",
+                  fontSize: "0.85rem",
+                  outline: "none",
+                  fontFamily: "inherit",
+                  transition: "border-color 0.2s",
+                }}
+                onFocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = "#2c7df7")}
+                onBlur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.15)")}
+              />
+            </div>
+
+            {/* Sort buttons */}
+            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+              <span style={{ fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(255,255,255,0.4)", marginRight: "0.25rem" }}>
+                Sort:
+              </span>
+              {sortOptions.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => setSortBy(opt.value)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.35rem",
+                    padding: "0.5rem 0.875rem",
+                    fontSize: "0.72rem",
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                    background: sortBy === opt.value ? "#2c7df7" : "rgba(255,255,255,0.06)",
+                    color: sortBy === opt.value ? "#fff" : "rgba(255,255,255,0.65)",
+                    border: sortBy === opt.value ? "1px solid #2c7df7" : "1px solid rgba(255,255,255,0.12)",
+                    borderRadius: "3px",
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                    whiteSpace: "nowrap",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (sortBy !== opt.value) {
+                      (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.1)";
+                      (e.currentTarget as HTMLElement).style.color = "#fff";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (sortBy !== opt.value) {
+                      (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)";
+                      (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.65)";
+                    }
+                  }}
+                >
+                  {opt.icon}
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Result count */}
+            {!isLoading && (
+              <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.35)", marginLeft: "auto" }}>
+                {filtered.length} {filtered.length === 1 ? "category" : "categories"}
+                {searchQuery ? ` matching "${searchQuery}"` : ""}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
@@ -30,9 +138,21 @@ export default function CategoriesPage() {
               <div key={i} className="skeleton" style={{ height: "180px", borderRadius: "4px" }} />
             ))}
           </div>
+        ) : filtered.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "4rem 0" }}>
+            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "1rem" }}>
+              No categories found matching &ldquo;{searchQuery}&rdquo;
+            </p>
+            <button
+              onClick={() => setSearchQuery("")}
+              style={{ marginTop: "1rem", padding: "0.5rem 1.25rem", background: "#2c7df7", border: "none", borderRadius: "3px", color: "#fff", fontSize: "0.8rem", fontWeight: 700, cursor: "pointer", textTransform: "uppercase", letterSpacing: "0.08em" }}
+            >
+              Clear Search
+            </button>
+          </div>
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "1rem" }}>
-            {active.map((cat) => (
+            {filtered.map((cat) => (
               <Link
                 key={cat.id}
                 href={`/category/${cat.slug}`}
@@ -56,7 +176,7 @@ export default function CategoriesPage() {
                     (e.currentTarget as HTMLElement).style.boxShadow = "none";
                   }}
                 >
-                  {/* Background image from most recent post */}
+                  {/* Background image */}
                   {(cat as any).coverImage ? (
                     <img
                       src={(cat as any).coverImage}
@@ -71,38 +191,18 @@ export default function CategoriesPage() {
                   <div style={{
                     position: "absolute",
                     inset: 0,
-                    background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.1) 100%)",
+                    background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.35) 60%, rgba(0,0,0,0.1) 100%)",
                   }} />
 
                   {/* Category name + count */}
-                  <div style={{
-                    position: "absolute",
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    padding: "1rem",
-                  }}>
+                  <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "1rem" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.3rem" }}>
                       <Tag size={10} style={{ color: "#2c7df7", flexShrink: 0 }} />
-                      <span style={{
-                        fontSize: "0.6rem",
-                        fontWeight: 700,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.1em",
-                        color: "#2c7df7",
-                      }}>
+                      <span style={{ fontSize: "0.6rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#2c7df7" }}>
                         {cat.postCount} articles
                       </span>
                     </div>
-                    <h3 style={{
-                      fontSize: "1rem",
-                      fontWeight: 900,
-                      color: "#fff",
-                      margin: 0,
-                      lineHeight: 1.2,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.03em",
-                    }}>
+                    <h3 style={{ fontSize: "1rem", fontWeight: 900, color: "#fff", margin: 0, lineHeight: 1.2, textTransform: "uppercase", letterSpacing: "0.03em" }}>
                       {cat.name}
                     </h3>
                   </div>
