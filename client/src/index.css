@@ -2,22 +2,18 @@
 @import "tw-animate-css";
 
 /*
- * XTZ.News — uses the original WordPress theme CSS loaded in index.html
+ * XTZ.News — original WordPress theme CSS loaded in index.html
  * (theme-libs.css + theme-style.css from the cbd WordPress theme)
- *
- * This file only adds:
- * 1. Tailwind compatibility layer
- * 2. React-specific overrides for dynamic content
- * 3. Fixes for things the WP theme assumed WordPress would handle
+ * This file adds Tailwind compat + React-specific overrides only
  */
 
-/* ─── Tailwind compat tokens (must match theme's colour system) ─────────────── */
+/* ─── Tailwind compat tokens ────────────────────────────────────────────────── */
 :root {
-  --background: 213 80% 10%;
+  --background: 0 0% 0%;
   --foreground: 0 0% 100%;
-  --card: 213 80% 12%;
+  --card: 213 80% 8%;
   --card-foreground: 0 0% 100%;
-  --popover: 213 80% 10%;
+  --popover: 0 0% 0%;
   --popover-foreground: 0 0% 100%;
   --primary: 217 92% 57%;
   --primary-foreground: 0 0% 100%;
@@ -33,7 +29,7 @@
   --input: 213 40% 20%;
   --ring: 217 92% 57%;
   --radius: 0.25rem;
-  --sidebar-background: 213 80% 8%;
+  --sidebar-background: 0 0% 0%;
   --sidebar-foreground: 0 0% 100%;
   --sidebar-primary: 217 92% 57%;
   --sidebar-primary-foreground: 0 0% 100%;
@@ -42,76 +38,56 @@
   --sidebar-border: 213 40% 18%;
   --sidebar-ring: 217 92% 57%;
 
-  /* Theme colours (from original cbd theme) */
-  --xtz-navy-dark: #000;
+  /* Theme colours */
+  --xtz-black: #000000;
   --xtz-navy: #05152e;
   --xtz-navy-mid: #123262;
   --xtz-blue: #2c7df7;
   --xtz-blue-hover: #1a6ae0;
-  --xtz-white: #ffffff;
-  --xtz-text-muted: rgba(255,255,255,0.6);
   --xtz-border: rgba(255,255,255,0.12);
-
-  /* Header (from cbd theme CSS variables) */
-  --header-top-bg: #123262;
-  --header-top-text: #ffffff;
-  --header-mid-bg: #05152e;
-  --header-mid-text: #ffffff;
-
-  /* Body */
-  --body-bg: #05152e;
-  --body-text: #ffffff;
-  --card-bg: #0a1f3d;
-  --card-bg-hover: #0d2548;
-  --section-bg-alt: #071830;
 
   /* Container */
   --container-max: 1580px;
 }
 
-/* ─── Base reset that works with the theme ──────────────────────────────────── */
+/* ─── Base ──────────────────────────────────────────────────────────────────── */
 @layer base {
   * { box-sizing: border-box; }
-
   html { scroll-behavior: smooth; }
 
+  /* BODY: pure black background like the original */
   body {
-    background-color: var(--xtz-navy);
+    background-color: #000 !important;
     color: #fff;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Ensure the theme's dark-mode class works */
-  body.dark-mode {
-    --bg-color: #000;
-    --text-color: #fff;
-  }
-
   img { max-width: 100%; height: auto; }
-
   a { transition: color 0.25s ease; }
 
-  ::selection {
-    background: var(--xtz-blue);
-    color: white;
-  }
+  ::selection { background: #2c7df7; color: white; }
 
   ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: var(--xtz-navy); }
-  ::-webkit-scrollbar-thumb { background: var(--xtz-navy-mid); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--xtz-blue); }
+  ::-webkit-scrollbar-track { background: #000; }
+  ::-webkit-scrollbar-thumb { background: #123262; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #2c7df7; }
 }
 
-/* ─── React app container ───────────────────────────────────────────────────── */
+/* ─── Layout ────────────────────────────────────────────────────────────────── */
 @layer utilities {
   #root {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    background: #000;
   }
 
-  /* Container utility */
+  main {
+    flex: 1;
+    background: #000;
+  }
+
   .container {
     width: 100%;
     max-width: var(--container-max);
@@ -121,7 +97,7 @@
     padding-right: 1.25rem;
   }
 
-  /* ── Section heading with blue left bar (matches theme's .section-title) ── */
+  /* ── Section heading with blue left bar ── */
   .section-title {
     display: flex;
     align-items: center;
@@ -138,12 +114,12 @@
     display: block;
     width: 4px;
     height: 1.25em;
-    background: var(--xtz-blue);
+    background: #2c7df7;
     border-radius: 2px;
     flex-shrink: 0;
   }
 
-  /* ── Category tag badge (matches theme's .category-tag) ── */
+  /* ── Category tag badge ── */
   .cat-tag {
     display: inline-flex;
     align-items: center;
@@ -155,17 +131,14 @@
     padding: 0.2rem 0.55rem;
     border-radius: 2px;
     background: rgba(44, 125, 247, 0.12);
-    color: var(--xtz-blue);
+    color: #2c7df7;
     border: 1px solid rgba(44, 125, 247, 0.25);
     transition: all 0.2s ease;
     white-space: nowrap;
     cursor: pointer;
+    text-decoration: none;
   }
-  .cat-tag:hover {
-    background: var(--xtz-blue);
-    color: white;
-    border-color: var(--xtz-blue);
-  }
+  .cat-tag:hover { background: #2c7df7; color: white; border-color: #2c7df7; }
   .cat-tag-icon { width: 9px; height: 9px; opacity: 0.7; }
 
   /* ── Buttons ── */
@@ -178,14 +151,15 @@
     text-transform: uppercase;
     letter-spacing: 0.12em;
     padding: 0.5rem 1.25rem;
-    border: 1px solid var(--xtz-blue);
-    color: var(--xtz-blue);
+    border: 1px solid #2c7df7;
+    color: #2c7df7;
     background: transparent;
     border-radius: 2px;
     transition: all 0.25s ease;
     cursor: pointer;
+    text-decoration: none;
   }
-  .btn-read-more:hover { background: var(--xtz-blue); color: white; }
+  .btn-read-more:hover { background: #2c7df7; color: white; }
 
   .btn-primary {
     display: inline-flex;
@@ -196,28 +170,29 @@
     text-transform: uppercase;
     letter-spacing: 0.1em;
     padding: 0.65rem 1.5rem;
-    background: var(--xtz-blue);
+    background: #2c7df7;
     color: white;
-    border: 1px solid var(--xtz-blue);
+    border: 1px solid #2c7df7;
     border-radius: 2px;
     transition: all 0.25s ease;
     cursor: pointer;
+    text-decoration: none;
   }
-  .btn-primary:hover { background: var(--xtz-blue-hover); color: white; }
+  .btn-primary:hover { background: #1a6ae0; color: white; }
 
   /* ── Cards ── */
   .news-card {
-    background: var(--card-bg);
+    background: #05152e;
     border-radius: 4px;
     overflow: hidden;
     transition: transform 0.25s ease, box-shadow 0.25s ease;
   }
   .news-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
   }
 
-  /* ── Post content (article body) ── */
+  /* ── Post content ── */
   .post-content {
     color: #fff;
     line-height: 1.8;
@@ -225,20 +200,17 @@
   }
   .post-content h1,.post-content h2,.post-content h3,
   .post-content h4,.post-content h5,.post-content h6 {
-    margin-top: 2rem;
-    margin-bottom: 1rem;
-    font-weight: 700;
-    color: #fff;
+    margin-top: 2rem; margin-bottom: 1rem; font-weight: 700; color: #fff;
   }
   .post-content h2 { font-size: 1.5rem; }
   .post-content h3 { font-size: 1.25rem; }
   .post-content p { margin-bottom: 1.25rem; }
-  .post-content a { color: var(--xtz-blue); }
+  .post-content a { color: #2c7df7; }
   .post-content a:hover { text-decoration: underline; }
   .post-content ul,.post-content ol { padding-left: 1.5rem; margin-bottom: 1.25rem; }
   .post-content li { margin-bottom: 0.4rem; }
   .post-content blockquote {
-    border-left: 3px solid var(--xtz-blue);
+    border-left: 3px solid #2c7df7;
     padding: 0.75rem 1.25rem;
     margin: 1.5rem 0;
     background: rgba(44,125,247,0.08);
@@ -249,7 +221,7 @@
   .post-content img { border-radius: 4px; margin: 1.5rem 0; width: 100%; }
   .post-content table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
   .post-content th,.post-content td { border: 1px solid rgba(255,255,255,0.12); padding: 0.5rem 0.75rem; }
-  .post-content th { background: var(--xtz-navy-mid); }
+  .post-content th { background: #123262; }
   .post-content hr { border: none; border-top: 1px solid rgba(255,255,255,0.12); margin: 2rem 0; }
   .post-content figure { margin: 1.5rem 0; }
   .post-content figcaption { font-size: 0.8rem; color: rgba(255,255,255,0.5); text-align: center; margin-top: 0.5rem; }
@@ -257,7 +229,7 @@
   .post-content strong { font-weight: 700; }
   .post-content em { font-style: italic; }
 
-  /* ── Breaking news ticker ── */
+  /* ── Breaking news ticker — slow (90s) ── */
   .ticker-wrap { overflow: hidden; white-space: nowrap; }
   .ticker-content {
     display: inline-block;
@@ -269,9 +241,9 @@
     100% { transform: translateX(-50%); }
   }
 
-  /* ── Skeleton loading ── */
+  /* ── Skeleton ── */
   .skeleton {
-    background: linear-gradient(90deg, var(--card-bg) 25%, var(--card-bg-hover) 50%, var(--card-bg) 75%);
+    background: linear-gradient(90deg, #05152e 25%, #0a1f3d 50%, #05152e 75%);
     background-size: 200% 100%;
     animation: skeleton-shimmer 1.5s infinite;
     border-radius: 4px;
@@ -284,27 +256,18 @@
   /* ── Scroll to top ── */
   .scroll-top-btn {
     position: fixed;
-    bottom: 2rem;
-    right: 2rem;
-    width: 2.5rem;
-    height: 2.5rem;
-    background: var(--xtz-blue);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 999;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(10px);
+    bottom: 2rem; right: 2rem;
+    width: 2.5rem; height: 2.5rem;
+    background: #2c7df7; color: white;
+    border: none; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 999;
+    opacity: 0; visibility: hidden; transform: translateY(10px);
     transition: all 0.3s ease;
     box-shadow: 0 4px 16px rgba(44,125,247,0.4);
   }
   .scroll-top-btn.visible { opacity: 1; visibility: visible; transform: translateY(0); }
-  .scroll-top-btn:hover { background: var(--xtz-blue-hover); transform: translateY(-2px); }
+  .scroll-top-btn:hover { background: #1a6ae0; transform: translateY(-2px); }
 
   /* ── Pagination ── */
   .pagination { display: flex; align-items: center; justify-content: center; gap: 0.35rem; flex-wrap: wrap; }
@@ -313,9 +276,9 @@
     width: 2.25rem; height: 2.25rem;
     font-size: 0.875rem; font-weight: 600;
     border: 1px solid transparent; border-radius: 2px;
-    color: #fff; transition: all 0.2s ease; cursor: pointer;
+    color: #fff; transition: all 0.2s ease; cursor: pointer; background: none;
   }
-  .page-btn:hover,.page-btn.active { border-color: var(--xtz-blue); color: var(--xtz-blue); }
+  .page-btn:hover,.page-btn.active { border-color: #2c7df7; color: #2c7df7; }
   .page-btn.active { background: rgba(44,125,247,0.1); }
 
   /* ── Search ── */
@@ -324,14 +287,12 @@
     padding: 0.75rem 1rem 0.75rem 2.75rem;
     background: rgba(255,255,255,0.06);
     border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 4px;
-    color: #fff;
-    font-size: 0.9rem;
-    outline: none;
+    border-radius: 4px; color: #fff;
+    font-size: 0.9rem; outline: none;
     transition: border-color 0.2s ease;
   }
   .search-input::placeholder { color: rgba(255,255,255,0.4); }
-  .search-input:focus { border-color: var(--xtz-blue); }
+  .search-input:focus { border-color: #2c7df7; }
 
   /* ── Form inputs ── */
   .form-input {
@@ -339,15 +300,13 @@
     padding: 0.75rem 1rem;
     background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 4px;
-    color: #fff;
-    font-size: 0.9rem;
-    outline: none;
+    border-radius: 4px; color: #fff;
+    font-size: 0.9rem; outline: none;
     transition: border-color 0.2s ease;
   }
   .form-input::placeholder { color: rgba(255,255,255,0.4); }
-  .form-input:focus { border-color: var(--xtz-blue); }
-  select.form-input option { background: var(--xtz-navy); }
+  .form-input:focus { border-color: #2c7df7; }
+  select.form-input option { background: #05152e; }
 
   /* ── Breadcrumbs ── */
   .breadcrumb {
@@ -355,17 +314,17 @@
     font-size: 0.75rem; color: rgba(255,255,255,0.5);
     text-transform: uppercase; letter-spacing: 0.05em;
   }
-  .breadcrumb a:hover { color: var(--xtz-blue); }
+  .breadcrumb a:hover { color: #2c7df7; }
   .breadcrumb-sep { opacity: 0.4; }
 
   /* ── Share buttons ── */
   .share-btn {
     display: flex; align-items: center; justify-content: center;
     width: 2.25rem; height: 2.25rem;
-    border: 1px solid var(--xtz-blue); border-radius: 2px;
-    color: var(--xtz-blue); transition: all 0.2s ease; cursor: pointer;
+    border: 1px solid #2c7df7; border-radius: 2px;
+    color: #2c7df7; transition: all 0.2s ease; cursor: pointer; background: none;
   }
-  .share-btn:hover { background: var(--xtz-blue); color: white; }
+  .share-btn:hover { background: #2c7df7; color: white; }
 
   /* ── Carousel arrows ── */
   .carousel-arrow {
@@ -373,10 +332,10 @@
     width: 2rem; height: 2rem;
     background: rgba(44,125,247,0.15);
     border: 1px solid rgba(44,125,247,0.3);
-    border-radius: 2px; color: var(--xtz-blue);
+    border-radius: 2px; color: #2c7df7;
     cursor: pointer; transition: all 0.2s ease; flex-shrink: 0;
   }
-  .carousel-arrow:hover { background: var(--xtz-blue); color: white; }
+  .carousel-arrow:hover { background: #2c7df7; color: white; }
 
   /* ── Tabs ── */
   .tab-btn {
@@ -388,7 +347,7 @@
     cursor: pointer; border-bottom: 2px solid transparent;
     transition: all 0.2s ease;
   }
-  .tab-btn.active,.tab-btn:hover { color: var(--xtz-blue); border-bottom-color: var(--xtz-blue); }
+  .tab-btn.active,.tab-btn:hover { color: #2c7df7; border-bottom-color: #2c7df7; }
 
   /* ── Dark mode toggle button ── */
   .dark-mode-toggle {
@@ -397,7 +356,7 @@
     background: rgba(255,255,255,0.08); border: none;
     color: #fff; cursor: pointer; transition: all 0.2s ease;
   }
-  .dark-mode-toggle:hover { background: rgba(44,125,247,0.2); color: var(--xtz-blue); }
+  .dark-mode-toggle:hover { background: rgba(44,125,247,0.2); color: #2c7df7; }
 
   /* ── Mobile ── */
   @media (max-width: 768px) {

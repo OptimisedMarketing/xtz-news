@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
-import { Search, Moon, Sun, Menu, X, ChevronDown, ExternalLink } from "lucide-react";
+import { Search, Moon, Sun, X, ChevronDown, ExternalLink } from "lucide-react";
 
 interface HeaderProps {
   onSearchOpen?: () => void;
@@ -33,7 +33,6 @@ export default function Header({ onSearchOpen }: HeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const [scrolled, setScrolled] = useState(false);
   const [location] = useLocation();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -57,12 +56,6 @@ export default function Header({ onSearchOpen }: HeaderProps) {
   }, [location]);
 
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", handler, { passive: true });
-    return () => window.removeEventListener("scroll", handler);
-  }, []);
-
-  useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setOpenDropdown(null);
@@ -73,236 +66,311 @@ export default function Header({ onSearchOpen }: HeaderProps) {
   }, []);
 
   return (
-    <header
-      className="sticky top-0 z-50"
-      style={{ boxShadow: scrolled ? "0 4px 24px rgba(0,0,0,0.5)" : "none" }}
-    >
-      {/* ── Top bar: XTZ.NEWS + Token Tracker (matches original exactly) ── */}
-      <div
-        style={{
-          background: "var(--header-top-bg, #123262)",
-          borderBottom: "1px solid rgba(255,255,255,0.1)",
-        }}
-      >
-        <div className="container flex items-center justify-between h-9">
-          <Link
-            href="/"
-            style={{
-              fontSize: "0.7rem",
-              fontWeight: 700,
-              letterSpacing: "0.12em",
-              textTransform: "uppercase",
-              color: "rgba(255,255,255,0.8)",
-            }}
-            className="hover:text-white transition-colors"
-          >
-            XTZ.NEWS
-          </Link>
-          <a
-            href="https://crunchy.network/"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              fontSize: "0.7rem",
-              fontWeight: 700,
-              letterSpacing: "0.12em",
-              textTransform: "uppercase",
-              color: "rgba(255,255,255,0.8)",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.4rem",
-            }}
-            className="hover:text-white transition-colors"
-          >
-            <ExternalLink size={10} />
-            TEZOS TOKEN TRACKER
-          </a>
-        </div>
-      </div>
-
-      {/* ── Main header: Logo | Nav | Controls ── */}
-      <div
-        style={{
-          background: "var(--header-mid-bg, #05152e)",
-          borderBottom: "1px solid rgba(255,255,255,0.08)",
-        }}
+    <>
+      {/* ── Sticky header wrapper ── */}
+      <header
+        className="sticky top-0 z-50"
+        style={{ position: "sticky", top: 0, zIndex: 50 }}
         ref={dropdownRef}
       >
-        <div className="container flex items-center gap-4 h-[80px]">
-          {/* Logo — the actual XTZ.news square logo image */}
-          <Link href="/" className="shrink-0">
-            <img
-              src="/manus-storage/xtz-logo-square_c6689606.png"
-              alt="XTZ.News"
-              style={{ height: "72px", width: "auto" }}
-            />
-          </Link>
+        {/* ── Top bar: XTZ.NEWS + TEZOS TOKEN TRACKER ── */}
+        <div
+          style={{
+            background: "#123262",
+            borderBottom: "1px solid rgba(255,255,255,0.1)",
+            height: "36px",
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <div
+            className="container"
+            style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: "100%" }}
+          >
+            <Link
+              href="/"
+              style={{
+                fontSize: "0.68rem",
+                fontWeight: 700,
+                letterSpacing: "0.12em",
+                textTransform: "uppercase",
+                color: "rgba(255,255,255,0.8)",
+                textDecoration: "none",
+              }}
+            >
+              XTZ.NEWS
+            </Link>
+            <a
+              href="https://crunchy.network/"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                fontSize: "0.68rem",
+                fontWeight: 700,
+                letterSpacing: "0.12em",
+                textTransform: "uppercase",
+                color: "rgba(255,255,255,0.8)",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.35rem",
+                textDecoration: "none",
+              }}
+            >
+              <ExternalLink size={10} />
+              TEZOS TOKEN TRACKER
+            </a>
+          </div>
+        </div>
 
-          {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center flex-1 justify-center">
-            {NAV_ITEMS.map((item) => (
-              <div key={item.label} className="relative">
-                {item.children ? (
-                  <>
-                    <button
-                      onClick={() =>
-                        setOpenDropdown(openDropdown === item.label ? null : item.label)
-                      }
+        {/* ── Main header row: Logo | Nav | Controls | MENU button ── */}
+        <div
+          style={{
+            background: "#05152e",
+            borderBottom: "1px solid rgba(255,255,255,0.08)",
+            display: "flex",
+            alignItems: "stretch",
+          }}
+        >
+          <div
+            className="container"
+            style={{ display: "flex", alignItems: "center", height: "64px", flex: 1 }}
+          >
+            {/* Logo */}
+            <Link href="/" style={{ flexShrink: 0, marginRight: "1.5rem", display: "flex", alignItems: "center" }}>
+              <img
+                src="/manus-storage/xtz-logo-square_c6689606.png"
+                alt="XTZ.News"
+                style={{ height: "68px", width: "auto" }}
+              />
+            </Link>
+
+            {/* Desktop Nav */}
+            <nav
+              className="hidden lg:flex"
+              style={{ flex: 1, alignItems: "center", justifyContent: "center", gap: 0 }}
+            >
+              {NAV_ITEMS.map((item) => (
+                <div key={item.label} style={{ position: "relative" }}>
+                  {item.children ? (
+                    <>
+                      <button
+                        onClick={() =>
+                          setOpenDropdown(openDropdown === item.label ? null : item.label)
+                        }
+                        style={{
+                          fontSize: "0.68rem",
+                          fontWeight: 700,
+                          letterSpacing: "0.1em",
+                          textTransform: "uppercase",
+                          color: "rgba(255,255,255,0.8)",
+                          background: "none",
+                          border: "none",
+                          padding: "0.5rem 0.7rem",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.2rem",
+                          transition: "color 0.2s",
+                          whiteSpace: "nowrap",
+                        }}
+                        onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#fff")}
+                        onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.8)")}
+                      >
+                        {item.label}
+                        <ChevronDown
+                          size={10}
+                          style={{
+                            transform: openDropdown === item.label ? "rotate(180deg)" : "none",
+                            transition: "transform 0.2s",
+                          }}
+                        />
+                      </button>
+                      {openDropdown === item.label && (
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: "100%",
+                            left: 0,
+                            minWidth: "160px",
+                            background: "#05152e",
+                            border: "1px solid rgba(255,255,255,0.1)",
+                            borderRadius: "4px",
+                            boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+                            zIndex: 100,
+                            padding: "0.25rem 0",
+                          }}
+                        >
+                          {item.children.map((child) => (
+                            <Link
+                              key={child.label}
+                              href={child.href}
+                              style={{
+                                display: "block",
+                                padding: "0.5rem 1rem",
+                                fontSize: "0.68rem",
+                                fontWeight: 700,
+                                letterSpacing: "0.1em",
+                                textTransform: "uppercase",
+                                color: "rgba(255,255,255,0.7)",
+                                textDecoration: "none",
+                                transition: "all 0.2s",
+                              }}
+                              onMouseEnter={(e) => {
+                                (e.currentTarget as HTMLElement).style.color = "#fff";
+                                (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.05)";
+                              }}
+                              onMouseLeave={(e) => {
+                                (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.7)";
+                                (e.currentTarget as HTMLElement).style.background = "none";
+                              }}
+                            >
+                              {child.label}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <Link
+                      href={item.href}
                       style={{
-                        fontSize: "0.7rem",
+                        display: "block",
+                        padding: "0.5rem 0.7rem",
+                        fontSize: "0.68rem",
                         fontWeight: 700,
                         letterSpacing: "0.1em",
                         textTransform: "uppercase",
                         color: "rgba(255,255,255,0.8)",
-                        background: "none",
-                        border: "none",
-                        padding: "0.5rem 0.75rem",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "0.25rem",
+                        textDecoration: "none",
                         transition: "color 0.2s",
+                        whiteSpace: "nowrap",
                       }}
-                      onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
-                      onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.8)")}
+                      onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#fff")}
+                      onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.8)")}
                     >
                       {item.label}
-                      <ChevronDown
-                        size={11}
-                        style={{
-                          transform: openDropdown === item.label ? "rotate(180deg)" : "none",
-                          transition: "transform 0.2s",
-                        }}
-                      />
-                    </button>
-                    {openDropdown === item.label && (
-                      <div
-                        style={{
-                          position: "absolute",
-                          top: "100%",
-                          left: 0,
-                          minWidth: "160px",
-                          background: "var(--header-mid-bg, #05152e)",
-                          border: "1px solid rgba(255,255,255,0.1)",
-                          borderRadius: "4px",
-                          boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
-                          zIndex: 50,
-                          padding: "0.25rem 0",
-                        }}
-                      >
-                        {item.children.map((child) => (
-                          <Link
-                            key={child.label}
-                            href={child.href}
-                            style={{
-                              display: "block",
-                              padding: "0.5rem 1rem",
-                              fontSize: "0.7rem",
-                              fontWeight: 700,
-                              letterSpacing: "0.1em",
-                              textTransform: "uppercase",
-                              color: "rgba(255,255,255,0.7)",
-                              transition: "all 0.2s",
-                            }}
-                            onMouseEnter={(e) => {
-                              (e.currentTarget as HTMLElement).style.color = "#fff";
-                              (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.05)";
-                            }}
-                            onMouseLeave={(e) => {
-                              (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.7)";
-                              (e.currentTarget as HTMLElement).style.background = "none";
-                            }}
-                          >
-                            {child.label}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                ) : (
+                    </Link>
+                  )}
+                </div>
+              ))}
+            </nav>
+
+            {/* Right controls: search + dark mode */}
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginLeft: "auto" }}>
+              <button
+                onClick={onSearchOpen}
+                className="dark-mode-toggle"
+                aria-label="Search"
+              >
+                <Search size={15} />
+              </button>
+              <button
+                onClick={toggleDarkMode}
+                className="dark-mode-toggle"
+                aria-label="Toggle dark mode"
+              >
+                {darkMode ? <Sun size={15} /> : <Moon size={15} />}
+              </button>
+            </div>
+          </div>
+
+          {/* ── MENU button — blue square, spans full header height ── */}
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Toggle menu"
+            style={{
+              background: "#2c7df7",
+              border: "none",
+              color: "#fff",
+              width: "80px",
+              minHeight: "100%",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "0.35rem",
+              cursor: "pointer",
+              flexShrink: 0,
+              fontSize: "0.6rem",
+              fontWeight: 900,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              transition: "background 0.2s",
+            }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "#1a6ae0")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "#2c7df7")}
+          >
+            {mobileOpen ? (
+              <X size={20} />
+            ) : (
+              <svg width="20" height="14" viewBox="0 0 20 14" fill="none">
+                <rect width="20" height="2" rx="1" fill="white"/>
+                <rect y="6" width="20" height="2" rx="1" fill="white"/>
+                <rect y="12" width="20" height="2" rx="1" fill="white"/>
+              </svg>
+            )}
+            MENU
+          </button>
+        </div>
+
+        {/* ── Mobile/Full Nav Drawer ── */}
+        {mobileOpen && (
+          <div
+            style={{
+              background: "#05152e",
+              borderBottom: "1px solid rgba(255,255,255,0.1)",
+            }}
+          >
+            <nav className="container" style={{ padding: "0.75rem 0", display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+              {NAV_ITEMS.map((item) => (
+                <div key={item.label}>
                   <Link
                     href={item.href}
                     style={{
                       display: "block",
-                      padding: "0.5rem 0.75rem",
-                      fontSize: "0.7rem",
+                      padding: "0.6rem 0.75rem",
+                      fontSize: "0.68rem",
                       fontWeight: 700,
                       letterSpacing: "0.1em",
                       textTransform: "uppercase",
                       color: "rgba(255,255,255,0.8)",
-                      transition: "color 0.2s",
+                      textDecoration: "none",
+                      borderRadius: "3px",
+                      transition: "background 0.2s",
                     }}
-                    onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#fff")}
-                    onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.8)")}
+                    onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.05)")}
+                    onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "none")}
                   >
                     {item.label}
                   </Link>
-                )}
-              </div>
-            ))}
-          </nav>
-
-          {/* Controls */}
-          <div className="flex items-center gap-2 ml-auto lg:ml-0">
-            <button onClick={onSearchOpen} className="dark-mode-toggle" aria-label="Search">
-              <Search size={15} />
-            </button>
-            <button onClick={toggleDarkMode} className="dark-mode-toggle" aria-label="Toggle dark mode">
-              {darkMode ? <Sun size={15} /> : <Moon size={15} />}
-            </button>
-            <button
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className="lg:hidden dark-mode-toggle"
-              aria-label="Toggle menu"
-            >
-              {mobileOpen ? <X size={16} /> : <Menu size={16} />}
-            </button>
-            <span
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className="lg:hidden cursor-pointer select-none"
-              style={{ fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.8)" }}
-            >
-              MENU
-            </span>
+                  {item.children && (
+                    <div style={{ paddingLeft: "1rem" }}>
+                      {item.children.map((child) => (
+                        <Link
+                          key={child.label}
+                          href={child.href}
+                          style={{
+                            display: "block",
+                            padding: "0.4rem 0.75rem",
+                            fontSize: "0.65rem",
+                            fontWeight: 700,
+                            letterSpacing: "0.1em",
+                            textTransform: "uppercase",
+                            color: "rgba(255,255,255,0.5)",
+                            textDecoration: "none",
+                          }}
+                        >
+                          {child.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </nav>
           </div>
-        </div>
-      </div>
-
-      {/* Mobile Nav */}
-      {mobileOpen && (
-        <div
-          style={{ background: "var(--header-mid-bg, #05152e)", borderBottom: "1px solid rgba(255,255,255,0.1)" }}
-          className="lg:hidden"
-        >
-          <nav className="container py-3 flex flex-col gap-0.5">
-            {NAV_ITEMS.map((item) => (
-              <div key={item.label}>
-                <Link
-                  href={item.href}
-                  style={{ fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.8)" }}
-                  className="block px-3 py-2.5 hover:bg-white/5 rounded transition-colors"
-                >
-                  {item.label}
-                </Link>
-                {item.children && (
-                  <div className="pl-4">
-                    {item.children.map((child) => (
-                      <Link
-                        key={child.label}
-                        href={child.href}
-                        style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.5)" }}
-                        className="block px-3 py-2 hover:text-white transition-colors"
-                      >
-                        {child.label}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-          </nav>
-        </div>
-      )}
-    </header>
+        )}
+      </header>
+    </>
   );
 }
