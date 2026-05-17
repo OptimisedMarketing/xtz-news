@@ -227,9 +227,32 @@ export default function ArticlePage() {
 
         {/* Related Posts */}
         {related.length > 0 && (
-          <section className="mt-16">
-            <h2 className="section-title mb-6">RELATED ARTICLES</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <section
+            style={{
+              marginTop: "3rem",
+              paddingTop: "2.5rem",
+              borderTop: "2px solid #2c7df7",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.5rem" }}>
+              <h2 className="section-title" style={{ marginBottom: 0 }}>RELATED ARTICLES</h2>
+              {post.categories?.[0] && (
+                <Link
+                  href={`/category/${post.categories[0].slug}`}
+                  className="btn-read-more"
+                  style={{ fontSize: "0.65rem", padding: "0.4rem 1rem" }}
+                >
+                  MORE FROM {post.categories[0].name.toUpperCase()}
+                </Link>
+              )}
+            </div>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+                gap: "1rem",
+              }}
+            >
               {related.map((p) => (
                 <PostCard key={p.id} post={p} variant="default" />
               ))}
