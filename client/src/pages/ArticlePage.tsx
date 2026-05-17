@@ -1,8 +1,94 @@
 import { useParams, Link } from "wouter";
+import { useEffect } from "react";
 import { Twitter, Facebook, Linkedin, Send, Copy, Home, ChevronRight } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import PostCard from "@/components/PostCard";
 import { toast } from "sonner";
+
+/** Injects / updates Open Graph + Twitter Card meta tags in <head> */
+function useOpenGraph(post: {
+  title: string;
+  excerpt?: string | null;
+  featuredImageUrl?: string | null;
+  slug: string;
+  publishedAt?: Date | string | null;
+  categories?: Array<{ name: string }> | null;
+} | undefined) {
+  useEffect(() => {
+    if (!post) return;
+
+    const siteUrl = "https://xtz.news";
+    const url = `${siteUrl}/${post.slug}`;
+    const title = `${post.title} | XTZ.News`;
+    const description = post.excerpt
+      ? post.excerpt.replace(/<[^>]*>/g, "").replace(/&[a-z#0-9]+;/gi, " ").trim().slice(0, 160)
+      : "The latest Tezos blockchain news, projects and updates.";
+    const image = post.featuredImageUrl || `${siteUrl}/manus-storage/xtz-logo-square_c6689606.png`;
+
+    const setMeta = (property: string, content: string) => {
+      let el = document.querySelector(`meta[property="${property}"]`) as HTMLMetaElement | null;
+      if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute("property", property);
+        document.head.appendChild(el);
+      }
+      el.setAttribute("content", content);
+    };
+
+    const setNameMeta = (name: string, content: string) => {
+      let el = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement | null;
+      if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute("name", name);
+        document.head.appendChild(el);
+      }
+      el.setAttribute("content", content);
+    };
+
+    // Page title
+    document.title = title;
+
+    // Open Graph
+    setMeta("og:type", "article");
+    setMeta("og:title", title);
+    setMeta("og:description", description);
+    setMeta("og:url", url);
+    setMeta("og:image", image);
+    setMeta("og:image:width", "1200");
+    setMeta("og:image:height", "630");
+    setMeta("og:site_name", "XTZ.News");
+    if (post.publishedAt) {
+      setMeta("article:published_time", new Date(post.publishedAt).toISOString());
+    }
+    if (post.categories?.[0]) {
+      setMeta("article:section", post.categories[0].name);
+    }
+
+    // Twitter Card
+    setNameMeta("twitter:card", "summary_large_image");
+    setNameMeta("twitter:site", "@XTZNews");
+    setNameMeta("twitter:title", title);
+    setNameMeta("twitter:description", description);
+    setNameMeta("twitter:image", image);
+
+    // Standard meta
+    setNameMeta("description", description);
+
+    // Canonical URL
+    let canonical = document.querySelector("link[rel='canonical']") as HTMLLinkElement | null;
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.setAttribute("rel", "canonical");
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute("href", url);
+
+    // Reset title when leaving the page
+    return () => {
+      document.title = "XTZ.News — Tezos News";
+    };
+  }, [post?.slug]);
+}
 
 function formatDate(date: Date | string | null | undefined) {
   if (!date) return "";
@@ -83,6 +169,9 @@ export default function ArticlePage() {
     },
     { enabled: !!post }
   );
+
+  // Inject Open Graph + Twitter Card meta tags
+  useOpenGraph(post);
 
   if (isLoading) {
     return (
