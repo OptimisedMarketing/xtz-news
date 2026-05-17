@@ -235,9 +235,9 @@ function HeroSection({ posts }: { posts: any[] }) {
                   onClick={(e) => e.stopPropagation()}
                 >
                   <p style={{
-                    // Original: ~14px, weight 400, white, line-height 1.4, NOT clamped
+                    // Original: ~14px, bold, white, line-height 1.4, NOT clamped
                     fontSize: "0.9rem",
-                    fontWeight: (activeTab === "latest" && i === current) ? 700 : 400,
+                    fontWeight: 700,
                     lineHeight: 1.5,
                     color: "#fff",
                     margin: 0,
