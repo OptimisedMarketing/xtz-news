@@ -175,7 +175,7 @@ function HeroSection({ latestPosts, mostReadPosts }: { latestPosts: any[]; mostR
                 onMouseLeave={(e) => { if (!(activeTab === "latest" && i === current)) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
               >
                 <Link href={`/${p.slug}`} style={{ display: "block", padding: "0.875rem 1.25rem", textDecoration: "none" }} onClick={(e) => e.stopPropagation()}>
-                  <p style={{ fontSize: "1rem", fontWeight: 500, lineHeight: 1.5, color: "rgba(255,255,255,0.9)", margin: 0 }}>{p.title}</p>
+                  <p style={{ fontSize: "1.05rem", fontWeight: 700, lineHeight: 1.45, color: "#fff", margin: 0 }}>{p.title}</p>
                 </Link>
               </div>
             ))}
