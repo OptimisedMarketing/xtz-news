@@ -208,8 +208,8 @@
   .post-content h4,.post-content h5,.post-content h6 {
     margin-top: 2rem; margin-bottom: 1rem; font-weight: 700; color: #fff;
   }
-  .post-content h2 { font-size: 1.5rem; }
-  .post-content h3 { font-size: 1.25rem; }
+  .post-content h2 { font-size: clamp(1.1rem, 3.5vw, 1.5rem); }
+  .post-content h3 { font-size: clamp(1rem, 3vw, 1.25rem); }
   .post-content p { margin-bottom: 1.25rem; }
   .post-content a { color: #2c7df7; }
   .post-content a:hover { text-decoration: underline; }

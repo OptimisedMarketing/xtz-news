@@ -115,17 +115,17 @@ export default function ArticlePage() {
 
   return (
     <article>
-      {/* Featured image hero */}
+      {/* Featured image hero — capped at 220px on mobile, 480px on desktop */}
       {post.featuredImageUrl && (
         <div
           className="w-full"
-          style={{ maxHeight: "480px", overflow: "hidden" }}
+          style={{ maxHeight: "clamp(220px, 40vw, 480px)", overflow: "hidden" }}
         >
           <img
             src={post.featuredImageUrl}
             alt={post.featuredImageAlt || post.title}
             className="w-full object-cover"
-            style={{ maxHeight: "480px" }}
+            style={{ maxHeight: "clamp(220px, 40vw, 480px)" }}
           />
         </div>
       )}
@@ -163,8 +163,11 @@ export default function ArticlePage() {
             </div>
           )}
 
-          {/* Title */}
-          <h1 className="text-2xl md:text-3xl font-black text-white leading-tight mb-4">
+          {/* Title — responsive size: smaller on mobile, larger on desktop */}
+          <h1
+            className="font-black text-white leading-tight mb-4"
+            style={{ fontSize: "clamp(1.2rem, 4vw, 1.875rem)", lineHeight: 1.25 }}
+          >
             {post.title}
           </h1>
 
