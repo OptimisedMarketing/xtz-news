@@ -5,7 +5,6 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { notifyOwner } from "./_core/notification";
-import { storagePut } from "./storage";
 import * as db from "./db";
 
 // ─── Admin guard ──────────────────────────────────────────────────────────────
@@ -23,10 +22,7 @@ const postsRouter = router({
     .query(async ({ input }) => {
       const postList = await db.getLatestPosts(input.limit, input.offset);
       const withCats = await Promise.all(
-        postList.map(async (p) => ({
-          ...p,
-          categories: await db.getPostCategories(p.id),
-        }))
+        postList.map(async (p) => ({ ...p, categories: await db.getPostCategories(p.id) }))
       );
       return withCats;
     }),
@@ -36,10 +32,7 @@ const postsRouter = router({
     .query(async ({ input }) => {
       const postList = await db.getMostReadPosts(input.limit);
       const withCats = await Promise.all(
-        postList.map(async (p) => ({
-          ...p,
-          categories: await db.getPostCategories(p.id),
-        }))
+        postList.map(async (p) => ({ ...p, categories: await db.getPostCategories(p.id) }))
       );
       return withCats;
     }),
@@ -49,40 +42,26 @@ const postsRouter = router({
     .query(async ({ input }) => {
       const postList = await db.getFeaturedPosts(input.limit);
       const withCats = await Promise.all(
-        postList.map(async (p) => ({
-          ...p,
-          categories: await db.getPostCategories(p.id),
-        }))
+        postList.map(async (p) => ({ ...p, categories: await db.getPostCategories(p.id) }))
       );
       return withCats;
     }),
 
-  // Combined homepage query — single round trip for all homepage data
+  // Combined homepage query — single round trip
   homepageData: publicProcedure.query(async () => {
     const [latestRaw, mostReadRaw] = await Promise.all([
       db.getLatestPosts(10, 0),
       db.getMostReadPosts(8),
     ]);
-
-    // Fetch all categories in parallel
     const allPosts = [...latestRaw, ...mostReadRaw];
     const uniqueIds = Array.from(new Set(allPosts.map((p) => p.id)));
     const catsMap: Record<number, Awaited<ReturnType<typeof db.getPostCategories>>> = {};
-    await Promise.all(
-      uniqueIds.map(async (id) => {
-        catsMap[id] = await db.getPostCategories(id);
-      })
-    );
-
-    const withCats = (posts: typeof latestRaw) =>
-      posts.map((p) => ({ ...p, categories: catsMap[p.id] ?? [] }));
-
+    await Promise.all(uniqueIds.map(async (id) => { catsMap[id] = await db.getPostCategories(id); }));
+    const withCats = (posts: typeof latestRaw) => posts.map((p) => ({ ...p, categories: catsMap[p.id] ?? [] }));
     const latest = withCats(latestRaw);
     const mostRead = withCats(mostReadRaw);
-    // Featured = top 6 from latest that are marked featured, fallback to latest
     const featured = latest.filter((p) => p.isFeatured).slice(0, 6);
     const featuredToShow = featured.length >= 3 ? featured : latest.slice(0, 6);
-
     return { latest, mostRead, featured: featuredToShow };
   }),
 
@@ -95,7 +74,6 @@ const postsRouter = router({
         db.getPostCategories(post.id),
         db.getPostTags(post.id),
       ]);
-      // Increment view count (fire and forget)
       db.incrementPostViewCount(post.id).catch(() => {});
       return { ...post, categories: postCats, tags: postTagsList };
     }),
@@ -104,12 +82,7 @@ const postsRouter = router({
     .input(z.object({ slug: z.string(), limit: z.number().default(12), offset: z.number().default(0) }))
     .query(async ({ input }) => {
       const { posts: postList, total } = await db.getPostsByCategorySlug(input.slug, input.limit, input.offset);
-      const withCats = await Promise.all(
-        postList.map(async (p) => ({
-          ...p,
-          categories: await db.getPostCategories(p.id),
-        }))
-      );
+      const withCats = await Promise.all(postList.map(async (p) => ({ ...p, categories: await db.getPostCategories(p.id) })));
       return { posts: withCats, total };
     }),
 
@@ -117,12 +90,7 @@ const postsRouter = router({
     .input(z.object({ slug: z.string(), limit: z.number().default(12), offset: z.number().default(0) }))
     .query(async ({ input }) => {
       const { posts: postList, total } = await db.getPostsByTagSlug(input.slug, input.limit, input.offset);
-      const withCats = await Promise.all(
-        postList.map(async (p) => ({
-          ...p,
-          categories: await db.getPostCategories(p.id),
-        }))
-      );
+      const withCats = await Promise.all(postList.map(async (p) => ({ ...p, categories: await db.getPostCategories(p.id) })));
       return { posts: withCats, total };
     }),
 
@@ -130,12 +98,7 @@ const postsRouter = router({
     .input(z.object({ postId: z.number(), categoryIds: z.array(z.number()), limit: z.number().default(4) }))
     .query(async ({ input }) => {
       const postList = await db.getRelatedPosts(input.postId, input.categoryIds, input.limit);
-      const withCats = await Promise.all(
-        postList.map(async (p) => ({
-          ...p,
-          categories: await db.getPostCategories(p.id),
-        }))
-      );
+      const withCats = await Promise.all(postList.map(async (p) => ({ ...p, categories: await db.getPostCategories(p.id) })));
       return withCats;
     }),
 
@@ -159,7 +122,6 @@ const postsRouter = router({
 
   count: publicProcedure.query(() => db.getTotalPostCount()),
 
-  // Admin procedures
   adminList: adminProcedure
     .input(z.object({ limit: z.number().default(20), offset: z.number().default(0) }))
     .query(({ input }) => db.getAllPosts(input.limit, input.offset)),
@@ -177,10 +139,7 @@ const postsRouter = router({
       seoDescription: z.string().optional(),
     }))
     .mutation(async ({ input }) => {
-      await db.createPost({
-        ...input,
-        publishedAt: input.status === "publish" ? new Date() : null,
-      });
+      await db.createPost({ ...input, publishedAt: input.status === "publish" ? new Date() : null });
       return { success: true };
     }),
 
@@ -214,6 +173,20 @@ const postsRouter = router({
 // ─── Categories Router ────────────────────────────────────────────────────────
 const categoriesRouter = router({
   all: publicProcedure.query(() => db.getAllCategories()),
+
+  withImages: publicProcedure.query(async () => {
+    const cats = await db.getAllCategories();
+    // For each category, get the most recent post image
+    const withImages = await Promise.all(
+      cats.map(async (cat) => {
+        const { posts } = await db.getPostsByCategorySlug(cat.slug, 1, 0);
+        const image = posts[0]?.featuredImageUrl ?? null;
+        return { ...cat, coverImage: image };
+      })
+    );
+    return withImages;
+  }),
+
   bySlug: publicProcedure
     .input(z.object({ slug: z.string() }))
     .query(async ({ input }) => {
@@ -242,9 +215,7 @@ const projectsRouter = router({
     .query(async ({ input }) => {
       const allProjects = await db.getAllProjects(200);
       if (input.category && input.category !== "all") {
-        return allProjects.filter(
-          (p) => p.category?.toLowerCase() === input.category!.toLowerCase()
-        );
+        return allProjects.filter((p) => p.category?.toLowerCase() === input.category!.toLowerCase());
       }
       return allProjects;
     }),
@@ -280,32 +251,27 @@ const pagesRouter = router({
 // ─── Submissions Router ───────────────────────────────────────────────────────
 const submissionsRouter = router({
   create: publicProcedure
-    .input(
-      z.object({
-        firstName: z.string().min(1),
-        lastName: z.string().optional(),
-        email: z.string().email().optional(),
-        articleTitle: z.string().optional(),
-        articleFileUrl: z.string().optional(),
-        articleFileKey: z.string().optional(),
-        bannerImageUrl: z.string().optional(),
-        bannerImageKey: z.string().optional(),
-        image2Url: z.string().optional(),
-        image2Key: z.string().optional(),
-        agreedToTerms: z.boolean(),
-      })
-    )
+    .input(z.object({
+      firstName: z.string().min(1),
+      lastName: z.string().optional(),
+      email: z.string().email().optional(),
+      articleTitle: z.string().optional(),
+      articleFileUrl: z.string().optional(),
+      articleFileKey: z.string().optional(),
+      bannerImageUrl: z.string().optional(),
+      bannerImageKey: z.string().optional(),
+      image2Url: z.string().optional(),
+      image2Key: z.string().optional(),
+      agreedToTerms: z.boolean(),
+    }))
     .mutation(async ({ input }) => {
-      if (!input.agreedToTerms) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "You must agree to the terms" });
-      }
+      if (!input.agreedToTerms) throw new TRPCError({ code: "BAD_REQUEST", message: "You must agree to the terms" });
       await db.createSubmission(input);
-      // Notify owner
       const fileLink = input.articleFileUrl ? `\n\nArticle file: ${input.articleFileUrl}` : "";
       const bannerLink = input.bannerImageUrl ? `\nBanner image: ${input.bannerImageUrl}` : "";
       await notifyOwner({
         title: `New Article Submission: ${input.articleTitle || "Untitled"}`,
-        content: `New article submission received from ${input.firstName} ${input.lastName || ""}${input.email ? ` (${input.email})` : ""}.\n\nTitle: ${input.articleTitle || "Not provided"}${fileLink}${bannerLink}`,
+        content: `New submission from ${input.firstName} ${input.lastName || ""}${input.email ? ` (${input.email})` : ""}.\n\nTitle: ${input.articleTitle || "Not provided"}${fileLink}${bannerLink}`,
       }).catch(() => {});
       return { success: true };
     }),
@@ -327,14 +293,8 @@ const submissionsRouter = router({
 // ─── Upload Router ────────────────────────────────────────────────────────────
 const uploadRouter = router({
   getUploadUrl: publicProcedure
-    .input(z.object({
-      filename: z.string(),
-      contentType: z.string(),
-      folder: z.string().default("submissions"),
-    }))
-    .mutation(async ({ input }) => {
-      // We'll handle uploads server-side via a REST endpoint
-      // Return a signed upload token
+    .input(z.object({ filename: z.string(), contentType: z.string(), folder: z.string().default("submissions") }))
+    .mutation(async () => {
       return { uploadEndpoint: "/api/upload" };
     }),
 });
