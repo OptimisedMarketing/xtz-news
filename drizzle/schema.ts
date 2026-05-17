@@ -79,8 +79,9 @@ export const posts = mysqlTable(
     publishedAt: timestamp("publishedAt"),
     createdAt: timestamp("createdAt").defaultNow().notNull(),
     updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-    seoTitle: varchar("seoTitle", { length: 500 }),
-    seoDescription: text("seoDescription"),
+    seoTitle: varchar("seoTitle", { length: 255 }),
+  seoDescription: text("seoDescription"),
+  audioUrl: varchar("audioUrl", { length: 500 }),
   },
   (t) => [
     uniqueIndex("posts_slug_idx").on(t.slug),

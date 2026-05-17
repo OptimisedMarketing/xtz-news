@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { Twitter, Facebook, Linkedin, Send, Copy, Home, ChevronRight } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import PostCard from "@/components/PostCard";
+import AudioPlayer from "@/components/AudioPlayer";
 import { toast } from "sonner";
 
 /** Injects / updates Open Graph + Twitter Card meta tags in <head> */
@@ -379,6 +380,14 @@ export default function ArticlePage() {
             <span className="text-sm text-white/40">{formatDate(post.publishedAt)}</span>
             <ShareButtons title={post.title} url={pageUrl} />
           </div>
+
+          {/* Audio Player — shown when article has audio narration */}
+          {(post as any).audioUrl && (
+            <AudioPlayer
+              src={(post as any).audioUrl}
+              title={post.title}
+            />
+          )}
 
           {/* Disclaimer */}
           <div
