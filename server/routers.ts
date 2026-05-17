@@ -290,6 +290,39 @@ const submissionsRouter = router({
     }),
 });
 
+// ─── Newsletter Router ───────────────────────────────────────────────────────
+const newsletterRouter = router({
+  subscribe: publicProcedure
+    .input(z.object({ email: z.string().email(), name: z.string().optional() }))
+    .mutation(async ({ input }) => {
+      const { getDb } = await import('./db');
+      const { newsletterSubscribers } = await import('../drizzle/schema');
+      const dbConn = await getDb();
+      if (!dbConn) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+      try {
+        await dbConn.insert(newsletterSubscribers)
+          .values({ email: input.email, name: input.name ?? null, status: 'active' })
+          .onDuplicateKeyUpdate({ set: { status: 'active' } });
+        await notifyOwner({
+          title: 'New Newsletter Subscriber',
+          content: `${input.name ? input.name + ' (' + input.email + ')' : input.email} subscribed to the XTZ.News newsletter.`,
+        }).catch(() => {});
+        return { success: true };
+      } catch {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid email address' });
+      }
+    }),
+
+  list: adminProcedure.query(async () => {
+    const { getDb } = await import('./db');
+    const { newsletterSubscribers } = await import('../drizzle/schema');
+    const { desc } = await import('drizzle-orm');
+    const dbConn = await getDb();
+    if (!dbConn) return [];
+    return dbConn.select().from(newsletterSubscribers).orderBy(desc(newsletterSubscribers.createdAt));
+  }),
+});
+
 // ─── Upload Router ────────────────────────────────────────────────────────────
 const uploadRouter = router({
   getUploadUrl: publicProcedure
@@ -317,6 +350,7 @@ export const appRouter = router({
   events: eventsRouter,
   pages: pagesRouter,
   submissions: submissionsRouter,
+  newsletter: newsletterRouter,
   upload: uploadRouter,
 });
 

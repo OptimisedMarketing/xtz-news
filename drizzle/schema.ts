@@ -203,6 +203,21 @@ export const articleSubmissions = mysqlTable("article_submissions", {
 
 export type ArticleSubmission = typeof articleSubmissions.$inferSelect;
 
+// ─── Newsletter Subscribers ─────────────────────────────────────────────────────
+export const newsletterSubscribers = mysqlTable(
+  "newsletter_subscribers",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    email: varchar("email", { length: 320 }).notNull(),
+    name: varchar("name", { length: 255 }),
+    status: mysqlEnum("status", ["active", "unsubscribed"]).default("active").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("newsletter_email_idx").on(t.email)]
+);
+
+export type NewsletterSubscriber = typeof newsletterSubscribers.$inferSelect;
+
 // ─── Site Settings ────────────────────────────────────────────────────────────
 export const siteSettings = mysqlTable("site_settings", {
   id: int("id").autoincrement().primaryKey(),
