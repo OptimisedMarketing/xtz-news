@@ -1,0 +1,43 @@
+{
+  "build_command": "pnpm run build",
+  "capabilities": [
+    "server",
+    "db",
+    "user"
+  ],
+  "dev_command": "pnpm run dev",
+  "env_vars": {
+    "DATABASE_URL": "mysql://vXV87UtSuYyrLBc.98738ed3ff5c:Or68FYSwqUw9sj27KC1K@gateway03.us-east-1.prod.aws.tidbcloud.com:4000/b4WZurEggWt4nzJXT2vL9d?ssl={\"rejectUnauthorized\":true}"
+  },
+  "experiments": [
+    "no_db_push"
+  ],
+  "git_remote": {
+    "repo_url": "s3://vida-prod-gitrepo/webdev-git/310519663300283832/b4WZurEggWt4nzJXT2vL9d",
+    "access_key_id": "ASIAZV3A2ECZORZLJWTM",
+    "secret_access_key": "K1hbdrjLhC992Zyxh4j/5WmT/POfDrC3PnF3Koyj",
+    "session_token": "IQoJb3JpZ2luX2VjEOH//////////wEaCXVzLWVhc3QtMSJIMEYCIQDdQ02Zc2sRbBJy+EfmaEmXrG4OpgyBl8chI0igmC3L8QIhAMfS7pPT7D8iqTfrHM3bz1k5yHim00AbpgK12LLBQaiJKv8DCKr//////////wEQBBoMNjY1Mzg2MDk4ODY2Igy6jzn6vf0MOuNavbMq0wN1tJhShTKWmSSL2dLQjRLiuiMxR+c4W2IqNh6cRKVeNp2KARFyiBNpHANIi3Pzsl/3C7PJ1oNvpfVv7SYyEiNaJx0oU+bKtBYkcQhWjSMbl7MtZzAN4ABM6jlwPKlgwknzPYf7VUwwjKAArlttgfhS6J0iOqRq3fNixOwvMz9FjO79OX6aBM5ozDAC9zJOJCh+WCaQu3bZCqB6D4WzevAWNRM39yPHWf+f/txw47yC0dzUzcldYDxP+IgbaH+Zp61twXKVQhoRtq1fuorfpf1ZXtzUfKxW51YwuH1n3EQU8Z9Supq8QNa3eWjRzzAZE1UlHXSjk5ffbmiUQzDEbwPY/KBtrwaKnbf3idVvKPgdGnypWztMrpWC1EAHF6J+cQ9HNfigEmkUBEO+BndmcH+5TIecp62zDZ93l03VwGW5X3MnCQsX2WA5O+2DLcLNkgb3HfblzFgOBS3mJ+kCfrdkKctIe9Ug9NfyH28ReMVx2AVZjGXbU7nehhCnlFYx9bLyi1LYuPlfJJZbZz1H0UEpBDxoI+CuC3M1QwX1/laQLxbZhdWrt15FpeBTYFBQ7YHsuxXcn/iKXSdjiX2/oqzkCO5OWFq8ZeNsPsygy9XgCWew+TDL46fQBjqcAfrR+0lNBsPNM9rrNlVoS56CQguIwXGmKe3bjnpUw3BU+1lvjxVR06aP7G6Jp10hNVX9cqGKagK+KsDF4hyrBYxDWVQzIDfP8c61J+2IDmA0NAxOTTHCoaoqa0+kaLFQrrfEpzB2aiccFE2HoVC3B5AMmGMnVxWB7sJl/cxP7S6j9ZS5O12ryrCzKClg7zi3j3wnN71qze+6/ktSSw==",
+    "expiration": "2026-05-18T04:50:19.000Z"
+  },
+  "name": "xtz-news",
+  "path": "/home/ubuntu/xtz-news",
+  "port": 3000,
+  "secrets": {
+    "BUILT_IN_FORGE_API_KEY": "iSXas2YHeKWyuXBmh8rxPs",
+    "BUILT_IN_FORGE_API_URL": "https://forge.manus.ai",
+    "JWT_SECRET": "bxBvUzEiYSfbU34EnVwXQr",
+    "OAUTH_SERVER_URL": "https://api.manus.im",
+    "OWNER_NAME": "info",
+    "OWNER_OPEN_ID": "oMmotMMubEuMAAGgwYYeCv",
+    "VITE_ANALYTICS_ENDPOINT": "https://manus-analytics.com",
+    "VITE_ANALYTICS_WEBSITE_ID": "8777cf73-1a88-42d1-97e7-58b18a219f26",
+    "VITE_APP_ID": "b4WZurEggWt4nzJXT2vL9d",
+    "VITE_APP_LOGO": "",
+    "VITE_APP_TITLE": "XTZ.News — Tezos News",
+    "VITE_FRONTEND_FORGE_API_KEY": "ZnKgpBZN7hNTpR7yv6yWxz",
+    "VITE_FRONTEND_FORGE_API_URL": "https://forge.manus.ai",
+    "VITE_OAUTH_PORTAL_URL": "https://manus.im"
+  },
+  "template_id": "web-db-user",
+  "test_command": "pnpm test"
+}
