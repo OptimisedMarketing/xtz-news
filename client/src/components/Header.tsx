@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
-import { Search, Moon, Sun, X, ChevronDown, ExternalLink } from "lucide-react";
+import { Search, X, ChevronDown, ExternalLink } from "lucide-react";
 
 interface HeaderProps {
   onSearchOpen?: () => void;
@@ -31,24 +31,15 @@ const NAV_ITEMS = [
 
 export default function Header({ onSearchOpen }: HeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(true);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [location] = useLocation();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Always dark mode — remove light-mode class if it was previously set
   useEffect(() => {
-    const saved = localStorage.getItem("xtz-dark-mode");
-    const isDark = saved === null ? true : saved === "true";
-    setDarkMode(isDark);
-    document.body.classList.toggle("light-mode", !isDark);
+    document.body.classList.remove("light-mode");
+    localStorage.removeItem("xtz-dark-mode");
   }, []);
-
-  const toggleDarkMode = () => {
-    const next = !darkMode;
-    setDarkMode(next);
-    localStorage.setItem("xtz-dark-mode", String(next));
-    document.body.classList.toggle("light-mode", !next);
-  };
 
   useEffect(() => {
     setMobileOpen(false);
@@ -146,22 +137,15 @@ export default function Header({ onSearchOpen }: HeaderProps) {
             ))}
           </nav>
 
-          {/* Desktop: search + dark mode icons */}
+          {/* Desktop: search icon only */}
           <div className="hidden lg:flex" style={{ alignItems: "center", gap: "0.4rem", marginLeft: "auto" }}>
             <button onClick={onSearchOpen} className="dark-mode-toggle" aria-label="Search">
               <Search size={16} />
             </button>
-            <button onClick={toggleDarkMode} className="dark-mode-toggle" aria-label="Toggle dark mode">
-              {darkMode ? <Sun size={16} /> : <Moon size={16} />}
-            </button>
           </div>
 
-          {/* Mobile: dark mode toggle only (search is below) */}
-          <div className="lg:hidden" style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginLeft: "auto" }}>
-            <button onClick={toggleDarkMode} className="dark-mode-toggle" aria-label="Toggle dark mode">
-              {darkMode ? <Sun size={16} /> : <Moon size={16} />}
-            </button>
-          </div>
+          {/* Mobile: spacer to push MENU button to right */}
+          <div className="lg:hidden" style={{ marginLeft: "auto" }} />
         </div>
 
         {/* MENU button — spans full header height on desktop, normal height on mobile */}
