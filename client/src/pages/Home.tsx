@@ -16,41 +16,27 @@ function stripHtml(html: string) {
   return html.replace(/<[^>]*>/g, "").replace(/&[a-z#0-9]+;/gi, " ").trim();
 }
 
-// ─── Skeleton components shown instantly while data loads ─────────────────────
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
 function HeroSkeleton() {
   return (
-    <section style={{ background: "#000", display: "flex", minHeight: "511px" }}>
-      <div style={{ flex: "0 0 67%", background: "#05152e", position: "relative", overflow: "hidden" }}>
+    <section style={{ background: "#000" }}>
+      <div style={{ minHeight: "480px", background: "#05152e", position: "relative", overflow: "hidden" }}>
         <div className="skeleton" style={{ position: "absolute", inset: 0, borderRadius: 0 }} />
-        <div style={{ position: "absolute", bottom: "2.5rem", left: "2rem", right: "2rem" }}>
+        <div style={{ position: "absolute", bottom: "2rem", left: "1.25rem", right: "1.25rem" }}>
           <div className="skeleton" style={{ height: "14px", width: "120px", marginBottom: "12px" }} />
           <div className="skeleton" style={{ height: "12px", width: "100px", marginBottom: "16px" }} />
-          <div className="skeleton" style={{ height: "28px", width: "80%", marginBottom: "10px" }} />
-          <div className="skeleton" style={{ height: "28px", width: "60%", marginBottom: "16px" }} />
-          <div className="skeleton" style={{ height: "14px", width: "90%", marginBottom: "8px" }} />
-          <div className="skeleton" style={{ height: "14px", width: "75%", marginBottom: "20px" }} />
+          <div className="skeleton" style={{ height: "28px", width: "85%", marginBottom: "8px" }} />
+          <div className="skeleton" style={{ height: "28px", width: "65%", marginBottom: "16px" }} />
           <div className="skeleton" style={{ height: "38px", width: "130px" }} />
         </div>
-      </div>
-      <div style={{ flex: "0 0 33%", background: "#000", borderLeft: "1px solid rgba(255,255,255,0.1)" }}>
-        <div style={{ display: "flex", borderBottom: "1px solid rgba(255,255,255,0.12)" }}>
-          <div className="skeleton" style={{ flex: 1, height: "44px", borderRadius: 0 }} />
-          <div className="skeleton" style={{ flex: 1, height: "44px", borderRadius: 0, opacity: 0.5 }} />
-        </div>
-        {[1,2,3,4,5].map(i => (
-          <div key={i} style={{ padding: "1rem 1.25rem", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-            <div className="skeleton" style={{ height: "14px", width: "90%", marginBottom: "8px" }} />
-            <div className="skeleton" style={{ height: "14px", width: "70%" }} />
-          </div>
-        ))}
       </div>
     </section>
   );
 }
 
-function CardsSkeleton({ count = 4 }: { count?: number }) {
+function CardsSkeleton({ count = 4, cols = 4 }: { count?: number; cols?: number }) {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: `repeat(${count}, 1fr)`, gap: "1rem" }}>
+    <div style={{ display: "grid", gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: "1rem" }}>
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} style={{ borderRadius: "4px", overflow: "hidden" }}>
           <div className="skeleton" style={{ height: "160px", borderRadius: 0 }} />
@@ -58,7 +44,6 @@ function CardsSkeleton({ count = 4 }: { count?: number }) {
             <div className="skeleton" style={{ height: "12px", width: "60px", marginBottom: "10px" }} />
             <div className="skeleton" style={{ height: "16px", width: "90%", marginBottom: "8px" }} />
             <div className="skeleton" style={{ height: "16px", width: "70%", marginBottom: "12px" }} />
-            <div className="skeleton" style={{ height: "12px", width: "80px" }} />
           </div>
         </div>
       ))}
@@ -66,7 +51,7 @@ function CardsSkeleton({ count = 4 }: { count?: number }) {
   );
 }
 
-// ─── Hero + Tabs ──────────────────────────────────────────────────────────────
+// ─── Hero Section ─────────────────────────────────────────────────────────────
 function HeroSection({ latestPosts, mostReadPosts }: { latestPosts: any[]; mostReadPosts: any[] }) {
   const [current, setCurrent] = useState(0);
   const [activeTab, setActiveTab] = useState<"latest" | "most-read">("latest");
@@ -94,20 +79,27 @@ function HeroSection({ latestPosts, mostReadPosts }: { latestPosts: any[]; mostR
   const sidebarPosts = activeTab === "latest" ? latestPosts.slice(0, 5) : mostReadPosts.slice(0, 5);
 
   return (
-    <section style={{ background: "#000", padding: "0" }}>
-      <div className="container" style={{ display: "flex", alignItems: "stretch", padding: "0 1.25rem", gap: 0 }}>
-        {/* Hero slider */}
-        <div style={{ flex: "0 0 67%", position: "relative", overflow: "hidden", minHeight: "511px" }}>
+    <section style={{ background: "#000" }}>
+      {/* Responsive flex: column on mobile, row on desktop */}
+      <div style={{ display: "flex", flexDirection: "column" }}>
+
+        {/* ── Hero image area ── */}
+        <div
+          style={{ position: "relative", overflow: "hidden", minHeight: "480px", flex: "none" }}
+          className="hero-image-area"
+        >
+          {/* Background */}
           <div style={{ position: "absolute", inset: 0 }}>
             {post.featuredImageUrl ? (
-              <img key={post.id} src={post.featuredImageUrl} alt={post.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <img key={post.id} src={post.featuredImageUrl} alt={post.title}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             ) : (
               <div style={{ width: "100%", height: "100%", background: "#05152e" }} />
             )}
-            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 55%, rgba(0,0,0,0.2) 100%)" }} />
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.2) 100%)" }} />
           </div>
 
-          {/* Category + share top-right */}
+          {/* Category + share */}
           <div style={{ position: "absolute", top: "1rem", right: "1rem", display: "flex", alignItems: "center", gap: "0.5rem", zIndex: 2 }}>
             {primaryCat && (
               <Link href={`/category/${primaryCat.slug}`} className="cat-tag">{primaryCat.name.toUpperCase()}</Link>
@@ -118,16 +110,17 @@ function HeroSection({ latestPosts, mostReadPosts }: { latestPosts: any[]; mostR
           </div>
 
           {/* Article content */}
-          <div style={{ position: "relative", zIndex: 2, padding: "2rem 2rem 2.5rem", display: "flex", flexDirection: "column", justifyContent: "flex-end", height: "100%" }}>
+          <div style={{ position: "relative", zIndex: 2, padding: "2rem 1.25rem 2.5rem", display: "flex", flexDirection: "column", justifyContent: "flex-end", height: "100%" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
               <span style={{ width: "3px", height: "18px", background: "#2c7df7", display: "inline-block", borderRadius: "1px", flexShrink: 0 }} />
               <span style={{ fontSize: "0.8rem", fontWeight: 900, letterSpacing: "0.1em", textTransform: "uppercase", color: "#fff" }}>LATEST NEWS</span>
             </div>
-            <div style={{ display: "inline-flex", alignItems: "center", background: "#2c7df7", color: "#fff", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", padding: "3px 8px", borderRadius: "0px", marginBottom: "0.875rem", alignSelf: "flex-start" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", background: "#2c7df7", color: "#fff", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", padding: "3px 8px", marginBottom: "0.875rem", alignSelf: "flex-start" }}>
               {formatDate(post.publishedAt)}
             </div>
             <Link href={`/${post.slug}`} style={{ textDecoration: "none" }}>
-              <h1 style={{ fontSize: "clamp(1.35rem, 2.2vw, 1.85rem)", fontWeight: 900, lineHeight: 1.25, color: "#fff", marginBottom: "0.875rem", transition: "color 0.2s" }}
+              <h1
+                style={{ fontSize: "clamp(1.4rem, 4vw, 1.85rem)", fontWeight: 900, lineHeight: 1.25, color: "#fff", marginBottom: "0.875rem", transition: "color 0.2s" }}
                 onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#2c7df7")}
                 onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "#fff")}
               >
@@ -140,7 +133,7 @@ function HeroSection({ latestPosts, mostReadPosts }: { latestPosts: any[]; mostR
               </p>
             )}
             <Link href={`/${post.slug}`}
-              style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", padding: "0.6rem 1.5rem", background: "#2c7df7", color: "#fff", border: "none", borderRadius: "2px", textDecoration: "none", alignSelf: "flex-start", transition: "background 0.2s" }}
+              style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", padding: "0.7rem 1.75rem", background: "#2c7df7", color: "#fff", border: "none", borderRadius: "2px", textDecoration: "none", alignSelf: "flex-start", transition: "background 0.2s" }}
               onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "#1a6ae0")}
               onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "#2c7df7")}
             >
@@ -157,31 +150,58 @@ function HeroSection({ latestPosts, mostReadPosts }: { latestPosts: any[]; mostR
           )}
         </div>
 
-        {/* Tabs panel */}
-        <div style={{ flex: "0 0 33%", display: "flex", flexDirection: "column", background: "#000", borderLeft: "1px solid rgba(255,255,255,0.1)", position: "relative", minHeight: "511px" }}>
-          <div style={{ display: "flex", borderBottom: "1px solid rgba(255,255,255,0.12)", flexShrink: 0 }}>
+        {/* ── Tabs panel — below hero on mobile, beside on desktop ── */}
+        <div
+          style={{ background: "#000", borderTop: "1px solid rgba(255,255,255,0.1)" }}
+          className="tabs-panel"
+        >
+          {/* Tab buttons */}
+          <div style={{ display: "flex", borderBottom: "1px solid rgba(255,255,255,0.12)" }}>
             {(["latest", "most-read"] as const).map((tab) => (
               <button key={tab} onClick={() => setActiveTab(tab)}
-                style={{ flex: 1, padding: "0.75rem 0.5rem", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#fff", background: activeTab === tab ? "#2c7df7" : "transparent", border: "none", borderBottom: activeTab === tab ? "2px solid #2c7df7" : "2px solid transparent", cursor: "pointer", transition: "all 0.2s" }}>
+                style={{ flex: 1, padding: "0.875rem 0.5rem", fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#fff", background: activeTab === tab ? "#2c7df7" : "transparent", border: "none", borderBottom: activeTab === tab ? "2px solid #2c7df7" : "2px solid transparent", cursor: "pointer", transition: "all 0.2s" }}>
                 {tab === "latest" ? "LATEST STORIES" : "MOST READ"}
               </button>
             ))}
           </div>
-          <div style={{ flex: 1, overflowY: "auto" }}>
+          {/* Article list */}
+          <div>
             {sidebarPosts.map((p, i) => (
               <div key={p.id} onClick={() => activeTab === "latest" && goTo(i)}
-                style={{ borderBottom: "1px solid rgba(255,255,255,0.1)", background: (activeTab === "latest" && i === current) ? "rgba(44,125,247,0.08)" : "transparent", borderLeft: (activeTab === "latest" && i === current) ? "4px solid #2c7df7" : "4px solid transparent", transition: "background 0.2s", cursor: "pointer" }}
+                style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", background: (activeTab === "latest" && i === current) ? "rgba(44,125,247,0.08)" : "transparent", borderLeft: (activeTab === "latest" && i === current) ? "4px solid #2c7df7" : "4px solid transparent", transition: "background 0.2s", cursor: "pointer" }}
                 onMouseEnter={(e) => { if (!(activeTab === "latest" && i === current)) (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.04)"; }}
                 onMouseLeave={(e) => { if (!(activeTab === "latest" && i === current)) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
               >
-                <Link href={`/${p.slug}`} style={{ display: "block", padding: "1rem 1.25rem", textDecoration: "none" }} onClick={(e) => e.stopPropagation()}>
-                  <p style={{ fontSize: "0.9rem", fontWeight: 700, lineHeight: 1.5, color: "#fff", margin: 0 }}>{p.title}</p>
+                <Link href={`/${p.slug}`} style={{ display: "block", padding: "0.875rem 1.25rem", textDecoration: "none" }} onClick={(e) => e.stopPropagation()}>
+                  <p style={{ fontSize: "0.9rem", fontWeight: 700, lineHeight: 1.45, color: "#fff", margin: 0 }}>{p.title}</p>
                 </Link>
               </div>
             ))}
           </div>
         </div>
       </div>
+
+      {/* Responsive CSS for desktop layout */}
+      <style>{`
+        @media (min-width: 1024px) {
+          .hero-image-area {
+            /* On desktop, hero is 67% width */
+          }
+          section > div {
+            flex-direction: row !important;
+          }
+          .hero-image-area {
+            flex: 0 0 67% !important;
+            min-height: 511px !important;
+          }
+          .tabs-panel {
+            flex: 0 0 33% !important;
+            border-top: none !important;
+            border-left: 1px solid rgba(255,255,255,0.1) !important;
+            min-height: 511px !important;
+          }
+        }
+      `}</style>
     </section>
   );
 }
@@ -215,7 +235,16 @@ function NewsTicker({ posts }: { posts: any[] }) {
 // ─── Most Popular ─────────────────────────────────────────────────────────────
 function MostPopularCarousel({ posts }: { posts: any[] }) {
   const [start, setStart] = useState(0);
-  const visible = 4;
+  const [cols, setCols] = useState(4);
+
+  useEffect(() => {
+    const update = () => setCols(window.innerWidth < 640 ? 1 : window.innerWidth < 1024 ? 2 : 4);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  const visible = cols;
   return (
     <section style={{ padding: "2.5rem 0", background: "#000" }}>
       <div className="container">
@@ -226,8 +255,8 @@ function MostPopularCarousel({ posts }: { posts: any[] }) {
             <button onClick={() => setStart(Math.min(posts.length - visible, start + visible))} disabled={start + visible >= posts.length} className="carousel-arrow" style={{ opacity: start + visible >= posts.length ? 0.3 : 1 }}><ChevronRight size={14} /></button>
           </div>
         </div>
-        {posts.length === 0 ? <CardsSkeleton count={4} /> : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem" }}>
+        {posts.length === 0 ? <CardsSkeleton count={cols} cols={cols} /> : (
+          <div style={{ display: "grid", gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: "1rem" }}>
             {posts.slice(start, start + visible).map((post) => <PostCard key={post.id} post={post} variant="default" />)}
           </div>
         )}
@@ -238,12 +267,17 @@ function MostPopularCarousel({ posts }: { posts: any[] }) {
 
 // ─── Featured News ────────────────────────────────────────────────────────────
 function FeaturedNewsGrid({ posts }: { posts: any[] }) {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const update = () => setIsMobile(window.innerWidth < 768);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
   if (!posts.length) return (
     <section style={{ padding: "2.5rem 0", background: "#05152e" }}>
-      <div className="container">
-        <h2 className="section-title">FEATURED NEWS</h2>
-        <CardsSkeleton count={3} />
-      </div>
+      <div className="container"><h2 className="section-title">FEATURED NEWS</h2><CardsSkeleton count={3} cols={isMobile ? 1 : 3} /></div>
     </section>
   );
   const [main, ...rest] = posts;
@@ -254,16 +288,24 @@ function FeaturedNewsGrid({ posts }: { posts: any[] }) {
           <h2 className="section-title" style={{ marginBottom: 0 }}>FEATURED NEWS</h2>
           <Link href="/category/latest-news" className="btn-read-more" style={{ fontSize: "0.65rem", padding: "0.4rem 1rem" }}>VIEW MORE</Link>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
-          <div style={{ height: "340px" }}><PostCard post={main} variant="hero" /></div>
-          <div style={{ display: "grid", gridTemplateRows: "1fr 1fr", gap: "1rem" }}>
-            {rest.slice(0, 2).map((post) => <PostCard key={post.id} post={post} variant="hero" />)}
+        {isMobile ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            {posts.slice(0, 4).map((post) => <PostCard key={post.id} post={post} variant="default" />)}
           </div>
-        </div>
-        {rest.length > 2 && (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem" }}>
-            {rest.slice(2, 5).map((post) => <PostCard key={post.id} post={post} variant="default" />)}
-          </div>
+        ) : (
+          <>
+            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
+              <div style={{ height: "340px" }}><PostCard post={main} variant="hero" /></div>
+              <div style={{ display: "grid", gridTemplateRows: "1fr 1fr", gap: "1rem" }}>
+                {rest.slice(0, 2).map((post) => <PostCard key={post.id} post={post} variant="hero" />)}
+              </div>
+            </div>
+            {rest.length > 2 && (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem" }}>
+                {rest.slice(2, 5).map((post) => <PostCard key={post.id} post={post} variant="default" />)}
+              </div>
+            )}
+          </>
         )}
       </div>
     </section>
@@ -272,6 +314,14 @@ function FeaturedNewsGrid({ posts }: { posts: any[] }) {
 
 // ─── Latest News ──────────────────────────────────────────────────────────────
 function LatestNewsSection({ posts }: { posts: any[] }) {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const update = () => setIsMobile(window.innerWidth < 640);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
   return (
     <section style={{ padding: "2.5rem 0", background: "#000" }}>
       <div className="container">
@@ -279,8 +329,8 @@ function LatestNewsSection({ posts }: { posts: any[] }) {
           <h2 className="section-title" style={{ marginBottom: 0 }}>LATEST NEWS</h2>
           <Link href="/category/latest-news" className="btn-read-more" style={{ fontSize: "0.65rem", padding: "0.4rem 1rem" }}>VIEW MORE</Link>
         </div>
-        {posts.length === 0 ? <CardsSkeleton count={4} /> : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "1rem" }}>
+        {posts.length === 0 ? <CardsSkeleton count={isMobile ? 2 : 4} cols={isMobile ? 1 : 4} /> : (
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill, minmax(240px, 1fr))", gap: "1rem" }}>
             {posts.map((post) => <PostCard key={post.id} post={post} variant="default" />)}
           </div>
         )}
@@ -291,10 +341,7 @@ function LatestNewsSection({ posts }: { posts: any[] }) {
 
 // ─── Home Page ────────────────────────────────────────────────────────────────
 export default function Home() {
-  // Single combined query — one round trip instead of three
-  const { data, isLoading } = trpc.posts.homepageData.useQuery(undefined, {
-    staleTime: 60_000, // Cache for 1 minute
-  });
+  const { data, isLoading } = trpc.posts.homepageData.useQuery(undefined, { staleTime: 60_000 });
 
   const latest = data?.latest ?? [];
   const mostRead = data?.mostRead ?? [];
@@ -302,22 +349,11 @@ export default function Home() {
 
   return (
     <div style={{ background: "#000" }}>
-      {/* Show hero skeleton immediately while loading */}
       {isLoading ? <HeroSkeleton /> : <HeroSection latestPosts={latest} mostReadPosts={mostRead} />}
-
-      {/* Ticker — show as soon as we have any posts */}
       <NewsTicker posts={latest.slice(0, 10)} />
-
-      {/* Search + Category filters */}
       <HomepageFilters />
-
-      {/* Most Popular */}
       <MostPopularCarousel posts={mostRead} />
-
-      {/* Featured News */}
       <FeaturedNewsGrid posts={featured} />
-
-      {/* Latest News */}
       <LatestNewsSection posts={latest.slice(0, 8)} />
     </div>
   );
