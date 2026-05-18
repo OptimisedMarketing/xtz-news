@@ -1,12 +1,10 @@
-import { useEffect, useRef } from "react";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 function formatPrice(price: number): string {
   if (price >= 1000) return `$${price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   if (price >= 1) return `$${price.toFixed(4)}`;
-  if (price >= 0.01) return `$${price.toFixed(4)}`;
-  if (price >= 0.0001) return `$${price.toFixed(6)}`;
+  if (price >= 0.0001) return `$${price.toFixed(4)}`;
   return `$${price.toExponential(2)}`;
 }
 
@@ -15,31 +13,53 @@ function formatChange(change: number): string {
   return `${sign}${change.toFixed(2)}%`;
 }
 
+/** Tiny inline SVG sparkline */
+function Sparkline({ data, isUp }: { data: number[]; isUp: boolean }) {
+  if (!data || data.length < 2) return null;
+  const w = 48, h = 20;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const pts = data.map((v, i) => {
+    const x = (i / (data.length - 1)) * w;
+    const y = h - ((v - min) / range) * h;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(" ");
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ flexShrink: 0 }}>
+      <polyline
+        points={pts}
+        fill="none"
+        stroke={isUp ? "#4ade80" : "#f87171"}
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 export default function PriceTicker() {
   const { data: tokens = [], isLoading } = trpc.prices.tezosTokens.useQuery(undefined, {
-    refetchInterval: 90_000, // Refresh every 90 seconds
+    refetchInterval: 90_000,
     staleTime: 60_000,
   });
 
-  const tickerRef = useRef<HTMLDivElement>(null);
-
   if (isLoading || tokens.length === 0) return null;
 
-  // Duplicate tokens for seamless loop
+  // Duplicate for seamless loop
   const items = [...tokens, ...tokens];
 
   return (
-    <div
-      style={{
-        background: "#0a1f3d",
-        borderBottom: "1px solid rgba(255,255,255,0.08)",
-        overflow: "hidden",
-        height: "32px",
-        display: "flex",
-        alignItems: "center",
-      }}
-    >
-      {/* TEZOS TOKENS label */}
+    <div style={{
+      background: "#0a1f3d",
+      borderBottom: "1px solid rgba(255,255,255,0.08)",
+      overflow: "hidden",
+      height: "36px",
+      display: "flex",
+      alignItems: "center",
+    }}>
+      {/* Label */}
       <div style={{
         flexShrink: 0,
         padding: "0 0.875rem",
@@ -58,44 +78,50 @@ export default function PriceTicker() {
         TEZOS TOKENS
       </div>
 
-      {/* Scrolling ticker */}
-      <div
-        ref={tickerRef}
-        style={{
-          flex: 1,
-          overflow: "hidden",
-          position: "relative",
-          maskImage: "linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%)",
-          WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%)",
-        }}
-      >
+      {/* Scrolling track */}
+      <div style={{
+        flex: 1,
+        overflow: "hidden",
+        position: "relative",
+        maskImage: "linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%)",
+        WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%)",
+      }}>
         <div
           className="ticker-track"
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 0,
-            animation: "ticker-scroll 60s linear infinite",
+            animation: "ticker-scroll 80s linear infinite",
             width: "max-content",
           }}
         >
           {items.map((token, idx) => {
             const isUp = token.change24h >= 0;
+            const sparkline = (token as any).sparkline ?? [];
+            const dexUrl = (token as any).dexUrl ?? `https://www.coingecko.com/en/coins/${token.id}`;
+
             return (
-              <div
+              <a
                 key={`${token.id}-${idx}`}
+                href={dexUrl}
+                target="_blank"
+                rel="noopener noreferrer"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
-                  gap: "0.35rem",
+                  gap: "0.4rem",
                   padding: "0 1.25rem",
-                  borderRight: "1px solid rgba(255,255,255,0.08)",
-                  height: "32px",
+                  borderRight: "1px solid rgba(255,255,255,0.07)",
+                  height: "36px",
                   whiteSpace: "nowrap",
-                  cursor: "default",
+                  textDecoration: "none",
+                  transition: "background 0.15s",
+                  cursor: "pointer",
                 }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.12)")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "transparent")}
               >
-                {/* Token image */}
+                {/* Token logo */}
                 {token.image && (
                   <img
                     src={token.image}
@@ -106,28 +132,33 @@ export default function PriceTicker() {
                 )}
 
                 {/* Symbol */}
-                <span style={{ fontSize: "0.7rem", fontWeight: 700, color: "#fff", letterSpacing: "0.04em" }}>
+                <span style={{ fontSize: "0.7rem", fontWeight: 700, color: "#fff", letterSpacing: "0.03em" }}>
                   {token.symbol}
                 </span>
 
                 {/* Price */}
-                <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.8)", fontVariantNumeric: "tabular-nums" }}>
+                <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.75)", fontVariantNumeric: "tabular-nums" }}>
                   {formatPrice(token.price)}
                 </span>
 
-                {/* Change */}
+                {/* Sparkline */}
+                {sparkline.length >= 2 && (
+                  <Sparkline data={sparkline} isUp={isUp} />
+                )}
+
+                {/* 24h change */}
                 <span style={{
                   fontSize: "0.65rem",
                   fontWeight: 600,
                   color: isUp ? "#4ade80" : "#f87171",
                   display: "flex",
                   alignItems: "center",
-                  gap: "0.15rem",
+                  gap: "0.1rem",
                 }}>
                   {isUp ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
                   {formatChange(token.change24h)}
                 </span>
-              </div>
+              </a>
             );
           })}
         </div>

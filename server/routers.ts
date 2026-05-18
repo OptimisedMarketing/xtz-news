@@ -377,8 +377,8 @@ const priceRouter = router({
       return priceCache.data;
     }
     try {
-      // Fetch full Tezos ecosystem category from CoinGecko
-      const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&category=tezos-ecosystem&order=market_cap_desc&per_page=50&page=1&sparkline=false&price_change_percentage=24h`;
+      // Fetch full Tezos ecosystem category from CoinGecko with sparkline data
+      const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&category=tezos-ecosystem&order=market_cap_desc&per_page=50&page=1&sparkline=true&price_change_percentage=24h,7d`;
       const res = await fetch(url, {
         headers: { 'Accept': 'application/json', 'User-Agent': 'XTZNews/1.0' },
         signal: AbortSignal.timeout(10000),
@@ -386,6 +386,23 @@ const priceRouter = router({
       if (!res.ok) throw new Error(`CoinGecko error: ${res.status}`);
       const data = await res.json();
       // Filter out tokens with null prices and sort: XTZ first, then by market cap
+      // DEX trading links for known tokens
+      const DEX_LINKS: Record<string, string> = {
+        'tezos': 'https://www.coingecko.com/en/coins/tezos',
+        'youves-uusd': 'https://app.youves.com/swap',
+        'kolibri-usd': 'https://kolibri.finance',
+        'plenty-dao': 'https://www.plentydefi.com',
+        'quipuswap-governance-token': 'https://quipuswap.com',
+        'vnx-gold': 'https://vnx.finance',
+        'vnx-swiss-franc': 'https://vnx.finance',
+        'vnx-euro': 'https://vnx.finance',
+        'tezos-domains': 'https://tezos.domains',
+        'usdtez': 'https://usdtz.com',
+        'stacy-staked-xtz': 'https://stacy.finance',
+        'tether': 'https://quipuswap.com',
+        'wrapped-busd': 'https://quipuswap.com',
+      };
+
       const tokens = data
         .filter((t: any) => t.current_price !== null && t.current_price !== undefined)
         .map((t: any) => ({
@@ -394,8 +411,12 @@ const priceRouter = router({
           name: t.name,
           price: t.current_price,
           change24h: t.price_change_percentage_24h ?? 0,
+          change7d: t.price_change_percentage_7d_in_currency ?? 0,
           image: t.image,
           marketCap: t.market_cap ?? 0,
+          volume24h: t.total_volume ?? 0,
+          sparkline: (t.sparkline_in_7d?.price ?? []).filter((_: any, i: number) => i % 6 === 0), // downsample to ~28 points
+          dexUrl: DEX_LINKS[t.id] ?? `https://www.coingecko.com/en/coins/${t.id}`,
         }))
         .sort((a: any, b: any) => {
           if (a.id === 'tezos') return -1;

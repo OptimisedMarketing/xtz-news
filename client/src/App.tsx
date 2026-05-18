@@ -28,6 +28,7 @@ import AdminProjects from "./pages/admin/AdminProjects";
 import AdminSubmissions from "./pages/admin/AdminSubmissions";
 import AdminSubscribers from "./pages/admin/AdminSubscribers";
 import NotFound from "./pages/NotFound";
+import PricePage from "./pages/PricePage";
 
 function Router() {
   return (
@@ -56,6 +57,7 @@ function Router() {
       <Route path="/admin/projects" component={AdminProjects} />
       <Route path="/admin/submissions" component={AdminSubmissions} />
       <Route path="/admin/subscribers" component={AdminSubscribers} />
+      <Route path="/prices" component={PricePage} />
 
       {/* Article pages — must be last to catch all slugs */}
       <Route path="/:slug" component={ArticlePage} />
