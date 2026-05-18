@@ -96,6 +96,22 @@ export default function SearchModal({ onClose }: SearchModalProps) {
         {/* Scrollable results area */}
         <div style={{ overflowY: "auto", flex: 1 }}>
 
+          {/* Loading skeleton */}
+          {isLoading && debounced.length >= 2 && (
+            <div style={{ padding: "1rem 1.5rem" }}>
+              <p style={{ fontSize: "0.62rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: "rgba(255,255,255,0.25)", margin: "0 0 0.75rem" }}>Searching...</p>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.875rem", padding: "0.7rem 0.75rem", marginBottom: "0.25rem" }}>
+                  <div style={{ width: "54px", height: "40px", borderRadius: "4px", background: "linear-gradient(90deg, #0a1f3d 25%, #123262 50%, #0a1f3d 75%)", backgroundSize: "200% 100%", animation: "srShimmer 1.4s infinite", flexShrink: 0 }} />
+                  <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                    <div style={{ height: "14px", borderRadius: "3px", background: "linear-gradient(90deg, #0a1f3d 25%, #123262 50%, #0a1f3d 75%)", backgroundSize: "200% 100%", animation: "srShimmer 1.4s infinite", width: `${70 + (i * 7) % 25}%` }} />
+                    <div style={{ height: "10px", borderRadius: "3px", background: "linear-gradient(90deg, #0a1f3d 25%, #123262 50%, #0a1f3d 75%)", backgroundSize: "200% 100%", animation: "srShimmer 1.4s infinite", width: "40%" }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Live results */}
           {hasResults && (
             <div style={{ padding: "1rem 1.5rem" }}>
@@ -187,6 +203,7 @@ export default function SearchModal({ onClose }: SearchModalProps) {
         @keyframes srFadeIn { from { opacity:0 } to { opacity:1 } }
         @keyframes srSlideDown { from { transform:translateY(-16px); opacity:0 } to { transform:translateY(0); opacity:1 } }
         @keyframes srSpin { to { transform:rotate(360deg) } }
+        @keyframes srShimmer { 0% { background-position:200% 0 } 100% { background-position:-200% 0 } }
       `}</style>
     </>
   );
