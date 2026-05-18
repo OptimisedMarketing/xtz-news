@@ -44,7 +44,7 @@ export default function CategoriesPage() {
       <div
         style={{
           position: "sticky",
-          top: "108px", // below the header (36px top bar + 72px main header)
+          top: "140px", // below ticker (32px) + top bar (36px) + main header (72px)
           zIndex: 40,
           background: "#05152e",
           borderBottom: "1px solid rgba(255,255,255,0.1)",

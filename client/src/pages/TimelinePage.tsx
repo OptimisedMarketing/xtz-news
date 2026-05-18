@@ -105,7 +105,7 @@ export default function TimelinePage() {
       </div>
 
       {/* Year navigation + month tabs */}
-      <div style={{ background: "#05152e", borderBottom: "1px solid rgba(255,255,255,0.1)", padding: "1.5rem 0 0", position: "sticky", top: "108px", zIndex: 30 }}>
+      <div style={{ background: "#05152e", borderBottom: "1px solid rgba(255,255,255,0.1)",           padding: "1.5rem 0 0", position: "sticky", top: "140px", zIndex: 30 }}>
         <div className="container">
           {/* Year row */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem" }}>

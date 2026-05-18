@@ -367,6 +367,50 @@ const newsletterRouter = router({
   }),
 });
 
+// ─── Price Ticker Router ──────────────────────────────────────────────────────────
+let priceCache: { data: any[]; ts: number } | null = null;
+const CACHE_TTL = 90_000; // 90 seconds
+
+const priceRouter = router({
+  tezosTokens: publicProcedure.query(async () => {
+    if (priceCache && Date.now() - priceCache.ts < CACHE_TTL) {
+      return priceCache.data;
+    }
+    try {
+      // Fetch full Tezos ecosystem category from CoinGecko
+      const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&category=tezos-ecosystem&order=market_cap_desc&per_page=50&page=1&sparkline=false&price_change_percentage=24h`;
+      const res = await fetch(url, {
+        headers: { 'Accept': 'application/json', 'User-Agent': 'XTZNews/1.0' },
+        signal: AbortSignal.timeout(10000),
+      });
+      if (!res.ok) throw new Error(`CoinGecko error: ${res.status}`);
+      const data = await res.json();
+      // Filter out tokens with null prices and sort: XTZ first, then by market cap
+      const tokens = data
+        .filter((t: any) => t.current_price !== null && t.current_price !== undefined)
+        .map((t: any) => ({
+          id: t.id,
+          symbol: t.symbol.toUpperCase(),
+          name: t.name,
+          price: t.current_price,
+          change24h: t.price_change_percentage_24h ?? 0,
+          image: t.image,
+          marketCap: t.market_cap ?? 0,
+        }))
+        .sort((a: any, b: any) => {
+          if (a.id === 'tezos') return -1;
+          if (b.id === 'tezos') return 1;
+          return b.marketCap - a.marketCap;
+        });
+      priceCache = { data: tokens, ts: Date.now() };
+      return tokens;
+    } catch (e) {
+      if (priceCache) return priceCache.data;
+      return [];
+    }
+  }),
+});
+
 // ─── Upload Router ────────────────────────────────────────────────────────────
 const uploadRouter = router({
   getUploadUrl: publicProcedure
@@ -395,6 +439,7 @@ export const appRouter = router({
   pages: pagesRouter,
   submissions: submissionsRouter,
   newsletter: newsletterRouter,
+  prices: priceRouter,
   upload: uploadRouter,
 });
 

@@ -57,7 +57,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50" ref={dropdownRef}>
+    <header ref={dropdownRef}>
       {/* ── Desktop-only top bar ── */}
       <div
         className="hidden lg:flex"
