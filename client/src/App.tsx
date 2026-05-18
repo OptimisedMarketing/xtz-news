@@ -44,7 +44,7 @@ function Router() {
       <Route path="/tezos-projects" component={ProjectsPage} />
       <Route path="/project/:slug" component={ProjectDetailPage} />
       <Route path="/timeline" component={TimelinePage} />
-      <Route path="/watch" component={WatchPage} />
+
       <Route path="/submit-article" component={SubmitArticlePage} />
       <Route path="/contact" component={ContactPage} />
       <Route path="/advertise" component={AdvertisePage} />
