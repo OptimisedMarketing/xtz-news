@@ -210,7 +210,58 @@
   }
   .post-content h2 { font-size: clamp(1.1rem, 3.5vw, 1.5rem); }
   .post-content h3 { font-size: clamp(1rem, 3vw, 1.25rem); }
-  .post-content p { margin-bottom: 1.25rem; }
+  .post-content p { margin-bottom: 1.5rem; line-height: 1.85; }
+  .post-content p + p { margin-top: 0; }
+  .post-content .pull-quote {
+    border-left: 4px solid #2c7df7;
+    padding: 1.25rem 1.5rem;
+    margin: 2rem 0;
+    background: rgba(44,125,247,0.07);
+    border-radius: 0 6px 6px 0;
+    font-size: 1.1rem;
+    font-style: italic;
+    color: rgba(255,255,255,0.9);
+    line-height: 1.7;
+  }
+  .post-content .pull-quote cite {
+    display: block;
+    font-size: 0.8rem;
+    font-style: normal;
+    color: #2c7df7;
+    margin-top: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .post-content .key-facts {
+    background: rgba(44,125,247,0.06);
+    border: 1px solid rgba(44,125,247,0.2);
+    border-radius: 6px;
+    padding: 1.25rem 1.5rem;
+    margin: 2rem 0;
+  }
+  .post-content .key-facts h4 {
+    font-size: 0.7rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #2c7df7;
+    margin: 0 0 0.875rem;
+  }
+  .post-content .key-facts ul {
+    margin: 0;
+    padding-left: 1.25rem;
+  }
+  .post-content .key-facts li {
+    color: rgba(255,255,255,0.75);
+    font-size: 0.88rem;
+    margin-bottom: 0.5rem;
+  }
+  .post-content .section-divider {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    margin: 2.5rem 0;
+  }
   .post-content a { color: #2c7df7; }
   .post-content a:hover { text-decoration: underline; }
   .post-content ul,.post-content ol { padding-left: 1.5rem; margin-bottom: 1.25rem; }
