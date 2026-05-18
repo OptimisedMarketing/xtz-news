@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "wouter";
 import { Tag } from "lucide-react";
 
@@ -29,6 +30,27 @@ function stripHtml(html: string) {
   return html.replace(/<[^>]*>/g, "").replace(/&[a-z]+;/gi, " ").trim();
 }
 
+/** Image with graceful fallback to navy placeholder on error */
+function PostImage({ src, alt, className, style }: { src: string; alt: string; className?: string; style?: React.CSSProperties }) {
+  const [failed, setFailed] = useState(false);
+  if (failed) {
+    return (
+      <div className={className} style={{ background: "var(--xtz-navy)", display: "flex", alignItems: "center", justifyContent: "center", ...style }}>
+        <span style={{ color: "rgba(255,255,255,0.1)", fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em" }}>XTZ.News</span>
+      </div>
+    );
+  }
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className={className}
+      style={style}
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 export default function PostCard({ post, variant = "default" }: PostCardProps) {
   const primaryCat = post.categories?.[0];
   const excerpt = post.excerpt ? stripHtml(post.excerpt).slice(0, 160) : "";
@@ -39,7 +61,7 @@ export default function PostCard({ post, variant = "default" }: PostCardProps) {
         {/* Background image */}
         <div className="absolute inset-0">
           {post.featuredImageUrl ? (
-            <img
+            <PostImage
               src={post.featuredImageUrl}
               alt={post.title}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -86,15 +108,19 @@ export default function PostCard({ post, variant = "default" }: PostCardProps) {
   if (variant === "horizontal") {
     return (
       <article className="flex gap-3 group">
-        {post.featuredImageUrl && (
-          <Link href={`/${post.slug}`} className="shrink-0">
-            <img
+        <Link href={`/${post.slug}`} className="shrink-0">
+          {post.featuredImageUrl ? (
+            <PostImage
               src={post.featuredImageUrl}
               alt={post.title}
               className="w-20 h-14 object-cover rounded transition-opacity group-hover:opacity-80"
             />
-          </Link>
-        )}
+          ) : (
+            <div className="w-20 h-14 rounded flex items-center justify-center" style={{ background: "var(--xtz-navy)" }}>
+              <span style={{ color: "rgba(255,255,255,0.1)", fontSize: "0.5rem", fontWeight: 700 }}>XTZ</span>
+            </div>
+          )}
+        </Link>
         <div className="flex-1 min-w-0">
           {primaryCat && (
             <Link href={`/category/${primaryCat.slug}`} className="cat-tag mb-1 inline-flex">
@@ -131,7 +157,7 @@ export default function PostCard({ post, variant = "default" }: PostCardProps) {
       {/* Image */}
       <Link href={`/${post.slug}`} className="block overflow-hidden aspect-[16/9] shrink-0">
         {post.featuredImageUrl ? (
-          <img
+          <PostImage
             src={post.featuredImageUrl}
             alt={post.title}
             className="w-full h-full object-cover transition-transform duration-400 group-hover:scale-105"

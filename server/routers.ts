@@ -273,6 +273,33 @@ const projectsRouter = router({
     }),
 
   adminList: adminProcedure.query(() => db.getAllProjectsAdmin()),
+
+  // Fetch latest GitHub commits for a project by its GitHub repo URL
+  githubCommits: publicProcedure
+    .input(z.object({ githubUrl: z.string() }))
+    .query(async ({ input }) => {
+      try {
+        // Extract owner/repo from GitHub URL
+        const match = input.githubUrl.match(/github\.com\/([^/]+)\/([^/\s?#]+)/);
+        if (!match) return [];
+        const [, owner, repo] = match;
+        const cleanRepo = repo.replace(/\.git$/, '');
+        const url = `https://api.github.com/repos/${owner}/${cleanRepo}/commits?per_page=5`;
+        const res = await fetch(url, {
+          headers: { 'Accept': 'application/vnd.github.v3+json', 'User-Agent': 'XTZNews/1.0' },
+          signal: AbortSignal.timeout(6000),
+        });
+        if (!res.ok) return [];
+        const data = await res.json();
+        return data.map((c: any) => ({
+          sha: c.sha?.substring(0, 7),
+          message: c.commit?.message?.split('\n')[0]?.substring(0, 100),
+          author: c.commit?.author?.name,
+          date: c.commit?.author?.date,
+          url: c.html_url,
+        }));
+      } catch { return []; }
+    }),
 });
 
 // ─── Events Router ────────────────────────────────────────────────────────────
