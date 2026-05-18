@@ -6,6 +6,7 @@ import { trpc } from "@/lib/trpc";
 export default function ProjectsPage() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortOrder, setSortOrder] = useState<"featured" | "az" | "za" | "newest">("featured");
 
   const { data: projects = [], isLoading } = trpc.projects.all.useQuery({ category: "all" });
 
@@ -28,13 +29,18 @@ export default function ProjectsPage() {
         p.excerpt?.toLowerCase().includes(q)
       );
     }
+    // Apply sort
     result.sort((a, b) => {
+      if (sortOrder === "az") return (a.title || "").localeCompare(b.title || "");
+      if (sortOrder === "za") return (b.title || "").localeCompare(a.title || "");
+      if (sortOrder === "newest") return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+      // Default: featured first
       if ((b as any).featured && !(a as any).featured) return 1;
       if ((a as any).featured && !(b as any).featured) return -1;
-      return 0;
+      return (a.title || "").localeCompare(b.title || "");
     });
     return result;
-  }, [projects, activeCategory, searchQuery]);
+  }, [projects, activeCategory, searchQuery, sortOrder]);
 
   return (
     <div style={{ background: "#000", minHeight: "100vh" }}>
@@ -76,9 +82,21 @@ export default function ProjectsPage() {
 
       {/* Grid */}
       <div className="container" style={{ padding: "2.5rem 1.25rem 4rem" }}>
-        <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.3)", marginBottom: "1.5rem", fontWeight: 600 }}>
-          {filtered.length} project{filtered.length !== 1 ? "s" : ""}{activeCategory !== "All" ? ` in ${activeCategory}` : ""}
-        </p>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.75rem", marginBottom: "1.5rem" }}>
+          <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.3)", margin: 0, fontWeight: 600 }}>
+            {filtered.length} project{filtered.length !== 1 ? "s" : ""}{activeCategory !== "All" ? ` in ${activeCategory}` : ""}
+          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.35)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>Sort:</span>
+            <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value as any)}
+              style={{ padding: "0.4rem 0.75rem", background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "3px", color: "#fff", fontSize: "0.75rem", fontWeight: 600, cursor: "pointer", outline: "none" }}>
+              <option value="featured">Featured First</option>
+              <option value="az">A → Z</option>
+              <option value="za">Z → A</option>
+              <option value="newest">Newest</option>
+            </select>
+          </div>
+        </div>
 
         {isLoading ? (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1rem" }}>
