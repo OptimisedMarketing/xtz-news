@@ -128,7 +128,7 @@ export default function ProjectsPage() {
               </p>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", flexShrink: 0 }}>
-              <Link href="/submit-article" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.875rem 2rem", background: "#2c7df7", borderRadius: "4px", color: "#fff", textDecoration: "none", fontSize: "0.85rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", whiteSpace: "nowrap", transition: "background 0.2s" }}
+              <Link href="/submit-project" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.875rem 2rem", background: "#2c7df7", borderRadius: "4px", color: "#fff", textDecoration: "none", fontSize: "0.85rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", whiteSpace: "nowrap", transition: "background 0.2s" }}
                 onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "#1a6ae0")}
                 onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "#2c7df7")}
               >

@@ -1,142 +1,193 @@
 import { useState, useEffect, useRef } from "react";
-import { useLocation } from "wouter";
-import { Search, X, ArrowRight } from "lucide-react";
+import { Link, useLocation } from "wouter";
+import { Search, X, ArrowRight, Clock, TrendingUp, Loader2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 interface SearchModalProps {
   onClose: () => void;
 }
 
+const RECENT_KEY = "xtz_recent_searches";
+
+function getRecent(): string[] {
+  try { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]").slice(0, 5); } catch { return []; }
+}
+function saveRecent(q: string) {
+  try {
+    const prev = getRecent().filter((s) => s !== q);
+    localStorage.setItem(RECENT_KEY, JSON.stringify([q, ...prev].slice(0, 5)));
+  } catch {}
+}
+
 export default function SearchModal({ onClose }: SearchModalProps) {
   const [query, setQuery] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [debounced, setDebounced] = useState("");
+  const [recent, setRecent] = useState<string[]>(getRecent);
   const inputRef = useRef<HTMLInputElement>(null);
   const [, navigate] = useLocation();
 
   useEffect(() => {
-    inputRef.current?.focus();
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
+    setTimeout(() => inputRef.current?.focus(), 60);
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     document.addEventListener("keydown", handler);
     document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", handler);
-      document.body.style.overflow = "";
-    };
+    return () => { document.removeEventListener("keydown", handler); document.body.style.overflow = ""; };
   }, [onClose]);
 
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedQuery(query), 350);
-    return () => clearTimeout(timer);
+    const t = setTimeout(() => setDebounced(query), 300);
+    return () => clearTimeout(t);
   }, [query]);
 
-  const { data: results, isLoading } = trpc.posts.search.useQuery(
-    { q: debouncedQuery, limit: 8 },
-    { enabled: debouncedQuery.length >= 2 }
+  const { data: raw, isLoading } = trpc.posts.search.useQuery(
+    { q: debounced, limit: 7 },
+    { enabled: debounced.length >= 2 }
   );
+  const posts = Array.isArray(raw) ? raw : (raw as any)?.posts ?? [];
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (query.trim()) {
-      navigate(`/search?q=${encodeURIComponent(query.trim())}`);
-      onClose();
-    }
-  };
-
-  const handleResultClick = (slug: string) => {
-    navigate(`/${slug}`);
+  const go = (q: string) => {
+    if (!q.trim()) return;
+    saveRecent(q.trim());
+    setRecent(getRecent());
     onClose();
+    navigate(`/search?q=${encodeURIComponent(q.trim())}`);
   };
+
+  const fmt = (d: Date | string | null | undefined) =>
+    d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "";
+
+  const hasResults = debounced.length >= 2 && !isLoading && posts.length > 0;
+  const noResults = debounced.length >= 2 && !isLoading && posts.length === 0;
 
   return (
-    <div
-      className="fixed inset-0 z-[200] flex items-start justify-center pt-16 px-4"
-      style={{ background: "rgba(5,21,46,0.95)" }}
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-    >
-      <div
-        className="w-full max-w-2xl rounded-lg border border-white/10 overflow-hidden shadow-2xl"
-        style={{ background: "var(--card-bg)" }}
-      >
-        {/* Search input */}
-        <form onSubmit={handleSubmit} className="flex items-center gap-3 p-4 border-b border-white/10">
-          <Search size={18} className="text-white/40 shrink-0" />
+    <>
+      {/* Backdrop */}
+      <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 9998, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", animation: "srFadeIn 0.15s ease" }} />
+
+      {/* Panel */}
+      <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 9999, background: "#05152e", borderBottom: "1px solid rgba(44,125,247,0.3)", boxShadow: "0 24px 64px rgba(0,0,0,0.7)", animation: "srSlideDown 0.2s cubic-bezier(0.23,1,0.32,1)", maxHeight: "85vh", display: "flex", flexDirection: "column" }}>
+
+        {/* Input row */}
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem", padding: "1.25rem 1.5rem", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+          <div style={{ color: isLoading ? "#2c7df7" : "rgba(255,255,255,0.4)", flexShrink: 0, transition: "color 0.2s" }}>
+            {isLoading ? <Loader2 size={22} style={{ animation: "srSpin 0.8s linear infinite" }} /> : <Search size={22} />}
+          </div>
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search articles, projects..."
-            className="flex-1 bg-transparent text-white placeholder-white/30 text-base outline-none"
+            onKeyDown={(e) => e.key === "Enter" && go(query)}
+            placeholder="Search articles, projects, categories..."
+            style={{ flex: 1, background: "none", border: "none", outline: "none", color: "#fff", fontSize: "1.15rem", fontFamily: "inherit", fontWeight: 500 }}
           />
           {query && (
-            <button type="button" onClick={() => setQuery("")} className="text-white/40 hover:text-white">
-              <X size={16} />
-            </button>
+            <button onClick={() => setQuery("")} style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: "50%", width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "rgba(255,255,255,0.5)", flexShrink: 0, transition: "all 0.15s" }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.15)"; (e.currentTarget as HTMLElement).style.color = "#fff"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.08)"; (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.5)"; }}
+            ><X size={14} /></button>
           )}
-          <button
-            type="submit"
-            className="btn-primary py-1.5 px-3 text-xs"
-          >
-            Search
-          </button>
-        </form>
+          <button onClick={onClose} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", color: "rgba(255,255,255,0.4)", cursor: "pointer", padding: "0.3rem 0.6rem", fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.06em", display: "flex", alignItems: "center", gap: "0.3rem", flexShrink: 0, transition: "all 0.15s" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.12)"; (e.currentTarget as HTMLElement).style.color = "#fff"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)"; (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.4)"; }}
+          ><X size={11} /> ESC</button>
+        </div>
 
-        {/* Results */}
-        {debouncedQuery.length >= 2 && (
-          <div className="max-h-[60vh] overflow-y-auto">
-            {isLoading ? (
-              <div className="p-6 text-center text-white/40 text-sm">Searching...</div>
-            ) : results && results.length > 0 ? (
-              <ul>
-                {results.map((post) => (
-                  <li key={post.id}>
-                    <button
-                      onClick={() => handleResultClick(post.slug)}
-                      className="w-full flex items-start gap-3 p-4 hover:bg-white/5 transition-colors text-left border-b border-white/5"
-                    >
-                      {post.featuredImageUrl && (
-                        <img
-                          src={post.featuredImageUrl}
-                          alt=""
-                          className="w-14 h-10 object-cover rounded shrink-0"
-                        />
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-white line-clamp-2 leading-snug">
-                          {post.title}
-                        </p>
-                        <p className="text-xs text-white/40 mt-0.5">
-                          {post.publishedAt
-                            ? new Date(post.publishedAt).toLocaleDateString("en-GB", {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                              })
-                            : ""}
-                        </p>
-                      </div>
-                      <ArrowRight size={14} className="text-white/30 shrink-0 mt-1" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="p-6 text-center text-white/40 text-sm">
-                No results found for &ldquo;{debouncedQuery}&rdquo;
+        {/* Scrollable results area */}
+        <div style={{ overflowY: "auto", flex: 1 }}>
+
+          {/* Live results */}
+          {hasResults && (
+            <div style={{ padding: "1rem 1.5rem" }}>
+              <p style={{ fontSize: "0.62rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: "rgba(255,255,255,0.25)", margin: "0 0 0.75rem" }}>
+                {posts.length} result{posts.length !== 1 ? "s" : ""} for "{debounced}"
+              </p>
+              {posts.map((post: any) => (
+                <Link key={post.id} href={`/${post.slug}`} onClick={() => { saveRecent(query); onClose(); }} style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "0.875rem", padding: "0.7rem 0.75rem", borderRadius: "6px", transition: "background 0.15s" }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.08)")}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "transparent")}
+                >
+                  <div style={{ width: "54px", height: "40px", borderRadius: "4px", overflow: "hidden", flexShrink: 0, background: "#0a1f3d" }}>
+                    {post.featuredImageUrl && <img src={post.featuredImageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")} />}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: "0.88rem", fontWeight: 600, color: "#fff", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.title}</p>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.2rem" }}>
+                      {post.categories?.[0] && <span style={{ fontSize: "0.58rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#2c7df7", background: "rgba(44,125,247,0.1)", padding: "1px 5px", borderRadius: "2px" }}>{post.categories[0].name}</span>}
+                      <span style={{ fontSize: "0.67rem", color: "rgba(255,255,255,0.3)" }}>{fmt(post.publishedAt)}</span>
+                    </div>
+                  </div>
+                  <ArrowRight size={13} style={{ color: "rgba(255,255,255,0.2)", flexShrink: 0 }} />
+                </Link>
+              ))}
+              <button onClick={() => go(query)} style={{ width: "100%", marginTop: "0.5rem", padding: "0.7rem", background: "rgba(44,125,247,0.07)", border: "1px solid rgba(44,125,247,0.18)", borderRadius: "6px", color: "#2c7df7", fontSize: "0.78rem", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.4rem", transition: "all 0.2s" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#2c7df7"; (e.currentTarget as HTMLElement).style.color = "#fff"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.07)"; (e.currentTarget as HTMLElement).style.color = "#2c7df7"; }}
+              >View all results for "{debounced}" <ArrowRight size={13} /></button>
+            </div>
+          )}
+
+          {/* No results */}
+          {noResults && (
+            <div style={{ padding: "3rem 1.5rem", textAlign: "center" }}>
+              <p style={{ fontSize: "1rem", color: "rgba(255,255,255,0.45)", margin: "0 0 0.4rem" }}>No results for "{debounced}"</p>
+              <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.25)", margin: 0 }}>Try different keywords or browse below</p>
+            </div>
+          )}
+
+          {/* Default: recent + popular */}
+          {debounced.length < 2 && (
+            <div style={{ padding: "1.25rem 1.5rem", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+              {recent.length > 0 && (
+                <div>
+                  <p style={{ fontSize: "0.62rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: "rgba(255,255,255,0.25)", margin: "0 0 0.75rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                    <Clock size={11} /> Recent Searches
+                  </p>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+                    {recent.map((s) => (
+                      <button key={s} onClick={() => { setQuery(s); setDebounced(s); }}
+                        style={{ padding: "0.4rem 0.875rem", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "100px", color: "rgba(255,255,255,0.6)", fontSize: "0.78rem", cursor: "pointer", transition: "all 0.15s" }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.1)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(44,125,247,0.3)"; (e.currentTarget as HTMLElement).style.color = "#fff"; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.05)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.1)"; (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.6)"; }}
+                      >{s}</button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div>
+                <p style={{ fontSize: "0.62rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: "rgba(255,255,255,0.25)", margin: "0 0 0.75rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                  <TrendingUp size={11} /> Popular Topics
+                </p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+                  {["Etherlink", "DeFi", "NFT", "QuipuSwap", "Youves", "Governance", "Staking", "TzEL", "Tezos X", "Gaming", "Adoption", "Wallets"].map((t) => (
+                    <button key={t} onClick={() => { setQuery(t); setDebounced(t); }}
+                      style={{ padding: "0.4rem 0.875rem", background: "rgba(44,125,247,0.07)", border: "1px solid rgba(44,125,247,0.18)", borderRadius: "100px", color: "#2c7df7", fontSize: "0.78rem", fontWeight: 600, cursor: "pointer", transition: "all 0.15s" }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#2c7df7"; (e.currentTarget as HTMLElement).style.color = "#fff"; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.07)"; (e.currentTarget as HTMLElement).style.color = "#2c7df7"; }}
+                    >{t}</button>
+                  ))}
+                </div>
               </div>
-            )}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
 
-        {/* Hint */}
-        {debouncedQuery.length < 2 && (
-          <div className="p-4 text-xs text-white/30 text-center">
-            Type at least 2 characters to search
-          </div>
-        )}
+        {/* Footer */}
+        <div style={{ padding: "0.625rem 1.5rem", borderTop: "1px solid rgba(255,255,255,0.05)", display: "flex", alignItems: "center", gap: "1.5rem" }}>
+          {[["↵", "to search"], ["ESC", "to close"]].map(([key, label]) => (
+            <span key={key} style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", gap: "0.35rem" }}>
+              <kbd style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "3px", padding: "1px 5px", fontSize: "0.58rem", fontFamily: "inherit" }}>{key}</kbd>
+              {label}
+            </span>
+          ))}
+        </div>
       </div>
-    </div>
+
+      <style>{`
+        @keyframes srFadeIn { from { opacity:0 } to { opacity:1 } }
+        @keyframes srSlideDown { from { transform:translateY(-16px); opacity:0 } to { transform:translateY(0); opacity:1 } }
+        @keyframes srSpin { to { transform:rotate(360deg) } }
+      `}</style>
+    </>
   );
 }

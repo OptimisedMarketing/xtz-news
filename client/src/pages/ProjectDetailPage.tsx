@@ -172,12 +172,19 @@ function RelatedNews({ projectName }: { projectName: string }) {
       <h2 style={{ fontSize: "0.85rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)", margin: "0 0 1.25rem", borderBottom: "2px solid #2c7df7", paddingBottom: "0.75rem" }}>
         Related News
       </h2>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "1rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "1rem" }}>
         {posts.map((post: any) => (
           <Link key={post.id} href={`/${post.slug}`} style={{ textDecoration: "none", display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
-            {post.featuredImageUrl && (
-              <img src={post.featuredImageUrl} alt={post.title} style={{ width: "60px", height: "45px", objectFit: "cover", borderRadius: "4px", flexShrink: 0 }} />
-            )}
+            <div style={{ width: "60px", height: "45px", borderRadius: "4px", flexShrink: 0, overflow: "hidden", background: "#05152e" }}>
+              {post.featuredImageUrl && (
+                <img
+                  src={post.featuredImageUrl}
+                  alt=""
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                />
+              )}
+            </div>
             <div>
               <h4 style={{ fontSize: "0.82rem", fontWeight: 600, color: "rgba(255,255,255,0.75)", margin: 0, lineHeight: 1.4 }}
                 onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#fff")}
