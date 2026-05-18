@@ -112,15 +112,31 @@ export default function ProjectsPage() {
           </div>
         )}
 
-        {/* Submit CTA */}
-        <div style={{ marginTop: "3rem", padding: "2rem", background: "rgba(44,125,247,0.06)", border: "1px solid rgba(44,125,247,0.2)", borderRadius: "8px", textAlign: "center" }}>
-          <h3 style={{ fontSize: "1.2rem", fontWeight: 700, color: "#fff", margin: "0 0 0.5rem" }}>Submit Your Project</h3>
-          <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.5)", margin: "0 0 1.25rem", maxWidth: "480px", marginLeft: "auto", marginRight: "auto" }}>
-            Building on Tezos? Submit your project to be featured on XTZ.News. We only list projects actively building in the Tezos ecosystem.
-          </p>
-          <Link href="/submit-article" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.75rem 2rem", background: "#2c7df7", borderRadius: "3px", color: "#fff", textDecoration: "none", fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-            Submit a Project
-          </Link>
+        {/* Submit Project CTA */}
+        <div style={{ marginTop: "4rem", background: "linear-gradient(135deg, #05152e 0%, #0d2a5e 100%)", border: "1px solid rgba(44,125,247,0.25)", borderRadius: "12px", overflow: "hidden", position: "relative" }}>
+          {/* Decorative background */}
+          <div style={{ position: "absolute", inset: 0, opacity: 0.04, backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 30px, rgba(44,125,247,0.8) 30px, rgba(44,125,247,0.8) 31px)", pointerEvents: "none" }} />
+          <div style={{ position: "relative", padding: "3rem 2.5rem", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "2rem" }}>
+            <div style={{ flex: 1, minWidth: "280px" }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", background: "rgba(44,125,247,0.12)", border: "1px solid rgba(44,125,247,0.25)", borderRadius: "100px", padding: "0.35rem 0.875rem", marginBottom: "1rem" }}>
+                <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#2c7df7" }} />
+                <span style={{ fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: "#2c7df7" }}>Building on Tezos?</span>
+              </div>
+              <h3 style={{ fontSize: "clamp(1.5rem, 3vw, 2.25rem)", fontWeight: 900, color: "#fff", margin: "0 0 0.75rem", lineHeight: 1.2, textTransform: "uppercase", letterSpacing: "0.02em" }}>Submit Your Project</h3>
+              <p style={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.55)", margin: 0, lineHeight: 1.7, maxWidth: "480px" }}>
+                Get your Tezos project featured on XTZ.News and reach thousands of Tezos enthusiasts, investors, and developers. We only list projects actively building in the Tezos ecosystem.
+              </p>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", flexShrink: 0 }}>
+              <Link href="/submit-article" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.875rem 2rem", background: "#2c7df7", borderRadius: "4px", color: "#fff", textDecoration: "none", fontSize: "0.85rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", whiteSpace: "nowrap", transition: "background 0.2s" }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "#1a6ae0")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "#2c7df7")}
+              >
+                Submit a Project →
+              </Link>
+              <p style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.3)", margin: 0, textAlign: "center" }}>Free · No sign-up required</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

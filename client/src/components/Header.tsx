@@ -7,6 +7,7 @@ interface HeaderProps {
 }
 
 const NAV_ITEMS = [
+  { label: "HOME", href: "/" },
   { label: "LATEST NEWS", href: "/category/latest-news" },
   {
     label: "CATEGORIES",
