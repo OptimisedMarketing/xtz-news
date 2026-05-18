@@ -236,23 +236,50 @@ function ShareButtons({ title, url, variant = "compact" }: ShareButtonsProps) {
     );
   }
 
-  // Compact variant (top of article)
+  // Compact variant (top of article) — brand-coloured icons
   return (
-    <div className="flex items-center gap-2 flex-wrap">
-      <span className="text-xs font-bold uppercase tracking-widest text-white/40 mr-1">Share:</span>
+    <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flexWrap: "wrap" }}>
+      <span style={{ fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)", marginRight: "0.25rem" }}>Share:</span>
       {buttons.map((btn) => (
         <a
           key={btn.label}
           href={btn.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="share-btn"
           aria-label={`Share on ${btn.label}`}
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "center",
+            width: "30px", height: "30px",
+            borderRadius: "4px",
+            background: btn.color,
+            color: "#fff",
+            textDecoration: "none",
+            transition: "opacity 0.2s, transform 0.1s",
+            flexShrink: 0,
+          }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.85"; (e.currentTarget as HTMLElement).style.transform = "scale(1.08)"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; (e.currentTarget as HTMLElement).style.transform = "scale(1)"; }}
         >
           {btn.icon}
         </a>
       ))}
-      <button onClick={copyLink} className="share-btn" aria-label="Copy link">
+      <button
+        onClick={copyLink}
+        aria-label="Copy link"
+        style={{
+          display: "flex", alignItems: "center", justifyContent: "center",
+          width: "30px", height: "30px",
+          borderRadius: "4px",
+          background: "rgba(255,255,255,0.12)",
+          border: "none",
+          color: "rgba(255,255,255,0.7)",
+          cursor: "pointer",
+          transition: "background 0.2s, transform 0.1s",
+          flexShrink: 0,
+        }}
+        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.22)"; (e.currentTarget as HTMLElement).style.transform = "scale(1.08)"; }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.12)"; (e.currentTarget as HTMLElement).style.transform = "scale(1)"; }}
+      >
         <Copy size={13} />
       </button>
     </div>
@@ -327,24 +354,28 @@ export default function ArticlePage() {
 
       <div className="container py-10">
         <div className="max-w-3xl mx-auto">
-          {/* Breadcrumb */}
-          <nav className="breadcrumb mb-5">
-            <Link href="/" className="hover:text-white transition-colors">
-              <Home size={12} />
+          {/* Breadcrumb — bold, visible, full title, no truncation */}
+          <nav style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.35rem", marginBottom: "1.25rem", fontSize: "0.8rem", fontWeight: 600 }}>
+            <Link href="/" style={{ color: "rgba(255,255,255,0.55)", display: "flex", alignItems: "center", textDecoration: "none", transition: "color 0.2s" }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#fff")}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.55)")}>
+              <Home size={13} />
             </Link>
-            <ChevronRight size={10} className="breadcrumb-sep" />
+            <ChevronRight size={11} style={{ color: "rgba(255,255,255,0.3)", flexShrink: 0 }} />
             {post.categories?.[0] && (
               <>
                 <Link
                   href={`/category/${post.categories[0].slug}`}
-                  className="hover:text-white transition-colors capitalize"
+                  style={{ color: "#2c7df7", textDecoration: "none", fontWeight: 700, transition: "color 0.2s", textTransform: "capitalize" }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#5a9fff")}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "#2c7df7")}
                 >
                   {post.categories[0].name}
                 </Link>
-                <ChevronRight size={10} className="breadcrumb-sep" />
+                <ChevronRight size={11} style={{ color: "rgba(255,255,255,0.3)", flexShrink: 0 }} />
               </>
             )}
-            <span className="text-white/60 truncate max-w-xs">{post.title}</span>
+            <span style={{ color: "rgba(255,255,255,0.85)", fontWeight: 600, lineHeight: 1.4 }}>{post.title}</span>
           </nav>
 
           {/* Category tags */}

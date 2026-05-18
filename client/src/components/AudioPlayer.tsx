@@ -97,9 +97,7 @@ export default function AudioPlayer({ src, title }: AudioPlayerProps) {
         <span style={{ fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#2c7df7" }}>
           Listen to this article
         </span>
-        <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.35)", marginLeft: "auto" }}>
-          Read by George · ElevenLabs AI
-        </span>
+
       </div>
 
       {/* Controls row */}
