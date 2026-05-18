@@ -51,6 +51,8 @@ export default function PricePage() {
 
   const [sortKey, setSortKey] = useState<SortKey>("marketCap");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterTrend, setFilterTrend] = useState<"all" | "up" | "down">("all");
 
   const xtz = tokens.find((t: any) => t.id === "tezos");
 
@@ -67,7 +69,19 @@ export default function PricePage() {
   }, [xtz]);
 
   const sorted = useMemo(() => {
-    return [...tokens].sort((a, b) => {
+    let filtered = [...tokens];
+    // Search filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter((t: any) =>
+        t.symbol.toLowerCase().includes(q) || t.name.toLowerCase().includes(q)
+      );
+    }
+    // Trend filter
+    if (filterTrend === "up") filtered = filtered.filter((t: any) => t.change24h >= 0);
+    if (filterTrend === "down") filtered = filtered.filter((t: any) => t.change24h < 0);
+
+    return filtered.sort((a, b) => {
       let av: number, bv: number;
       switch (sortKey) {
         case "name": return sortDir === "asc" ? a.symbol.localeCompare(b.symbol) : b.symbol.localeCompare(a.symbol);
@@ -80,7 +94,7 @@ export default function PricePage() {
       }
       return sortDir === "asc" ? av - bv : bv - av;
     });
-  }, [tokens, sortKey, sortDir]);
+  }, [tokens, sortKey, sortDir, searchQuery, filterTrend]);
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) setDir(sortDir === "asc" ? "desc" : "asc");
@@ -173,10 +187,36 @@ export default function PricePage() {
 
         {/* Token table */}
         <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "8px", overflow: "hidden" }}>
-          <div style={{ padding: "1rem 1.25rem", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-            <h2 style={{ fontSize: "0.9rem", fontWeight: 700, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.08em", margin: 0 }}>
+          <div style={{ padding: "1rem 1.25rem", borderBottom: "1px solid rgba(255,255,255,0.08)", display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.75rem" }}>
+            <h2 style={{ fontSize: "0.9rem", fontWeight: 700, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.08em", margin: 0, flex: 1, minWidth: "200px" }}>
               All Tezos Ecosystem Tokens
             </h2>
+            {/* Search */}
+            <div style={{ position: "relative" }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" style={{ position: "absolute", left: "0.6rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
+                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+              </svg>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search tokens..."
+                style={{ padding: "0.45rem 0.875rem 0.45rem 2rem", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "3px", color: "#fff", fontSize: "0.78rem", outline: "none", width: "180px", fontFamily: "inherit" }}
+                onFocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = "#2c7df7")}
+                onBlur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.12)")}
+              />
+            </div>
+            {/* Trend filter */}
+            <div style={{ display: "flex", gap: "0.35rem" }}>
+              {(["all", "up", "down"] as const).map((f) => (
+                <button key={f} onClick={() => setFilterTrend(f)}
+                  style={{ padding: "0.4rem 0.75rem", fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", background: filterTrend === f ? "#2c7df7" : "rgba(255,255,255,0.06)", border: filterTrend === f ? "1px solid #2c7df7" : "1px solid rgba(255,255,255,0.12)", borderRadius: "3px", color: filterTrend === f ? "#fff" : f === "up" ? "#4ade80" : f === "down" ? "#f87171" : "rgba(255,255,255,0.6)", cursor: "pointer", transition: "all 0.2s" }}>
+                  {f === "all" ? "All" : f === "up" ? "▲ Gainers" : "▼ Losers"}
+                </button>
+              ))}
+            </div>
+            {/* Result count */}
+            <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.3)" }}>{sorted.length} tokens</span>
           </div>
 
           {isLoading ? (

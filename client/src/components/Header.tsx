@@ -67,11 +67,11 @@ export default function Header({ onSearchOpen }: HeaderProps) {
           <Link href="/" style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.8)", textDecoration: "none" }}>
             XTZ.NEWS
           </Link>
-          <a href="https://crunchy.network/" target="_blank" rel="noopener noreferrer"
+          <Link href="/prices"
             style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.8)", display: "flex", alignItems: "center", gap: "0.35rem", textDecoration: "none" }}>
             <ExternalLink size={10} />
             TEZOS TOKEN TRACKER
-          </a>
+          </Link>
         </div>
       </div>
 
