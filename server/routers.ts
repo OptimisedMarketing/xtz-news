@@ -17,8 +17,52 @@ const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
 
 // ─── Posts Router ─────────────────────────────────────────────────────────────
 const postsRouter = router({
+  // Timeline query — higher limit, supports year/category filters
+  timeline: publicProcedure
+    .input(z.object({
+      limit: z.number().min(1).max(1000).default(50),
+      offset: z.number().default(0),
+      year: z.number().optional(),
+      categorySlug: z.string().optional(),
+    }))
+    .query(async ({ input }) => {
+      const { getDb } = await import('./db');
+      const { posts, postCategories, categories } = await import('../drizzle/schema');
+      const { eq, desc, and, sql, inArray } = await import('drizzle-orm');
+      const db = await getDb();
+      if (!db) return [];
+
+      let conditions: any[] = [eq(posts.status, 'publish')];
+
+      // Year filter
+      if (input.year) {
+        conditions.push(sql`YEAR(${posts.publishedAt}) = ${input.year}`);
+      }
+
+      // Category filter
+      if (input.categorySlug) {
+        const [cat] = await db.select({ id: categories.id }).from(categories).where(eq(categories.slug, input.categorySlug)).limit(1);
+        if (cat) {
+          const postIds = await db.select({ postId: postCategories.postId }).from(postCategories).where(eq(postCategories.categoryId, cat.id));
+          if (postIds.length > 0) {
+            conditions.push(inArray(posts.id, postIds.map(p => p.postId)));
+          } else {
+            return [];
+          }
+        }
+      }
+
+      const result = await db.select().from(posts)
+        .where(conditions.length === 1 ? conditions[0] : and(...conditions))
+        .orderBy(desc(posts.publishedAt))
+        .limit(input.limit)
+        .offset(input.offset);
+
+      return Promise.all(result.map(async (p) => ({ ...p, categories: await import('./db').then(m => m.getPostCategories(p.id)) })));
+    }),
+
   latest: publicProcedure
-    .input(z.object({ limit: z.number().min(1).max(50).default(10), offset: z.number().default(0) }))
+    .input(z.object({ limit: z.number().min(1).max(1000).default(10), offset: z.number().default(0) }))
     .query(async ({ input }) => {
       const postList = await db.getLatestPosts(input.limit, input.offset);
       const withCats = await Promise.all(
