@@ -40,6 +40,7 @@ function Router() {
       <Route path="/category/:slug" component={CategoryPage} />
       <Route path="/tag/:slug" component={TagPage} />
       <Route path="/projects" component={ProjectsPage} />
+      <Route path="/projects/:slug" component={ProjectDetailPage} />
       <Route path="/tezos-projects" component={ProjectsPage} />
       <Route path="/project/:slug" component={ProjectDetailPage} />
       <Route path="/timeline" component={TimelinePage} />

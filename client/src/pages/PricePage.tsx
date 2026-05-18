@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { TrendingUp, TrendingDown, ArrowUpDown, ExternalLink } from "lucide-react";
+import { TrendingUp, TrendingDown, ArrowUpDown, ExternalLink, Star } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
@@ -53,6 +53,23 @@ export default function PricePage() {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const [searchQuery, setSearchQuery] = useState("");
   const [filterTrend, setFilterTrend] = useState<"all" | "up" | "down">("all");
+  const [activeTab, setActiveTab] = useState<"all" | "watchlist">("all");
+  const [favourites, setFavourites] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem("xtz_watchlist");
+      return stored ? new Set(JSON.parse(stored)) : new Set();
+    } catch { return new Set(); }
+  });
+
+  const toggleFavourite = (id: string) => {
+    setFavourites((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      localStorage.setItem("xtz_watchlist", JSON.stringify(Array.from(next)));
+      return next;
+    });
+  };
 
   const xtz = tokens.find((t: any) => t.id === "tezos");
 
@@ -70,6 +87,10 @@ export default function PricePage() {
 
   const sorted = useMemo(() => {
     let filtered = [...tokens];
+    // Watchlist filter
+    if (activeTab === "watchlist") {
+      filtered = filtered.filter((t: any) => favourites.has(t.id));
+    }
     // Search filter
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -94,7 +115,7 @@ export default function PricePage() {
       }
       return sortDir === "asc" ? av - bv : bv - av;
     });
-  }, [tokens, sortKey, sortDir, searchQuery, filterTrend]);
+  }, [tokens, sortKey, sortDir, searchQuery, filterTrend, activeTab, favourites]);
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) setDir(sortDir === "asc" ? "desc" : "asc");
@@ -187,9 +208,20 @@ export default function PricePage() {
 
         {/* Token table */}
         <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "8px", overflow: "hidden" }}>
+          {/* Tab bar */}
+          <div style={{ display: "flex", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+            {(["all", "watchlist"] as const).map((tab) => (
+              <button key={tab} onClick={() => setActiveTab(tab)}
+                style={{ padding: "0.875rem 1.5rem", background: "none", border: "none", borderBottom: activeTab === tab ? "2px solid #2c7df7" : "2px solid transparent", color: activeTab === tab ? "#fff" : "rgba(255,255,255,0.4)", fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem", transition: "all 0.2s" }}>
+                {tab === "watchlist" && <Star size={13} style={{ fill: activeTab === "watchlist" ? "#facc15" : "none", stroke: activeTab === "watchlist" ? "#facc15" : "currentColor" }} />}
+                {tab === "all" ? "All Tokens" : `Watchlist (${favourites.size})`}
+              </button>
+            ))}
+          </div>
+
           <div style={{ padding: "1rem 1.25rem", borderBottom: "1px solid rgba(255,255,255,0.08)", display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.75rem" }}>
             <h2 style={{ fontSize: "0.9rem", fontWeight: 700, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.08em", margin: 0, flex: 1, minWidth: "200px" }}>
-              All Tezos Ecosystem Tokens
+              {activeTab === "watchlist" ? "My Watchlist" : "All Tezos Ecosystem Tokens"}
             </h2>
             {/* Search */}
             <div style={{ position: "relative" }}>
@@ -228,6 +260,7 @@ export default function PricePage() {
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                    <th style={{ padding: "0.75rem 0.5rem", width: "32px" }} />
                     <th style={{ padding: "0.75rem 1rem", textAlign: "left", fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)", width: "32px" }}>#</th>
                     <SortHeader label="Token" k="name" />
                     <SortHeader label="Price" k="price" />
@@ -254,6 +287,16 @@ export default function PricePage() {
                         onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.05)")}
                         onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "transparent")}
                       >
+                        {/* Star/Favourite */}
+                        <td style={{ padding: "0.875rem 0.5rem", textAlign: "center" }}>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); toggleFavourite(token.id); }}
+                            style={{ background: "none", border: "none", cursor: "pointer", padding: "2px", display: "flex", alignItems: "center", justifyContent: "center" }}
+                            aria-label={favourites.has(token.id) ? "Remove from watchlist" : "Add to watchlist"}
+                          >
+                            <Star size={14} style={{ fill: favourites.has(token.id) ? "#facc15" : "none", stroke: favourites.has(token.id) ? "#facc15" : "rgba(255,255,255,0.3)", transition: "all 0.2s" }} />
+                          </button>
+                        </td>
                         {/* Rank */}
                         <td style={{ padding: "0.875rem 1rem", fontSize: "0.8rem", color: "rgba(255,255,255,0.3)", textAlign: "center" }}>{idx + 1}</td>
 
