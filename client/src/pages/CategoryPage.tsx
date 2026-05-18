@@ -1,5 +1,5 @@
 import { useParams, Link } from "wouter";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Home, ChevronRight, ChevronDown, Loader2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import PostCard from "@/components/PostCard";
@@ -9,7 +9,6 @@ const PAGE_SIZE = 12;
 export default function CategoryPage() {
   const { slug } = useParams<{ slug: string }>();
   const [loadedCount, setLoadedCount] = useState(PAGE_SIZE);
-  const [allPosts, setAllPosts] = useState<any[]>([]);
   const [loadingMore, setLoadingMore] = useState(false);
 
   const { data: category } = trpc.categories.bySlug.useQuery(
@@ -19,21 +18,21 @@ export default function CategoryPage() {
 
   const { data, isLoading } = trpc.posts.byCategory.useQuery(
     { slug: slug || "", limit: loadedCount, offset: 0 },
-    {
-      enabled: !!slug,
-      onSuccess: (d) => setAllPosts(d.posts),
-    }
+    { enabled: !!slug }
   );
 
-  const posts = data?.posts ?? allPosts;
+  const posts = data?.posts ?? [];
   const total = data?.total ?? 0;
   const hasMore = posts.length < total;
+
+  // Clear loading state when new data arrives
+  useEffect(() => {
+    if (!isLoading) setLoadingMore(false);
+  }, [isLoading, posts.length]);
 
   const handleLoadMore = () => {
     setLoadingMore(true);
     setLoadedCount((c) => c + PAGE_SIZE);
-    // loading state cleared by query completing
-    setTimeout(() => setLoadingMore(false), 800);
   };
 
   return (
