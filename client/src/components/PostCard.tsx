@@ -33,7 +33,10 @@ function stripHtml(html: string) {
 /** Image with graceful fallback to navy placeholder on error */
 function PostImage({ src, alt, className, style }: { src: string; alt: string; className?: string; style?: React.CSSProperties }) {
   const [failed, setFailed] = useState(false);
-  if (failed) {
+  // Don't show fallback for manus-storage URLs — they use 307 redirects which can
+  // trigger onError in some browsers even when the image loads successfully
+  const isManus = src.startsWith('/manus-storage/');
+  if (failed && !isManus) {
     return (
       <div className={className} style={{ background: "linear-gradient(135deg, #05152e 0%, #0d2a5e 100%)", display: "flex", alignItems: "center", justifyContent: "center", ...style }}>
         <svg width="32" height="32" viewBox="0 0 40 40" fill="none" opacity="0.15">
@@ -49,7 +52,7 @@ function PostImage({ src, alt, className, style }: { src: string; alt: string; c
       alt={alt}
       className={className}
       style={style}
-      onError={() => setFailed(true)}
+      onError={() => { if (!isManus) setFailed(true); }}
     />
   );
 }
