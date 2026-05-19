@@ -407,6 +407,16 @@ export default function ArticlePage() {
               <span className="text-sm font-semibold text-white/70">XTZ News</span>
             </div>
             <span className="text-sm text-white/40">{formatDate(post.publishedAt)}</span>
+            {post.content && (() => {
+              const words = post.content.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length;
+              const mins = Math.max(1, Math.round(words / 200));
+              return (
+                <span className="text-sm text-white/40" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  {mins} min read
+                </span>
+              );
+            })()}
             <ShareButtons title={post.title} url={pageUrl} />
           </div>
 
