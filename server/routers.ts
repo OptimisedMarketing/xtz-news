@@ -468,6 +468,83 @@ const uploadRouter = router({
     }),
 });
 
+// ─── Image Migration Router ─────────────────────────────────────────────────
+const imageMigrationRouter = router({
+  // Migrate a single image: download from WordPress, upload to Manus Storage, return new URL
+  migrateImage: adminProcedure
+    .input(z.object({
+      imageUrl: z.string().url(),
+      secret: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      if (input.secret !== (process.env.CRON_SECRET_KEY || 'xtz-migrate-2026')) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' });
+      }
+      try {
+        const { storagePut } = await import('./storage');
+        // Download the image
+        const res = await fetch(input.imageUrl, {
+          signal: AbortSignal.timeout(15000),
+          headers: { 'User-Agent': 'XTZNews/1.0' },
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const contentType = res.headers.get('content-type') || 'image/jpeg';
+        const buffer = Buffer.from(await res.arrayBuffer());
+        // Extract filename from URL
+        const urlPath = new URL(input.imageUrl).pathname;
+        const filename = urlPath.split('/').pop() || 'image.jpg';
+        const key = `wp-media/${filename}`;
+        const { url } = await storagePut(key, buffer, contentType);
+        return { success: true, url };
+      } catch (e: any) {
+        return { success: false, error: e.message };
+      }
+    }),
+
+  // Bulk update post featuredImageUrl in DB
+  updatePostImage: adminProcedure
+    .input(z.object({
+      postId: z.number(),
+      newUrl: z.string(),
+      secret: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      if (input.secret !== (process.env.CRON_SECRET_KEY || 'xtz-migrate-2026')) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' });
+      }
+      const { getDb } = await import('./db');
+      const { posts } = await import('../drizzle/schema');
+      const { eq } = await import('drizzle-orm');
+      const database = await getDb();
+      if (!database) throw new Error('DB not available');
+      await database.update(posts).set({ featuredImageUrl: input.newUrl }).where(eq(posts.id, input.postId));
+      return { success: true };
+    }),
+
+  // Get all posts with WordPress image URLs that need migrating
+  getPendingImages: adminProcedure
+    .input(z.object({ secret: z.string(), limit: z.number().default(100), offset: z.number().default(0) }))
+    .query(async ({ input }) => {
+      if (input.secret !== (process.env.CRON_SECRET_KEY || 'xtz-migrate-2026')) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' });
+      }
+      const { getDb } = await import('./db');
+      const { posts } = await import('../drizzle/schema');
+      const { like, and, isNotNull, sql } = await import('drizzle-orm');
+      const database = await getDb();
+      if (!database) return { posts: [], total: 0 };
+      const results = await database.select({ id: posts.id, featuredImageUrl: posts.featuredImageUrl })
+        .from(posts)
+        .where(like(posts.featuredImageUrl, '%xtz.news/wp-content%'))
+        .limit(input.limit)
+        .offset(input.offset);
+      const [{ count }] = await database.select({ count: sql<number>`count(*)` })
+        .from(posts)
+        .where(like(posts.featuredImageUrl, '%xtz.news/wp-content%'));
+      return { posts: results, total: Number(count) };
+    }),
+});
+
 // ─── App Router ───────────────────────────────────────────────────────────────
 export const appRouter = router({
   system: systemRouter,
@@ -489,6 +566,7 @@ export const appRouter = router({
   newsletter: newsletterRouter,
   prices: priceRouter,
   upload: uploadRouter,
+  imageMigration: imageMigrationRouter,
 });
 
 export type AppRouter = typeof appRouter;
