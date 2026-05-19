@@ -337,23 +337,21 @@ export default function ArticlePage() {
 
   return (
     <article>
-      {/* Featured image hero — capped at 220px on mobile, 480px on desktop */}
+      {/* Featured image hero */}
       {post.featuredImageUrl && (
-        <div
-          className="w-full"
-          style={{ maxHeight: "clamp(220px, 40vw, 480px)", overflow: "hidden" }}
-        >
+        <div style={{ position: "relative", width: "100%", maxHeight: "clamp(240px, 45vw, 520px)", overflow: "hidden" }}>
           <img
             src={post.featuredImageUrl}
             alt={post.featuredImageAlt || post.title}
-            className="w-full object-cover"
-            style={{ maxHeight: "clamp(220px, 40vw, 480px)" }}
+            style={{ width: "100%", height: "clamp(240px, 45vw, 520px)", objectFit: "cover", display: "block" }}
+            onError={(e) => { (e.currentTarget as HTMLElement).parentElement!.style.display = "none"; }}
           />
+          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "40%", background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%)", pointerEvents: "none" }} />
         </div>
       )}
 
       <div className="container py-10">
-        <div className="max-w-3xl mx-auto">
+        <div style={{ maxWidth: "760px", margin: "0 auto" }}>
           {/* Breadcrumb — bold, visible, full title, no truncation */}
           <nav style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.35rem", marginBottom: "1.25rem", fontSize: "0.8rem", fontWeight: 600 }}>
             <Link href="/" style={{ color: "rgba(255,255,255,0.55)", display: "flex", alignItems: "center", textDecoration: "none", transition: "color 0.2s" }}
@@ -389,10 +387,10 @@ export default function ArticlePage() {
             </div>
           )}
 
-          {/* Title — responsive size: smaller on mobile, larger on desktop */}
+          {/* Title */}
           <h1
-            className="font-black text-white leading-tight mb-4"
-            style={{ fontSize: "clamp(1.2rem, 4vw, 1.875rem)", lineHeight: 1.25 }}
+            className="font-black text-white leading-tight mb-5"
+            style={{ fontSize: "clamp(1.5rem, 4.5vw, 2.5rem)", lineHeight: 1.2, letterSpacing: "-0.02em" }}
           >
             {post.title}
           </h1>

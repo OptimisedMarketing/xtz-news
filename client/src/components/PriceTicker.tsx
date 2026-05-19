@@ -1,4 +1,5 @@
 import { TrendingUp, TrendingDown } from "lucide-react";
+import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 
 function formatPrice(price: number): string {
@@ -40,6 +41,7 @@ function Sparkline({ data, isUp }: { data: number[]; isUp: boolean }) {
 }
 
 export default function PriceTicker() {
+  const [, navigate] = useLocation();
   const { data: tokens = [], isLoading } = trpc.prices.tezosTokens.useQuery(undefined, {
     refetchInterval: 90_000,
     staleTime: 60_000,
@@ -98,14 +100,10 @@ export default function PriceTicker() {
           {items.map((token, idx) => {
             const isUp = token.change24h >= 0;
             const sparkline = (token as any).sparkline ?? [];
-            const dexUrl = (token as any).dexUrl ?? `https://www.coingecko.com/en/coins/${token.id}`;
-
             return (
-              <a
+              <button
                 key={`${token.id}-${idx}`}
-                href={dexUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+                onClick={() => navigate("/prices")}
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -115,6 +113,8 @@ export default function PriceTicker() {
                   height: "36px",
                   whiteSpace: "nowrap",
                   textDecoration: "none",
+                  background: "none",
+                  border: "none",
                   transition: "background 0.15s",
                   cursor: "pointer",
                 }}
@@ -158,7 +158,7 @@ export default function PriceTicker() {
                   {isUp ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
                   {formatChange(token.change24h)}
                 </span>
-              </a>
+              </button>
             );
           })}
         </div>
