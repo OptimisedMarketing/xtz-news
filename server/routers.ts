@@ -471,7 +471,7 @@ const uploadRouter = router({
 // ─── Image Migration Router ─────────────────────────────────────────────────
 const imageMigrationRouter = router({
   // Migrate a single image: download from WordPress, upload to Manus Storage, return new URL
-  migrateImage: adminProcedure
+  migrateImage: publicProcedure
     .input(z.object({
       imageUrl: z.string().url(),
       secret: z.string(),
@@ -502,7 +502,7 @@ const imageMigrationRouter = router({
     }),
 
   // Bulk update post featuredImageUrl in DB
-  updatePostImage: adminProcedure
+  updatePostImage: publicProcedure
     .input(z.object({
       postId: z.number(),
       newUrl: z.string(),
@@ -522,7 +522,7 @@ const imageMigrationRouter = router({
     }),
 
   // Get all posts with WordPress image URLs that need migrating
-  getPendingImages: adminProcedure
+  getPendingImages: publicProcedure
     .input(z.object({ secret: z.string(), limit: z.number().default(100), offset: z.number().default(0) }))
     .query(async ({ input }) => {
       if (input.secret !== (process.env.CRON_SECRET_KEY || 'xtz-migrate-2026')) {
