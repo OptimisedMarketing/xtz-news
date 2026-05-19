@@ -134,6 +134,9 @@ export default function ProjectDetailPage() {
             )}
           </div>
 
+          {/* GitHub activity */}
+          {(project as any).github && <GitHubActivity githubUrl={(project as any).github} projectTitle={project.title} />}
+
           {/* Related news */}
           <RelatedNews projectName={project.title} />
 
@@ -197,6 +200,104 @@ function RelatedNews({ projectName }: { projectName: string }) {
               )}
             </div>
           </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function GitHubActivity({ githubUrl, projectTitle }: { githubUrl: string; projectTitle: string }) {
+  const { data: commits = [], isLoading } = trpc.projects.githubCommits.useQuery(
+    { githubUrl },
+    { enabled: !!githubUrl, staleTime: 5 * 60 * 1000 }
+  );
+
+  const fmt = (d: string) => {
+    const date = new Date(d);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "Yesterday";
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? "s" : ""} ago`;
+    return date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  };
+
+  if (isLoading) {
+    return (
+      <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "8px", padding: "1.75rem" }}>
+        <h2 style={{ fontSize: "0.85rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)", margin: "0 0 1.25rem", borderBottom: "2px solid #2c7df7", paddingBottom: "0.75rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(255,255,255,0.4)"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+          Recent Development Activity
+        </h2>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} style={{ display: "flex", gap: "0.875rem", alignItems: "flex-start" }}>
+              <div className="skeleton" style={{ width: "32px", height: "32px", borderRadius: "50%", flexShrink: 0 }} />
+              <div style={{ flex: 1 }}>
+                <div className="skeleton" style={{ height: "13px", borderRadius: "3px", width: `${60 + i * 10}%`, marginBottom: "0.4rem" }} />
+                <div className="skeleton" style={{ height: "10px", borderRadius: "3px", width: "30%" }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (!commits.length) return null;
+
+  // Extract repo info from URL
+  const repoMatch = githubUrl.match(/github\.com\/([^/]+\/[^/\s?#]+)/);
+  const repoPath = repoMatch ? repoMatch[1].replace(/\.git$/, "") : null;
+
+  return (
+    <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "8px", padding: "1.75rem" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem", paddingBottom: "0.75rem", borderBottom: "2px solid #2c7df7" }}>
+        <h2 style={{ fontSize: "0.85rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)", margin: 0, display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="rgba(255,255,255,0.4)"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+          Recent Development Activity
+        </h2>
+        {repoPath && (
+          <a href={githubUrl} target="_blank" rel="nofollow noopener noreferrer"
+            style={{ fontSize: "0.7rem", color: "#2c7df7", textDecoration: "none", fontWeight: 600, display: "flex", alignItems: "center", gap: "0.3rem" }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.textDecoration = "underline")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.textDecoration = "none")}
+          >
+            {repoPath} →
+          </a>
+        )}
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "0" }}>
+        {(commits as any[]).map((commit, i) => (
+          <a key={commit.sha} href={commit.url} target="_blank" rel="nofollow noopener noreferrer"
+            style={{ textDecoration: "none", display: "flex", gap: "0.875rem", alignItems: "flex-start", padding: "0.875rem 0", borderBottom: i < commits.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none", transition: "background 0.15s" }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.04)")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "transparent")}
+          >
+            {/* Commit dot */}
+            <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "rgba(44,125,247,0.1)", border: "1px solid rgba(44,125,247,0.25)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: "1px" }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2c7df7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="4"/>
+                <line x1="1.05" y1="12" x2="7" y2="12"/>
+                <line x1="17.01" y1="12" x2="22.96" y2="12"/>
+              </svg>
+            </div>
+
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontSize: "0.85rem", fontWeight: 500, color: "rgba(255,255,255,0.8)", margin: "0 0 0.25rem", lineHeight: 1.4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {commit.message}
+              </p>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.35)" }}>{commit.author}</span>
+                <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.25)" }}>·</span>
+                <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.35)" }}>{fmt(commit.date)}</span>
+                <code style={{ fontSize: "0.6rem", color: "#2c7df7", background: "rgba(44,125,247,0.1)", padding: "1px 5px", borderRadius: "3px", fontFamily: "monospace" }}>{commit.sha}</code>
+              </div>
+            </div>
+          </a>
         ))}
       </div>
     </div>
