@@ -35,8 +35,11 @@ function PostImage({ src, alt, className, style }: { src: string; alt: string; c
   const [failed, setFailed] = useState(false);
   if (failed) {
     return (
-      <div className={className} style={{ background: "var(--xtz-navy)", display: "flex", alignItems: "center", justifyContent: "center", ...style }}>
-        <span style={{ color: "rgba(255,255,255,0.1)", fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em" }}>XTZ.News</span>
+      <div className={className} style={{ background: "linear-gradient(135deg, #05152e 0%, #0d2a5e 100%)", display: "flex", alignItems: "center", justifyContent: "center", ...style }}>
+        <svg width="32" height="32" viewBox="0 0 40 40" fill="none" opacity="0.15">
+          <rect width="40" height="40" rx="6" fill="#2c7df7"/>
+          <text x="20" y="28" textAnchor="middle" fill="white" fontSize="18" fontWeight="900" fontFamily="Arial">X</text>
+        </svg>
       </div>
     );
   }
