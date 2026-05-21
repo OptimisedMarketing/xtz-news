@@ -35,6 +35,37 @@ async function startServer() {
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+  // ─── Custom Image Proxy (overrides framework storageProxy for wp-media) ────
+  // The framework storageProxy does a 307 redirect which some browsers don't
+  // follow for <img> tags. This intercepts wp-media requests and pipes bytes directly.
+  app.get("/manus-storage/wp-media/*", async (req, res) => {
+    const key = `wp-media/${(req.params as Record<string, string>)[0]}`;
+    const { ENV } = await import("./env");
+    if (!ENV.forgeApiUrl || !ENV.forgeApiKey) {
+      return res.status(500).send("Storage not configured");
+    }
+    try {
+      const forgeUrl = new URL("v1/storage/presign/get", ENV.forgeApiUrl.replace(/\/+$/, "") + "/");
+      forgeUrl.searchParams.set("path", key);
+      const forgeResp = await fetch(forgeUrl, { headers: { Authorization: `Bearer ${ENV.forgeApiKey}` } });
+      if (!forgeResp.ok) return res.status(502).send("Storage error");
+      const { url } = await forgeResp.json() as { url: string };
+      if (!url) return res.status(502).send("No URL");
+      const imgResp = await fetch(url, { signal: AbortSignal.timeout(15000) });
+      if (!imgResp.ok) return res.redirect(307, url);
+      const contentType = imgResp.headers.get("content-type") || "image/jpeg";
+      res.set("Content-Type", contentType);
+      res.set("Cache-Control", "public, max-age=31536000, immutable");
+      res.set("Access-Control-Allow-Origin", "*");
+      const buffer = await imgResp.arrayBuffer();
+      return res.send(Buffer.from(buffer));
+    } catch (e) {
+      return res.status(502).send("Proxy error");
+    }
+  });
+  // ─────────────────────────────────────────────────────────────────────────
+
   registerStorageProxy(app);
   registerOAuthRoutes(app);
   app.use(uploadRouter);
