@@ -15,6 +15,7 @@ export function registerStorageProxy(app: Express) {
     }
 
     try {
+      // Step 1: Get presigned GET URL from Forge
       const forgeUrl = new URL(
         "v1/storage/presign/get",
         ENV.forgeApiUrl.replace(/\/+$/, "") + "/",
@@ -38,8 +39,28 @@ export function registerStorageProxy(app: Express) {
         return;
       }
 
-      res.set("Cache-Control", "no-store");
-      res.redirect(307, url);
+      // Step 2: Fetch the actual file from CloudFront and pipe it to the client
+      // This avoids the 307 redirect which some browsers don't follow for img tags
+      const fileResp = await fetch(url, {
+        signal: AbortSignal.timeout(15000),
+      });
+
+      if (!fileResp.ok) {
+        // Fall back to redirect if direct fetch fails
+        res.set("Cache-Control", "no-store");
+        res.redirect(307, url);
+        return;
+      }
+
+      // Forward content-type and set long cache since the key includes a hash
+      const contentType = fileResp.headers.get("content-type") || "application/octet-stream";
+      res.set("Content-Type", contentType);
+      res.set("Cache-Control", "public, max-age=31536000, immutable"); // 1 year cache
+      res.set("Access-Control-Allow-Origin", "*");
+
+      // Pipe the response body
+      const buffer = await fileResp.arrayBuffer();
+      res.send(Buffer.from(buffer));
     } catch (err) {
       console.error("[StorageProxy] failed:", err);
       res.status(502).send("Storage proxy error");
