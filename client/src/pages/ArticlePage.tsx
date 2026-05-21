@@ -496,34 +496,130 @@ export default function ArticlePage() {
 
         {/* Related Posts */}
         {related.length > 0 && (
-          <section
-            style={{
-              marginTop: "3rem",
-              paddingTop: "2.5rem",
-              borderTop: "2px solid #2c7df7",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.5rem" }}>
-              <h2 className="section-title" style={{ marginBottom: 0 }}>RELATED ARTICLES</h2>
+          <section style={{ marginTop: "4rem" }}>
+            {/* Section header */}
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: "1.75rem",
+              paddingBottom: "1rem",
+              borderBottom: "1px solid rgba(255,255,255,0.08)",
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                <div style={{ width: "4px", height: "28px", background: "#2c7df7", borderRadius: "2px", flexShrink: 0 }} />
+                <div>
+                  <p style={{ margin: 0, fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: "#2c7df7", marginBottom: "2px" }}>You might also like</p>
+                  <h2 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#fff", letterSpacing: "-0.01em" }}>Related Articles</h2>
+                </div>
+              </div>
               {post.categories?.[0] && (
                 <Link
                   href={`/category/${post.categories[0].slug}`}
-                  className="btn-read-more"
-                  style={{ fontSize: "0.65rem", padding: "0.4rem 1rem" }}
+                  style={{
+                    fontSize: "0.7rem",
+                    fontWeight: 700,
+                    color: "#2c7df7",
+                    textDecoration: "none",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.3rem",
+                    padding: "0.4rem 0.875rem",
+                    border: "1px solid rgba(44,125,247,0.35)",
+                    borderRadius: "4px",
+                    transition: "background 0.2s, border-color 0.2s",
+                    whiteSpace: "nowrap",
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.1)"; (e.currentTarget as HTMLElement).style.borderColor = "#2c7df7"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(44,125,247,0.35)"; }}
                 >
-                  MORE FROM {post.categories[0].name.toUpperCase()}
+                  More from {post.categories[0].name} →
                 </Link>
               )}
             </div>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-                gap: "1rem",
-              }}
-            >
+
+            {/* Article cards grid */}
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
+              gap: "1.25rem",
+            }}>
               {related.map((p) => (
-                <PostCard key={p.id} post={p} variant="default" />
+                <Link key={p.id} href={`/${p.slug}`} style={{ textDecoration: "none", display: "block" }}>
+                  <div
+                    style={{
+                      background: "#05152e",
+                      border: "1px solid rgba(255,255,255,0.07)",
+                      borderRadius: "8px",
+                      overflow: "hidden",
+                      transition: "transform 0.2s, border-color 0.2s, box-shadow 0.2s",
+                      height: "100%",
+                    }}
+                    onMouseEnter={(e) => {
+                      const el = e.currentTarget as HTMLElement;
+                      el.style.transform = "translateY(-3px)";
+                      el.style.borderColor = "rgba(44,125,247,0.4)";
+                      el.style.boxShadow = "0 8px 24px rgba(0,0,0,0.4)";
+                    }}
+                    onMouseLeave={(e) => {
+                      const el = e.currentTarget as HTMLElement;
+                      el.style.transform = "translateY(0)";
+                      el.style.borderColor = "rgba(255,255,255,0.07)";
+                      el.style.boxShadow = "none";
+                    }}
+                  >
+                    {/* Card image */}
+                    <div style={{ position: "relative", paddingTop: "56.25%", background: "#0d2a5e", overflow: "hidden" }}>
+                      {p.featuredImageUrl && (
+                        <img
+                          src={p.featuredImageUrl}
+                          alt=""
+                          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+                          onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                        />
+                      )}
+                      {/* Category badge */}
+                      {p.categories?.[0] && (
+                        <div style={{
+                          position: "absolute",
+                          top: "0.625rem",
+                          left: "0.625rem",
+                          background: "#2c7df7",
+                          color: "#fff",
+                          fontSize: "0.55rem",
+                          fontWeight: 700,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.08em",
+                          padding: "2px 7px",
+                          borderRadius: "3px",
+                        }}>
+                          {p.categories[0].name}
+                        </div>
+                      )}
+                    </div>
+                    {/* Card content */}
+                    <div style={{ padding: "1rem" }}>
+                      <h3 style={{
+                        margin: "0 0 0.5rem",
+                        fontSize: "0.9rem",
+                        fontWeight: 700,
+                        color: "#fff",
+                        lineHeight: 1.4,
+                        display: "-webkit-box",
+                        WebkitLineClamp: 3,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                      }}>
+                        {p.title}
+                      </h3>
+                      {p.publishedAt && (
+                        <p style={{ margin: 0, fontSize: "0.65rem", color: "rgba(255,255,255,0.35)", fontWeight: 500 }}>
+                          {new Date(p.publishedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </Link>
               ))}
             </div>
           </section>
