@@ -158,6 +158,68 @@ async function startServer() {
     );
   });
 
+  // ─── Weekly Newsletter Digest ──────────────────────────────────────────────────
+  app.post("/api/scheduled/weekly-digest", async (req, res) => {
+    try {
+      const { sdk } = await import("./_core/sdk").catch(() => import("./sdk"));
+      const sdkModule = await import("./sdk");
+      const user = await sdkModule.sdk.authenticateRequest(req);
+      if (!user.isCron) return res.status(403).json({ error: "cron-only" });
+
+      const { getDb } = await import("../db");
+      const { posts, newsletterSubscribers } = await import("../../drizzle/schema");
+      const { eq, desc, gte } = await import("drizzle-orm");
+      const { invokeLLM } = await import("./_core/llm").catch(() => import("./llm"));
+      const llmModule = await import("./llm");
+      const db = await getDb();
+      if (!db) return res.json({ ok: true, skipped: "no-db" });
+
+      // Get top 5 posts from the last 7 days
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      const topPosts = await db.select({
+        id: posts.id, title: posts.title, slug: posts.slug,
+        excerpt: posts.excerpt, featuredImageUrl: posts.featuredImageUrl,
+        publishedAt: posts.publishedAt,
+      })
+        .from(posts)
+        .where(eq(posts.status, "publish"))
+        .orderBy(desc(posts.publishedAt))
+        .limit(5);
+
+      if (!topPosts.length) return res.json({ ok: true, skipped: "no-posts" });
+
+      // Get all active subscribers
+      const subscribers = await db.select({ email: newsletterSubscribers.email })
+        .from(newsletterSubscribers)
+        .where(eq(newsletterSubscribers.status, "active"));
+
+      if (!subscribers.length) return res.json({ ok: true, skipped: "no-subscribers" });
+
+      // Build the email HTML
+      const baseUrl = "https://xtz.news";
+      const articlesHtml = topPosts.map(p => {
+        const excerpt = (p.excerpt || "").replace(/<[^>]*>/g, "").slice(0, 120);
+        const img = p.featuredImageUrl ? `<img src="${p.featuredImageUrl.startsWith('/') ? baseUrl + p.featuredImageUrl : p.featuredImageUrl}" style="width:100%;max-height:200px;object-fit:cover;border-radius:6px;margin-bottom:12px" />` : "";
+        return `<div style="margin-bottom:28px;padding-bottom:28px;border-bottom:1px solid rgba(255,255,255,0.08)">${img}<h3 style="margin:0 0 8px;font-size:17px;font-weight:700;color:#fff"><a href="${baseUrl}/${p.slug}" style="color:#fff;text-decoration:none">${p.title}</a></h3><p style="margin:0 0 12px;font-size:14px;color:rgba(255,255,255,0.6);line-height:1.6">${excerpt}...</p><a href="${baseUrl}/${p.slug}" style="display:inline-block;padding:8px 18px;background:#2c7df7;color:#fff;text-decoration:none;border-radius:4px;font-size:13px;font-weight:600">Read More</a></div>`;
+      }).join("");
+
+      const emailHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:0;background:#000;font-family:Arial,sans-serif"><div style="max-width:600px;margin:0 auto;padding:20px"><div style="text-align:center;padding:24px 0;border-bottom:2px solid #2c7df7;margin-bottom:28px"><img src="${baseUrl}/manus-storage/xtz-logo-square_c6689606.png" alt="XTZ.News" style="height:60px" /><h1 style="color:#fff;font-size:22px;margin:12px 0 4px">XTZ.News Weekly Digest</h1><p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0">Your weekly roundup of Tezos news</p></div>${articlesHtml}<div style="text-align:center;padding:20px 0;border-top:1px solid rgba(255,255,255,0.08);margin-top:8px"><p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0">You're receiving this because you subscribed to XTZ.News. <a href="${baseUrl}" style="color:#2c7df7">Visit XTZ.News</a></p></div></div></body></html>`;
+
+      // Send via Manus notification system (owner notification as proxy for now)
+      // In production, integrate with an email service like Resend or SendGrid
+      const { notifyOwner } = await import("./_core/notification").catch(() => import("./notification"));
+      const notifyModule = await import("./_core/notification");
+      await notifyModule.notifyOwner({
+        title: `Weekly Digest Ready — ${topPosts.length} articles, ${subscribers.length} subscribers`,
+        content: `Top articles this week:\n${topPosts.map((p, i) => `${i+1}. ${p.title} — ${baseUrl}/${p.slug}`).join("\n")}\n\nSubscribers: ${subscribers.length}`,
+      });
+
+      res.json({ ok: true, articles: topPosts.length, subscribers: subscribers.length });
+    } catch (e: any) {
+      console.error("[weekly-digest] error:", e);
+      res.status(500).json({ error: e.message, timestamp: new Date().toISOString() });
+    }
+  });
   // ─────────────────────────────────────────────────────────────────────────
   // tRPC API
   app.use(

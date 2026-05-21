@@ -1,5 +1,5 @@
 import { useParams, Link } from "wouter";
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Twitter, Facebook, Linkedin, Send, Copy, Home, ChevronRight } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import PostCard from "@/components/PostCard";
@@ -288,6 +288,20 @@ function ShareButtons({ title, url, variant = "compact" }: ShareButtonsProps) {
 
 export default function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
+  const [readProgress, setReadProgress] = useState(0);
+
+  // Reading progress bar
+  useEffect(() => {
+    const onScroll = () => {
+      const el = document.documentElement;
+      const scrollTop = el.scrollTop || document.body.scrollTop;
+      const scrollHeight = el.scrollHeight - el.clientHeight;
+      if (scrollHeight <= 0) { setReadProgress(100); return; }
+      setReadProgress(Math.min(100, Math.round((scrollTop / scrollHeight) * 100)));
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const { data: post, isLoading, error } = trpc.posts.bySlug.useQuery(
     { slug: slug || "" },
@@ -337,6 +351,19 @@ export default function ArticlePage() {
 
   return (
     <article>
+      {/* Reading progress bar */}
+      <div style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: `${readProgress}%`,
+        height: "3px",
+        background: "linear-gradient(to right, #2c7df7, #5a9fff)",
+        zIndex: 9999,
+        transition: "width 0.1s linear",
+        pointerEvents: "none",
+      }} />
+
       {/* Featured image hero */}
       {post.featuredImageUrl && (
         <div style={{ position: "relative", width: "100%", maxHeight: "clamp(240px, 45vw, 520px)", overflow: "hidden" }}>
