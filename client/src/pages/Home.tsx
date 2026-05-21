@@ -218,7 +218,7 @@ function NewsTicker({ posts }: { posts: any[] }) {
           <div className="ticker-content">
             {items.map((p, i) => (
               <span key={`${p.id}-${i}`} style={{ display: "inline-flex", alignItems: "center", gap: "0.75rem", marginRight: "2rem" }}>
-                <Link href={`/${p.slug}`} style={{ fontSize: "0.75rem", fontWeight: 400, color: "rgba(255,255,255,0.75)", whiteSpace: "nowrap", textDecoration: "none", transition: "color 0.2s" }}
+                <Link href={`/${p.slug}`} style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.85)", whiteSpace: "nowrap", textDecoration: "none", transition: "color 0.2s" }}
                   onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#fff")}
                   onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.75)")}
                 >{p.title}</Link>
