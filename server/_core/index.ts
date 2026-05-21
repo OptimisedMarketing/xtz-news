@@ -161,16 +161,13 @@ async function startServer() {
   // ─── Weekly Newsletter Digest ──────────────────────────────────────────────────
   app.post("/api/scheduled/weekly-digest", async (req, res) => {
     try {
-      const { sdk } = await import("./_core/sdk").catch(() => import("./sdk"));
-      const sdkModule = await import("./sdk");
-      const user = await sdkModule.sdk.authenticateRequest(req);
+      const { sdk } = await import("./sdk");
+      const user = await sdk.authenticateRequest(req);
       if (!user.isCron) return res.status(403).json({ error: "cron-only" });
 
       const { getDb } = await import("../db");
       const { posts, newsletterSubscribers } = await import("../../drizzle/schema");
-      const { eq, desc, gte } = await import("drizzle-orm");
-      const { invokeLLM } = await import("./_core/llm").catch(() => import("./llm"));
-      const llmModule = await import("./llm");
+      const { eq, desc } = await import("drizzle-orm");
       const db = await getDb();
       if (!db) return res.json({ ok: true, skipped: "no-db" });
 
@@ -207,9 +204,8 @@ async function startServer() {
 
       // Send via Manus notification system (owner notification as proxy for now)
       // In production, integrate with an email service like Resend or SendGrid
-      const { notifyOwner } = await import("./_core/notification").catch(() => import("./notification"));
-      const notifyModule = await import("./_core/notification");
-      await notifyModule.notifyOwner({
+      const { notifyOwner } = await import("./notification");
+      await notifyOwner({
         title: `Weekly Digest Ready — ${topPosts.length} articles, ${subscribers.length} subscribers`,
         content: `Top articles this week:\n${topPosts.map((p, i) => `${i+1}. ${p.title} — ${baseUrl}/${p.slug}`).join("\n")}\n\nSubscribers: ${subscribers.length}`,
       });
