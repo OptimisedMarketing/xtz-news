@@ -41,6 +41,7 @@ export function registerStorageProxy(app: Express) {
 
       // Step 2: Fetch the actual file from CloudFront and pipe it to the client
       // This avoids the 307 redirect which some browsers don't follow for img tags
+      // Updated: May 21 2026 - direct pipe instead of redirect
       const fileResp = await fetch(url, {
         signal: AbortSignal.timeout(15000),
       });
