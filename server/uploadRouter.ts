@@ -7,7 +7,7 @@ export const uploadRouter = express.Router();
 
 // ─── Media proxy: pipes wp-media images directly (avoids 307 redirect) ─────────
 // This endpoint is in uploadRouter.ts which IS deployed (unlike server/_core/*)
-uploadRouter.get("/api/media/wp/:key", async (req, res) => {
+uploadRouter.get("/api/img/:key", async (req, res) => {
   const key = `wp-media/${req.params.key}`;
   if (!ENV.forgeApiUrl || !ENV.forgeApiKey) {
     return res.status(500).send("Storage not configured");
