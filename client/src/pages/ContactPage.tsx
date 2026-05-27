@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { Mail, Send, CheckCircle, AlertCircle, Loader2, ChevronRight, Home, MessageSquare, Shield } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useSEO } from "@/hooks/useSEO";
 
 const inputStyle: React.CSSProperties = {
   width: "100%",
@@ -41,6 +42,12 @@ function blurStyle(e: React.FocusEvent) {
 }
 
 export default function ContactPage() {
+  useSEO({
+    title: "Contact XTZ.News | Get in Touch with the Tezos News Team",
+    description: "Contact the XTZ.News editorial team. Submit news tips, press releases, advertising enquiries, or general questions about Tezos blockchain news.",
+    keywords: "contact XTZ News, Tezos news contact, submit Tezos news tip",
+    canonical: "https://xtz.news/contact",
+  });
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "", honeypot: "", captchaAnswer: "" });
   const [math, setMath] = useState(generateMath);
   const [submitted, setSubmitted] = useState(false);

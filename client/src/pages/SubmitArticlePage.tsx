@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Link } from "wouter";
 import { Upload, CheckCircle, AlertCircle, Loader2, Send, ChevronRight, Home, FileText, ImageIcon, X } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useSEO } from "@/hooks/useSEO";
 
 const inputStyle: React.CSSProperties = {
   width: "100%",
@@ -75,6 +76,12 @@ function FileZone({ label, accept, hint, icon, onChange, value, onClear }: {
 }
 
 export default function SubmitArticlePage() {
+  useSEO({
+    title: "Submit a Tezos Article | XTZ.News — Share Your Tezos Story",
+    description: "Submit your Tezos news article, press release, or project update to XTZ.News. Reach thousands of Tezos developers, investors, and enthusiasts.",
+    keywords: "submit Tezos article, Tezos press release, XTZ news submission, Tezos guest post",
+    canonical: "https://xtz.news/submit-article",
+  });
   const [form, setForm] = useState({ firstName: "", lastName: "", email: "", articleTitle: "", agreedToTerms: false });
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [articleFile, setArticleFile] = useState<File | null>(null);

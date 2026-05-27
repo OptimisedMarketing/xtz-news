@@ -99,6 +99,35 @@ export default function Footer() {
         </div>
       </div>
 
+      {/* ── More Tezos News: internal links for SEO ── */}
+      <div style={{ background: "#030e1f", borderTop: "1px solid rgba(255,255,255,0.06)", padding: "2rem 0" }}>
+        <div className="container">
+          <p style={{ fontSize: "0.65rem", fontWeight: 700, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "1rem" }}>More Tezos News</p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem 1.25rem" }}>
+            {[
+              { label: "Tezos DeFi News", href: "/category/defi" },
+              { label: "Tezos NFT News", href: "/category/nfts" },
+              { label: "Tezos Gaming News", href: "/category/games" },
+              { label: "Tezos Adoption", href: "/category/adoption" },
+              { label: "Tezos Stablecoins", href: "/category/stablecoins" },
+              { label: "Tezos Wallets", href: "/category/wallets" },
+              { label: "Tezos Tokenization", href: "/category/tokenization" },
+              { label: "Tezos Exhibition", href: "/category/exhibition" },
+              { label: "Tezos Music", href: "/category/music" },
+              { label: "Tezos Projects", href: "/projects" },
+              { label: "Tezos Timeline", href: "/timeline" },
+              { label: "Latest Tezos News", href: "/category/latest-news" },
+            ].map(link => (
+              <Link key={link.href} href={link.href} style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)", textDecoration: "none", transition: "color 0.2s" }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#2c7df7")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.4)")}>
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* ── Footer Top: nav + social ── */}
       <div style={{ background: "#05152e", borderTop: "1px solid rgba(255,255,255,0.1)", padding: "2.5rem 0" }}>
         <div className="container">

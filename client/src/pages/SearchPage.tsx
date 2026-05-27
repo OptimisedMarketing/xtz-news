@@ -3,12 +3,20 @@ import { useSearch } from "wouter";
 import { Search } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import PostCard from "@/components/PostCard";
+import { useSEO } from "@/hooks/useSEO";
 
 export default function SearchPage() {
   const searchStr = useSearch();
   const params = new URLSearchParams(searchStr);
   const initialQ = params.get("q") || "";
   const [query, setQuery] = useState(initialQ);
+
+  useSEO({
+    title: query ? `Search: "${query}" | XTZ.News` : "Search Tezos News | XTZ.News",
+    description: "Search thousands of Tezos news articles, project updates, DeFi news, NFT coverage, and blockchain developments on XTZ.News.",
+    keywords: "search Tezos news, find Tezos articles, XTZ news search",
+    canonical: "https://xtz.news/search",
+  });
   const [debouncedQ, setDebouncedQ] = useState(initialQ);
 
   useEffect(() => {

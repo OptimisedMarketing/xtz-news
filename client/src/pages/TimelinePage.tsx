@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import { Link } from "wouter";
 import { ChevronLeft, ChevronRight, Share2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useSEO } from "@/hooks/useSEO";
 
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
@@ -9,6 +10,12 @@ function getYear(d: Date | string | null | undefined) { return d ? new Date(d).g
 function getMonth(d: Date | string | null | undefined) { return d ? new Date(d).getMonth() : -1; } // 0-indexed
 
 export default function TimelinePage() {
+  useSEO({
+    title: "Tezos News Timeline | XTZ.News — Tezos Blockchain History",
+    description: "Browse the complete history of Tezos news chronologically. Explore Tezos protocol upgrades, ecosystem milestones, DeFi launches, NFT events, and XTZ developments by month and year.",
+    keywords: "Tezos timeline, Tezos history, Tezos protocol upgrades, Tezos milestones, XTZ blockchain history",
+    canonical: "https://xtz.news/timeline",
+  });
   const { data: allPosts = [], isLoading } = trpc.posts.timeline.useQuery({ limit: 1000 });
   const { data: categories = [] } = trpc.categories.all.useQuery();
 

@@ -2,10 +2,17 @@ import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { Search, Tag, TrendingUp, AlignLeft, ArrowUpDown } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useSEO } from "@/hooks/useSEO";
 
 type SortOption = "popular" | "alphabetical" | "recent";
 
 export default function CategoriesPage() {
+  useSEO({
+    title: "Tezos News Categories | XTZ.News — Browse by Topic",
+    description: "Browse all Tezos news categories on XTZ.News. Find articles on Tezos DeFi, NFTs, gaming, stablecoins, wallets, adoption, protocol upgrades, and more.",
+    keywords: "Tezos news categories, Tezos DeFi news, Tezos NFT news, Tezos gaming, Tezos stablecoins, Tezos adoption",
+    canonical: "https://xtz.news/categories",
+  });
   const { data: categories = [], isLoading } = trpc.categories.withImages.useQuery();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("popular");
