@@ -70,7 +70,7 @@ async function startServer() {
   registerOAuthRoutes(app);
   app.use(uploadRouter);
 
-  // ─── SEO Redirects (WordPress → new site URL structure) ───────────────────
+  // ─── SEO Redirects (WordPress → new site URL structure) ─ v2 2026-05-27 ──────
   // 1. Legacy WordPress /tezos-projects/ → /projects
   app.get("/tezos-projects", (req, res) => res.redirect(301, "/projects"));
   app.get("/tezos-projects/", (req, res) => res.redirect(301, "/projects"));
