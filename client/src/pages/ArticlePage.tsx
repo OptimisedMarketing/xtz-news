@@ -2,6 +2,7 @@ import { useParams, Link } from "wouter";
 import { useEffect, useState, useRef } from "react";
 import { Twitter, Facebook, Linkedin, Send, Copy, Home, ChevronRight } from "lucide-react";
 import XtzPriceWidget from "@/components/XtzPriceWidget";
+import ArticleNewsletterSignup from "@/components/ArticleNewsletterSignup";
 import { trpc } from "@/lib/trpc";
 import PostCard from "@/components/PostCard";
 import AudioPlayer from "@/components/AudioPlayer";
@@ -538,8 +539,11 @@ export default function ArticlePage() {
             <ShareButtons title={post.title} url={pageUrl} variant="full" />
           </div>
 
+          {/* Newsletter Signup */}
+          <ArticleNewsletterSignup />
+
           {/* XTZ Price Widget */}
-          <div style={{ marginTop: "2rem" }}>
+          <div style={{ marginTop: "1rem" }}>
             <XtzPriceWidget />
           </div>
         </div>
