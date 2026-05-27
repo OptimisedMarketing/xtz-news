@@ -74,39 +74,39 @@ async function startServer() {
   // 1. Legacy WordPress /tezos-projects/ → /projects
   app.get("/tezos-projects", (req, res) => res.redirect(301, "/projects"));
   app.get("/tezos-projects/", (req, res) => res.redirect(301, "/projects"));
-  // 2. Remove trailing slashes (WordPress used /slug/, new site uses /slug)
-  app.use((req, res, next) => {
-    if (req.path !== "/" && req.path.endsWith("/") && !req.path.startsWith("/api/")) {
-      const newPath = req.path.slice(0, -1) + (req.url.includes("?") ? req.url.slice(req.path.length) : "");
-      return res.redirect(301, newPath);
-    }
-    next();
-  });
-  // 3. Legacy WordPress /en/ prefix (WPML) → remove prefix
-  app.get("/en/*", (req, res) => {
-    const newPath = req.path.replace(/^\/en/, "") || "/";
-    res.redirect(301, newPath);
-  });
-  // 4. Legacy /fr/, /de/, /es/, /it/, /ja/, /ko/, /zh/ language prefixes → homepage
-  for (const lang of ["fr", "de", "es", "it", "ja", "ko", "zh", "uk", "hi"]) {
-    app.get(`/${lang}/*`, (req, res) => res.redirect(301, "/"));
-    app.get(`/${lang}`, (req, res) => res.redirect(301, "/"));
-  }
-  // 5. WordPress category-prefixed URLs: /category-slug/article-slug → /article-slug
-  // The old WordPress site used /:category/:slug/ structure.
-  // We detect these by checking if the path has exactly 2 segments and the first
-  // segment looks like a category (not a known route).
+  // 2-5. Combined WordPress URL normalisation middleware
+  // Handles in a single pass (no chained redirects):
+  //   a) Trailing slash removal: /slug/ → /slug
+  //   b) Language prefix removal: /en/slug → /slug, /fr/slug → /
+  //   c) Category-prefixed URLs: /category/article-slug/ → /article-slug
   const KNOWN_ROUTES = new Set([
     'api', 'admin', 'category', 'tag', 'projects', 'timeline', 'watch',
     'contact', 'advertise', 'submit-article', 'submit-project', 'categories',
-    'search', 'prices', 'manus-storage', '__manus__'
+    'search', 'prices', 'manus-storage', '__manus__', 'img', 'sitemap.xml',
+    'robots.txt', 'favicon.ico'
   ]);
+  const LANG_PREFIXES = new Set(['en', 'fr', 'de', 'es', 'it', 'ja', 'ko', 'zh', 'uk', 'hi']);
+
   app.use(async (req, res, next) => {
-    const parts = req.path.split('/').filter(Boolean);
-    // Match /category-slug/article-slug pattern (2 segments, no trailing slash handled above)
+    if (req.path.startsWith('/api/') || req.path.startsWith('/manus-storage/')) {
+      return next();
+    }
+
+    // Strip trailing slash first
+    let cleanPath = req.path.endsWith('/') && req.path !== '/' ? req.path.slice(0, -1) : req.path;
+    const parts = cleanPath.split('/').filter(Boolean);
+
+    // Language prefix: /en/... → /... or /fr/... → /
+    if (parts.length >= 1 && LANG_PREFIXES.has(parts[0])) {
+      if (parts[0] === 'en' && parts.length >= 2) {
+        return res.redirect(301, '/' + parts.slice(1).join('/'));
+      }
+      return res.redirect(301, '/');
+    }
+
+    // Category-prefixed: /category-slug/article-slug → /article-slug
     if (parts.length === 2 && !KNOWN_ROUTES.has(parts[0])) {
       const articleSlug = parts[1];
-      // Check if the article slug exists in the DB
       try {
         const { getDb } = await import('../db');
         const db = await getDb();
@@ -120,6 +120,12 @@ async function startServer() {
         }
       } catch {}
     }
+
+    // Trailing slash only (no category prefix)
+    if (req.path !== cleanPath) {
+      return res.redirect(301, cleanPath);
+    }
+
     next();
   });
   // ─────────────────────────────────────────────────────────────────────────
