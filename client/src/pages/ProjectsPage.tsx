@@ -149,9 +149,9 @@ function ProjectCard({ project }: { project: any }) {
   return (
     <Link href={`/projects/${project.slug}`} style={{ textDecoration: "none" }}>
       <article
-        style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", overflow: "hidden", transition: "transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease", cursor: "pointer", height: "100%", display: "flex", flexDirection: "column" }}
-        onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.transform = "translateY(-4px)"; el.style.borderColor = "rgba(44,125,247,0.4)"; el.style.boxShadow = "0 12px 40px rgba(0,0,0,0.5)"; }}
-        onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.transform = "translateY(0)"; el.style.borderColor = "rgba(255,255,255,0.07)"; el.style.boxShadow = "none"; }}
+        style={{ background: project.featured ? "linear-gradient(135deg, #0a1f3d 0%, #0d2a5e 100%)" : "#05152e", border: project.featured ? "1px solid rgba(245,158,11,0.5)" : "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", overflow: "hidden", transition: "transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease", cursor: "pointer", height: "100%", display: "flex", flexDirection: "column", boxShadow: project.featured ? "0 0 20px rgba(245,158,11,0.1)" : "none" }}
+        onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.transform = "translateY(-4px)"; el.style.borderColor = project.featured ? "rgba(245,158,11,0.8)" : "rgba(44,125,247,0.4)"; el.style.boxShadow = project.featured ? "0 12px 40px rgba(245,158,11,0.2)" : "0 12px 40px rgba(0,0,0,0.5)"; }}
+        onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.transform = "translateY(0)"; el.style.borderColor = project.featured ? "rgba(245,158,11,0.5)" : "rgba(255,255,255,0.07)"; el.style.boxShadow = project.featured ? "0 0 20px rgba(245,158,11,0.1)" : "none"; }}
       >
         <div style={{ height: "140px", position: "relative", overflow: "hidden", flexShrink: 0 }}>
           {project.featuredImageUrl ? (
