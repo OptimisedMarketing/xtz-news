@@ -92,6 +92,36 @@ async function startServer() {
     app.get(`/${lang}/*`, (req, res) => res.redirect(301, "/"));
     app.get(`/${lang}`, (req, res) => res.redirect(301, "/"));
   }
+  // 5. WordPress category-prefixed URLs: /category-slug/article-slug → /article-slug
+  // The old WordPress site used /:category/:slug/ structure.
+  // We detect these by checking if the path has exactly 2 segments and the first
+  // segment looks like a category (not a known route).
+  const KNOWN_ROUTES = new Set([
+    'api', 'admin', 'category', 'tag', 'projects', 'timeline', 'watch',
+    'contact', 'advertise', 'submit-article', 'submit-project', 'categories',
+    'search', 'prices', 'manus-storage', '__manus__'
+  ]);
+  app.use(async (req, res, next) => {
+    const parts = req.path.split('/').filter(Boolean);
+    // Match /category-slug/article-slug pattern (2 segments, no trailing slash handled above)
+    if (parts.length === 2 && !KNOWN_ROUTES.has(parts[0])) {
+      const articleSlug = parts[1];
+      // Check if the article slug exists in the DB
+      try {
+        const { getDb } = await import('../db');
+        const db = await getDb();
+        if (db) {
+          const { posts } = await import('../../drizzle/schema');
+          const { eq } = await import('drizzle-orm');
+          const result = await db.select({ id: posts.id }).from(posts).where(eq(posts.slug, articleSlug)).limit(1);
+          if (result.length > 0) {
+            return res.redirect(301, '/' + articleSlug);
+          }
+        }
+      } catch {}
+    }
+    next();
+  });
   // ─────────────────────────────────────────────────────────────────────────
 
   // ─── Dynamic Sitemap ─────────────────────────────────────────────────────
