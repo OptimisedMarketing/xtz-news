@@ -347,8 +347,19 @@ export default function Home() {
   const mostRead = data?.mostRead ?? [];
   const featured = data?.featured ?? [];
 
+  useEffect(() => {
+    document.title = "Tezos News | XTZ.News — Latest Tezos Blockchain Updates";
+    const desc = document.querySelector('meta[name="description"]') as HTMLMetaElement | null;
+    if (desc) desc.content = "XTZ.News is the leading source for Tezos news. Get the latest Tezos blockchain updates, XTZ price, DeFi, NFTs, protocol upgrades, and ecosystem developments.";
+    return () => { document.title = "XTZ.News — Tezos News"; };
+  }, []);
+
   return (
     <div style={{ background: "#000" }}>
+      {/* SEO: visually hidden H1 with primary keyword */}
+      <h1 style={{ position: "absolute", width: "1px", height: "1px", padding: 0, margin: "-1px", overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: 0 }}>
+        Tezos News — Latest XTZ Blockchain Updates, DeFi, NFTs &amp; Ecosystem
+      </h1>
       {isLoading ? <HeroSkeleton /> : <HeroSection latestPosts={latest} mostReadPosts={mostRead} />}
       <NewsTicker posts={latest.slice(0, 10)} />
       <HomepageFilters />
