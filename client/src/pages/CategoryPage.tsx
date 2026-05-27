@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Home, ChevronRight, ChevronDown, Loader2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import PostCard from "@/components/PostCard";
+import { useSEO } from "@/hooks/useSEO";
 
 const PAGE_SIZE = 12;
 
@@ -17,6 +18,14 @@ export default function CategoryPage() {
     { slug: slug || "" },
     { enabled: !!slug }
   );
+
+  const catName = category?.name || (slug || "").replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+  useSEO({
+    title: `${catName} News | XTZ.News — Tezos ${catName} Updates`,
+    description: `The latest Tezos ${catName.toLowerCase()} news and updates. Stay informed on ${catName.toLowerCase()} developments in the Tezos blockchain ecosystem.`,
+    keywords: `Tezos ${catName.toLowerCase()}, XTZ ${catName.toLowerCase()}, Tezos ${catName.toLowerCase()} news, Tezos blockchain ${catName.toLowerCase()}`,
+    canonical: `https://xtz.news/category/${slug || ""}`,
+  });
 
   const { data, isLoading } = trpc.posts.byCategory.useQuery(
     { slug: slug || "", limit: loadedCount, offset: 0 },

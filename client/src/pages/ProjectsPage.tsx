@@ -2,8 +2,15 @@ import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { ExternalLink, Search, Globe } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useSEO } from "@/hooks/useSEO";
 
 export default function ProjectsPage() {
+  useSEO({
+    title: "Tezos Projects Directory | XTZ.News — Tezos DeFi, NFTs & dApps",
+    description: "Explore the Tezos ecosystem. Discover the best Tezos projects including DeFi protocols, NFT platforms, wallets, developer tools, and dApps built on Tezos.",
+    keywords: "Tezos projects, Tezos DeFi, Tezos NFT, Tezos dApps, Tezos ecosystem, Tezos wallets, Tezos developer tools, XTZ projects",
+    canonical: "https://xtz.news/projects",
+  });
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState<"featured" | "az" | "za" | "newest">("featured");
