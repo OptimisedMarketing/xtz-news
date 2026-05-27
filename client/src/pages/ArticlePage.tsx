@@ -1,6 +1,7 @@
 import { useParams, Link } from "wouter";
 import { useEffect, useState, useRef } from "react";
 import { Twitter, Facebook, Linkedin, Send, Copy, Home, ChevronRight } from "lucide-react";
+import XtzPriceWidget from "@/components/XtzPriceWidget";
 import { trpc } from "@/lib/trpc";
 import PostCard from "@/components/PostCard";
 import AudioPlayer from "@/components/AudioPlayer";
@@ -535,6 +536,11 @@ export default function ArticlePage() {
           {/* Share again at bottom — full labelled variant */}
           <div className="mt-8">
             <ShareButtons title={post.title} url={pageUrl} variant="full" />
+          </div>
+
+          {/* XTZ Price Widget */}
+          <div style={{ marginTop: "2rem" }}>
+            <XtzPriceWidget />
           </div>
         </div>
 
