@@ -10,6 +10,8 @@ export default function CategoryPage() {
   const { slug } = useParams<{ slug: string }>();
   const [loadedCount, setLoadedCount] = useState(PAGE_SIZE);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'popular'>('newest');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { data: category } = trpc.categories.bySlug.useQuery(
     { slug: slug || "" },
@@ -21,9 +23,19 @@ export default function CategoryPage() {
     { enabled: !!slug }
   );
 
-  const posts = data?.posts ?? [];
+  const allPosts = data?.posts ?? [];
   const total = data?.total ?? 0;
-  const hasMore = posts.length < total;
+
+  // Client-side filter and sort
+  const posts = allPosts
+    .filter(p => !searchQuery || p.title.toLowerCase().includes(searchQuery.toLowerCase()))
+    .sort((a, b) => {
+      if (sortBy === 'oldest') return new Date(a.publishedAt || 0).getTime() - new Date(b.publishedAt || 0).getTime();
+      if (sortBy === 'popular') return (b.viewCount || 0) - (a.viewCount || 0);
+      return new Date(b.publishedAt || 0).getTime() - new Date(a.publishedAt || 0).getTime();
+    });
+
+  const hasMore = allPosts.length < total;
 
   // Clear loading state when new data arrives
   useEffect(() => {
@@ -58,6 +70,31 @@ export default function CategoryPage() {
             <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.4)", marginTop: "0.5rem" }}>
               {total} articles
             </p>
+          )}
+        </div>
+      </div>
+
+      {/* Filter & Sort Bar */}
+      <div style={{ background: '#05152e', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '0.75rem 0' }}>
+        <div className="container" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
+          <input
+            type="text"
+            placeholder="Search in this category..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            style={{ flex: '1 1 200px', minWidth: '160px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '4px', padding: '0.45rem 0.75rem', color: '#fff', fontSize: '0.82rem', outline: 'none' }}
+          />
+          <div style={{ display: 'flex', gap: '0.4rem' }}>
+            {(['newest', 'oldest', 'popular'] as const).map(s => (
+              <button
+                key={s}
+                onClick={() => setSortBy(s)}
+                style={{ padding: '0.4rem 0.8rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', cursor: 'pointer', border: sortBy === s ? '1px solid #2c7df7' : '1px solid rgba(255,255,255,0.15)', background: sortBy === s ? '#2c7df7' : 'transparent', color: sortBy === s ? '#fff' : 'rgba(255,255,255,0.5)', transition: 'all 0.15s' }}
+              >{s}</button>
+            ))}
+          </div>
+          {searchQuery && (
+            <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)' }}>{posts.length} results</span>
           )}
         </div>
       </div>

@@ -84,9 +84,53 @@ function useOpenGraph(post: {
     }
     canonical.setAttribute("href", url);
 
+    // Schema.org NewsArticle JSON-LD structured data
+    const schemaId = 'schema-newsarticle';
+    let schemaEl = document.getElementById(schemaId) as HTMLScriptElement | null;
+    if (!schemaEl) {
+      schemaEl = document.createElement('script');
+      schemaEl.id = schemaId;
+      schemaEl.type = 'application/ld+json';
+      document.head.appendChild(schemaEl);
+    }
+    const schema = {
+      '@context': 'https://schema.org',
+      '@type': 'NewsArticle',
+      'headline': post.title,
+      'description': description,
+      'image': [image],
+      'url': url,
+      'datePublished': post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined,
+      'dateModified': post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined,
+      'author': [{
+        '@type': 'Organization',
+        'name': 'XTZ.News',
+        'url': 'https://xtz.news'
+      }],
+      'publisher': {
+        '@type': 'Organization',
+        'name': 'XTZ.News',
+        'url': 'https://xtz.news',
+        'logo': {
+          '@type': 'ImageObject',
+          'url': 'https://xtz.news/manus-storage/xtz-logo-square_c6689606.png'
+        }
+      },
+      'mainEntityOfPage': {
+        '@type': 'WebPage',
+        '@id': url
+      },
+      'articleSection': post.categories?.[0]?.name || 'Tezos News',
+      'keywords': post.categories?.map((c: { name: string }) => c.name).join(', ') || 'Tezos, XTZ, blockchain'
+    };
+    schemaEl.textContent = JSON.stringify(schema);
+
     // Reset title when leaving the page
     return () => {
       document.title = "XTZ.News — Tezos News";
+      // Remove schema on unmount
+      const el = document.getElementById(schemaId);
+      if (el) el.remove();
     };
   }, [post?.slug]);
 }
@@ -312,7 +356,7 @@ export default function ArticlePage() {
     {
       postId: post?.id ?? 0,
       categoryIds: post?.categories?.map((c) => c.id) ?? [],
-      limit: 4,
+      limit: 6,
     },
     { enabled: !!post }
   );
