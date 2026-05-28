@@ -52,3 +52,17 @@
 - [x] Vitest unit tests for key procedures (20 tests passing)
 - [x] Cross-browser check
 - [x] Final checkpoint and deliver
+
+## Phase 9: Blockchain Explorer
+- [x] explorerRouter.ts — TzKT + CoinGecko tRPC endpoints (networkStats, latestBlocks, blockByLevel, blockByHash, latestTransactions, transactionByHash, accountByAddress, bakers, search, tokenTransfers, governance)
+- [x] ExplorerPage.tsx — Dashboard with search, network stats, latest blocks/txs, token transfers
+- [x] BlockPage.tsx — Block detail page (level/hash lookup, operations list)
+- [x] TxPage.tsx — Transaction detail page
+- [x] AddressPage.tsx — Address/account detail with balance, delegations, recent txs
+- [x] BakersPage.tsx — Baker leaderboard (top 50 by balance)
+- [x] App.tsx — All 5 explorer routes added
+- [x] Header.tsx — EXPLORER added to nav
+- [x] Fixed bakers sort: sort.desc=stakingBalance → sort.desc=balance (TzKT API constraint)
+- [x] All endpoints verified working via curl tests
+- [x] TypeScript check: 0 errors
+- [x] All 20 tests passing
