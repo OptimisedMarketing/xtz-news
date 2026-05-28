@@ -406,6 +406,87 @@ export const explorerRouter = router({
       };
     }),
 
+  // ─── Best baker recommendation (for small delegators) ────────────────────────
+  bestBaker: publicProcedure.query(async () => {
+    // Fetch top 50 active bakers
+    const [bakers, head] = await Promise.all([
+      tzkt(`/delegates?limit=50&sort.desc=balance&active=true`),
+      tzkt(`/head`),
+    ]);
+    const rewardCycle = Math.max(1, (head.cycle ?? 1) - 2);
+
+    // Filter to bakers with <500 delegators and >10 delegators (established but not saturated)
+    const candidates = (bakers as any[]).filter(
+      (b: any) => (b.numDelegators ?? 0) < 500 && (b.numDelegators ?? 0) >= 5
+    );
+
+    if (candidates.length === 0) return null;
+
+    // Fetch rewards + delegate params for each candidate in parallel
+    async function getCandidateData(b: any) {
+      try {
+        const [rewards, delegate] = await Promise.all([
+          tzkt(`/rewards/bakers/${b.address}?limit=5&sort.desc=cycle&cycle.lt=${rewardCycle}`),
+          tzkt(`/delegates/${b.address}`),
+        ]);
+
+        // Compute avg APY over last 5 cycles
+        const apys: number[] = [];
+        const uptimes: number[] = [];
+        for (const r of (rewards as any[])) {
+          const total =
+            (r.blockRewardsDelegated ?? 0) + (r.blockRewardsStakedOwn ?? 0) +
+            (r.attestationRewardsDelegated ?? 0) + (r.attestationRewardsStakedOwn ?? 0) +
+            (r.dalAttestationRewardsDelegated ?? 0) + (r.dalAttestationRewardsStakedOwn ?? 0);
+          const bp = r.bakingPower ?? 0;
+          if (bp > 0) apys.push((total * 365) / bp * 100);
+          const ea = r.expectedAttestations ?? 0;
+          const aa = r.attestations ?? 0;
+          if (ea > 0) uptimes.push(aa / ea * 100);
+        }
+        if (apys.length === 0) return null;
+
+        const avgApy = apys.reduce((a, x) => a + x, 0) / apys.length;
+        const avgUptime = uptimes.length > 0 ? uptimes.reduce((a, x) => a + x, 0) / uptimes.length : 99;
+        const edgeRaw = delegate.edgeOfBakingOverStaking ?? null;
+        const feeRate = edgeRaw != null ? edgeRaw / 1e9 * 100 : 15; // default 15% if unknown
+
+        // Score: APY (weight 50%) + uptime (weight 30%) + low fee (weight 20%)
+        // Normalise fee: 0% fee = 100 score, 20%+ fee = 0 score
+        const feeScore = Math.max(0, 100 - feeRate * 5);
+        const score = avgApy * 0.5 + (avgUptime - 99) * 3 + feeScore * 0.2;
+
+        return {
+          address: b.address,
+          alias: b.alias || null,
+          stakingBalance: mutez(b.stakingBalance),
+          numDelegators: b.numDelegators ?? 0,
+          avgApy: parseFloat(avgApy.toFixed(2)),
+          avgUptime: parseFloat(avgUptime.toFixed(1)),
+          feeRate: parseFloat(feeRate.toFixed(1)),
+          score,
+          activeSince: delegate.activationTime ?? null,
+        };
+      } catch {
+        return null;
+      }
+    }
+
+    // Process in batches of 5
+    const results: any[] = [];
+    for (let i = 0; i < candidates.length; i += 5) {
+      const batch = candidates.slice(i, i + 5);
+      const batchResults = await Promise.all(batch.map(getCandidateData));
+      results.push(...batchResults.filter(Boolean));
+    }
+
+    if (results.length === 0) return null;
+
+    // Pick the highest-scoring candidate
+    results.sort((a, b) => b.score - a.score);
+    return results[0];
+  }),
+
   // ─── Voting / governance ─────────────────────────────────────────────────────
   governance: publicProcedure.query(async () => {
     const [period, proposals] = await Promise.allSettled([

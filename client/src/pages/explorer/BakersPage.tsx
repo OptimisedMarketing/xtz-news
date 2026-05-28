@@ -368,6 +368,100 @@ function CompareModal({ addresses, allBakers, onClose }: { addresses: string[]; 
   );
 }
 
+// ── Best Baker recommendation card ───────────────────────────────────────────
+function BestBakerCard({ onInspect, onCompare }: { onInspect: (addr: string) => void; onCompare: (addr: string) => void }) {
+  const { data, isLoading } = trpc.explorer.bestBaker.useQuery(undefined, {
+    staleTime: 5 * 60_000, // cache 5 min — this is expensive to compute
+  });
+
+  if (isLoading) {
+    return (
+      <div style={{ marginBottom: "1.5rem", padding: "1.25rem 1.5rem", background: "#05152e", border: "1px solid rgba(44,125,247,0.15)", borderRadius: "10px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          <div className="skeleton" style={{ width: "36px", height: "36px", borderRadius: "8px", flexShrink: 0 }} />
+          <div style={{ flex: 1 }}>
+            <div className="skeleton" style={{ height: "12px", width: "200px", marginBottom: "8px" }} />
+            <div className="skeleton" style={{ height: "20px", width: "300px" }} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) return null;
+
+  const yearsSince = data.activeSince ? new Date().getFullYear() - new Date(data.activeSince).getFullYear() : null;
+
+  return (
+    <div style={{ marginBottom: "1.5rem", padding: "1.25rem 1.5rem", background: "linear-gradient(135deg, rgba(44,125,247,0.1) 0%, rgba(16,185,129,0.06) 100%)", border: "1px solid rgba(44,125,247,0.3)", borderRadius: "10px", position: "relative", overflow: "hidden" }}>
+      {/* Glow accent */}
+      <div style={{ position: "absolute", top: "-20px", right: "-20px", width: "120px", height: "120px", background: "radial-gradient(circle, rgba(44,125,247,0.15) 0%, transparent 70%)", pointerEvents: "none" }} />
+
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem", flex: 1, minWidth: "260px" }}>
+          {/* Star icon */}
+          <div style={{ width: "40px", height: "40px", background: "rgba(44,125,247,0.2)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: "1.2rem" }}>
+            ⭐
+          </div>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.3rem", flexWrap: "wrap" }}>
+              <span style={{ fontSize: "0.62rem", fontWeight: 800, color: "#2c7df7", textTransform: "uppercase", letterSpacing: "0.1em", background: "rgba(44,125,247,0.15)", border: "1px solid rgba(44,125,247,0.3)", borderRadius: "20px", padding: "0.15rem 0.6rem" }}>Best for Small Delegators</span>
+              <span style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.3)" }}>Auto-selected by APY + uptime + fee score</span>
+            </div>
+            <div style={{ fontSize: "1.15rem", fontWeight: 900, color: "#fff", marginBottom: "0.5rem" }}>
+              {data.alias || "Unknown Baker"}
+              {yearsSince != null && yearsSince >= 2 && (
+                <span style={{ fontSize: "0.7rem", fontWeight: 600, color: "rgba(255,255,255,0.35)", marginLeft: "0.5rem" }}>· {yearsSince}y track record</span>
+              )}
+            </div>
+            {/* Stat pills */}
+            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+              {[
+                { label: "Avg APY", value: `${data.avgApy}%`, color: "#22c55e" },
+                { label: "Uptime", value: `${data.avgUptime}%`, color: "#2c7df7" },
+                { label: "Fee", value: `${data.feeRate}%`, color: data.feeRate <= 5 ? "#22c55e" : data.feeRate <= 15 ? "#f59e0b" : "#ef4444" },
+                { label: "Delegators", value: data.numDelegators.toLocaleString(), color: "rgba(255,255,255,0.6)" },
+              ].map(s => (
+                <div key={s.label} style={{ display: "flex", alignItems: "center", gap: "0.3rem", padding: "0.25rem 0.65rem", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "20px" }}>
+                  <span style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.35)", fontWeight: 600 }}>{s.label}</span>
+                  <span style={{ fontSize: "0.78rem", fontWeight: 800, color: s.color }}>{s.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Action buttons */}
+        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexShrink: 0, flexWrap: "wrap" }}>
+          <button
+            onClick={() => onInspect(data.address)}
+            style={{ padding: "0.5rem 1rem", background: "rgba(44,125,247,0.15)", border: "1px solid rgba(44,125,247,0.35)", borderRadius: "6px", color: "#2c7df7", fontWeight: 700, fontSize: "0.78rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.35rem", transition: "background 0.15s" }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.25)")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.15)")}>
+            <Info size={13} /> View Details
+          </button>
+          <button
+            onClick={() => onCompare(data.address)}
+            style={{ padding: "0.5rem 1rem", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "6px", color: "rgba(255,255,255,0.7)", fontWeight: 700, fontSize: "0.78rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.35rem", transition: "background 0.15s" }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.1)")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)")}>
+            <GitCompare size={13} /> Compare
+          </button>
+          <a
+            href={templeDelegate(data.address)}
+            target="_blank"
+            rel="nofollow noopener noreferrer"
+            style={{ padding: "0.5rem 1.1rem", background: "linear-gradient(135deg, #f97316, #ea580c)", border: "none", borderRadius: "6px", color: "#fff", fontWeight: 700, fontSize: "0.78rem", textDecoration: "none", display: "flex", alignItems: "center", gap: "0.35rem", boxShadow: "0 4px 12px rgba(249,115,22,0.3)", transition: "transform 0.15s" }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.transform = "translateY(-1px)")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.transform = "translateY(0)")}>
+            <ExternalLink size={13} /> Delegate Now
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Sortable column header ─────────────────────────────────────────────────────
 function SortTh({ label, field, current, dir, onSort }: { label: string; field: SortKey; current: SortKey; dir: SortDir; onSort: (f: SortKey) => void }) {
   const active = current === field;
@@ -576,6 +670,14 @@ export default function BakersPage() {
             </a>
           </div>
         </div>
+
+        {/* Best Baker recommendation */}
+        <BestBakerCard
+          onInspect={(addr) => setSelectedBaker(addr)}
+          onCompare={(addr) => {
+            setCompareList(prev => prev.includes(addr) ? prev : prev.length < MAX_COMPARE ? [...prev, addr] : prev);
+          }}
+        />
 
         {/* Filter / sort controls */}
         <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", marginBottom: "1rem", alignItems: "center" }}>
