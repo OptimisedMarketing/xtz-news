@@ -243,7 +243,45 @@ export const explorerRouter = router({
   bakers: publicProcedure
     .input(z.object({ limit: z.number().min(1).max(100).default(50) }))
     .query(async ({ input }) => {
-      const bakers = await tzkt(`/delegates?limit=${input.limit}&sort.desc=balance&active=true`);
+      // Fetch bakers + current head (to get last completed cycle)
+      const [bakers, head] = await Promise.all([
+        tzkt(`/delegates?limit=${input.limit}&sort.desc=balance&active=true`),
+        tzkt(`/head`),
+      ]);
+
+      // Use 2 cycles ago (fully settled rewards)
+      const rewardCycle = Math.max(1, (head.cycle ?? 1) - 2);
+
+      // Fetch rewards for all bakers in parallel (batches of 10 to avoid rate limits)
+      async function getApy(address: string): Promise<number | null> {
+        try {
+          const data = await tzkt(`/rewards/bakers/${address}?cycle=${rewardCycle}`);
+          if (!data || !data[0]) return null;
+          const r = data[0];
+          const totalRewards =
+            (r.blockRewardsDelegated ?? 0) +
+            (r.blockRewardsStakedOwn ?? 0) +
+            (r.attestationRewardsDelegated ?? 0) +
+            (r.attestationRewardsStakedOwn ?? 0) +
+            (r.dalAttestationRewardsDelegated ?? 0) +
+            (r.dalAttestationRewardsStakedOwn ?? 0);
+          const bakingPower = r.bakingPower ?? 0;
+          if (bakingPower === 0) return null;
+          // 1 cycle = 1 day (14400 blocks × 6s), 365 cycles/year
+          return parseFloat(((totalRewards * 365) / bakingPower * 100).toFixed(2));
+        } catch {
+          return null;
+        }
+      }
+
+      // Fetch APY in parallel batches of 10
+      const apyMap: Record<string, number | null> = {};
+      for (let i = 0; i < bakers.length; i += 10) {
+        const batch = bakers.slice(i, i + 10);
+        const results = await Promise.all(batch.map((b: any) => getApy(b.address)));
+        batch.forEach((b: any, j: number) => { apyMap[b.address] = results[j]; });
+      }
+
       return bakers.map((b: any, i: number) => ({
         rank: i + 1,
         address: b.address,
@@ -251,7 +289,7 @@ export const explorerRouter = router({
         stakingBalance: mutez(b.stakingBalance),
         ownBalance: mutez(b.balance),
         numDelegators: b.numDelegators ?? 0,
-        estimatedSharedReward: b.estimatedSharedReward ?? null,
+        apy: apyMap[b.address] ?? null,
         frozen: mutez(b.frozenDeposit),
       }));
     }),
