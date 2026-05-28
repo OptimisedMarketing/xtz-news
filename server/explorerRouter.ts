@@ -342,6 +342,70 @@ export const explorerRouter = router({
       }));
     }),
 
+  // ─── Baker detail (modal: 10-cycle APY history, fee rate, uptime) ─────────────
+  bakerDetail: publicProcedure
+    .input(z.object({ address: z.string() }))
+    .query(async ({ input }) => {
+      const [delegate, head] = await Promise.all([
+        tzkt(`/delegates/${input.address}`),
+        tzkt(`/head`),
+      ]);
+
+      // Fetch last 10 completed cycles of rewards
+      const rewardCycle = Math.max(1, (head.cycle ?? 1) - 1);
+      const history = await tzkt(
+        `/rewards/bakers/${input.address}?limit=10&sort.desc=cycle&cycle.lt=${rewardCycle}`
+      );
+
+      const cycles = (history as any[]).map((r: any) => {
+        const totalRewards =
+          (r.blockRewardsDelegated ?? 0) +
+          (r.blockRewardsStakedOwn ?? 0) +
+          (r.attestationRewardsDelegated ?? 0) +
+          (r.attestationRewardsStakedOwn ?? 0) +
+          (r.dalAttestationRewardsDelegated ?? 0) +
+          (r.dalAttestationRewardsStakedOwn ?? 0);
+        const bp = r.bakingPower ?? 0;
+        const apy = bp > 0 ? parseFloat(((totalRewards * 365) / bp * 100).toFixed(2)) : null;
+        const expectedAtt = r.expectedAttestations ?? 0;
+        const actualAtt = r.attestations ?? 0;
+        const uptime = expectedAtt > 0 ? parseFloat((actualAtt / expectedAtt * 100).toFixed(1)) : null;
+        return {
+          cycle: r.cycle,
+          apy,
+          uptime,
+          rewards: mutez(totalRewards),
+          bakingPower: mutez(bp),
+          missedBlocks: r.missedBlocks ?? 0,
+          blocks: r.blocks ?? 0,
+          expectedBlocks: r.expectedBlocks ?? 0,
+        };
+      });
+
+      // Fee rate: edgeOfBakingOverStaking is in billionths (1e9 = 100%)
+      const edgeRaw = delegate.edgeOfBakingOverStaking ?? null;
+      const feeRate = edgeRaw != null ? parseFloat((edgeRaw / 1e9 * 100).toFixed(1)) : null;
+
+      // Average APY and uptime over available cycles
+      const validApys = cycles.filter((c: any) => c.apy != null).map((c: any) => c.apy as number);
+      const avgApy = validApys.length > 0 ? parseFloat((validApys.reduce((a: number, b: number) => a + b, 0) / validApys.length).toFixed(2)) : null;
+      const validUptimes = cycles.filter((c: any) => c.uptime != null).map((c: any) => c.uptime as number);
+      const avgUptime = validUptimes.length > 0 ? parseFloat((validUptimes.reduce((a: number, b: number) => a + b, 0) / validUptimes.length).toFixed(1)) : null;
+
+      return {
+        address: delegate.address,
+        alias: delegate.alias || null,
+        stakingBalance: mutez(delegate.stakingBalance),
+        ownBalance: mutez(delegate.balance),
+        numDelegators: delegate.numDelegators ?? 0,
+        feeRate,
+        avgApy,
+        avgUptime,
+        activeSince: delegate.activationTime ?? null,
+        cycles,
+      };
+    }),
+
   // ─── Voting / governance ─────────────────────────────────────────────────────
   governance: publicProcedure.query(async () => {
     const [period, proposals] = await Promise.allSettled([

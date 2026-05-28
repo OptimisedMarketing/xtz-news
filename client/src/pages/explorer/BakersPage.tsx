@@ -1,9 +1,9 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link } from "wouter";
 import {
   Shield, ChevronRight, Home, TrendingUp, ExternalLink,
   ArrowRight, ArrowUpDown, Search, ChevronUp, ChevronDown,
-  ChevronLeft,
+  ChevronLeft, X, Info,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useSEO } from "@/hooks/useSEO";
@@ -39,7 +39,7 @@ function ApyBadge({ apy }: { apy: number | null }) {
   );
 }
 
-// ── Tooltip on Delegate button ─────────────────────────────────────────────────
+// ── Delegate button with tooltip ───────────────────────────────────────────────
 function DelegateButton({ address }: { address: string }) {
   const [show, setShow] = useState(false);
   return (
@@ -56,41 +56,23 @@ function DelegateButton({ address }: { address: string }) {
         style={{
           display: "inline-flex", alignItems: "center", gap: "0.3rem",
           padding: "0.35rem 0.75rem",
-          background: "rgba(249,115,22,0.15)",
-          border: "1px solid rgba(249,115,22,0.35)",
-          borderRadius: "4px",
-          color: "#f97316", fontWeight: 700, fontSize: "0.7rem",
-          textDecoration: "none", whiteSpace: "nowrap",
-          transition: "background 0.15s, border-color 0.15s",
+          background: "rgba(249,115,22,0.15)", border: "1px solid rgba(249,115,22,0.35)",
+          borderRadius: "4px", color: "#f97316", fontWeight: 700, fontSize: "0.7rem",
+          textDecoration: "none", whiteSpace: "nowrap", transition: "background 0.15s, border-color 0.15s",
         }}
-        onMouseOver={(e) => {
-          (e.currentTarget as HTMLElement).style.background = "rgba(249,115,22,0.25)";
-          (e.currentTarget as HTMLElement).style.borderColor = "rgba(249,115,22,0.6)";
-        }}
-        onMouseOut={(e) => {
-          (e.currentTarget as HTMLElement).style.background = "rgba(249,115,22,0.15)";
-          (e.currentTarget as HTMLElement).style.borderColor = "rgba(249,115,22,0.35)";
-        }}
+        onMouseOver={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(249,115,22,0.25)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(249,115,22,0.6)"; }}
+        onMouseOut={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(249,115,22,0.15)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(249,115,22,0.35)"; }}
       >
         Delegate <ExternalLink size={10} />
       </a>
       {show && (
-        <div style={{
-          position: "absolute", bottom: "calc(100% + 8px)", right: 0,
-          background: "#1a2f52", border: "1px solid rgba(44,125,247,0.3)",
-          borderRadius: "6px", padding: "0.6rem 0.85rem",
-          width: "210px", zIndex: 50,
-          boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
-          pointerEvents: "none",
-        }}>
+        <div style={{ position: "absolute", bottom: "calc(100% + 8px)", right: 0, background: "#1a2f52", border: "1px solid rgba(44,125,247,0.3)", borderRadius: "6px", padding: "0.6rem 0.85rem", width: "210px", zIndex: 50, boxShadow: "0 8px 24px rgba(0,0,0,0.5)", pointerEvents: "none" }}>
           <div style={{ position: "absolute", bottom: "-5px", right: "18px", width: "9px", height: "9px", background: "#1a2f52", border: "1px solid rgba(44,125,247,0.3)", borderTop: "none", borderLeft: "none", transform: "rotate(45deg)" }} />
           <div style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem" }}>
             <span style={{ fontSize: "1rem", flexShrink: 0 }}>🏛️</span>
             <div>
               <div style={{ fontWeight: 800, color: "#fff", fontSize: "0.75rem", marginBottom: "0.2rem" }}>Opens Temple Wallet</div>
-              <div style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.5 }}>
-                This will open Temple Wallet in a new tab, pre-filled with this baker's address so you can delegate your XTZ in one click.
-              </div>
+              <div style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.5 }}>This will open Temple Wallet in a new tab, pre-filled with this baker's address so you can delegate your XTZ in one click.</div>
             </div>
           </div>
         </div>
@@ -99,93 +81,206 @@ function DelegateButton({ address }: { address: string }) {
   );
 }
 
+// ── Baker detail modal ─────────────────────────────────────────────────────────
+function BakerModal({ address, onClose }: { address: string; onClose: () => void }) {
+  const { data, isLoading } = trpc.explorer.bakerDetail.useQuery({ address });
+
+  // Close on Escape
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose]);
+
+  // Lock body scroll
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+
+  const maxApy = data ? Math.max(...(data.cycles as any[]).map((c: any) => c.apy ?? 0), 1) : 1;
+
+  return (
+    <div
+      style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div style={{ background: "#05152e", border: "1px solid rgba(44,125,247,0.25)", borderRadius: "12px", width: "100%", maxWidth: "680px", maxHeight: "90vh", overflow: "auto", boxShadow: "0 24px 60px rgba(0,0,0,0.7)" }}>
+        {/* Modal header */}
+        <div style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, background: "#05152e", zIndex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+            <div style={{ width: "36px", height: "36px", background: "rgba(249,115,22,0.2)", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <Shield size={18} style={{ color: "#f97316" }} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 900, color: "#fff", fontSize: "1rem" }}>
+                {isLoading ? "Loading…" : (data?.alias || "Unknown Baker")}
+              </div>
+              <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.35)", fontFamily: "monospace" }}>{address.slice(0, 20)}…</div>
+            </div>
+          </div>
+          <button onClick={onClose} style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", padding: "0.4rem", cursor: "pointer", color: "rgba(255,255,255,0.5)", display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.15s" }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.12)")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.07)")}>
+            <X size={16} />
+          </button>
+        </div>
+
+        <div style={{ padding: "1.5rem" }}>
+          {isLoading ? (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.75rem", marginBottom: "1.5rem" }}>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} style={{ background: "rgba(255,255,255,0.04)", borderRadius: "8px", padding: "1rem" }}>
+                  <div className="skeleton" style={{ height: "10px", width: "60%", marginBottom: "8px" }} />
+                  <div className="skeleton" style={{ height: "20px", width: "80%" }} />
+                </div>
+              ))}
+            </div>
+          ) : data ? (
+            <>
+              {/* Key stats */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: "0.75rem", marginBottom: "1.5rem" }}>
+                {[
+                  { label: "Avg APY (10 cycles)", value: data.avgApy != null ? `${data.avgApy}%` : "—", color: data.avgApy != null ? (data.avgApy >= 8 ? "#22c55e" : data.avgApy >= 5 ? "#f59e0b" : "#ef4444") : "rgba(255,255,255,0.4)" },
+                  { label: "Avg Uptime", value: data.avgUptime != null ? `${data.avgUptime}%` : "—", color: data.avgUptime != null ? (data.avgUptime >= 99 ? "#22c55e" : data.avgUptime >= 97 ? "#f59e0b" : "#ef4444") : "rgba(255,255,255,0.4)" },
+                  { label: "Fee Rate", value: data.feeRate != null ? `${data.feeRate}%` : "—", color: data.feeRate != null ? (data.feeRate <= 5 ? "#22c55e" : data.feeRate <= 15 ? "#f59e0b" : "#ef4444") : "rgba(255,255,255,0.4)" },
+                  { label: "Staking Balance", value: formatXtz(data.stakingBalance), color: "#f97316" },
+                  { label: "Delegators", value: data.numDelegators.toLocaleString(), color: "#2c7df7" },
+                  { label: "Active Since", value: data.activeSince ? new Date(data.activeSince).getFullYear().toString() : "—", color: "rgba(255,255,255,0.7)" },
+                ].map(stat => (
+                  <div key={stat.label} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "8px", padding: "0.9rem 1rem" }}>
+                    <div style={{ fontSize: "0.62rem", fontWeight: 700, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.4rem" }}>{stat.label}</div>
+                    <div style={{ fontSize: "1.1rem", fontWeight: 900, color: stat.color }}>{stat.value}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* APY history chart */}
+              <div style={{ marginBottom: "1.5rem" }}>
+                <h3 style={{ fontSize: "0.75rem", fontWeight: 800, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 0.75rem" }}>
+                  APY History — Last 10 Cycles
+                </h3>
+                <div style={{ display: "flex", alignItems: "flex-end", gap: "6px", height: "80px" }}>
+                  {(data.cycles as any[]).slice().reverse().map((c: any) => {
+                    const pct = c.apy != null ? Math.max(4, (c.apy / maxApy) * 100) : 4;
+                    const color = c.apy != null ? (c.apy >= 8 ? "#22c55e" : c.apy >= 5 ? "#f59e0b" : "#ef4444") : "rgba(255,255,255,0.1)";
+                    return (
+                      <div key={c.cycle} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
+                        <div style={{ fontSize: "0.55rem", color: "rgba(255,255,255,0.35)", whiteSpace: "nowrap" }}>
+                          {c.apy != null ? `${c.apy}%` : "—"}
+                        </div>
+                        <div style={{ width: "100%", height: `${pct}%`, background: color, borderRadius: "3px 3px 0 0", minHeight: "4px", transition: "height 0.3s", opacity: 0.85 }} />
+                        <div style={{ fontSize: "0.5rem", color: "rgba(255,255,255,0.2)", whiteSpace: "nowrap" }}>
+                          {c.cycle}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Cycle detail table */}
+              <div>
+                <h3 style={{ fontSize: "0.75rem", fontWeight: 800, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 0.75rem" }}>
+                  Cycle Breakdown
+                </h3>
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.78rem" }}>
+                    <thead>
+                      <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+                        {["Cycle", "APY", "Uptime", "Rewards", "Blocks", "Missed"].map(h => (
+                          <th key={h} style={{ padding: "0.5rem 0.75rem", textAlign: "left", fontWeight: 700, color: "rgba(255,255,255,0.35)", fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.07em", whiteSpace: "nowrap" }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(data.cycles as any[]).map((c: any, i: number) => (
+                        <tr key={c.cycle} style={{ borderBottom: i < data.cycles.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
+                          <td style={{ padding: "0.5rem 0.75rem", color: "rgba(255,255,255,0.5)", fontWeight: 600 }}>{c.cycle}</td>
+                          <td style={{ padding: "0.5rem 0.75rem" }}><ApyBadge apy={c.apy} /></td>
+                          <td style={{ padding: "0.5rem 0.75rem", color: c.uptime != null ? (c.uptime >= 99 ? "#22c55e" : c.uptime >= 97 ? "#f59e0b" : "#ef4444") : "rgba(255,255,255,0.3)", fontWeight: 700 }}>
+                            {c.uptime != null ? `${c.uptime}%` : "—"}
+                          </td>
+                          <td style={{ padding: "0.5rem 0.75rem", color: "#f97316", fontWeight: 600, whiteSpace: "nowrap" }}>{formatXtz(c.rewards)}</td>
+                          <td style={{ padding: "0.5rem 0.75rem", color: "rgba(255,255,255,0.6)" }}>{c.blocks}/{c.expectedBlocks}</td>
+                          <td style={{ padding: "0.5rem 0.75rem", color: c.missedBlocks > 0 ? "#ef4444" : "rgba(255,255,255,0.3)" }}>
+                            {c.missedBlocks > 0 ? c.missedBlocks : "—"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Modal CTA */}
+              <div style={{ marginTop: "1.5rem", display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+                <a href={templeDelegate(address)} target="_blank" rel="nofollow noopener noreferrer"
+                  style={{ flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", padding: "0.75rem 1.25rem", background: "linear-gradient(135deg, #f97316, #ea580c)", borderRadius: "6px", color: "#fff", fontWeight: 700, fontSize: "0.85rem", textDecoration: "none", boxShadow: "0 4px 14px rgba(249,115,22,0.3)", transition: "transform 0.15s" }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.transform = "translateY(-1px)")}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.transform = "translateY(0)")}>
+                  <ExternalLink size={14} /> Delegate to this Baker
+                </a>
+                <Link href={`/explorer/address/${address}`}
+                  style={{ flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", padding: "0.75rem 1.25rem", background: "rgba(44,125,247,0.1)", border: "1px solid rgba(44,125,247,0.3)", borderRadius: "6px", color: "#2c7df7", fontWeight: 700, fontSize: "0.85rem", textDecoration: "none", transition: "background 0.15s" }}
+                  onClick={onClose}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.18)")}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.1)")}>
+                  View Full Address <ChevronRight size={14} />
+                </Link>
+              </div>
+            </>
+          ) : (
+            <div style={{ padding: "2rem", textAlign: "center", color: "rgba(255,255,255,0.3)" }}>Failed to load baker data.</div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Sortable column header ─────────────────────────────────────────────────────
 function SortTh({ label, field, current, dir, onSort }: {
-  label: string; field: SortKey;
-  current: SortKey; dir: SortDir;
-  onSort: (f: SortKey) => void;
+  label: string; field: SortKey; current: SortKey; dir: SortDir; onSort: (f: SortKey) => void;
 }) {
   const active = current === field;
   return (
-    <th
-      onClick={() => onSort(field)}
-      style={{
-        padding: "0.75rem 1rem", textAlign: "left",
-        fontWeight: 700, fontSize: "0.65rem",
-        textTransform: "uppercase", letterSpacing: "0.08em",
-        color: active ? "#2c7df7" : "rgba(255,255,255,0.4)",
-        cursor: "pointer", whiteSpace: "nowrap", userSelect: "none",
-        transition: "color 0.15s",
-      }}
+    <th onClick={() => onSort(field)}
+      style={{ padding: "0.75rem 1rem", textAlign: "left", fontWeight: 700, fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "0.08em", color: active ? "#2c7df7" : "rgba(255,255,255,0.4)", cursor: "pointer", whiteSpace: "nowrap", userSelect: "none", transition: "color 0.15s" }}
       onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.7)"; }}
-      onMouseLeave={(e) => { if (!active) (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.4)"; }}
-    >
+      onMouseLeave={(e) => { if (!active) (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.4)"; }}>
       <span style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem" }}>
         {label}
-        {active
-          ? (dir === "desc" ? <ChevronDown size={11} /> : <ChevronUp size={11} />)
-          : <ArrowUpDown size={10} style={{ opacity: 0.4 }} />}
+        {active ? (dir === "desc" ? <ChevronDown size={11} /> : <ChevronUp size={11} />) : <ArrowUpDown size={10} style={{ opacity: 0.4 }} />}
       </span>
     </th>
   );
 }
 
-// ── Pagination bar ─────────────────────────────────────────────────────────────
+// ── Pagination ─────────────────────────────────────────────────────────────────
 function Pagination({ page, totalPages, onChange }: { page: number; totalPages: number; onChange: (p: number) => void }) {
   if (totalPages <= 1) return null;
-
   const pages: (number | "…")[] = [];
-  if (totalPages <= 7) {
-    for (let i = 1; i <= totalPages; i++) pages.push(i);
-  } else {
+  if (totalPages <= 7) { for (let i = 1; i <= totalPages; i++) pages.push(i); }
+  else {
     pages.push(1);
     if (page > 3) pages.push("…");
     for (let i = Math.max(2, page - 1); i <= Math.min(totalPages - 1, page + 1); i++) pages.push(i);
     if (page < totalPages - 2) pages.push("…");
     pages.push(totalPages);
   }
-
-  const btnBase: React.CSSProperties = {
-    minWidth: "32px", height: "32px", display: "inline-flex", alignItems: "center", justifyContent: "center",
-    borderRadius: "4px", border: "1px solid rgba(255,255,255,0.1)", background: "transparent",
-    color: "rgba(255,255,255,0.5)", fontSize: "0.8rem", fontWeight: 600, cursor: "pointer",
-    transition: "all 0.15s", padding: "0 0.4rem",
-  };
-  const activeBtn: React.CSSProperties = {
-    ...btnBase, background: "#2c7df7", borderColor: "#2c7df7", color: "#fff",
-  };
-
+  const btn: React.CSSProperties = { minWidth: "32px", height: "32px", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: "4px", border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "rgba(255,255,255,0.5)", fontSize: "0.8rem", fontWeight: 600, cursor: "pointer", transition: "all 0.15s", padding: "0 0.4rem" };
+  const active: React.CSSProperties = { ...btn, background: "#2c7df7", borderColor: "#2c7df7", color: "#fff" };
   return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.3rem", marginTop: "1.25rem", flexWrap: "wrap" }}>
-      <button
-        disabled={page === 1}
-        onClick={() => onChange(page - 1)}
-        style={{ ...btnBase, opacity: page === 1 ? 0.3 : 1 }}
-      >
-        <ChevronLeft size={14} />
-      </button>
-      {pages.map((p, i) =>
-        p === "…" ? (
-          <span key={`ellipsis-${i}`} style={{ color: "rgba(255,255,255,0.3)", padding: "0 0.25rem" }}>…</span>
-        ) : (
-          <button
-            key={p}
-            onClick={() => onChange(p as number)}
-            style={p === page ? activeBtn : btnBase}
+      <button disabled={page === 1} onClick={() => onChange(page - 1)} style={{ ...btn, opacity: page === 1 ? 0.3 : 1 }}><ChevronLeft size={14} /></button>
+      {pages.map((p, i) => p === "…"
+        ? <span key={`e${i}`} style={{ color: "rgba(255,255,255,0.3)", padding: "0 0.25rem" }}>…</span>
+        : <button key={p} onClick={() => onChange(p as number)} style={p === page ? active : btn}
             onMouseEnter={(e) => { if (p !== page) (e.currentTarget as HTMLElement).style.borderColor = "rgba(44,125,247,0.5)"; }}
-            onMouseLeave={(e) => { if (p !== page) (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.1)"; }}
-          >
-            {p}
-          </button>
-        )
+            onMouseLeave={(e) => { if (p !== page) (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.1)"; }}>{p}</button>
       )}
-      <button
-        disabled={page === totalPages}
-        onClick={() => onChange(page + 1)}
-        style={{ ...btnBase, opacity: page === totalPages ? 0.3 : 1 }}
-      >
-        <ChevronRight size={14} />
-      </button>
+      <button disabled={page === totalPages} onClick={() => onChange(page + 1)} style={{ ...btn, opacity: page === totalPages ? 0.3 : 1 }}><ChevronRight size={14} /></button>
     </div>
   );
 }
@@ -206,21 +301,15 @@ export default function BakersPage() {
   const [filterQuery, setFilterQuery] = useState("");
   const [minDelegators, setMinDelegators] = useState<number | "">("");
   const [page, setPage] = useState(1);
+  const [selectedBaker, setSelectedBaker] = useState<string | null>(null);
 
   function handleSort(field: SortKey) {
-    if (sortKey === field) {
-      setSortDir(d => d === "desc" ? "asc" : "desc");
-    } else {
-      setSortKey(field);
-      setSortDir("desc");
-    }
+    if (sortKey === field) setSortDir(d => d === "desc" ? "asc" : "desc");
+    else { setSortKey(field); setSortDir("desc"); }
     setPage(1);
   }
 
-  function handleFilterChange(fn: () => void) {
-    fn();
-    setPage(1);
-  }
+  function handleFilterChange(fn: () => void) { fn(); setPage(1); }
 
   const processed = useMemo(() => {
     let list = [...(bakers as any[])];
@@ -245,6 +334,9 @@ export default function BakersPage() {
 
   return (
     <div style={{ background: "#000", minHeight: "100vh" }}>
+      {/* Baker detail modal */}
+      {selectedBaker && <BakerModal address={selectedBaker} onClose={() => setSelectedBaker(null)} />}
+
       {/* Header */}
       <div style={{ background: "linear-gradient(135deg, #05152e 0%, #0d2a5e 100%)", borderBottom: "1px solid rgba(44,125,247,0.2)", padding: "2rem 0" }}>
         <div className="container">
@@ -265,12 +357,10 @@ export default function BakersPage() {
                 <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.4)", margin: 0 }}>Top 50 Tezos bakers — real APY, sort, filter, delegate in one click</p>
               </div>
             </div>
-            <a
-              href="/how-to-stake-on-tezos"
+            <a href="/how-to-stake-on-tezos"
               style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", padding: "0.6rem 1.25rem", background: "linear-gradient(135deg, #f97316, #ea580c)", borderRadius: "6px", color: "#fff", fontWeight: 700, fontSize: "0.82rem", textDecoration: "none", boxShadow: "0 4px 14px rgba(249,115,22,0.35)", transition: "transform 0.15s" }}
               onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = "translateY(0)"; }}
-            >
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = "translateY(0)"; }}>
               <TrendingUp size={14} /> How to Delegate XTZ
             </a>
           </div>
@@ -278,7 +368,6 @@ export default function BakersPage() {
       </div>
 
       <div className="container" style={{ padding: "2rem 1.25rem" }}>
-
         {/* CTA Banner */}
         <div style={{ marginBottom: "1.75rem", padding: "1.5rem", background: "linear-gradient(135deg, rgba(249,115,22,0.12) 0%, rgba(234,88,12,0.06) 100%)", border: "1px solid rgba(249,115,22,0.3)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
           <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem" }}>
@@ -288,12 +377,13 @@ export default function BakersPage() {
             <div>
               <h2 style={{ fontSize: "1rem", fontWeight: 900, color: "#fff", margin: "0 0 0.3rem" }}>Earn up to ~9% APY by Delegating Your XTZ</h2>
               <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.6)", margin: 0, lineHeight: 1.6, maxWidth: "520px" }}>
-                Choose a baker below and click <strong style={{ color: "#f97316" }}>Delegate</strong> — it opens Temple Wallet pre-filled with that baker's address. Your coins stay in your wallet. No lock-up period.
+                Click <Info size={11} style={{ display: "inline", verticalAlign: "middle" }} /> on any baker to see their APY history, fee rate, and uptime. Then click <strong style={{ color: "#f97316" }}>Delegate</strong> to stake in one click via Temple Wallet.
               </p>
             </div>
           </div>
           <div style={{ display: "flex", gap: "0.6rem", flexShrink: 0 }}>
-            <a href="/how-to-stake-on-tezos" style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", padding: "0.65rem 1.25rem", background: "linear-gradient(135deg, #f97316, #ea580c)", borderRadius: "6px", color: "#fff", fontWeight: 700, fontSize: "0.82rem", textDecoration: "none", boxShadow: "0 4px 14px rgba(249,115,22,0.3)", transition: "transform 0.15s" }}
+            <a href="/how-to-stake-on-tezos"
+              style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", padding: "0.65rem 1.25rem", background: "linear-gradient(135deg, #f97316, #ea580c)", borderRadius: "6px", color: "#fff", fontWeight: 700, fontSize: "0.82rem", textDecoration: "none", boxShadow: "0 4px 14px rgba(249,115,22,0.3)", transition: "transform 0.15s" }}
               onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.transform = "translateY(-1px)")}
               onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.transform = "translateY(0)")}>
               Delegation Guide <ArrowRight size={13} />
@@ -311,25 +401,21 @@ export default function BakersPage() {
         <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", marginBottom: "1rem", alignItems: "center" }}>
           <div style={{ position: "relative", flex: "1 1 220px", minWidth: "180px" }}>
             <Search size={13} style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", color: "rgba(255,255,255,0.35)", pointerEvents: "none" }} />
-            <input
-              value={filterQuery}
+            <input value={filterQuery}
               onChange={(e) => handleFilterChange(() => setFilterQuery(e.target.value))}
-              placeholder="Filter by name or address…"
+              placeholder="Search by baker name or address…"
               style={{ width: "100%", padding: "0.55rem 0.75rem 0.55rem 2.2rem", background: "#05152e", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "5px", color: "#fff", fontSize: "0.8rem", outline: "none", fontFamily: "inherit", transition: "border-color 0.15s" }}
               onFocus={(e) => (e.currentTarget.style.borderColor = "#2c7df7")}
-              onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)")}
-            />
+              onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)")} />
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)", whiteSpace: "nowrap" }}>Min delegators:</span>
-            <input
-              type="number" min={0} value={minDelegators}
+            <input type="number" min={0} value={minDelegators}
               onChange={(e) => handleFilterChange(() => setMinDelegators(e.target.value === "" ? "" : Number(e.target.value)))}
               placeholder="Any"
               style={{ width: "70px", padding: "0.55rem 0.6rem", background: "#05152e", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "5px", color: "#fff", fontSize: "0.8rem", outline: "none", fontFamily: "inherit", transition: "border-color 0.15s" }}
               onFocus={(e) => (e.currentTarget.style.borderColor = "#2c7df7")}
-              onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)")}
-            />
+              onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)")} />
           </div>
           <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
             {([
@@ -339,8 +425,7 @@ export default function BakersPage() {
             ]).map(btn => {
               const active = sortKey === btn.key && sortDir === btn.dir;
               return (
-                <button key={btn.label}
-                  onClick={() => { setSortKey(btn.key); setSortDir(btn.dir); setPage(1); }}
+                <button key={btn.label} onClick={() => { setSortKey(btn.key); setSortDir(btn.dir); setPage(1); }}
                   style={{ padding: "0.4rem 0.8rem", background: active ? "rgba(44,125,247,0.2)" : "rgba(255,255,255,0.05)", border: `1px solid ${active ? "rgba(44,125,247,0.5)" : "rgba(255,255,255,0.1)"}`, borderRadius: "20px", color: active ? "#2c7df7" : "rgba(255,255,255,0.5)", fontSize: "0.72rem", fontWeight: 600, cursor: "pointer", transition: "all 0.15s", whiteSpace: "nowrap" }}>
                   {btn.label}
                 </button>
@@ -383,31 +468,33 @@ export default function BakersPage() {
                   ))
                 ) : pageItems.length === 0 ? (
                   <tr>
-                    <td colSpan={7} style={{ padding: "3rem", textAlign: "center", color: "rgba(255,255,255,0.3)", fontSize: "0.85rem" }}>
-                      No bakers match your filters.
-                    </td>
+                    <td colSpan={7} style={{ padding: "3rem", textAlign: "center", color: "rgba(255,255,255,0.3)", fontSize: "0.85rem" }}>No bakers match your filters.</td>
                   </tr>
                 ) : pageItems.map((baker: any, i: number) => (
                   <tr key={baker.address}
-                    style={{ borderBottom: i < pageItems.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", transition: "background 0.15s" }}
+                    style={{ borderBottom: i < pageItems.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", transition: "background 0.15s", cursor: "pointer" }}
                     onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(249,115,22,0.04)")}
-                    onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "transparent")}>
+                    onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "transparent")}
+                    onClick={() => setSelectedBaker(baker.address)}>
                     <td style={{ padding: "0.75rem 1rem", whiteSpace: "nowrap" }}>
                       <span style={{ fontSize: "0.85rem", fontWeight: 900, color: baker.rank <= 3 ? "#f59e0b" : "rgba(255,255,255,0.4)" }}>
                         {baker.rank <= 3 ? "🏆" : ""} #{baker.rank}
                       </span>
                     </td>
                     <td style={{ padding: "0.75rem 1rem" }}>
-                      <Link href={`/explorer/address/${baker.address}`} style={{ textDecoration: "none" }}>
-                        <div style={{ fontWeight: 700, color: "#fff" }}>{baker.alias || "Unknown Baker"}</div>
-                        <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.35)", fontFamily: "monospace" }}>{baker.address.slice(0, 12)}...</div>
-                      </Link>
+                      <div style={{ fontWeight: 700, color: "#fff", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                        {baker.alias || "Unknown Baker"}
+                        <Info size={11} style={{ color: "rgba(44,125,247,0.5)", flexShrink: 0 }} />
+                      </div>
+                      <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.35)", fontFamily: "monospace" }}>{baker.address.slice(0, 12)}...</div>
                     </td>
                     <td style={{ padding: "0.75rem 1rem", fontWeight: 700, color: "#f97316", whiteSpace: "nowrap" }}>{formatXtz(baker.stakingBalance)}</td>
                     <td style={{ padding: "0.75rem 1rem", color: "rgba(255,255,255,0.7)", whiteSpace: "nowrap" }}>{formatXtz(baker.ownBalance)}</td>
                     <td style={{ padding: "0.75rem 1rem", color: "rgba(255,255,255,0.7)" }}>{baker.numDelegators.toLocaleString()}</td>
                     <td style={{ padding: "0.75rem 1rem" }}><ApyBadge apy={baker.apy} /></td>
-                    <td style={{ padding: "0.75rem 1rem" }}><DelegateButton address={baker.address} /></td>
+                    <td style={{ padding: "0.75rem 1rem" }} onClick={(e) => e.stopPropagation()}>
+                      <DelegateButton address={baker.address} />
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -421,7 +508,7 @@ export default function BakersPage() {
         {/* APY note */}
         {!isLoading && (
           <p style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.25)", textAlign: "center", marginTop: "0.75rem" }}>
-            APY calculated from the last completed cycle's actual rewards ÷ baking power × 365. Past performance does not guarantee future returns.
+            APY calculated from the last completed cycle's actual rewards ÷ baking power × 365. Click any row to view 10-cycle APY history. Past performance does not guarantee future returns.
           </p>
         )}
 
