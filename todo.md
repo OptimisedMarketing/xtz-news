@@ -66,3 +66,7 @@
 - [x] All endpoints verified working via curl tests
 - [x] TypeScript check: 0 errors
 - [x] All 20 tests passing
+
+## Phase 10: Explorer Enhancements
+- [x] Add "Delegate XTZ" CTA banner + per-row delegate button on baker leaderboard linking to delegation guide
+- [x] Remove any dark mode toggle from explorer pages (site is permanently dark)
