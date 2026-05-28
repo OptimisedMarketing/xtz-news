@@ -24,7 +24,7 @@ function templeDelegate(address: string) {
   return `https://app.templewallet.com/delegate?to=${address}`;
 }
 
-type SortKey = "rank" | "stakingBalance" | "ownBalance" | "numDelegators" | "apy";
+type SortKey = "rank" | "stakingBalance" | "ownBalance" | "numDelegators" | "apy" | "availableSpace";
 type SortDir = "asc" | "desc";
 
 // ── APY badge ─────────────────────────────────────────────────────────────────
@@ -368,11 +368,121 @@ function CompareModal({ addresses, allBakers, onClose }: { addresses: string[]; 
   );
 }
 
+// ── Staking Calculator ────────────────────────────────────────────────────────────
+function StakingCalculator({ bakers }: { bakers: any[] }) {
+  const [xtzAmount, setXtzAmount] = useState("1000");
+  const [open, setOpen] = useState(false);
+
+  const amount = parseFloat(xtzAmount) || 0;
+
+  // Top 5 bakers with real APY for the calculator
+  const topBakers = bakers
+    .filter(b => b.apy != null)
+    .sort((a, b) => (b.apy ?? 0) - (a.apy ?? 0))
+    .slice(0, 5);
+
+  if (!open) {
+    return (
+      <div style={{ marginBottom: "1rem", display: "flex", justifyContent: "flex-end" }}>
+        <button
+          onClick={() => setOpen(true)}
+          style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", padding: "0.45rem 1rem", background: "rgba(44,125,247,0.1)", border: "1px solid rgba(44,125,247,0.25)", borderRadius: "6px", color: "#2c7df7", fontWeight: 700, fontSize: "0.78rem", cursor: "pointer", transition: "background 0.15s" }}
+          onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.18)")}
+          onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.1)")}>
+          🧭 Staking Calculator
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ marginBottom: "1.25rem", background: "#05152e", border: "1px solid rgba(44,125,247,0.2)", borderRadius: "10px", overflow: "hidden" }}>
+      {/* Header */}
+      <div style={{ padding: "0.9rem 1.25rem", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+          <span style={{ fontSize: "1rem" }}>🧭</span>
+          <span style={{ fontWeight: 800, color: "#fff", fontSize: "0.88rem" }}>Staking Calculator</span>
+          <span style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.3)" }}>Estimated annual earnings based on 30-day APY</span>
+        </div>
+        <button onClick={() => setOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.35)", display: "flex" }}>
+          <X size={15} />
+        </button>
+      </div>
+
+      <div style={{ padding: "1rem 1.25rem" }}>
+        {/* XTZ input */}
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1rem", flexWrap: "wrap" }}>
+          <label style={{ fontSize: "0.78rem", fontWeight: 700, color: "rgba(255,255,255,0.6)", whiteSpace: "nowrap" }}>Your XTZ amount:</label>
+          <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+            <input
+              type="number"
+              min="0"
+              value={xtzAmount}
+              onChange={(e) => setXtzAmount(e.target.value)}
+              style={{ padding: "0.5rem 2.5rem 0.5rem 0.75rem", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(44,125,247,0.3)", borderRadius: "6px", color: "#fff", fontSize: "0.9rem", fontWeight: 700, outline: "none", width: "140px", fontFamily: "inherit" }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "#2c7df7")}
+              onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(44,125,247,0.3)")} />
+            <span style={{ position: "absolute", right: "0.6rem", color: "rgba(255,255,255,0.4)", fontSize: "0.82rem", fontWeight: 700, pointerEvents: "none" }}>Ƀ</span>
+          </div>
+          {/* Quick amount buttons */}
+          <div style={{ display: "flex", gap: "0.35rem" }}>
+            {[100, 1000, 5000, 10000].map(v => (
+              <button key={v} onClick={() => setXtzAmount(String(v))}
+                style={{ padding: "0.35rem 0.65rem", background: parseFloat(xtzAmount) === v ? "rgba(44,125,247,0.25)" : "rgba(255,255,255,0.05)", border: `1px solid ${parseFloat(xtzAmount) === v ? "rgba(44,125,247,0.5)" : "rgba(255,255,255,0.1)"}`, borderRadius: "4px", color: parseFloat(xtzAmount) === v ? "#2c7df7" : "rgba(255,255,255,0.5)", fontSize: "0.72rem", fontWeight: 600, cursor: "pointer" }}>
+                {v.toLocaleString()}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Results grid */}
+        {topBakers.length === 0 ? (
+          <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.82rem" }}>Loading baker data…</div>
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "0.6rem" }}>
+            {topBakers.map((baker, idx) => {
+              const apy = baker.apy as number;
+              const annualXtz = amount * apy / 100;
+              const monthlyXtz = annualXtz / 12;
+              const dailyXtz = annualXtz / 365;
+              return (
+                <div key={baker.address} style={{ background: idx === 0 ? "rgba(44,125,247,0.1)" : "rgba(255,255,255,0.03)", border: `1px solid ${idx === 0 ? "rgba(44,125,247,0.3)" : "rgba(255,255,255,0.07)"}`, borderRadius: "8px", padding: "0.85rem 1rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.5rem" }}>
+                    {idx === 0 && <span style={{ fontSize: "0.7rem" }}>⭐</span>}
+                    <div style={{ fontWeight: 700, color: idx === 0 ? "#2c7df7" : "#fff", fontSize: "0.8rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {baker.alias || "Unknown Baker"}
+                    </div>
+                    <span style={{ marginLeft: "auto", fontSize: "0.7rem", fontWeight: 800, color: "#22c55e", flexShrink: 0 }}>{apy.toFixed(2)}%</span>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.25rem" }}>
+                    {[
+                      { label: "Daily", value: dailyXtz },
+                      { label: "Monthly", value: monthlyXtz },
+                      { label: "Annual", value: annualXtz },
+                    ].map(row => (
+                      <div key={row.label} style={{ textAlign: "center" }}>
+                        <div style={{ fontSize: "0.58rem", color: "rgba(255,255,255,0.35)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>{row.label}</div>
+                        <div style={{ fontSize: "0.82rem", fontWeight: 800, color: "#f97316" }}>{row.value < 0.01 ? "<0.01" : row.value.toFixed(2)} Ƀ</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+        <p style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.2)", margin: "0.75rem 0 0" }}>Estimates based on 30-day APY. Actual rewards vary by cycle. Not financial advice.</p>
+      </div>
+    </div>
+  );
+}
+
 // ── Best Baker recommendation card ───────────────────────────────────────────
 function BestBakerCard({ onInspect, onCompare }: { onInspect: (addr: string) => void; onCompare: (addr: string) => void }) {
   const { data, isLoading } = trpc.explorer.bestBaker.useQuery(undefined, {
     staleTime: 5 * 60_000, // cache 5 min — this is expensive to compute
   });
+  const [showFormula, setShowFormula] = useState(false);
 
   if (isLoading) {
     return (
@@ -406,7 +516,24 @@ function BestBakerCard({ onInspect, onCompare }: { onInspect: (addr: string) => 
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.3rem", flexWrap: "wrap" }}>
               <span style={{ fontSize: "0.62rem", fontWeight: 800, color: "#2c7df7", textTransform: "uppercase", letterSpacing: "0.1em", background: "rgba(44,125,247,0.15)", border: "1px solid rgba(44,125,247,0.3)", borderRadius: "20px", padding: "0.15rem 0.6rem" }}>Best for Small Delegators</span>
-              <span style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.3)" }}>Auto-selected by APY + uptime + fee score</span>
+              <div style={{ position: "relative", display: "inline-flex", alignItems: "center" }}>
+                <span style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.3)" }}>Auto-selected by APY + uptime + fee score</span>
+                <button
+                  onClick={() => setShowFormula(v => !v)}
+                  style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.35)", padding: "0 0.25rem", display: "flex", alignItems: "center" }}
+                  title="How is this calculated?">
+                  <Info size={11} />
+                </button>
+                {showFormula && (
+                  <div style={{ position: "absolute", top: "calc(100% + 6px)", left: 0, background: "#0d2a5e", border: "1px solid rgba(44,125,247,0.3)", borderRadius: "8px", padding: "0.85rem 1rem", width: "280px", zIndex: 50, boxShadow: "0 8px 24px rgba(0,0,0,0.5)", fontSize: "0.72rem", color: "rgba(255,255,255,0.7)", lineHeight: 1.6 }}>
+                    <div style={{ fontWeight: 800, color: "#fff", marginBottom: "0.4rem", fontSize: "0.78rem" }}>Recommendation Formula</div>
+                    <div>Candidates: active bakers with <strong style={{ color: "#f59e0b" }}>5–500 delegators</strong></div>
+                    <div style={{ marginTop: "0.4rem" }}>Score = <strong style={{ color: "#22c55e" }}>APY × 0.5</strong> + <strong style={{ color: "#2c7df7" }}>(uptime − 99%) × 3</strong> + <strong style={{ color: "#f97316" }}>fee score × 0.2</strong></div>
+                    <div style={{ marginTop: "0.4rem", color: "rgba(255,255,255,0.45)", fontSize: "0.68rem" }}>Fee score = max(0, 100 − fee% × 5). APY and uptime averaged over last 5 cycles.</div>
+                    <button onClick={() => setShowFormula(false)} style={{ marginTop: "0.6rem", background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.4)", fontSize: "0.68rem", padding: 0 }}>Dismiss</button>
+                  </div>
+                )}
+              </div>
             </div>
             <div style={{ fontSize: "1.15rem", fontWeight: 900, color: "#fff", marginBottom: "0.5rem" }}>
               {data.alias || "Unknown Baker"}
@@ -553,8 +680,9 @@ export default function BakersPage() {
       list = list.filter(b => b.numDelegators >= Number(minDelegators));
     }
     list.sort((a, b) => {
-      const av = a[sortKey] ?? (sortKey === "apy" ? -1 : 0);
-      const bv = b[sortKey] ?? (sortKey === "apy" ? -1 : 0);
+      const nullFallback = (sortKey === "apy" || sortKey === "availableSpace") ? -1 : 0;
+      const av = a[sortKey] ?? nullFallback;
+      const bv = b[sortKey] ?? nullFallback;
       return sortDir === "desc" ? bv - av : av - bv;
     });
     return list;
@@ -704,6 +832,7 @@ export default function BakersPage() {
               { label: "Highest APY", key: "apy" as SortKey, dir: "desc" as SortDir },
               { label: "Most Delegators", key: "numDelegators" as SortKey, dir: "desc" as SortDir },
               { label: "Largest Baker", key: "stakingBalance" as SortKey, dir: "desc" as SortDir },
+              { label: "Most Space", key: "availableSpace" as SortKey, dir: "desc" as SortDir },
             ]).map(btn => {
               const active = sortKey === btn.key && sortDir === btn.dir;
               return (
@@ -726,6 +855,9 @@ export default function BakersPage() {
           </span>
         </div>
 
+        {/* Staking Calculator */}
+        <StakingCalculator bakers={bakers as any[]} />
+
         {/* Baker table */}
         <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", overflow: "hidden" }}>
           <div style={{ overflowX: "auto" }}>
@@ -742,6 +874,7 @@ export default function BakersPage() {
                   <SortTh label="Own Balance" field="ownBalance" current={sortKey} dir={sortDir} onSort={handleSort} />
                   <SortTh label="Delegators" field="numDelegators" current={sortKey} dir={sortDir} onSort={handleSort} />
                   <SortTh label="APY (30d)" field="apy" current={sortKey} dir={sortDir} onSort={handleSort} />
+                  <SortTh label="Available Space" field="availableSpace" current={sortKey} dir={sortDir} onSort={handleSort} />
                   <th style={{ padding: "0.75rem 1rem" }} />
                 </tr>
               </thead>
@@ -749,11 +882,11 @@ export default function BakersPage() {
                 {isLoading ? (
                   Array.from({ length: PAGE_SIZE }).map((_, i) => (
                     <tr key={i} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                      <td colSpan={8} style={{ padding: "0.75rem 1rem" }}><div className="skeleton" style={{ height: "14px", width: "100%" }} /></td>
+                      <td colSpan={9} style={{ padding: "0.75rem 1rem" }}><div className="skeleton" style={{ height: "14px", width: "100%" }} /></td>
                     </tr>
                   ))
                 ) : pageItems.length === 0 ? (
-                  <tr><td colSpan={8} style={{ padding: "3rem", textAlign: "center", color: "rgba(255,255,255,0.3)", fontSize: "0.85rem" }}>No bakers match your filters.</td></tr>
+                  <tr><td colSpan={9} style={{ padding: "3rem", textAlign: "center", color: "rgba(255,255,255,0.3)", fontSize: "0.85rem" }}>No bakers match your filters.</td></tr>
                 ) : pageItems.map((baker: any, i: number) => {
                   const inCompare = compareList.includes(baker.address);
                   const compareIdx = compareList.indexOf(baker.address);
@@ -798,6 +931,17 @@ export default function BakersPage() {
                       <td style={{ padding: "0.75rem 1rem", color: "rgba(255,255,255,0.7)", whiteSpace: "nowrap" }}>{formatXtz(baker.ownBalance)}</td>
                       <td style={{ padding: "0.75rem 1rem", color: "rgba(255,255,255,0.7)" }}>{baker.numDelegators.toLocaleString()}</td>
                       <td style={{ padding: "0.75rem 1rem" }}><ApyBadge apy={baker.apy} /></td>
+                      <td style={{ padding: "0.75rem 1rem", whiteSpace: "nowrap" }}>
+                        {baker.availableSpace === null ? (
+                          <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.3)", fontStyle: "italic" }}>Delegation only</span>
+                        ) : baker.availableSpace === 0 ? (
+                          <span style={{ fontSize: "0.72rem", color: "#ef4444", fontWeight: 700 }}>Full</span>
+                        ) : (
+                          <span style={{ fontWeight: 700, color: baker.availableSpace > 1_000_000 ? "#22c55e" : baker.availableSpace > 100_000 ? "#f59e0b" : "#ef4444" }}>
+                            {formatXtz(baker.availableSpace)}
+                          </span>
+                        )}
+                      </td>
                       <td style={{ padding: "0.75rem 1rem" }} onClick={(e) => e.stopPropagation()}>
                         <DelegateButton address={baker.address} />
                       </td>
