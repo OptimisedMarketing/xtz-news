@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "wouter";
-import { Search, ChevronRight, Home, ExternalLink, TrendingUp, Award } from "lucide-react";
+import { Search, ChevronRight, Home, ExternalLink, TrendingUp, Award, ChevronUp, ChevronDown } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 function fmtXtz(v: number) {
@@ -14,10 +14,24 @@ const EXAMPLE_ADDRESSES = [
   { label: "TF Baker 1", address: "tz3cqThj23fe5UWiHMWMGRSiSYGEMdFhGmPM" },
 ];
 
+type DelegSortKey = "baker" | "from" | "duration" | "rewards" | "apy";
+type SortDir = "asc" | "desc";
+
 export default function RewardCalculatorPage() {
   const [input, setInput] = useState("");
   const [address, setAddress] = useState("");
   const [cycles, setCycles] = useState(30);
+  const [delegSortKey, setDelegSortKey] = useState<DelegSortKey>("from");
+  const [delegSortDir, setDelegSortDir] = useState<SortDir>("desc");
+
+  const handleDelegSort = (key: DelegSortKey) => {
+    if (delegSortKey === key) {
+      setDelegSortDir(d => d === "desc" ? "asc" : "desc");
+    } else {
+      setDelegSortKey(key);
+      setDelegSortDir("desc");
+    }
+  };
 
   const { data, isLoading, error } = trpc.tools.rewardHistory.useQuery(
     { address, cycles },
@@ -213,12 +227,36 @@ export default function RewardCalculatorPage() {
             )}
 
             {/* Delegator: Delegation History with per-baker breakdown */}
-            {data.type === "delegator" && (data as any).delegationPeriods?.length > 0 && (
+            {data.type === "delegator" && (data as any).delegationPeriods?.length > 0 && (() => {
+              const periods = [...(data as any).delegationPeriods].sort((a: any, b: any) => {
+                const dir = delegSortDir === "desc" ? -1 : 1;
+                if (delegSortKey === "baker") return dir * (a.baker || "").localeCompare(b.baker || "");
+                if (delegSortKey === "from") return dir * (new Date(a.from).getTime() - new Date(b.from).getTime());
+                if (delegSortKey === "duration") {
+                  const durA = (a.to ? new Date(a.to) : new Date()).getTime() - new Date(a.from).getTime();
+                  const durB = (b.to ? new Date(b.to) : new Date()).getTime() - new Date(b.from).getTime();
+                  return dir * (durA - durB);
+                }
+                if (delegSortKey === "rewards") return dir * ((a.totalRewards ?? 0) - (b.totalRewards ?? 0));
+                if (delegSortKey === "apy") return dir * ((a.avgApy ?? -1) - (b.avgApy ?? -1));
+                return 0;
+              });
+              const SortTh = ({ label, field }: { label: string; field: DelegSortKey }) => (
+                <th onClick={() => handleDelegSort(field)}
+                  style={{ padding: "0.6rem 1rem", textAlign: "left", fontWeight: 700, color: delegSortKey === field ? "#2c7df7" : "rgba(255,255,255,0.35)", fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.07em", whiteSpace: "nowrap", cursor: "pointer", userSelect: "none" }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: "0.2rem" }}>
+                    {label}
+                    {delegSortKey === field ? (delegSortDir === "desc" ? <ChevronDown size={10} /> : <ChevronUp size={10} />) : null}
+                  </span>
+                </th>
+              );
+              return (
               <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "12px", overflow: "hidden" }}>
                 <div style={{ padding: "1rem 1.25rem", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                     <span style={{ fontWeight: 800, color: "#fff", fontSize: "0.88rem" }}>🏦 Delegation History</span>
-                    <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.3)" }}>{(data as any).delegationPeriods.length} baker{(data as any).delegationPeriods.length !== 1 ? 's' : ''}</span>
+                    <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.3)" }}>{periods.length} baker{periods.length !== 1 ? 's' : ''}</span>
+                    <span style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.2)" }}>· Click column headers to sort</span>
                   </div>
                   {(data as any).totalDelegatorRewards > 0 && (
                     <span style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.5)" }}>
@@ -230,13 +268,16 @@ export default function RewardCalculatorPage() {
                   <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.78rem" }}>
                     <thead>
                       <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                        {["Baker", "From", "To", "Duration", "Rewards Earned", "Avg APY"].map(h => (
-                          <th key={h} style={{ padding: "0.6rem 1rem", textAlign: "left", fontWeight: 700, color: "rgba(255,255,255,0.35)", fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.07em", whiteSpace: "nowrap" }}>{h}</th>
-                        ))}
+                        <SortTh label="Baker" field="baker" />
+                        <SortTh label="From" field="from" />
+                        <th style={{ padding: "0.6rem 1rem", textAlign: "left", fontWeight: 700, color: "rgba(255,255,255,0.35)", fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.07em", whiteSpace: "nowrap" }}>To</th>
+                        <SortTh label="Duration" field="duration" />
+                        <SortTh label="Rewards Earned" field="rewards" />
+                        <SortTh label="Avg APY" field="apy" />
                       </tr>
                     </thead>
                     <tbody>
-                      {(data as any).delegationPeriods.map((p: any, i: number) => {
+                      {periods.map((p: any, i: number) => {
                         const fromDate = new Date(p.from);
                         const toDate = p.to ? new Date(p.to) : new Date();
                         const days = Math.floor((toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24));
@@ -271,7 +312,8 @@ export default function RewardCalculatorPage() {
                   </table>
                 </div>
               </div>
-            )}
+              );
+            })()}
 
             {/* Delegator: Recent reward cycles */}
             {data.type === "delegator" && (data as any).rewardCycles?.length > 0 && (

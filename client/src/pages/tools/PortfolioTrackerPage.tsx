@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
-import { Link } from "wouter";
-import { ChevronRight, Home, Plus, X, ExternalLink, Copy, TrendingUp } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { Link, useSearch } from "wouter";
+import { ChevronRight, Home, Plus, X, ExternalLink, Copy, TrendingUp, Share2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
@@ -24,8 +24,24 @@ function fmtToken(balance: string, decimals: number) {
 const WALLET_COLORS = ["#2c7df7", "#22c55e", "#f97316", "#8b5cf6", "#f59e0b"];
 
 export default function PortfolioTrackerPage() {
-  const [inputs, setInputs] = useState<string[]>(["", ""]);
-  const [addresses, setAddresses] = useState<string[]>([]);
+  const search = useSearch();
+
+  // Parse URL params on load (e.g. ?w1=tz1...&w2=tz1...)
+  const initialInputs = useMemo(() => {
+    const params = new URLSearchParams(search);
+    const fromUrl: string[] = [];
+    for (let i = 1; i <= 5; i++) {
+      const v = params.get(`w${i}`);
+      if (v) fromUrl.push(v);
+    }
+    return fromUrl.length > 0 ? fromUrl : ["", ""];
+  }, []);
+
+  const [inputs, setInputs] = useState<string[]>(initialInputs);
+  const [addresses, setAddresses] = useState<string[]>(() => {
+    const valid = initialInputs.filter(Boolean);
+    return valid.length > 0 ? valid : [];
+  });
 
   const { data, isLoading } = trpc.tools.portfolioTrack.useQuery(
     { addresses: addresses.filter(Boolean) },
@@ -53,6 +69,23 @@ export default function PortfolioTrackerPage() {
   const copy = (text: string) => {
     navigator.clipboard.writeText(text);
     toast.success("Copied!");
+  };
+
+  const sharePortfolio = () => {
+    const valid = addresses.filter(Boolean);
+    if (!valid.length) return;
+    const params = new URLSearchParams();
+    valid.forEach((addr, i) => params.set(`w${i + 1}`, addr));
+    const url = `${window.location.origin}/tools/portfolio?${params.toString()}`;
+    navigator.clipboard.writeText(url);
+    toast.success("Portfolio link copied to clipboard!");
+  };
+
+  const removeTrackedWallet = (addr: string) => {
+    const newAddresses = addresses.filter(a => a !== addr);
+    const newInputs = inputs.filter(i => i.trim() !== addr);
+    setAddresses(newAddresses);
+    setInputs(newInputs.length > 0 ? newInputs : [""]);
   };
 
   const wallets = (data?.wallets || []) as any[];
@@ -139,6 +172,21 @@ export default function PortfolioTrackerPage() {
         {!isLoading && wallets.length > 0 && totals && (
           <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
 
+            {/* Share + actions bar */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.75rem" }}>
+              <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)" }}>
+                Tracking <strong style={{ color: "#fff" }}>{wallets.length}</strong> wallet{wallets.length !== 1 ? "s" : ""}
+              </div>
+              <div style={{ display: "flex", gap: "0.5rem" }}>
+                <button onClick={sharePortfolio}
+                  style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", padding: "0.45rem 1rem", background: "rgba(44,125,247,0.1)", border: "1px solid rgba(44,125,247,0.25)", borderRadius: "6px", color: "#2c7df7", fontWeight: 700, fontSize: "0.78rem", cursor: "pointer", transition: "background 0.15s" }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.2)")}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.1)")}>
+                  <Share2 size={13} /> Share Portfolio Link
+                </button>
+              </div>
+            </div>
+
             {/* Summary cards */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: "1rem" }}>
               {[
@@ -203,6 +251,13 @@ export default function PortfolioTrackerPage() {
                                 <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
                                   <code style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.4)" }}>{w.address.slice(0, 10)}…</code>
                                   <button onClick={() => copy(w.address)} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.2)", display: "flex", padding: "1px" }}><Copy size={10} /></button>
+                                  <button onClick={() => removeTrackedWallet(w.address)}
+                                    title="Remove this wallet"
+                                    style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(239,68,68,0.4)", display: "flex", padding: "1px", transition: "color 0.15s" }}
+                                    onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#ef4444")}
+                                    onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "rgba(239,68,68,0.4)")}>
+                                    <X size={10} />
+                                  </button>
                                 </div>
                               </div>
                             </div>
