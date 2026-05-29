@@ -525,6 +525,67 @@ export const explorerRouter = router({
     return results[0];
   }),
 
+  // ─── Protocol upgrade history ─────────────────────────────────────────────────
+  upgradeHistory: publicProcedure.query(async () => {
+    // Fetch all voting epochs with accepted proposals
+    const [epochs, protocols] = await Promise.all([
+      tzkt("/voting/epochs?limit=100&sort.asc=index"),
+      tzkt("/protocols?limit=50&sort.asc=firstLevel"),
+    ]);
+
+    // Known protocol name mapping (proposal hash -> human name)
+    const PROTOCOL_NAMES: Record<string, string> = {
+      "Pt24m4xiPbLDhVgVfABUjirbmda3yohdN82Sp9FeuAXJ4eV9otd": "Athens A",
+      "PsBABY5HQTSkA4297zNHfsZNKtxULfL18y95qb3m53QJiXGmrbU": "Babylon",
+      "PsCARTHAGazKbHtnKfLzQg3kms52kSRpgnDY982a9oYsSXRLQEb": "Carthage",
+      "PsDELPH1Kxsxt8f9eWbxQeRxkjfbxoqM52jvs5Y5fBxWWh4ifpo": "Delphi",
+      "PtEdoTezd3RHSC31mpxxo1npxFjoWWcFgQtxapi51Z8TLu6v6Uq": "Edo",
+      "PsFLorenaUUuikDWvMDr6fGBRG8kt3e3D3fHoXK1j1BFRxeSH4i": "Florence",
+      "PtGRANADsDU8R9daYKAgWnQYAJ64omN1o3KMGVCykShA97vQbvV": "Granada",
+      "PtHangzHogokSuiMHemCuowEavgYTP8J5qQ9fQS793MHYFpCY3r": "Hangzhou",
+      "Psithaca2MLRFYargivpo7YvUr7wUDqyxrdhC5CQq78mRvimz6A": "Ithaca",
+      "PtJakart2xVj7pYXJBXrqHgd82rdkLey5ZeeGwDgPp9rhQUbSqY": "Jakarta",
+      "PtKathmankSpLLDALzWw7CGD2j2MtyveTwboEYokqUCP4a1LxMg": "Kathmandu",
+      "PtLimaPtLMwfNinJi9rCfDPWea8dFgTZ1MeJ9f1m2SRic6ayiwW": "Lima",
+      "PtMumbaiiFFEGbew1rRjzSPyzRbA51Tm3RVZL5suHPxSZYDhCEc": "Mumbai",
+      "PtNairobiyssHuh87hEhfVBGCVrK3WnS8Z2FT4ymB5tAa4r1nQf": "Nairobi",
+      "ProxfordYmVfjWnRcgjWH36fW6PArwqykTFzotUxRs6gmTcZDuH": "Oxford",
+      "PtParisBQscdCm6Cfow6ndeU6wKJyA3aV1j4D3gQBQMsTQyJCrz": "Paris",
+      "PsQuebecnLByd3JwTiGadoG4nGWi3HYiLXUjkibeFV8dCFeVMUg": "Quebec",
+      "PsRiotumaAMotcRoDWW1bysEhQy2n1M5fy8JgRp8jjRfHGmfeA7": "Rio",
+      "PtSeouLouXkxhg39oWzjxDWaCydNfR3RxCUrNe4Q9Ro8BTehcbh": "Seoul",
+      "PtTALLiNtPec7mE7yY4m3k26J8Qukef3E3ehzhfXgFZKGtDdAXu": "Tallinn",
+    };
+
+    // Build protocol map by hash prefix
+    const protocolMap: Record<string, any> = {};
+    for (const p of (protocols as any[])) {
+      protocolMap[p.hash] = p;
+    }
+
+    // Filter accepted epochs and build upgrade list
+    const upgrades = (epochs as any[])
+      .filter((e: any) => e.status === "completed" && e.proposals?.length > 0)
+      .map((e: any) => {
+        const proposal = e.proposals[0];
+        const protocol = protocolMap[proposal.hash] || null;
+        const name = PROTOCOL_NAMES[proposal.hash] || null;
+        return {
+          epoch: e.index,
+          proposalHash: proposal.hash,
+          name,
+          upvotes: proposal.upvotes,
+          activationLevel: protocol?.firstLevel ?? null,
+          activationCycle: protocol?.firstCycle ?? null,
+          activationTime: protocol?.firstLevelTime ?? null,
+          startTime: e.startTime,
+        };
+      })
+      .reverse(); // Most recent first
+
+    return upgrades;
+  }),
+
   // ─── Voting / governance (rich) ─────────────────────────────────────────────────
   governance: publicProcedure.query(async () => {
     // Fetch current epoch + last 5 epochs for history

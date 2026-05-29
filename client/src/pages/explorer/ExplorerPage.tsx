@@ -26,6 +26,90 @@ function shortHash(h: string, len = 8) {
   return `${h.slice(0, len)}...${h.slice(-4)}`;
 }
 
+// ── Protocol Upgrade History Section ─────────────────────────────────────────
+function UpgradeHistorySection() {
+  const { data: upgrades = [], isLoading } = trpc.explorer.upgradeHistory.useQuery(undefined, {
+    staleTime: 60 * 60_000, // cache 1 hour — rarely changes
+  });
+
+  const UPGRADE_COLORS: Record<string, string> = {
+    "Athens A": "#8b5cf6", "Babylon": "#ec4899", "Carthage": "#f97316",
+    "Delphi": "#06b6d4", "Edo": "#10b981", "Florence": "#f59e0b",
+    "Granada": "#22c55e", "Hangzhou": "#2c7df7", "Ithaca": "#8b5cf6",
+    "Jakarta": "#ec4899", "Kathmandu": "#f97316", "Lima": "#06b6d4",
+    "Mumbai": "#10b981", "Nairobi": "#f59e0b", "Oxford": "#22c55e",
+    "Paris": "#2c7df7", "Quebec": "#8b5cf6", "Rio": "#ec4899",
+    "Seoul": "#f97316", "Tallinn": "#06b6d4",
+  };
+
+  return (
+    <div style={{ marginBottom: "1.75rem" }}>
+      <h2 style={{ fontSize: "0.82rem", fontWeight: 800, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 0.75rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+        <Zap size={13} style={{ color: "#f59e0b" }} /> Protocol Upgrade History
+        <span style={{ fontWeight: 400, color: "rgba(255,255,255,0.25)", textTransform: "none", letterSpacing: 0, fontSize: "0.7rem" }}>— {upgrades.length} upgrades since genesis</span>
+      </h2>
+      {isLoading ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="skeleton" style={{ height: "44px", borderRadius: "6px" }} />
+          ))}
+        </div>
+      ) : (
+        <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", overflow: "hidden" }}>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.78rem" }}>
+              <thead>
+                <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                  {["Protocol", "Proposal Hash", "Activation Level", "Epoch", "Upvotes", ""].map(h => (
+                    <th key={h} style={{ padding: "0.6rem 1rem", textAlign: "left", fontWeight: 700, color: "rgba(255,255,255,0.35)", fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.07em", whiteSpace: "nowrap" }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {upgrades.map((u: any, i: number) => {
+                  const color = UPGRADE_COLORS[u.name] ?? "#2c7df7";
+                  return (
+                    <tr key={u.epoch} style={{ borderBottom: i < upgrades.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", transition: "background 0.15s" }}
+                      onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.02)")}
+                      onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "transparent")}>
+                      <td style={{ padding: "0.6rem 1rem", whiteSpace: "nowrap" }}>
+                        {u.name ? (
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem" }}>
+                            <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: color, flexShrink: 0 }} />
+                            <span style={{ fontWeight: 800, color: "#fff" }}>{u.name}</span>
+                          </span>
+                        ) : (
+                          <span style={{ color: "rgba(255,255,255,0.35)", fontFamily: "monospace", fontSize: "0.72rem" }}>{u.proposalHash.slice(0, 12)}…</span>
+                        )}
+                      </td>
+                      <td style={{ padding: "0.6rem 1rem" }}>
+                        <span style={{ fontFamily: "monospace", fontSize: "0.7rem", color: "rgba(255,255,255,0.4)" }}>{u.proposalHash.slice(0, 16)}…</span>
+                      </td>
+                      <td style={{ padding: "0.6rem 1rem", color: "rgba(255,255,255,0.6)", fontWeight: 600 }}>
+                        {u.activationLevel ? u.activationLevel.toLocaleString() : "—"}
+                      </td>
+                      <td style={{ padding: "0.6rem 1rem", color: "rgba(255,255,255,0.4)" }}>#{u.epoch}</td>
+                      <td style={{ padding: "0.6rem 1rem", color: "rgba(255,255,255,0.6)" }}>{u.upvotes}</td>
+                      <td style={{ padding: "0.6rem 1rem" }}>
+                        <a href={`https://tzkt.io/protocols/${u.proposalHash}`} target="_blank" rel="nofollow noopener noreferrer"
+                          style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem", fontSize: "0.68rem", color: "rgba(255,255,255,0.3)", textDecoration: "none" }}
+                          onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.7)")}
+                          onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.3)")}>
+                          <ExternalLink size={10} /> TzKT
+                        </a>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ExplorerPage() {
   useSEO({
     title: "Tezos Blockchain Explorer | XTZ.News — Blocks, Transactions & Addresses",
@@ -38,6 +122,8 @@ export default function ExplorerPage() {
   const [searchInput, setSearchInput] = useState("");
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [activeTab, setActiveTab] = useState<"dashboard" | "governance">("dashboard");
+  const [voteFilter, setVoteFilter] = useState<"all" | "yay" | "nay" | "pass">("all");
+  const [showQuorumTooltip, setShowQuorumTooltip] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { data: governance, isLoading: govLoading } = trpc.explorer.governance.useQuery(undefined, {
@@ -198,7 +284,29 @@ export default function ExplorerPage() {
                               <span style={{ fontSize: "0.65rem", fontWeight: 800, padding: "2px 8px", borderRadius: "3px", background: p.status === "active" ? "rgba(34,197,94,0.15)" : "rgba(255,255,255,0.06)", color: p.status === "active" ? "#22c55e" : "rgba(255,255,255,0.4)", textTransform: "uppercase" }}>{p.status}</span>
                               {p.initiator && <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.4)" }}>by {p.initiator}</span>}
                             </div>
-                            <div style={{ fontFamily: "monospace", fontSize: "0.78rem", color: "#2c7df7", wordBreak: "break-all" }}>{p.hash}</div>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+                              <div style={{ fontFamily: "monospace", fontSize: "0.78rem", color: "#2c7df7", wordBreak: "break-all" }}>{p.hash}</div>
+                              <a
+                                href={`https://research-development.nomadic-labs.com/tezos-protocol-${p.hash.slice(0, 8).toLowerCase()}.html`}
+                                target="_blank"
+                                rel="nofollow noopener noreferrer"
+                                title="View proposal documentation"
+                                style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem", fontSize: "0.68rem", color: "rgba(44,125,247,0.7)", textDecoration: "none", whiteSpace: "nowrap", flexShrink: 0 }}
+                                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#2c7df7")}
+                                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "rgba(44,125,247,0.7)")}>
+                                <ExternalLink size={10} /> Docs
+                              </a>
+                              <a
+                                href={`https://tzkt.io/protocols/${p.hash}`}
+                                target="_blank"
+                                rel="nofollow noopener noreferrer"
+                                title="View on TzKT"
+                                style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem", fontSize: "0.68rem", color: "rgba(255,255,255,0.3)", textDecoration: "none", whiteSpace: "nowrap", flexShrink: 0 }}
+                                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.6)")}
+                                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.3)")}>
+                                <ExternalLink size={10} /> TzKT
+                              </a>
+                            </div>
                           </div>
                           <div style={{ textAlign: "right" }}>
                             <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)", marginBottom: "0.2rem" }}>Upvotes</div>
@@ -221,7 +329,22 @@ export default function ExplorerPage() {
                       {/* Participation bar */}
                       <div style={{ marginBottom: "1.25rem" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.4rem" }}>
-                          <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.5)" }}>Baker Participation</span>
+                          <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", position: "relative" }}>
+                            <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.5)" }}>Baker Participation</span>
+                            <button
+                              onMouseEnter={() => setShowQuorumTooltip(true)}
+                              onMouseLeave={() => setShowQuorumTooltip(false)}
+                              style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.3)", padding: 0, display: "flex", alignItems: "center" }}>
+                              <Users size={11} />
+                            </button>
+                            {showQuorumTooltip && (
+                              <div style={{ position: "absolute", top: "calc(100% + 6px)", left: 0, background: "#0d2a5e", border: "1px solid rgba(44,125,247,0.3)", borderRadius: "8px", padding: "0.75rem 1rem", width: "260px", zIndex: 50, boxShadow: "0 8px 24px rgba(0,0,0,0.5)", fontSize: "0.72rem", color: "rgba(255,255,255,0.7)", lineHeight: 1.6, pointerEvents: "none" }}>
+                                <div style={{ fontWeight: 800, color: "#fff", marginBottom: "0.3rem" }}>How the quorum works</div>
+                                <div>The <strong style={{ color: "#2c7df7" }}>quorum</strong> is the minimum percentage of total voting power that must cast a ballot for the vote to be valid. It is dynamically adjusted each period based on recent participation.</div>
+                                <div style={{ marginTop: "0.4rem" }}>Current quorum: <strong style={{ color: "#f59e0b" }}>{governance.ballotPeriod?.ballotsQuorum ?? "?"}%</strong>. Supermajority (Yay threshold): <strong style={{ color: "#22c55e" }}>{governance.ballotPeriod?.supermajority ?? "?"}%</strong>.</div>
+                              </div>
+                            )}
+                          </div>
                           <span style={{ fontSize: "0.82rem", fontWeight: 900, color: governance.ballotPeriod.participationPct != null && governance.ballotPeriod.participationPct >= (governance.ballotPeriod.ballotsQuorum ?? 50) ? "#22c55e" : "#f59e0b" }}>
                             {governance.ballotPeriod.participationPct ?? "—"}%
                             {governance.ballotPeriod.ballotsQuorum && <span style={{ fontSize: "0.65rem", fontWeight: 500, color: "rgba(255,255,255,0.35)", marginLeft: "0.35rem" }}>quorum: {governance.ballotPeriod.ballotsQuorum}%</span>}
@@ -272,9 +395,20 @@ export default function ExplorerPage() {
                 {/* Top voters */}
                 {governance.topVoters.length > 0 && (
                   <div style={{ marginBottom: "1.75rem" }}>
-                    <h2 style={{ fontSize: "0.82rem", fontWeight: 800, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 0.75rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                      <Shield size={13} style={{ color: "#f97316" }} /> Baker Votes
-                    </h2>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem", flexWrap: "wrap", gap: "0.5rem" }}>
+                      <h2 style={{ fontSize: "0.82rem", fontWeight: 800, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.08em", margin: 0, display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                        <Shield size={13} style={{ color: "#f97316" }} /> Baker Votes
+                      </h2>
+                      {/* Vote filter dropdown */}
+                      <div style={{ display: "flex", gap: "0.35rem" }}>
+                        {(["all", "yay", "nay", "pass"] as const).map(f => (
+                          <button key={f} onClick={() => setVoteFilter(f)}
+                            style={{ padding: "0.3rem 0.7rem", background: voteFilter === f ? (f === "yay" ? "rgba(34,197,94,0.2)" : f === "nay" ? "rgba(239,68,68,0.2)" : f === "pass" ? "rgba(245,158,11,0.2)" : "rgba(44,125,247,0.2)") : "rgba(255,255,255,0.05)", border: `1px solid ${voteFilter === f ? (f === "yay" ? "rgba(34,197,94,0.5)" : f === "nay" ? "rgba(239,68,68,0.5)" : f === "pass" ? "rgba(245,158,11,0.5)" : "rgba(44,125,247,0.5)") : "rgba(255,255,255,0.1)"}`, borderRadius: "4px", color: voteFilter === f ? (f === "yay" ? "#22c55e" : f === "nay" ? "#ef4444" : f === "pass" ? "#f59e0b" : "#2c7df7") : "rgba(255,255,255,0.4)", fontSize: "0.72rem", fontWeight: 600, cursor: "pointer", textTransform: "capitalize" }}>
+                            {f === "all" ? "All" : f.charAt(0).toUpperCase() + f.slice(1)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                     <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", overflow: "hidden" }}>
                       <div style={{ overflowX: "auto" }}>
                         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.78rem" }}>
@@ -286,7 +420,7 @@ export default function ExplorerPage() {
                             </tr>
                           </thead>
                           <tbody>
-                            {governance.topVoters.map((v: any, i: number) => (
+                            {governance.topVoters.filter((v: any) => voteFilter === "all" || v.vote === voteFilter).map((v: any, i: number) => (
                               <tr key={v.address + i} style={{ borderBottom: i < governance.topVoters.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
                                 <td style={{ padding: "0.55rem 1rem" }}>
                                   <Link href={`/explorer/address/${v.address}`} style={{ color: "#fff", textDecoration: "none", fontWeight: 600 }}>{v.baker}</Link>
@@ -304,8 +438,11 @@ export default function ExplorerPage() {
                   </div>
                 )}
 
+                {/* Protocol upgrade history */}
+                <UpgradeHistorySection />
+
                 {/* Epoch history */}
-                <div>
+                <div style={{ marginTop: "1.75rem" }}>
                   <h2 style={{ fontSize: "0.82rem", fontWeight: 800, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 0.75rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
                     <RefreshCw size={13} style={{ color: "#8b5cf6" }} /> Recent Epochs
                   </h2>
