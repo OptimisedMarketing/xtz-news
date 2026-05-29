@@ -7,6 +7,7 @@ import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { notifyOwner } from "./_core/notification";
 import * as db from "./db";
 import { explorerRouter } from "./explorerRouter";
+import { toolsRouter } from "./toolsRouter";
 
 // ─── Admin guard ──────────────────────────────────────────────────────────────
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -690,6 +691,6 @@ export const appRouter = router({
   upload: uploadRouter,
   imageMigration: imageMigrationRouter,
   explorer: explorerRouter,
-});
-
+  tools: toolsRouter,
+})
 export type AppRouter = typeof appRouter;

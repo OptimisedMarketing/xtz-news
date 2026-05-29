@@ -21,7 +21,7 @@ function formatXtz(v: number) {
 }
 
 function templeDelegate(address: string) {
-  return `https://app.templewallet.com/delegate?to=${address}`;
+  return `https://app.templewallet.com/delegating?baker=${address}`;
 }
 
 type SortKey = "rank" | "stakingBalance" | "ownBalance" | "numDelegators" | "apy" | "availableSpace";

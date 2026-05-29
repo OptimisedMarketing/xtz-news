@@ -27,6 +27,7 @@ const NAV_ITEMS = [
   { label: "PROJECTS", href: "/projects" },
   { label: "EXPLORER", href: "/explorer" },
   { label: "STAKING", href: "/staking" },
+  { label: "TOOLS", href: "/tools" },
   { label: "SUBMIT ARTICLE", href: "/submit-article" },
   { label: "CONTACT", href: "/contact" },
 ];

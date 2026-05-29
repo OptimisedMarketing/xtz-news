@@ -4,7 +4,7 @@ import { ExternalLink, Search, Copy, ChevronRight, Home, X, DollarSign, Trending
 import { trpc } from "@/lib/trpc";
 
 const templeDelegate = (address: string) =>
-  `https://templewallet.com/delegating?baker=${address}`;
+  `https://app.templewallet.com/delegating?baker=${address}`;
 
 type SidebarSort = "apy" | "fee" | "delegators";
 

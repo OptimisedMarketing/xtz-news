@@ -421,7 +421,7 @@ export default function AddressPage() {
               Want to delegate your XTZ to <strong style={{ color: "#fff" }}>{account.alias || "this baker"}</strong>?
             </div>
             <a
-              href={`https://app.templewallet.com/delegate?to=${account.address}`}
+              href={`https://app.templewallet.com/delegating?baker=${account.address}`}
               target="_blank"
               rel="nofollow noopener noreferrer"
               style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", padding: "0.55rem 1.1rem", background: "linear-gradient(135deg, #f97316, #ea580c)", borderRadius: "6px", color: "#fff", fontWeight: 700, fontSize: "0.8rem", textDecoration: "none" }}>

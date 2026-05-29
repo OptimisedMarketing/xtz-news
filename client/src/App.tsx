@@ -38,6 +38,11 @@ import TxPage from "./pages/explorer/TxPage";
 import AddressPage from "./pages/explorer/AddressPage";
 import BakersPage from "./pages/explorer/BakersPage";
 import StakingPage from "./pages/StakingPage";
+import ToolsPage from "./pages/tools/ToolsPage";
+import WalletInspectorPage from "./pages/tools/WalletInspectorPage";
+import NftGalleryPage from "./pages/tools/NftGalleryPage";
+import WhaleWatcherPage from "./pages/tools/WhaleWatcherPage";
+import RewardCalculatorPage from "./pages/tools/RewardCalculatorPage";
 
 function Router() {
   return (
@@ -76,6 +81,11 @@ function Router() {
       <Route path="/explorer" component={ExplorerPage} />
       <Route path="/explorer/bakers" component={BakersPage} />
       <Route path="/staking" component={StakingPage} />
+      <Route path="/tools" component={ToolsPage} />
+      <Route path="/tools/wallet" component={WalletInspectorPage} />
+      <Route path="/tools/nft-gallery" component={NftGalleryPage} />
+      <Route path="/tools/whale-watcher" component={WhaleWatcherPage} />
+      <Route path="/tools/rewards" component={RewardCalculatorPage} />
       <Route path="/explorer/block/:id" component={BlockPage} />
       <Route path="/explorer/tx/:hash" component={TxPage} />
       <Route path="/explorer/address/:address" component={AddressPage} />
