@@ -21,7 +21,7 @@ export default function ArticleNewsletterSignup() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return;
-    subscribeMutation.mutate({ email: email.trim() });
+    subscribeMutation.mutate({ email: email.trim(), govAlerts });
   };
 
   if (subscribed) {

@@ -212,6 +212,8 @@ export const newsletterSubscribers = mysqlTable(
     email: varchar("email", { length: 320 }).notNull(),
     name: varchar("name", { length: 255 }),
     status: mysqlEnum("status", ["active", "unsubscribed"]).default("active").notNull(),
+    govAlerts: boolean("govAlerts").default(false).notNull(),
+    unsubToken: varchar("unsubToken", { length: 64 }),
     createdAt: timestamp("createdAt").defaultNow().notNull(),
   },
   (t) => [uniqueIndex("newsletter_email_idx").on(t.email)]

@@ -365,24 +365,131 @@ const submissionsRouter = router({
 // ─── Newsletter Router ───────────────────────────────────────────────────────
 const newsletterRouter = router({
   subscribe: publicProcedure
-    .input(z.object({ email: z.string().email(), name: z.string().optional() }))
+    .input(z.object({
+      email: z.string().email(),
+      name: z.string().optional(),
+      govAlerts: z.boolean().optional().default(false),
+    }))
     .mutation(async ({ input }) => {
       const { getDb } = await import('./db');
       const { newsletterSubscribers } = await import('../drizzle/schema');
+      const { eq } = await import('drizzle-orm');
       const dbConn = await getDb();
       if (!dbConn) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
       try {
+        // Generate a secure unsubscribe token
+        const crypto = await import('crypto');
+        const unsubToken = crypto.randomBytes(32).toString('hex');
+
         await dbConn.insert(newsletterSubscribers)
-          .values({ email: input.email, name: input.name ?? null, status: 'active' })
-          .onDuplicateKeyUpdate({ set: { status: 'active' } });
+          .values({
+            email: input.email,
+            name: input.name ?? null,
+            status: 'active',
+            govAlerts: input.govAlerts ?? false,
+            unsubToken,
+          })
+          .onDuplicateKeyUpdate({
+            set: { status: 'active', govAlerts: input.govAlerts ?? false },
+          });
+
+        // Fetch the actual token (may have been existing if duplicate)
+        const [row] = await dbConn.select({ unsubToken: newsletterSubscribers.unsubToken })
+          .from(newsletterSubscribers)
+          .where(eq(newsletterSubscribers.email, input.email))
+          .limit(1);
+        const finalToken = row?.unsubToken || unsubToken;
+
+        // Send welcome email via Resend
+        const RESEND_API_KEY = process.env.RESEND_API_KEY;
+        if (RESEND_API_KEY) {
+          const baseUrl = 'https://xtz.news';
+          const unsubUrl = `${baseUrl}/unsubscribe?token=${finalToken}`;
+          const manageUrl = `${baseUrl}/manage-subscriptions?token=${finalToken}`;
+          const welcomeHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:0;background:#000;font-family:Arial,sans-serif"><div style="max-width:600px;margin:0 auto;padding:20px"><div style="text-align:center;padding:24px 0;border-bottom:2px solid #2c7df7;margin-bottom:28px"><img src="${baseUrl}/manus-storage/xtz-logo-square_c6689606.png" alt="XTZ.News" style="height:60px" /><h1 style="color:#fff;font-size:22px;margin:12px 0 4px">Welcome to XTZ.News!</h1><p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0">You're now part of the Tezos community newsletter</p></div><div style="background:#05152e;border:1px solid rgba(44,125,247,0.3);border-radius:8px;padding:24px;margin-bottom:24px"><h2 style="color:#fff;font-size:18px;margin:0 0 12px">You're subscribed! 🎉</h2><p style="color:rgba(255,255,255,0.7);font-size:14px;margin:0 0 16px;line-height:1.6">Every Monday you'll receive the top Tezos stories of the week, delivered straight to your inbox from <strong style="color:#2c7df7">newsletter@xtz.news</strong>.</p>${input.govAlerts ? `<div style="background:rgba(44,125,247,0.1);border:1px solid rgba(44,125,247,0.3);border-radius:6px;padding:14px;margin-bottom:16px"><p style="color:#2c7df7;font-size:13px;margin:0;font-weight:700">🗳️ Governance Alerts enabled</p><p style="color:rgba(255,255,255,0.6);font-size:13px;margin:4px 0 0">You'll also be notified when a new Tezos protocol upgrade proposal enters the voting phase.</p></div>` : ''}<a href="${baseUrl}" style="display:inline-block;padding:12px 24px;background:#2c7df7;color:#fff;text-decoration:none;border-radius:6px;font-size:14px;font-weight:700">Visit XTZ.News →</a></div><div style="text-align:center;padding:20px 0;border-top:1px solid rgba(255,255,255,0.08)"><p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0 0 8px">You can <a href="${manageUrl}" style="color:#2c7df7">manage your preferences</a> or <a href="${unsubUrl}" style="color:rgba(255,255,255,0.4)">unsubscribe</a> at any time.</p></div></div></body></html>`;
+          await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              from: 'XTZ.News <newsletter@xtz.news>',
+              to: [input.email],
+              subject: '👋 Welcome to XTZ.News — Your Tezos Newsletter',
+              html: welcomeHtml,
+            }),
+          }).catch(() => {}); // Don't fail subscription if email fails
+        }
+
         await notifyOwner({
           title: 'New Newsletter Subscriber',
-          content: `${input.name ? input.name + ' (' + input.email + ')' : input.email} subscribed to the XTZ.News newsletter.`,
+          content: `${input.name ? input.name + ' (' + input.email + ')' : input.email} subscribed to the XTZ.News newsletter.${input.govAlerts ? ' (Governance Alerts: ON)' : ''}`,
         }).catch(() => {});
         return { success: true };
       } catch {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid email address' });
       }
+    }),
+
+  unsubscribe: publicProcedure
+    .input(z.object({ token: z.string() }))
+    .mutation(async ({ input }) => {
+      const { getDb } = await import('./db');
+      const { newsletterSubscribers } = await import('../drizzle/schema');
+      const { eq } = await import('drizzle-orm');
+      const dbConn = await getDb();
+      if (!dbConn) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+      const [row] = await dbConn.select({ id: newsletterSubscribers.id, email: newsletterSubscribers.email })
+        .from(newsletterSubscribers)
+        .where(eq(newsletterSubscribers.unsubToken, input.token))
+        .limit(1);
+      if (!row) throw new TRPCError({ code: 'NOT_FOUND', message: 'Invalid or expired unsubscribe link.' });
+      await dbConn.update(newsletterSubscribers)
+        .set({ status: 'unsubscribed' })
+        .where(eq(newsletterSubscribers.unsubToken, input.token));
+      return { success: true, email: row.email };
+    }),
+
+  getPreferences: publicProcedure
+    .input(z.object({ token: z.string() }))
+    .query(async ({ input }) => {
+      const { getDb } = await import('./db');
+      const { newsletterSubscribers } = await import('../drizzle/schema');
+      const { eq } = await import('drizzle-orm');
+      const dbConn = await getDb();
+      if (!dbConn) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+      const [row] = await dbConn.select({
+        email: newsletterSubscribers.email,
+        name: newsletterSubscribers.name,
+        status: newsletterSubscribers.status,
+        govAlerts: newsletterSubscribers.govAlerts,
+      })
+        .from(newsletterSubscribers)
+        .where(eq(newsletterSubscribers.unsubToken, input.token))
+        .limit(1);
+      if (!row) throw new TRPCError({ code: 'NOT_FOUND', message: 'Invalid or expired link.' });
+      return row;
+    }),
+
+  updatePreferences: publicProcedure
+    .input(z.object({
+      token: z.string(),
+      govAlerts: z.boolean(),
+      status: z.enum(['active', 'unsubscribed']),
+    }))
+    .mutation(async ({ input }) => {
+      const { getDb } = await import('./db');
+      const { newsletterSubscribers } = await import('../drizzle/schema');
+      const { eq } = await import('drizzle-orm');
+      const dbConn = await getDb();
+      if (!dbConn) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+      const [row] = await dbConn.select({ id: newsletterSubscribers.id })
+        .from(newsletterSubscribers)
+        .where(eq(newsletterSubscribers.unsubToken, input.token))
+        .limit(1);
+      if (!row) throw new TRPCError({ code: 'NOT_FOUND', message: 'Invalid or expired link.' });
+      await dbConn.update(newsletterSubscribers)
+        .set({ govAlerts: input.govAlerts, status: input.status })
+        .where(eq(newsletterSubscribers.unsubToken, input.token));
+      return { success: true };
     }),
 
   list: adminProcedure.query(async () => {

@@ -30,6 +30,8 @@ import AdminSubscribers from "./pages/admin/AdminSubscribers";
 import NotFound from "./pages/NotFound";
 import PricePage from "./pages/PricePage";
 import SubmitProjectPage from "./pages/SubmitProjectPage";
+import UnsubscribePage from "./pages/UnsubscribePage";
+import ManageSubscriptionsPage from "./pages/ManageSubscriptionsPage";
 import ExplorerPage from "./pages/explorer/ExplorerPage";
 import BlockPage from "./pages/explorer/BlockPage";
 import TxPage from "./pages/explorer/TxPage";
@@ -66,6 +68,8 @@ function Router() {
       <Route path="/admin/subscribers" component={AdminSubscribers} />
       <Route path="/prices" component={PricePage} />
       <Route path="/submit-project" component={SubmitProjectPage} />
+      <Route path="/unsubscribe" component={UnsubscribePage} />
+      <Route path="/manage-subscriptions" component={ManageSubscriptionsPage} />
 
       {/* Explorer routes */}
       <Route path="/explorer" component={ExplorerPage} />
