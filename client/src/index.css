@@ -232,10 +232,21 @@
   /* Suppress extra spacing from WordPress br tags */
   .post-content br { display: none; }
   .post-content p:empty { display: none; }
+  /* Lead paragraph */
   .post-content p:first-child {
     font-size: 1.2rem;
     color: rgba(255,255,255,0.92);
     line-height: 1.75;
+  }
+  /* Drop cap on first letter of first paragraph */
+  .post-content p:first-child::first-letter {
+    float: left;
+    font-size: 4.2rem;
+    font-weight: 900;
+    line-height: 0.78;
+    margin: 0.08em 0.12em 0 0;
+    color: #2c7df7;
+    font-family: 'CeraPro', 'Barlow', sans-serif;
   }
   .post-content .pull-quote {
     border-left: 5px solid #2c7df7 !important;
@@ -335,27 +346,101 @@
   .post-content a:hover { text-decoration: underline; }
   .post-content ul,.post-content ol { padding-left: 1.5rem; margin-bottom: 1.25rem; }
   .post-content li { margin-bottom: 0.4rem; }
+  /* Enhanced blockquote / pull-quote */
   .post-content blockquote {
-    border-left: 3px solid #2c7df7;
-    padding: 0.75rem 1.25rem;
-    margin: 1.5rem 0;
-    background: rgba(44,125,247,0.08);
-    border-radius: 0 4px 4px 0;
+    border-left: 4px solid #2c7df7;
+    padding: 1.25rem 1.75rem;
+    margin: 2.5rem 0;
+    background: linear-gradient(135deg, rgba(44,125,247,0.1) 0%, rgba(44,125,247,0.04) 100%);
+    border-radius: 0 8px 8px 0;
     font-style: italic;
-    color: rgba(255,255,255,0.7);
+    font-size: 1.15rem;
+    color: rgba(255,255,255,0.9);
+    line-height: 1.7;
+    position: relative;
   }
-  .post-content img { border-radius: 4px; margin: 1.5rem 0; width: 100%; }
+  .post-content blockquote::before {
+    content: '\201C';
+    position: absolute;
+    top: -0.75rem;
+    left: 1.25rem;
+    font-size: 5rem;
+    color: rgba(44,125,247,0.2);
+    font-style: normal;
+    line-height: 1;
+    font-family: Georgia, serif;
+    pointer-events: none;
+  }
+  .post-content blockquote p {
+    margin: 0 !important;
+    font-size: 1.15rem !important;
+    color: rgba(255,255,255,0.9) !important;
+  }
+  /* Full-bleed images with captions */
+  .post-content img {
+    border-radius: 6px;
+    margin: 2rem 0 0.5rem;
+    width: 100%;
+    display: block;
+  }
+  .post-content figure {
+    margin: 2rem -1.5rem;
+  }
+  .post-content figure img {
+    border-radius: 6px;
+    margin: 0;
+    width: 100%;
+  }
+  @media (max-width: 768px) {
+    .post-content figure { margin: 2rem 0; }
+  }
   .post-content table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
   .post-content th,.post-content td { border: 1px solid rgba(255,255,255,0.12); padding: 0.5rem 0.75rem; }
   .post-content th { background: #123262; }
   .post-content hr { border: none; border-top: 1px solid rgba(255,255,255,0.12); margin: 2rem 0; }
-  .post-content figure { margin: 1.5rem 0; }
-  .post-content figcaption { font-size: 0.8rem; color: rgba(255,255,255,0.5); text-align: center; margin-top: 0.5rem; }
+  .post-content figcaption {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.4);
+    text-align: center;
+    margin: 0.5rem 1.5rem 1.5rem;
+    font-style: italic;
+    line-height: 1.5;
+  }
   .post-content iframe { max-width: 100%; border-radius: 4px; }
   .post-content strong { font-weight: 700; }
   .post-content em { font-style: italic; }
 
-  /* ── Breaking news ticker — slow (90s) ── */
+  /* ── Article page responsive layout ── */
+  .article-layout {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) 280px;
+    gap: 3rem;
+    align-items: start;
+  }
+  .article-sidebar {
+    position: sticky;
+    top: 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  @media (max-width: 1024px) {
+    .article-layout {
+      grid-template-columns: 1fr;
+    }
+    .article-sidebar {
+      position: static;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    }
+  }
+  @media (max-width: 640px) {
+    .article-sidebar {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ── Breaking news ticker — slow (90s) —— */
   .ticker-wrap { overflow: hidden; white-space: nowrap; }
   .ticker-content {
     display: inline-block;

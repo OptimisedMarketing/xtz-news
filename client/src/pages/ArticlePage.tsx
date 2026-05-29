@@ -335,8 +335,10 @@ function ShareButtons({ title, url, variant = "compact" }: ShareButtonsProps) {
 export default function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
   const [readProgress, setReadProgress] = useState(0);
+  const [showStickyShare, setShowStickyShare] = useState(false);
+  const heroRef = useRef<HTMLDivElement>(null);
 
-  // Reading progress bar
+  // Reading progress bar + sticky share bar trigger
   useEffect(() => {
     const onScroll = () => {
       const el = document.documentElement;
@@ -344,6 +346,8 @@ export default function ArticlePage() {
       const scrollHeight = el.scrollHeight - el.clientHeight;
       if (scrollHeight <= 0) { setReadProgress(100); return; }
       setReadProgress(Math.min(100, Math.round((scrollTop / scrollHeight) * 100)));
+      // Show sticky share bar after scrolling past 300px
+      setShowStickyShare(scrollTop > 300);
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
@@ -394,161 +398,172 @@ export default function ArticlePage() {
   }
 
   const pageUrl = typeof window !== "undefined" ? window.location.href : `https://xtz.news/${slug}`;
+  const wordCount = post.content ? post.content.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length : 0;
+  const readMins = Math.max(1, Math.round(wordCount / 200));
 
   return (
     <article>
-      {/* Reading progress bar */}
-      <div style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: `${readProgress}%`,
-        height: "3px",
-        background: "linear-gradient(to right, #2c7df7, #5a9fff)",
-        zIndex: 9999,
-        transition: "width 0.1s linear",
-        pointerEvents: "none",
-      }} />
+      {/* 1. Reading progress bar */}
+      <div style={{ position: "fixed", top: 0, left: 0, width: `${readProgress}%`, height: "3px", background: "linear-gradient(to right, #2c7df7, #5a9fff)", zIndex: 9999, transition: "width 0.1s linear", pointerEvents: "none" }} />
 
-      {/* Featured image hero */}
-      {post.featuredImageUrl && (
-        <div style={{ position: "relative", width: "100%", maxHeight: "clamp(240px, 45vw, 520px)", overflow: "hidden" }}>
+      {/* 8. Sticky share bar — appears after scrolling past hero */}
+      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 200, transform: showStickyShare ? "translateY(0)" : "translateY(100%)", transition: "transform 0.3s cubic-bezier(0.23,1,0.32,1)", background: "rgba(5,21,46,0.97)", borderTop: "1px solid rgba(44,125,247,0.2)", backdropFilter: "blur(12px)", padding: "0.6rem 1rem" }}>
+        <div className="container" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem" }}>
+          <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.5)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, minWidth: 0 }}>{post.title}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexShrink: 0 }}>
+            <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.35)", marginRight: "0.25rem" }}>{readProgress}% read</span>
+            <ShareButtons title={post.title} url={pageUrl} />
+          </div>
+        </div>
+      </div>
+
+      {/* 1. Full-bleed hero with title overlay */}
+      <div ref={heroRef} style={{ position: "relative", width: "100%", height: "clamp(320px, 55vw, 600px)", overflow: "hidden", background: "#05152e" }}>
+        {post.featuredImageUrl && (
           <img
             src={post.featuredImageUrl}
             alt={post.featuredImageAlt || post.title}
-            style={{ width: "100%", height: "clamp(240px, 45vw, 520px)", objectFit: "cover", display: "block" }}
-            onError={(e) => { (e.currentTarget as HTMLElement).parentElement!.style.display = "none"; }}
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = "0"; }}
           />
-          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "40%", background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%)", pointerEvents: "none" }} />
-        </div>
-      )}
-
-      <div className="container py-10">
-        <div style={{ maxWidth: "760px", margin: "0 auto" }}>
-          {/* Breadcrumb — bold, visible, full title, no truncation */}
-          <nav style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.35rem", marginBottom: "1.25rem", fontSize: "0.8rem", fontWeight: 600 }}>
-            <Link href="/" style={{ color: "rgba(255,255,255,0.55)", display: "flex", alignItems: "center", textDecoration: "none", transition: "color 0.2s" }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#fff")}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.55)")}>
-              <Home size={13} />
-            </Link>
-            <ChevronRight size={11} style={{ color: "rgba(255,255,255,0.3)", flexShrink: 0 }} />
-            {post.categories?.[0] && (
-              <>
-                <Link
-                  href={`/category/${post.categories[0].slug}`}
-                  style={{ color: "#2c7df7", textDecoration: "none", fontWeight: 700, transition: "color 0.2s", textTransform: "capitalize" }}
-                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#5a9fff")}
-                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "#2c7df7")}
-                >
-                  {post.categories[0].name}
-                </Link>
-                <ChevronRight size={11} style={{ color: "rgba(255,255,255,0.3)", flexShrink: 0 }} />
-              </>
-            )}
-            <span style={{ color: "rgba(255,255,255,0.85)", fontWeight: 600, lineHeight: 1.4 }}>{post.title}</span>
-          </nav>
-
-          {/* Category tags */}
-          {post.categories && post.categories.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-4">
-              {post.categories.map((cat) => (
-                <Link key={cat.id} href={`/category/${cat.slug}`} className="cat-tag">
-                  {cat.name.toUpperCase()}
-                </Link>
-              ))}
-            </div>
-          )}
-
-          {/* Title */}
-          <h1
-            className="font-black text-white leading-tight mb-5"
-            style={{ fontSize: "clamp(1.5rem, 4.5vw, 2.5rem)", lineHeight: 1.2, letterSpacing: "-0.02em" }}
-          >
-            {post.title}
-          </h1>
-
-          {/* Meta */}
-          <div className="flex flex-wrap items-center gap-4 mb-6 pb-6 border-b border-white/10">
-            <div className="flex items-center gap-2">
-              <div
-                className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                style={{ background: "var(--xtz-blue)" }}
-              >
-                X
+        )}
+        {/* Deep gradient overlay for text legibility */}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%)", pointerEvents: "none" }} />
+        {/* Hero text overlay */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "clamp(1.5rem, 4vw, 3rem)" }}>
+          <div className="container">
+            {/* Breadcrumb in hero */}
+            <nav style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.35rem", marginBottom: "0.75rem", fontSize: "0.75rem", fontWeight: 600 }}>
+              <Link href="/" style={{ color: "rgba(255,255,255,0.6)", display: "flex", alignItems: "center", textDecoration: "none" }}><Home size={12} /></Link>
+              <ChevronRight size={10} style={{ color: "rgba(255,255,255,0.3)" }} />
+              {post.categories?.[0] && (
+                <Link href={`/category/${post.categories[0].slug}`} style={{ color: "#5a9fff", textDecoration: "none", fontWeight: 700, textTransform: "capitalize" }}>{post.categories[0].name}</Link>
+              )}
+            </nav>
+            {/* Category badges */}
+            {post.categories && post.categories.length > 0 && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", marginBottom: "0.875rem" }}>
+                {post.categories.map((cat) => (
+                  <Link key={cat.id} href={`/category/${cat.slug}`} style={{ fontSize: "0.6rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", padding: "3px 9px", background: "#2c7df7", color: "#fff", borderRadius: "3px", textDecoration: "none" }}>{cat.name}</Link>
+                ))}
               </div>
-              <span className="text-sm font-semibold text-white/70">XTZ News</span>
-            </div>
-            <span className="text-sm text-white/40">{formatDate(post.publishedAt)}</span>
-            {post.content && (() => {
-              const words = post.content.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length;
-              const mins = Math.max(1, Math.round(words / 200));
-              return (
-                <span className="text-sm text-white/40" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                  {mins} min read
+            )}
+            {/* Title in hero */}
+            <h1 style={{ fontSize: "clamp(1.5rem, 4vw, 2.75rem)", fontWeight: 900, color: "#fff", lineHeight: 1.15, letterSpacing: "-0.02em", margin: "0 0 1rem", maxWidth: "820px", textShadow: "0 2px 12px rgba(0,0,0,0.5)" }}>
+              {post.title}
+            </h1>
+            {/* Meta row in hero */}
+            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.75rem" }}>
+              {/* Author */}
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <div style={{ width: "28px", height: "28px", borderRadius: "50%", background: "#2c7df7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", fontWeight: 900, color: "#fff", flexShrink: 0 }}>X</div>
+                <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "rgba(255,255,255,0.85)" }}>XTZ News</span>
+              </div>
+              <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.75rem" }}>{formatDate(post.publishedAt)}</span>
+              {/* 7. Read time as pill */}
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", fontSize: "0.68rem", fontWeight: 700, padding: "3px 9px", background: "rgba(255,255,255,0.12)", borderRadius: "20px", color: "rgba(255,255,255,0.8)" }}>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                {readMins} min read
+              </span>
+              {/* 10. Progress in hero meta */}
+              {readProgress > 0 && (
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", fontSize: "0.68rem", fontWeight: 700, padding: "3px 9px", background: "rgba(44,125,247,0.2)", borderRadius: "20px", color: "#5a9fff" }}>
+                  {readProgress}% read
                 </span>
-              );
-            })()}
-            <ShareButtons title={post.title} url={pageUrl} />
-          </div>
-
-          {/* Audio Player — shown when article has audio narration */}
-          {(post as any).audioUrl && (
-            <AudioPlayer
-              src={(post as any).audioUrl}
-              title={post.title}
-            />
-          )}
-
-          {/* Disclaimer */}
-          <div
-            className="flex items-start gap-2 p-3 rounded mb-6 text-xs text-white/50"
-            style={{ background: "rgba(44,125,247,0.06)", border: "1px solid rgba(44,125,247,0.15)" }}
-          >
-            <span className="text-blue-400 font-bold shrink-0">ℹ</span>
-            <span>
-              Disclaimer: The information provided in this article is for informational purposes only and does not constitute financial advice. Always do your own research.
-            </span>
-          </div>
-
-          {/* Content */}
-          <div
-            className="post-content"
-            dangerouslySetInnerHTML={{ __html: post.content || "" }}
-          />
-
-          {/* Tags */}
-          {post.tags && post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-8 pt-6 border-t border-white/10">
-              <span className="text-xs font-bold uppercase tracking-widest text-white/40 mr-1">Tags:</span>
-              {post.tags.map((tag) => (
-                <Link
-                  key={tag.id}
-                  href={`/tag/${tag.slug}`}
-                  className="text-xs px-2.5 py-1 rounded border border-white/15 text-white/50 hover:text-white hover:border-white/30 transition-colors"
-                >
-                  #{tag.name}
-                </Link>
-              ))}
+              )}
             </div>
-          )}
+          </div>
+        </div>
+      </div>
 
-          {/* Share again at bottom — full labelled variant */}
-          <div className="mt-8">
-            <ShareButtons title={post.title} url={pageUrl} variant="full" />
+      {/* 2. Two-column layout: article body + sticky sidebar */}
+      <div className="container" style={{ padding: "2.5rem 1.25rem 4rem" }}>
+        <div className="article-layout">
+
+          {/* ── Main article column ── */}
+          <div>
+            {/* Audio Player */}
+            {(post as any).audioUrl && <AudioPlayer src={(post as any).audioUrl} title={post.title} />}
+
+            {/* Disclaimer */}
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", padding: "0.75rem 1rem", borderRadius: "6px", marginBottom: "1.75rem", background: "rgba(44,125,247,0.06)", border: "1px solid rgba(44,125,247,0.15)", fontSize: "0.78rem", color: "rgba(255,255,255,0.5)" }}>
+              <span style={{ color: "#5a9fff", fontWeight: 900, flexShrink: 0 }}>ℹ</span>
+              <span>This article is for informational purposes only and does not constitute financial advice. Always do your own research.</span>
+            </div>
+
+            {/* Article body */}
+            <div className="post-content" dangerouslySetInnerHTML={{ __html: post.content || "" }} />
+
+            {/* Tags */}
+            {post.tags && post.tags.length > 0 && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginTop: "2.5rem", paddingTop: "1.5rem", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+                <span style={{ fontSize: "0.65rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.35)", alignSelf: "center", marginRight: "0.25rem" }}>Tags:</span>
+                {post.tags.map((tag) => (
+                  <Link key={tag.id} href={`/tag/${tag.slug}`} style={{ fontSize: "0.72rem", padding: "3px 10px", borderRadius: "20px", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.5)", textDecoration: "none", transition: "all 0.15s" }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#fff"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.3)"; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.5)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.12)"; }}>
+                    #{tag.name}
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {/* Share at bottom */}
+            <div style={{ marginTop: "2rem" }}>
+              <ShareButtons title={post.title} url={pageUrl} variant="full" />
+            </div>
+
+            {/* 6. Author card */}
+            <div style={{ marginTop: "2rem", padding: "1.25rem 1.5rem", background: "#05152e", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "10px", display: "flex", alignItems: "flex-start", gap: "1rem" }}>
+              <div style={{ width: "52px", height: "52px", borderRadius: "50%", background: "linear-gradient(135deg, #2c7df7, #1a6ae0)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.3rem", fontWeight: 900, color: "#fff", flexShrink: 0 }}>X</div>
+              <div>
+                <div style={{ fontWeight: 800, color: "#fff", fontSize: "0.95rem", marginBottom: "0.2rem" }}>XTZ.News Editorial</div>
+                <div style={{ fontSize: "0.72rem", color: "#2c7df7", fontWeight: 700, marginBottom: "0.5rem", textTransform: "uppercase", letterSpacing: "0.06em" }}>Tezos News Team</div>
+                <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.5)", margin: 0, lineHeight: 1.6 }}>XTZ.News is the leading independent news platform covering the Tezos blockchain ecosystem — from protocol upgrades and DeFi to digital art and community projects.</p>
+              </div>
+            </div>
+
+            {/* Newsletter Signup */}
+            <ArticleNewsletterSignup />
           </div>
 
-          {/* Newsletter Signup */}
-          <ArticleNewsletterSignup />
-
-          {/* XTZ Price Widget */}
-          <div style={{ marginTop: "1rem" }}>
+          {/* ── Sticky sidebar ── */}
+          <div className="article-sidebar">
+            {/* XTZ Price Widget */}
             <XtzPriceWidget />
+
+            {/* Related articles in sidebar */}
+            {related.length > 0 && (
+              <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", overflow: "hidden" }}>
+                <div style={{ padding: "0.875rem 1rem", borderBottom: "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <div style={{ width: "3px", height: "16px", background: "#2c7df7", borderRadius: "2px" }} />
+                  <span style={{ fontSize: "0.7rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.6)" }}>Related</span>
+                </div>
+                {related.slice(0, 5).map((p, i) => (
+                  <Link key={p.id} href={`/${p.slug}`} style={{ display: "flex", gap: "0.75rem", padding: "0.875rem 1rem", borderBottom: i < 4 ? "1px solid rgba(255,255,255,0.05)" : "none", textDecoration: "none", transition: "background 0.15s" }}
+                    onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.05)")}
+                    onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "transparent")}>
+                    {p.featuredImageUrl && (
+                      <img src={p.featuredImageUrl} alt="" style={{ width: "52px", height: "52px", objectFit: "cover", borderRadius: "4px", flexShrink: 0 }} onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
+                    )}
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#fff", lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{p.title}</div>
+                      {p.publishedAt && <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.3)", marginTop: "0.25rem" }}>{new Date(p.publishedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</div>}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {/* Share in sidebar */}
+            <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", padding: "1rem" }}>
+              <div style={{ fontSize: "0.65rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)", marginBottom: "0.75rem" }}>Share this article</div>
+              <ShareButtons title={post.title} url={pageUrl} />
+            </div>
           </div>
         </div>
 
-        {/* Related Posts */}
+        {/* Related Posts — full grid below */}
         {related.length > 0 && (
           <section style={{ marginTop: "4rem" }}>
             {/* Section header */}
