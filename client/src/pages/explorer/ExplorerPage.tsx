@@ -118,15 +118,20 @@ function UpgradeHistorySection() {
                   <tr><td colSpan={6} style={{ padding: "2rem", textAlign: "center", color: "rgba(255,255,255,0.3)" }}>No upgrades match your search.</td></tr>
                 ) : filtered.map((u: any, i: number) => {
                   const color = UPGRADE_COLORS[u.name] ?? "#2c7df7";
+                  // Mark as active if it's the most recent epoch (epoch 0 in the sorted list = most recent)
+                  const isActive = i === 0 && upgradeSortDir === "desc" && upgradeSort === "epoch";
                   return (
-                    <tr key={u.epoch} style={{ borderBottom: i < filtered.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", transition: "background 0.15s" }}
-                      onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.02)")}
-                      onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "transparent")}>
+                    <tr key={u.epoch} style={{ borderBottom: i < filtered.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", transition: "background 0.15s", background: isActive ? "rgba(44,125,247,0.04)" : "transparent" }}
+                      onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = isActive ? "rgba(44,125,247,0.08)" : "rgba(255,255,255,0.02)")}
+                      onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = isActive ? "rgba(44,125,247,0.04)" : "transparent")}>
                       <td style={{ padding: "0.6rem 1rem", whiteSpace: "nowrap" }}>
                         {u.name ? (
                           <span style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem" }}>
                             <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: color, flexShrink: 0 }} />
                             <span style={{ fontWeight: 800, color: "#fff" }}>{u.name}</span>
+                            {isActive && (
+                              <span style={{ fontSize: "0.58rem", fontWeight: 800, padding: "1px 6px", borderRadius: "3px", background: "rgba(34,197,94,0.15)", color: "#22c55e", textTransform: "uppercase", letterSpacing: "0.08em", border: "1px solid rgba(34,197,94,0.3)" }}>Active</span>
+                            )}
                           </span>
                         ) : (
                           <span style={{ color: "rgba(255,255,255,0.35)", fontFamily: "monospace", fontSize: "0.72rem" }}>{u.proposalHash.slice(0, 12)}…</span>
