@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useLocation } from "wouter";
-import { Search, Layers, ArrowRightLeft, TrendingUp, TrendingDown, Users, Zap, Shield, ExternalLink, RefreshCw, ChevronRight, Vote } from "lucide-react";
+import { Search, Layers, ArrowRightLeft, TrendingUp, TrendingDown, Users, Zap, Shield, ExternalLink, RefreshCw, ChevronRight, Vote, ChevronDown, ChevronUp, ArrowUpDown } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useSEO } from "@/hooks/useSEO";
 
@@ -29,8 +29,11 @@ function shortHash(h: string, len = 8) {
 // ── Protocol Upgrade History Section ─────────────────────────────────────────
 function UpgradeHistorySection() {
   const { data: upgrades = [], isLoading } = trpc.explorer.upgradeHistory.useQuery(undefined, {
-    staleTime: 60 * 60_000, // cache 1 hour — rarely changes
+    staleTime: 60 * 60_000,
   });
+  const [upgradeSearch, setUpgradeSearch] = useState("");
+  const [upgradeSort, setUpgradeSort] = useState<"epoch" | "upvotes" | "level">("epoch");
+  const [upgradeSortDir, setUpgradeSortDir] = useState<"asc" | "desc">("desc");
 
   const UPGRADE_COLORS: Record<string, string> = {
     "Athens A": "#8b5cf6", "Babylon": "#ec4899", "Carthage": "#f97316",
@@ -42,12 +45,48 @@ function UpgradeHistorySection() {
     "Seoul": "#f97316", "Tallinn": "#06b6d4",
   };
 
+  const filtered = useMemo(() => {
+    let list = [...upgrades] as any[];
+    if (upgradeSearch.trim()) {
+      const q = upgradeSearch.toLowerCase();
+      list = list.filter(u =>
+        (u.name || "").toLowerCase().includes(q) ||
+        u.proposalHash.toLowerCase().includes(q) ||
+        String(u.epoch).includes(q)
+      );
+    }
+    list.sort((a, b) => {
+      const av = upgradeSort === "epoch" ? a.epoch : upgradeSort === "upvotes" ? a.upvotes : (a.activationLevel ?? 0);
+      const bv = upgradeSort === "epoch" ? b.epoch : upgradeSort === "upvotes" ? b.upvotes : (b.activationLevel ?? 0);
+      return upgradeSortDir === "desc" ? bv - av : av - bv;
+    });
+    return list;
+  }, [upgrades, upgradeSearch, upgradeSort, upgradeSortDir]);
+
+  function toggleSort(field: typeof upgradeSort) {
+    if (upgradeSort === field) setUpgradeSortDir(d => d === "desc" ? "asc" : "desc");
+    else { setUpgradeSort(field); setUpgradeSortDir("desc"); }
+  }
+
   return (
     <div style={{ marginBottom: "1.75rem" }}>
-      <h2 style={{ fontSize: "0.82rem", fontWeight: 800, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 0.75rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-        <Zap size={13} style={{ color: "#f59e0b" }} /> Protocol Upgrade History
-        <span style={{ fontWeight: 400, color: "rgba(255,255,255,0.25)", textTransform: "none", letterSpacing: 0, fontSize: "0.7rem" }}>— {upgrades.length} upgrades since genesis</span>
-      </h2>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.75rem", marginBottom: "0.75rem" }}>
+        <h2 style={{ fontSize: "0.82rem", fontWeight: 800, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.08em", margin: 0, display: "flex", alignItems: "center", gap: "0.4rem" }}>
+          <Zap size={13} style={{ color: "#f59e0b" }} /> Protocol Upgrade History
+          <span style={{ fontWeight: 400, color: "rgba(255,255,255,0.25)", textTransform: "none", letterSpacing: 0, fontSize: "0.7rem" }}>— {upgrades.length} upgrades</span>
+        </h2>
+        {/* Search bar */}
+        <div style={{ position: "relative" }}>
+          <Search size={12} style={{ position: "absolute", left: "0.6rem", top: "50%", transform: "translateY(-50%)", color: "rgba(255,255,255,0.3)", pointerEvents: "none" }} />
+          <input
+            value={upgradeSearch}
+            onChange={(e) => setUpgradeSearch(e.target.value)}
+            placeholder="Search protocol or hash…"
+            style={{ padding: "0.45rem 0.75rem 0.45rem 2rem", background: "#05152e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "5px", color: "#fff", fontSize: "0.78rem", outline: "none", fontFamily: "inherit", width: "220px", transition: "border-color 0.15s" }}
+            onFocus={(e) => (e.currentTarget.style.borderColor = "#2c7df7")}
+            onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)")} />
+        </div>
+      </div>
       {isLoading ? (
         <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
           {Array.from({ length: 5 }).map((_, i) => (
@@ -60,16 +99,27 @@ function UpgradeHistorySection() {
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.78rem" }}>
               <thead>
                 <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-                  {["Protocol", "Proposal Hash", "Activation Level", "Epoch", "Upvotes", ""].map(h => (
-                    <th key={h} style={{ padding: "0.6rem 1rem", textAlign: "left", fontWeight: 700, color: "rgba(255,255,255,0.35)", fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.07em", whiteSpace: "nowrap" }}>{h}</th>
+                  <th style={{ padding: "0.6rem 1rem", textAlign: "left", fontWeight: 700, color: "rgba(255,255,255,0.35)", fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.07em" }}>Protocol</th>
+                  <th style={{ padding: "0.6rem 1rem", textAlign: "left", fontWeight: 700, color: "rgba(255,255,255,0.35)", fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.07em" }}>Proposal Hash</th>
+                  {(["level", "epoch", "upvotes"] as const).map(f => (
+                    <th key={f} onClick={() => toggleSort(f)}
+                      style={{ padding: "0.6rem 1rem", textAlign: "left", fontWeight: 700, fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.07em", cursor: "pointer", whiteSpace: "nowrap", color: upgradeSort === f ? "#2c7df7" : "rgba(255,255,255,0.35)", userSelect: "none" }}>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: "0.2rem" }}>
+                        {f === "level" ? "Activation Level" : f.charAt(0).toUpperCase() + f.slice(1)}
+                        {upgradeSort === f ? (upgradeSortDir === "desc" ? <ChevronDown size={10} /> : <ChevronUp size={10} />) : <ArrowUpDown size={9} style={{ opacity: 0.4 }} />}
+                      </span>
+                    </th>
                   ))}
+                  <th style={{ padding: "0.6rem 1rem" }} />
                 </tr>
               </thead>
               <tbody>
-                {upgrades.map((u: any, i: number) => {
+                {filtered.length === 0 ? (
+                  <tr><td colSpan={6} style={{ padding: "2rem", textAlign: "center", color: "rgba(255,255,255,0.3)" }}>No upgrades match your search.</td></tr>
+                ) : filtered.map((u: any, i: number) => {
                   const color = UPGRADE_COLORS[u.name] ?? "#2c7df7";
                   return (
-                    <tr key={u.epoch} style={{ borderBottom: i < upgrades.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", transition: "background 0.15s" }}
+                    <tr key={u.epoch} style={{ borderBottom: i < filtered.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", transition: "background 0.15s" }}
                       onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.02)")}
                       onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "transparent")}>
                       <td style={{ padding: "0.6rem 1rem", whiteSpace: "nowrap" }}>
@@ -414,8 +464,8 @@ export default function ExplorerPage() {
                         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.78rem" }}>
                           <thead>
                             <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-                              {["Baker", "Vote", "Voting Power"].map(h => (
-                                <th key={h} style={{ padding: "0.6rem 1rem", textAlign: "left", fontWeight: 700, color: "rgba(255,255,255,0.35)", fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.07em" }}>{h}</th>
+                              {["Baker", "Vote", "Voting Power", "% of Cast"].map(h => (
+                                <th key={h} style={{ padding: "0.6rem 1rem", textAlign: "left", fontWeight: 700, color: "rgba(255,255,255,0.35)", fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.07em", whiteSpace: "nowrap" }}>{h}</th>
                               ))}
                             </tr>
                           </thead>
@@ -428,7 +478,21 @@ export default function ExplorerPage() {
                                 <td style={{ padding: "0.55rem 1rem" }}>
                                   <span style={{ fontSize: "0.7rem", fontWeight: 700, padding: "2px 8px", borderRadius: "3px", background: v.vote === "yay" ? "rgba(34,197,94,0.15)" : v.vote === "nay" ? "rgba(239,68,68,0.15)" : "rgba(245,158,11,0.15)", color: v.vote === "yay" ? "#22c55e" : v.vote === "nay" ? "#ef4444" : "#f59e0b", textTransform: "uppercase" }}>{v.vote}</span>
                                 </td>
-                                <td style={{ padding: "0.55rem 1rem", color: "rgba(255,255,255,0.6)", fontWeight: 600 }}>{formatXtz(v.votingPower)}</td>
+                                <td style={{ padding: "0.55rem 1rem", color: "rgba(255,255,255,0.6)", fontWeight: 600, whiteSpace: "nowrap" }}>{formatXtz(v.votingPower)}</td>
+                                <td style={{ padding: "0.55rem 1rem" }}>
+                                  {(() => {
+                                    const totalVP = governance.topVoters.reduce((sum: number, x: any) => sum + x.votingPower, 0);
+                                    const pct = totalVP > 0 ? (v.votingPower / totalVP * 100).toFixed(1) : "0";
+                                    return (
+                                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                        <div style={{ width: "60px", height: "4px", background: "rgba(255,255,255,0.08)", borderRadius: "2px", overflow: "hidden" }}>
+                                          <div style={{ height: "100%", width: `${pct}%`, background: v.vote === "yay" ? "#22c55e" : v.vote === "nay" ? "#ef4444" : "#f59e0b", borderRadius: "2px" }} />
+                                        </div>
+                                        <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.4)" }}>{pct}%</span>
+                                      </div>
+                                    );
+                                  })()}
+                                </td>
                               </tr>
                             ))}
                           </tbody>

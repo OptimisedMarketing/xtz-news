@@ -316,6 +316,85 @@ async function startServer() {
       res.status(500).json({ error: e.message, timestamp: new Date().toISOString() });
     }
   });
+  // ─── Governance Alert — notify subscribers when a new proposal enters voting ──
+  app.post("/api/scheduled/governance-alert", async (req, res) => {
+    try {
+      const { sdk } = await import("./sdk");
+      const user = await sdk.authenticateRequest(req);
+      if (!user.isCron) return res.status(403).json({ error: "cron-only" });
+
+      const { getDb } = await import("../db");
+      const { newsletterSubscribers } = await import("../../drizzle/schema");
+      const { eq } = await import("drizzle-orm");
+      const db = await getDb();
+      if (!db) return res.json({ ok: true, skipped: "no-db" });
+
+      // Fetch current governance epoch from TzKT
+      const epochRes = await fetch("https://api.tzkt.io/v1/voting/epochs/current");
+      if (!epochRes.ok) return res.json({ ok: true, skipped: "tzkt-error" });
+      const epoch = await epochRes.json();
+
+      // Only alert if there are active proposals and we're in proposal or exploration period
+      const proposals = epoch.proposals || [];
+      const currentPeriod = (epoch.periods || []).at(-1);
+      const alertKinds = ["proposal", "exploration", "promotion"];
+      if (!proposals.length || !currentPeriod || !alertKinds.includes(currentPeriod.kind)) {
+        return res.json({ ok: true, skipped: "no-active-proposal" });
+      }
+
+      const proposal = proposals[0];
+      const periodLabel = currentPeriod.kind.charAt(0).toUpperCase() + currentPeriod.kind.slice(1);
+
+      // Get active subscribers
+      const subscribers = await db.select({ email: newsletterSubscribers.email })
+        .from(newsletterSubscribers)
+        .where(eq(newsletterSubscribers.status, "active"));
+
+      if (!subscribers.length) return res.json({ ok: true, skipped: "no-subscribers" });
+
+      const baseUrl = "https://xtz.news";
+      const explorerUrl = `${baseUrl}/explorer`;
+      const shortHash = proposal.hash.slice(0, 16) + "…";
+
+      // Build email HTML
+      const emailHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:0;background:#000;font-family:Arial,sans-serif"><div style="max-width:600px;margin:0 auto;padding:20px"><div style="text-align:center;padding:24px 0;border-bottom:2px solid #2c7df7;margin-bottom:28px"><img src="${baseUrl}/manus-storage/xtz-logo-square_c6689606.png" alt="XTZ.News" style="height:60px" /><h1 style="color:#fff;font-size:22px;margin:12px 0 4px">Tezos Governance Alert</h1><p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0">A new proposal is in the ${periodLabel} phase</p></div><div style="background:#05152e;border:1px solid rgba(44,125,247,0.3);border-radius:8px;padding:24px;margin-bottom:24px"><h2 style="color:#2c7df7;font-size:18px;margin:0 0 12px">Epoch #${epoch.index} — ${periodLabel} Phase</h2><p style="color:rgba(255,255,255,0.7);font-size:14px;margin:0 0 16px">A Tezos protocol upgrade proposal is currently in the <strong style="color:#fff">${periodLabel}</strong> voting period. Bakers are casting their votes now.</p><div style="background:rgba(255,255,255,0.05);border-radius:6px;padding:16px;margin-bottom:16px"><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Proposal Hash</div><div style="font-family:monospace;font-size:13px;color:#2c7df7;word-break:break-all">${proposal.hash}</div></div><a href="${explorerUrl}" style="display:inline-block;padding:12px 24px;background:#2c7df7;color:#fff;text-decoration:none;border-radius:6px;font-size:14px;font-weight:700">View Governance Details →</a></div><div style="text-align:center;padding:20px 0;border-top:1px solid rgba(255,255,255,0.08)"><p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0">You're receiving this because you subscribed to XTZ.News governance alerts. <a href="${baseUrl}" style="color:#2c7df7">Visit XTZ.News</a></p></div></div></body></html>`;
+
+      // Send via Resend if available, otherwise notify owner
+      const RESEND_API_KEY = process.env.RESEND_API_KEY;
+      let sent = 0;
+      if (RESEND_API_KEY) {
+        // Batch send (Resend supports up to 100 recipients per call via bcc)
+        const batchSize = 50;
+        for (let i = 0; i < subscribers.length; i += batchSize) {
+          const batch = subscribers.slice(i, i + batchSize);
+          await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
+            body: JSON.stringify({
+              from: "XTZ.News <newsletter@xtz.news>",
+              to: batch.map(s => s.email),
+              subject: `🗳️ Tezos Governance Alert: Epoch #${epoch.index} ${periodLabel} Phase`,
+              html: emailHtml,
+            }),
+          });
+          sent += batch.length;
+        }
+      } else {
+        // Fallback: notify owner only
+        const { notifyOwner } = await import("./notification");
+        await notifyOwner({
+          title: `Governance Alert: Epoch #${epoch.index} ${periodLabel} Phase`,
+          content: `Proposal: ${proposal.hash}\nSubscribers to notify: ${subscribers.length}\nNote: Set RESEND_API_KEY to enable actual email delivery.`,
+        });
+        sent = 0;
+      }
+
+      res.json({ ok: true, epoch: epoch.index, period: currentPeriod.kind, proposal: proposal.hash, subscribers: subscribers.length, sent });
+    } catch (e: any) {
+      console.error("[governance-alert] error:", e);
+      res.status(500).json({ error: e.message, timestamp: new Date().toISOString() });
+    }
+  });
   // ─────────────────────────────────────────────────────────────────────────
   // tRPC API
   app.use(
