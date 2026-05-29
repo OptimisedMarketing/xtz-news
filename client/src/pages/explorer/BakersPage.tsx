@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import {
   Shield, ChevronRight, Home, TrendingUp, ExternalLink,
   ArrowRight, ArrowUpDown, Search, ChevronUp, ChevronDown,
-  ChevronLeft, X, Info, GitCompare,
+  ChevronLeft, X, Info, GitCompare, Copy,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useSEO } from "@/hooks/useSEO";
@@ -372,14 +372,50 @@ function CompareModal({ addresses, allBakers, onClose }: { addresses: string[]; 
 function StakingCalculator({ bakers }: { bakers: any[] }) {
   const [xtzAmount, setXtzAmount] = useState("1000");
   const [open, setOpen] = useState(false);
+  const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [searchBaker, setSearchBaker] = useState("");
 
   const amount = parseFloat(xtzAmount) || 0;
 
-  // Top 5 bakers with real APY for the calculator
-  const topBakers = bakers
+  // All bakers with real APY, sorted by APY desc
+  const allBakers = bakers
     .filter(b => b.apy != null)
-    .sort((a, b) => (b.apy ?? 0) - (a.apy ?? 0))
-    .slice(0, 5);
+    .sort((a, b) => (b.apy ?? 0) - (a.apy ?? 0));
+
+  // Top 5 for the chart (or selected baker + top 2 others)
+  const selectedBaker = selectedAddress ? allBakers.find(b => b.address === selectedAddress) : null;
+  const chartBakers = selectedBaker
+    ? [selectedBaker, ...allBakers.filter(b => b.address !== selectedAddress).slice(0, 2)]
+    : allBakers.slice(0, 3);
+
+  // Filtered list for dropdown
+  const filteredBakers = searchBaker.trim()
+    ? allBakers.filter(b => (b.alias || "").toLowerCase().includes(searchBaker.toLowerCase()) || b.address.toLowerCase().includes(searchBaker.toLowerCase()))
+    : allBakers;
+
+  const displayBaker = selectedBaker || allBakers[0];
+
+  const copyResults = () => {
+    if (!displayBaker || amount === 0) return;
+    const apy = displayBaker.apy as number;
+    const annual = (amount * (Math.pow(1 + apy / 100 / 12, 12) - 1)).toFixed(2);
+    const monthly = (amount * (Math.pow(1 + apy / 100 / 12, 1) - 1)).toFixed(2);
+    const daily = (amount * apy / 100 / 365).toFixed(2);
+    const text = `XTZ Staking Projections (${displayBaker.alias || displayBaker.address.slice(0,12)})
+` +
+      `Amount: ${amount.toLocaleString()} XTZ | APY: ${apy.toFixed(2)}%
+` +
+      `Daily: +${daily} XTZ | Monthly: +${monthly} XTZ | Annual: +${annual} XTZ
+` +
+      `12-month compound total: +${annual} XTZ
+` +
+      `Source: https://xtz.news/explorer/bakers`;
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    });
+  };
 
   if (!open) {
     return (
@@ -435,44 +471,117 @@ function StakingCalculator({ bakers }: { bakers: any[] }) {
           </div>
         </div>
 
-        {/* Results grid */}
-        {topBakers.length === 0 ? (
-          <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.82rem" }}>Loading baker data…</div>
-        ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "0.6rem" }}>
-            {topBakers.map((baker, idx) => {
-              const apy = baker.apy as number;
-              const annualXtz = amount * apy / 100;
-              const monthlyXtz = annualXtz / 12;
-              const dailyXtz = annualXtz / 365;
-              return (
-                <div key={baker.address} style={{ background: idx === 0 ? "rgba(44,125,247,0.1)" : "rgba(255,255,255,0.03)", border: `1px solid ${idx === 0 ? "rgba(44,125,247,0.3)" : "rgba(255,255,255,0.07)"}`, borderRadius: "8px", padding: "0.85rem 1rem" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.5rem" }}>
-                    {idx === 0 && <span style={{ fontSize: "0.7rem" }}>⭐</span>}
-                    <div style={{ fontWeight: 700, color: idx === 0 ? "#2c7df7" : "#fff", fontSize: "0.8rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {baker.alias || "Unknown Baker"}
-                    </div>
-                    <span style={{ marginLeft: "auto", fontSize: "0.7rem", fontWeight: 800, color: "#22c55e", flexShrink: 0 }}>{apy.toFixed(2)}%</span>
-                  </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.25rem" }}>
-                    {[
-                      { label: "Daily", value: dailyXtz },
-                      { label: "Monthly", value: monthlyXtz },
-                      { label: "Annual", value: annualXtz },
-                    ].map(row => (
-                      <div key={row.label} style={{ textAlign: "center" }}>
-                        <div style={{ fontSize: "0.58rem", color: "rgba(255,255,255,0.35)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>{row.label}</div>
-                        <div style={{ fontSize: "0.82rem", fontWeight: 800, color: "#f97316" }}>{row.value < 0.01 ? "<0.01" : row.value.toFixed(2)} Ƀ</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
+        {/* Baker selector */}
+        <div style={{ marginBottom: "1rem" }}>
+          <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.5)", marginBottom: "0.5rem" }}>Choose a baker to calculate with:</div>
+          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
+            {/* Search input */}
+            <div style={{ position: "relative", flex: "1 1 200px" }}>
+              <Search size={12} style={{ position: "absolute", left: "0.6rem", top: "50%", transform: "translateY(-50%)", color: "rgba(255,255,255,0.3)", pointerEvents: "none" }} />
+              <input value={searchBaker} onChange={(e) => setSearchBaker(e.target.value)}
+                placeholder="Search baker name or address…"
+                style={{ width: "100%", padding: "0.45rem 0.75rem 0.45rem 2rem", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "5px", color: "#fff", fontSize: "0.78rem", outline: "none", fontFamily: "inherit", transition: "border-color 0.15s" }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "#2c7df7")}
+                onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)")} />
+            </div>
+            {/* Quick-select: best APY, most delegators, most space */}
+            <div style={{ display: "flex", gap: "0.35rem" }}>
+              {[
+                { label: "⭐ Best APY", baker: allBakers[0] },
+                { label: "👥 Most Delegators", baker: [...allBakers].sort((a,b) => b.numDelegators - a.numDelegators)[0] },
+                { label: "🟢 Most Space", baker: [...allBakers].filter(b => b.availableSpace != null).sort((a,b) => (b.availableSpace ?? 0) - (a.availableSpace ?? 0))[0] },
+              ].filter(q => q.baker).map(q => (
+                <button key={q.label} onClick={() => { setSelectedAddress(q.baker.address); setSearchBaker(""); }}
+                  style={{ padding: "0.35rem 0.65rem", background: selectedAddress === q.baker.address ? "rgba(44,125,247,0.25)" : "rgba(255,255,255,0.05)", border: `1px solid ${selectedAddress === q.baker.address ? "rgba(44,125,247,0.5)" : "rgba(255,255,255,0.1)"}`, borderRadius: "4px", color: selectedAddress === q.baker.address ? "#2c7df7" : "rgba(255,255,255,0.5)", fontSize: "0.68rem", fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}>
+                  {q.label}
+                </button>
+              ))}
+            </div>
           </div>
-        )}
+
+          {/* Baker dropdown list */}
+          {(searchBaker || !selectedAddress) && (
+            <div style={{ marginTop: "0.5rem", maxHeight: "180px", overflowY: "auto", background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px" }}>
+              {filteredBakers.slice(0, 30).map((baker: any, i: number) => {
+                const isSelected = selectedAddress === baker.address;
+                const apy = baker.apy as number;
+                const annual = amount > 0 ? (amount * (Math.pow(1 + apy / 100 / 12, 12) - 1)).toFixed(2) : null;
+                return (
+                  <button key={baker.address} onClick={() => { setSelectedAddress(baker.address); setSearchBaker(""); }}
+                    style={{ width: "100%", display: "flex", alignItems: "center", gap: "0.75rem", padding: "0.6rem 0.875rem", background: isSelected ? "rgba(44,125,247,0.15)" : "transparent", border: "none", borderBottom: i < filteredBakers.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", cursor: "pointer", textAlign: "left", transition: "background 0.1s" }}
+                    onMouseEnter={(e) => { if (!isSelected) (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.04)"; }}
+                    onMouseLeave={(e) => { if (!isSelected) (e.currentTarget as HTMLElement).style.background = "transparent"; }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: "0.8rem", fontWeight: 700, color: isSelected ? "#5a9fff" : "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {i === 0 && !searchBaker && <span style={{ marginRight: "0.3rem" }}>⭐</span>}{baker.alias || "Unknown Baker"}
+                      </div>
+                      <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.3)", fontFamily: "monospace" }}>{baker.address.slice(0, 16)}…</div>
+                    </div>
+                    <div style={{ textAlign: "right", flexShrink: 0 }}>
+                      <div style={{ fontSize: "0.78rem", fontWeight: 800, color: "#22c55e" }}>{apy.toFixed(2)}%</div>
+                      {annual && amount > 0 && <div style={{ fontSize: "0.62rem", color: "#f97316", fontWeight: 600 }}>+{annual} ꜩ/yr</div>}
+                    </div>
+                  </button>
+                );
+              })}
+              {filteredBakers.length === 0 && <div style={{ padding: "1rem", textAlign: "center", color: "rgba(255,255,255,0.3)", fontSize: "0.78rem" }}>No bakers found</div>}
+            </div>
+          )}
+        </div>
+
+        {/* Selected baker detail card */}
+        {displayBaker && amount > 0 && (() => {
+          const apy = displayBaker.apy as number;
+          const annual = amount * (Math.pow(1 + apy / 100 / 12, 12) - 1);
+          const monthly = amount * (Math.pow(1 + apy / 100 / 12, 1) - 1);
+          const daily = amount * apy / 100 / 365;
+          return (
+            <div style={{ background: "rgba(44,125,247,0.08)", border: "1px solid rgba(44,125,247,0.25)", borderRadius: "10px", padding: "1.1rem 1.25rem", marginBottom: "1rem" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.875rem", flexWrap: "wrap", gap: "0.5rem" }}>
+                <div>
+                  <div style={{ fontSize: "1rem", fontWeight: 900, color: "#fff" }}>{displayBaker.alias || "Unknown Baker"}</div>
+                  <div style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.35)", fontFamily: "monospace" }}>{displayBaker.address.slice(0, 20)}…</div>
+                </div>
+                <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <button onClick={copyResults}
+                    style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", padding: "0.35rem 0.85rem", background: copied ? "rgba(34,197,94,0.2)" : "rgba(255,255,255,0.08)", border: `1px solid ${copied ? "rgba(34,197,94,0.4)" : "rgba(255,255,255,0.15)"}`, borderRadius: "20px", color: copied ? "#22c55e" : "rgba(255,255,255,0.6)", fontWeight: 700, fontSize: "0.7rem", cursor: "pointer", transition: "all 0.2s" }}>
+                    <Copy size={11} /> {copied ? "Copied!" : "Copy results"}
+                  </button>
+                  <a href={templeDelegate(displayBaker.address)} target="_blank" rel="nofollow noopener noreferrer"
+                    style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", padding: "0.35rem 0.85rem", background: "rgba(249,115,22,0.15)", border: "1px solid rgba(249,115,22,0.35)", borderRadius: "20px", color: "#f97316", fontWeight: 700, fontSize: "0.7rem", textDecoration: "none" }}>
+                    <ExternalLink size={11} /> Delegate
+                  </a>
+                </div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "0.75rem" }}>
+                {[
+                  { label: "APY", value: `${apy.toFixed(2)}%`, color: "#22c55e" },
+                  { label: "Daily", value: `+${daily < 0.01 ? "<0.01" : daily.toFixed(2)} ꜩ`, color: "#f97316" },
+                  { label: "Monthly", value: `+${monthly.toFixed(2)} ꜩ`, color: "#f97316" },
+                  { label: "Annual (compound)", value: `+${annual.toFixed(2)} ꜩ`, color: "#f97316" },
+                ].map(s => (
+                  <div key={s.label} style={{ textAlign: "center" }}>
+                    <div style={{ fontSize: "0.58rem", color: "rgba(255,255,255,0.35)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.25rem" }}>{s.label}</div>
+                    <div style={{ fontSize: "0.9rem", fontWeight: 900, color: s.color }}>{s.value}</div>
+                  </div>
+                ))}
+              </div>
+              {displayBaker.numDelegators > 0 && (
+                <div style={{ marginTop: "0.75rem", display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+                  <span style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.35)" }}>👥 {displayBaker.numDelegators.toLocaleString()} delegators</span>
+                  {displayBaker.availableSpace != null && (
+                    <span style={{ fontSize: "0.68rem", color: displayBaker.availableSpace > 1_000_000 ? "#22c55e" : "#f59e0b" }}>
+                      🟢 {displayBaker.availableSpace > 1_000_000 ? `${(displayBaker.availableSpace/1e6).toFixed(1)}M` : `${(displayBaker.availableSpace/1e3).toFixed(0)}K`} ꜩ space available
+                    </span>
+                  )}
+                  {displayBaker.availableSpace === null && <span style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.25)" }}>Delegation only (no staking limit)</span>}
+                </div>
+              )}
+            </div>
+          );
+        })()}
         {/* 12-month cumulative returns chart */}
-        {topBakers.length > 0 && amount > 0 && (
+        {chartBakers.length > 0 && amount > 0 && (
           <div style={{ marginTop: "1.25rem" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem", flexWrap: "wrap", gap: "0.5rem" }}>
               <div style={{ fontSize: "0.72rem", fontWeight: 800, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.08em", display: "flex", alignItems: "center", gap: "0.4rem" }}>
@@ -481,7 +590,7 @@ function StakingCalculator({ bakers }: { bakers: any[] }) {
               {/* Share button */}
               <button
                 onClick={() => {
-                  const topBaker = topBakers[0];
+                  const topBaker = chartBakers[0];
                   const annual = (amount * (Math.pow(1 + (topBaker.apy as number) / 100 / 12, 12) - 1)).toFixed(2);
                   const text = `📈 Staking ${amount.toLocaleString()} XTZ with ${topBaker.alias || 'top baker'} (${(topBaker.apy as number).toFixed(2)}% APY) would earn me +${annual} XTZ in 12 months! Check the XTZ.News Staking Calculator:`;
                   const url = 'https://xtz.news/explorer/bakers';
@@ -496,7 +605,7 @@ function StakingCalculator({ bakers }: { bakers: any[] }) {
             </div>
             {/* Legend */}
             <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginBottom: "0.6rem" }}>
-              {topBakers.slice(0, 3).map((baker, idx) => (
+              {chartBakers.map((baker, idx) => (
                 <div key={baker.address} style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
                   <div style={{ width: "10px", height: "10px", borderRadius: "2px", background: ["#2c7df7", "#22c55e", "#f59e0b"][idx] }} />
                   <span style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.55)" }}>{baker.alias || "Unknown"} ({(baker.apy as number).toFixed(1)}%)</span>
@@ -506,7 +615,7 @@ function StakingCalculator({ bakers }: { bakers: any[] }) {
             {/* SVG bar chart — grouped by month */}
             <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: "8px", padding: "1rem 0.75rem 0.5rem", overflow: "hidden" }}>
               <svg width="100%" height="120" viewBox="0 0 600 120" preserveAspectRatio="none">
-                {topBakers.slice(0, 3).map((baker, bakerIdx) => {
+                {chartBakers.map((baker, bakerIdx) => {
                   const apy = baker.apy as number;
                   const colors = ["#2c7df7", "#22c55e", "#f59e0b"];
                   const monthlyRate = apy / 100 / 12;
@@ -515,7 +624,7 @@ function StakingCalculator({ bakers }: { bakers: any[] }) {
                     const cumulative = amount * (Math.pow(1 + monthlyRate, m + 1) - 1);
                     return cumulative;
                   });
-                  const maxVal = amount * (Math.pow(1 + (topBakers[0].apy as number) / 100 / 12, 12) - 1);
+                  const maxVal = amount * (Math.pow(1 + (chartBakers[0].apy as number) / 100 / 12, 12) - 1);
                   const barW = 600 / 12 / 3 - 2;
                   const barOffset = bakerIdx * (barW + 1);
                   return months.map((val, m) => {
@@ -542,7 +651,7 @@ function StakingCalculator({ bakers }: { bakers: any[] }) {
               <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.25rem" }}>
                 <span style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.2)" }}>Month 1</span>
                 <span style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.4)", fontWeight: 700 }}>
-                  Top baker after 12 months: +{(amount * (Math.pow(1 + (topBakers[0].apy as number) / 100 / 12, 12) - 1)).toFixed(2)} ꜩ
+                  Top baker after 12 months: +{(amount * (Math.pow(1 + (chartBakers[0].apy as number) / 100 / 12, 12) - 1)).toFixed(2)} ꜩ
                 </span>
                 <span style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.2)" }}>Month 12</span>
               </div>

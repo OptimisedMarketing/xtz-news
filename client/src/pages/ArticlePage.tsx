@@ -337,7 +337,10 @@ export default function ArticlePage() {
   const [readProgress, setReadProgress] = useState(0);
   const [showStickyShare, setShowStickyShare] = useState(false);
   const [readingMode, setReadingMode] = useState<"dark" | "light">("dark");
+  const [fontSize, setFontSize] = useState<"sm" | "md" | "lg">("md");
   const heroRef = useRef<HTMLDivElement>(null);
+
+  const fontSizeMap = { sm: "0.95rem", md: "1.125rem", lg: "1.3rem" };
 
   // Reading progress bar + sticky share bar trigger
   useEffect(() => {
@@ -413,6 +416,16 @@ export default function ArticlePage() {
           <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.5)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, minWidth: 0 }}>{post.title}</div>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexShrink: 0 }}>
             <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.35)", marginRight: "0.25rem" }}>{readProgress}% read</span>
+            {/* Font size controls */}
+            <div style={{ display: "flex", alignItems: "center", gap: "2px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "20px", padding: "2px 4px" }}>
+              {(["sm", "md", "lg"] as const).map((size, i) => (
+                <button key={size} onClick={() => setFontSize(size)}
+                  title={size === "sm" ? "Small text" : size === "md" ? "Medium text" : "Large text"}
+                  style={{ padding: "0.2rem 0.45rem", background: fontSize === size ? "rgba(44,125,247,0.3)" : "transparent", border: "none", borderRadius: "16px", color: fontSize === size ? "#5a9fff" : "rgba(255,255,255,0.4)", fontSize: ["0.6rem", "0.72rem", "0.85rem"][i], fontWeight: 700, cursor: "pointer", transition: "all 0.15s", lineHeight: 1 }}>
+                  A
+                </button>
+              ))}
+            </div>
             {/* Reading mode toggle */}
             <button
               onClick={() => setReadingMode(m => m === "dark" ? "light" : "dark")}
@@ -502,10 +515,10 @@ export default function ArticlePage() {
               <span>This article is for informational purposes only and does not constitute financial advice. Always do your own research.</span>
             </div>
 
-            {/* Article body — reading mode aware */}
+            {/* Article body — reading mode + font size aware */}
             <div
               className={`post-content${readingMode === "light" ? " reading-light" : ""}`}
-              style={{ transition: "background 0.3s, color 0.3s" }}
+              style={{ transition: "background 0.3s, color 0.3s, font-size 0.2s", fontSize: fontSizeMap[fontSize] }}
               dangerouslySetInnerHTML={{ __html: post.content || "" }}
             />
 
