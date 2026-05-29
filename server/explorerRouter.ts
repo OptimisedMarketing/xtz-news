@@ -525,15 +525,96 @@ export const explorerRouter = router({
     return results[0];
   }),
 
-  // ─── Voting / governance ─────────────────────────────────────────────────────
+  // ─── Voting / governance (rich) ─────────────────────────────────────────────────
   governance: publicProcedure.query(async () => {
-    const [period, proposals] = await Promise.allSettled([
-      tzkt("/voting/current"),
-      tzkt("/voting/proposals?limit=5&sort.desc=upvotes"),
+    // Fetch current epoch + last 5 epochs for history
+    const [currentEpoch, recentEpochs] = await Promise.all([
+      tzkt("/voting/epochs/current"),
+      tzkt("/voting/epochs?limit=5&sort.desc=index"),
     ]);
+
+    // Find the most recent period with ballots (exploration or promotion)
+    const ballotPeriod = (currentEpoch.periods as any[]).find(
+      (p: any) => (p.kind === "exploration" || p.kind === "promotion") && p.yayBallots != null
+    );
+
+    // Fetch ballots for the most recent ballot period (if any)
+    let ballots: any[] = [];
+    if (ballotPeriod) {
+      try {
+        ballots = await tzkt(`/operations/ballots?limit=500&sort.desc=id&period=${ballotPeriod.index}`);
+      } catch { ballots = []; }
+    }
+
+    // Compute participation stats from ballots
+    const yayBakers = ballots.filter((b: any) => b.vote === "yay");
+    const nayBakers = ballots.filter((b: any) => b.vote === "nay");
+    const passBakers = ballots.filter((b: any) => b.vote === "pass");
+    const totalVotingPower = ballotPeriod?.totalVotingPower ?? 0;
+    const castVotingPower = (ballotPeriod?.yayVotingPower ?? 0) + (ballotPeriod?.nayVotingPower ?? 0) + (ballotPeriod?.passVotingPower ?? 0);
+    const participationPct = totalVotingPower > 0 ? parseFloat(((castVotingPower / totalVotingPower) * 100).toFixed(1)) : null;
+    const yayPct = castVotingPower > 0 ? parseFloat(((ballotPeriod?.yayVotingPower ?? 0) / castVotingPower * 100).toFixed(1)) : null;
+
+    // Current period (last in the epoch)
+    const currentPeriod = (currentEpoch.periods as any[]).at(-1) ?? null;
+
+    // Epoch history for the timeline
+    const epochHistory = (recentEpochs as any[]).map((e: any) => ({
+      index: e.index,
+      status: e.status,
+      startTime: e.startTime,
+      endTime: e.endTime,
+      proposals: (e.proposals as any[]).map((p: any) => ({
+        hash: p.hash,
+        upvotes: p.upvotes,
+        status: p.status,
+        initiator: p.initiator?.alias || p.initiator?.address || null,
+      })),
+    }));
+
     return {
-      period: period.status === "fulfilled" ? period.value : null,
-      proposals: proposals.status === "fulfilled" ? proposals.value : [],
+      epoch: {
+        index: currentEpoch.index,
+        status: currentEpoch.status,
+        startTime: currentEpoch.startTime,
+        endTime: currentEpoch.endTime,
+      },
+      currentPeriod: currentPeriod ? {
+        index: currentPeriod.index,
+        kind: currentPeriod.kind,
+        status: currentPeriod.status,
+        startTime: currentPeriod.startTime,
+        endTime: currentPeriod.endTime,
+        totalBakers: currentPeriod.totalBakers ?? 0,
+        totalVotingPower: mutez(currentPeriod.totalVotingPower ?? 0),
+      } : null,
+      proposals: (currentEpoch.proposals as any[]).map((p: any) => ({
+        hash: p.hash,
+        upvotes: p.upvotes,
+        votingPower: mutez(p.votingPower ?? 0),
+        status: p.status,
+        initiator: p.initiator?.alias || p.initiator?.address || null,
+      })),
+      ballotPeriod: ballotPeriod ? {
+        kind: ballotPeriod.kind,
+        status: ballotPeriod.status,
+        totalBakers: ballotPeriod.totalBakers ?? 0,
+        yayBallots: ballotPeriod.yayBallots ?? 0,
+        nayBallots: ballotPeriod.nayBallots ?? 0,
+        passBallots: ballotPeriod.passBallots ?? 0,
+        participationPct,
+        yayPct,
+        ballotsQuorum: ballotPeriod.ballotsQuorum ?? null,
+        supermajority: ballotPeriod.supermajority ?? null,
+      } : null,
+      // Top voters by voting power
+      topVoters: ballots.slice(0, 20).map((b: any) => ({
+        baker: b.delegate?.alias || b.delegate?.address || "Unknown",
+        address: b.delegate?.address || "",
+        vote: b.vote,
+        votingPower: mutez(b.votingPower ?? 0),
+      })),
+      epochHistory,
     };
   }),
 });

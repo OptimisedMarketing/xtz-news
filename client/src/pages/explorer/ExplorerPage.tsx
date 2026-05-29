@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
-import { Search, Layers, ArrowRightLeft, TrendingUp, TrendingDown, Users, Zap, Shield, ExternalLink, RefreshCw, ChevronRight } from "lucide-react";
+import { Search, Layers, ArrowRightLeft, TrendingUp, TrendingDown, Users, Zap, Shield, ExternalLink, RefreshCw, ChevronRight, Vote } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useSEO } from "@/hooks/useSEO";
 
@@ -37,7 +37,13 @@ export default function ExplorerPage() {
   const [, navigate] = useLocation();
   const [searchInput, setSearchInput] = useState("");
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [activeTab, setActiveTab] = useState<"dashboard" | "governance">("dashboard");
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const { data: governance, isLoading: govLoading } = trpc.explorer.governance.useQuery(undefined, {
+    staleTime: 5 * 60_000,
+    enabled: activeTab === "governance",
+  });
 
   const { data: stats, refetch: refetchStats } = trpc.explorer.networkStats.useQuery(undefined, {
     staleTime: 30_000,
@@ -131,7 +137,202 @@ export default function ExplorerPage() {
         </div>
       </div>
 
+      {/* Tab bar */}
+      <div style={{ background: "#05152e", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+        <div className="container" style={{ display: "flex", gap: 0 }}>
+          {([
+            { id: "dashboard" as const, label: "Dashboard", icon: <Layers size={13} /> },
+            { id: "governance" as const, label: "Governance", icon: <Vote size={13} /> },
+          ]).map(tab => (
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+              style={{ padding: "0.7rem 1.25rem", background: "transparent", border: "none", borderBottom: `2px solid ${activeTab === tab.id ? "#2c7df7" : "transparent"}`, color: activeTab === tab.id ? "#2c7df7" : "rgba(255,255,255,0.45)", fontWeight: activeTab === tab.id ? 700 : 500, fontSize: "0.82rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem", transition: "color 0.15s, border-color 0.15s" }}>
+              {tab.icon} {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="container" style={{ padding: "2rem 1.25rem" }}>
+
+        {/* ── Governance tab ─────────────────────────────────────────────── */}
+        {activeTab === "governance" && (
+          <div>
+            {govLoading ? (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "0.75rem", marginBottom: "2rem" }}>
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", padding: "1.25rem" }}>
+                    <div className="skeleton" style={{ height: "10px", width: "60%", marginBottom: "8px" }} />
+                    <div className="skeleton" style={{ height: "22px", width: "80%" }} />
+                  </div>
+                ))}
+              </div>
+            ) : governance ? (
+              <>
+                {/* Epoch + period status */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "0.75rem", marginBottom: "1.75rem" }}>
+                  {[
+                    { label: "Epoch", value: `#${governance.epoch.index}`, sub: governance.epoch.status.replace(/_/g, " "), color: "#2c7df7" },
+                    { label: "Current Period", value: governance.currentPeriod?.kind?.replace(/_/g, " ") ?? "—", sub: governance.currentPeriod?.status ?? "", color: governance.currentPeriod?.status === "active" ? "#22c55e" : "#f59e0b" },
+                    { label: "Total Bakers", value: (governance.currentPeriod?.totalBakers ?? 0).toLocaleString(), sub: "eligible to vote", color: "#f97316" },
+                    { label: "Epoch Ends", value: governance.epoch.endTime ? new Date(governance.epoch.endTime).toLocaleDateString() : "—", sub: governance.epoch.endTime ? `${Math.max(0, Math.ceil((new Date(governance.epoch.endTime).getTime() - Date.now()) / 86400000))} days left` : "", color: "#8b5cf6" },
+                  ].map(c => (
+                    <div key={c.label} style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", padding: "1rem" }}>
+                      <div style={{ fontSize: "0.62rem", fontWeight: 700, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.4rem" }}>{c.label}</div>
+                      <div style={{ fontSize: "1.15rem", fontWeight: 900, color: c.color, textTransform: "capitalize" }}>{c.value}</div>
+                      {c.sub && <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.35)", marginTop: "0.2rem", textTransform: "capitalize" }}>{c.sub}</div>}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Active proposals */}
+                {governance.proposals.length > 0 && (
+                  <div style={{ marginBottom: "1.75rem" }}>
+                    <h2 style={{ fontSize: "0.82rem", fontWeight: 800, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 0.75rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                      <Vote size={13} style={{ color: "#2c7df7" }} /> Active Proposals
+                    </h2>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                      {governance.proposals.map((p: any) => (
+                        <div key={p.hash} style={{ background: "#05152e", border: "1px solid rgba(44,125,247,0.2)", borderRadius: "8px", padding: "1rem 1.25rem", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.75rem" }}>
+                          <div>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.3rem" }}>
+                              <span style={{ fontSize: "0.65rem", fontWeight: 800, padding: "2px 8px", borderRadius: "3px", background: p.status === "active" ? "rgba(34,197,94,0.15)" : "rgba(255,255,255,0.06)", color: p.status === "active" ? "#22c55e" : "rgba(255,255,255,0.4)", textTransform: "uppercase" }}>{p.status}</span>
+                              {p.initiator && <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.4)" }}>by {p.initiator}</span>}
+                            </div>
+                            <div style={{ fontFamily: "monospace", fontSize: "0.78rem", color: "#2c7df7", wordBreak: "break-all" }}>{p.hash}</div>
+                          </div>
+                          <div style={{ textAlign: "right" }}>
+                            <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)", marginBottom: "0.2rem" }}>Upvotes</div>
+                            <div style={{ fontSize: "1.1rem", fontWeight: 900, color: "#fff" }}>{p.upvotes}</div>
+                            <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.3)" }}>{formatXtz(p.votingPower)} voting power</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Ballot results (exploration/promotion period) */}
+                {governance.ballotPeriod && (
+                  <div style={{ marginBottom: "1.75rem" }}>
+                    <h2 style={{ fontSize: "0.82rem", fontWeight: 800, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 0.75rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                      <TrendingUp size={13} style={{ color: "#22c55e" }} /> {governance.ballotPeriod.kind.charAt(0).toUpperCase() + governance.ballotPeriod.kind.slice(1)} Vote Results
+                    </h2>
+                    <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", padding: "1.25rem" }}>
+                      {/* Participation bar */}
+                      <div style={{ marginBottom: "1.25rem" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.4rem" }}>
+                          <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.5)" }}>Baker Participation</span>
+                          <span style={{ fontSize: "0.82rem", fontWeight: 900, color: governance.ballotPeriod.participationPct != null && governance.ballotPeriod.participationPct >= (governance.ballotPeriod.ballotsQuorum ?? 50) ? "#22c55e" : "#f59e0b" }}>
+                            {governance.ballotPeriod.participationPct ?? "—"}%
+                            {governance.ballotPeriod.ballotsQuorum && <span style={{ fontSize: "0.65rem", fontWeight: 500, color: "rgba(255,255,255,0.35)", marginLeft: "0.35rem" }}>quorum: {governance.ballotPeriod.ballotsQuorum}%</span>}
+                          </span>
+                        </div>
+                        <div style={{ height: "8px", background: "rgba(255,255,255,0.08)", borderRadius: "4px", overflow: "hidden" }}>
+                          <div style={{ height: "100%", width: `${Math.min(100, governance.ballotPeriod.participationPct ?? 0)}%`, background: "#2c7df7", borderRadius: "4px", transition: "width 0.5s" }} />
+                        </div>
+                        {governance.ballotPeriod.ballotsQuorum && (
+                          <div style={{ position: "relative", height: "4px" }}>
+                            <div style={{ position: "absolute", left: `${governance.ballotPeriod.ballotsQuorum}%`, top: "-8px", width: "2px", height: "16px", background: "rgba(255,255,255,0.3)" }} />
+                          </div>
+                        )}
+                      </div>
+                      {/* Yay/Nay/Pass bars */}
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.75rem" }}>
+                        {[
+                          { label: "Yay", count: governance.ballotPeriod.yayBallots, color: "#22c55e" },
+                          { label: "Nay", count: governance.ballotPeriod.nayBallots, color: "#ef4444" },
+                          { label: "Pass", count: governance.ballotPeriod.passBallots, color: "#f59e0b" },
+                        ].map(v => {
+                          const total = governance.ballotPeriod!.yayBallots + governance.ballotPeriod!.nayBallots + governance.ballotPeriod!.passBallots;
+                          const pct = total > 0 ? Math.round(v.count / total * 100) : 0;
+                          return (
+                            <div key={v.label} style={{ textAlign: "center" }}>
+                              <div style={{ fontSize: "0.62rem", fontWeight: 700, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", marginBottom: "0.3rem" }}>{v.label}</div>
+                              <div style={{ fontSize: "1.3rem", fontWeight: 900, color: v.color }}>{v.count}</div>
+                              <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.3)" }}>{pct}%</div>
+                              <div style={{ height: "4px", background: "rgba(255,255,255,0.08)", borderRadius: "2px", marginTop: "0.3rem", overflow: "hidden" }}>
+                                <div style={{ height: "100%", width: `${pct}%`, background: v.color, borderRadius: "2px" }} />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      {governance.ballotPeriod.supermajority && (
+                        <div style={{ marginTop: "0.75rem", fontSize: "0.68rem", color: "rgba(255,255,255,0.3)" }}>
+                          Supermajority required: {governance.ballotPeriod.supermajority}% · Yay share of cast votes: {governance.ballotPeriod.yayPct ?? "—"}%
+                          {governance.ballotPeriod.yayPct != null && governance.ballotPeriod.yayPct >= governance.ballotPeriod.supermajority
+                            ? <span style={{ color: "#22c55e", marginLeft: "0.4rem", fontWeight: 700 }}>✓ Passed</span>
+                            : <span style={{ color: "#ef4444", marginLeft: "0.4rem", fontWeight: 700 }}>✗ Not reached</span>}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Top voters */}
+                {governance.topVoters.length > 0 && (
+                  <div style={{ marginBottom: "1.75rem" }}>
+                    <h2 style={{ fontSize: "0.82rem", fontWeight: 800, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 0.75rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                      <Shield size={13} style={{ color: "#f97316" }} /> Baker Votes
+                    </h2>
+                    <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", overflow: "hidden" }}>
+                      <div style={{ overflowX: "auto" }}>
+                        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.78rem" }}>
+                          <thead>
+                            <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+                              {["Baker", "Vote", "Voting Power"].map(h => (
+                                <th key={h} style={{ padding: "0.6rem 1rem", textAlign: "left", fontWeight: 700, color: "rgba(255,255,255,0.35)", fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.07em" }}>{h}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {governance.topVoters.map((v: any, i: number) => (
+                              <tr key={v.address + i} style={{ borderBottom: i < governance.topVoters.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
+                                <td style={{ padding: "0.55rem 1rem" }}>
+                                  <Link href={`/explorer/address/${v.address}`} style={{ color: "#fff", textDecoration: "none", fontWeight: 600 }}>{v.baker}</Link>
+                                </td>
+                                <td style={{ padding: "0.55rem 1rem" }}>
+                                  <span style={{ fontSize: "0.7rem", fontWeight: 700, padding: "2px 8px", borderRadius: "3px", background: v.vote === "yay" ? "rgba(34,197,94,0.15)" : v.vote === "nay" ? "rgba(239,68,68,0.15)" : "rgba(245,158,11,0.15)", color: v.vote === "yay" ? "#22c55e" : v.vote === "nay" ? "#ef4444" : "#f59e0b", textTransform: "uppercase" }}>{v.vote}</span>
+                                </td>
+                                <td style={{ padding: "0.55rem 1rem", color: "rgba(255,255,255,0.6)", fontWeight: 600 }}>{formatXtz(v.votingPower)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Epoch history */}
+                <div>
+                  <h2 style={{ fontSize: "0.82rem", fontWeight: 800, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 0.75rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                    <RefreshCw size={13} style={{ color: "#8b5cf6" }} /> Recent Epochs
+                  </h2>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                    {governance.epochHistory.map((e: any) => (
+                      <div key={e.index} style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "6px", padding: "0.75rem 1.25rem", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                          <span style={{ fontSize: "0.78rem", fontWeight: 700, color: "rgba(255,255,255,0.5)" }}>Epoch #{e.index}</span>
+                          <span style={{ fontSize: "0.65rem", fontWeight: 700, padding: "2px 7px", borderRadius: "3px", background: e.status === "voting" ? "rgba(44,125,247,0.15)" : e.status === "no_proposals" ? "rgba(255,255,255,0.06)" : "rgba(34,197,94,0.1)", color: e.status === "voting" ? "#2c7df7" : e.status === "no_proposals" ? "rgba(255,255,255,0.3)" : "#22c55e", textTransform: "capitalize" }}>{e.status.replace(/_/g, " ")}</span>
+                          {e.proposals.map((p: any) => (
+                            <span key={p.hash} style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.4)", fontFamily: "monospace" }}>{p.hash.slice(0, 12)}…</span>
+                          ))}
+                        </div>
+                        <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.25)" }}>{e.startTime ? new Date(e.startTime).toLocaleDateString() : ""}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div style={{ padding: "3rem", textAlign: "center", color: "rgba(255,255,255,0.3)" }}>Failed to load governance data.</div>
+            )}
+          </div>
+        )}
+
+        {/* ── Dashboard tab ─────────────────────────────────────────────── */}
+        {activeTab === "dashboard" && <>
         {/* Stats grid */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: "0.75rem", marginBottom: "2rem" }}>
           {statCards.map(card => (
@@ -298,6 +499,7 @@ export default function ExplorerPage() {
             <a href="https://coingecko.com" target="_blank" rel="nofollow noopener noreferrer" style={{ color: "rgba(255,255,255,0.4)" }}>CoinGecko</a>
           </p>
         </div>
+        </> }
       </div>
     </div>
   );
