@@ -44,6 +44,8 @@ import NftGalleryPage from "./pages/tools/NftGalleryPage";
 import WhaleWatcherPage from "./pages/tools/WhaleWatcherPage";
 import RewardCalculatorPage from "./pages/tools/RewardCalculatorPage";
 import PortfolioTrackerPage from "./pages/tools/PortfolioTrackerPage";
+import AddressBookPage from "./pages/tools/AddressBookPage";
+import TokenPriceHistoryPage from "./pages/tools/TokenPriceHistoryPage";
 
 function Router() {
   return (
@@ -88,6 +90,8 @@ function Router() {
       <Route path="/tools/whale-watcher" component={WhaleWatcherPage} />
       <Route path="/tools/rewards" component={RewardCalculatorPage} />
       <Route path="/tools/portfolio" component={PortfolioTrackerPage} />
+      <Route path="/tools/address-book" component={AddressBookPage} />
+      <Route path="/tools/token-price" component={TokenPriceHistoryPage} />
       <Route path="/explorer/block/:id" component={BlockPage} />
       <Route path="/explorer/tx/:hash" component={TxPage} />
       <Route path="/explorer/address/:address" component={AddressPage} />

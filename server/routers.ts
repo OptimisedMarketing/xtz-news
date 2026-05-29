@@ -553,8 +553,11 @@ const priceRouter = router({
         'wrapped-busd': 'https://quipuswap.com',
       };
 
+      // Tokens to exclude from the ticker
+      const EXCLUDED_IDS = new Set(['plenty-dao', 'ted-2']);
+
       const tokens = data
-        .filter((t: any) => t.current_price !== null && t.current_price !== undefined)
+        .filter((t: any) => t.current_price !== null && t.current_price !== undefined && !EXCLUDED_IDS.has(t.id))
         .map((t: any) => ({
           id: t.id,
           symbol: t.symbol.toUpperCase(),

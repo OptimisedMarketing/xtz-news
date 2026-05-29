@@ -382,6 +382,71 @@ export const toolsRouter = router({
       };
     }),
 
+  // ─── Token Price History ───────────────────────────────────────────────────────────────────────────────────────
+  tokenPriceHistory: publicProcedure
+    .input(z.object({
+      contract: z.string().min(10),
+      tokenId: z.string().default("0"),
+    }))
+    .query(async ({ input }) => {
+      const { contract, tokenId } = input;
+
+      // Query objkt.com GraphQL for trade events
+      const query = `{
+        event(
+          where: {
+            token: { fa_contract: { _eq: "${contract}" }, token_id: { _eq: "${tokenId}" } }
+            price_xtz: { _gt: "0" }
+          }
+          limit: 200
+          order_by: { timestamp: desc }
+        ) {
+          timestamp
+          price_xtz
+          amount
+          buyer_address
+          seller_address
+          token { name fa_contract token_id }
+        }
+      }`;
+
+      const res = await fetch("https://data.objkt.com/v3/graphql", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query }),
+      });
+
+      if (!res.ok) throw new Error(`objkt API error: ${res.status}`);
+      const json = await res.json();
+      const events = json.data?.event ?? [];
+
+      if (events.length === 0) return null;
+
+      const tokenName = events[0]?.token?.name || null;
+      const trades = events.map((e: any) => ({
+        timestamp: e.timestamp,
+        priceXtz: e.price_xtz / 1_000_000,
+        amount: e.amount,
+        buyer: e.buyer_address || null,
+        seller: e.seller_address || null,
+      }));
+
+      const prices = trades.map((t: any) => t.priceXtz);
+      const totalVolume = trades.reduce((s: number, t: any) => s + t.priceXtz * t.amount, 0);
+
+      return {
+        name: tokenName,
+        contract,
+        tokenId,
+        objktUrl: `https://objkt.com/tokens/${contract}/${tokenId}`,
+        trades,
+        totalVolume,
+        highPrice: Math.max(...prices),
+        lowPrice: Math.min(...prices),
+        avgPrice: prices.reduce((s: number, p: number) => s + p, 0) / prices.length,
+      };
+    }),
+
   // ─── Portfolio Tracker ───────────────────────────────────────────────────────────────────────────────────────
   portfolioTrack: publicProcedure
     .input(z.object({

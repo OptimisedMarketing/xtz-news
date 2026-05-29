@@ -47,6 +47,24 @@ const TOOLS = [
     badgeColor: "#8b5cf6",
     tags: ["Portfolio", "Multi-wallet", "USD Value", "Tokens"],
   },
+  {
+    href: "/tools/address-book",
+    icon: "📒",
+    title: "Address Book",
+    description: "Save and label your frequently-used Tezos addresses. Stored locally in your browser — no account needed. One-click access to Inspect, NFTs, and Rewards.",
+    badge: "Local",
+    badgeColor: "#f59e0b",
+    tags: ["Saved Addresses", "Labels", "Local Storage"],
+  },
+  {
+    href: "/tools/token-price",
+    icon: "📈",
+    title: "Token Price History",
+    description: "View trade history and price chart for any FA2 token on Tezos. Powered by objkt.com data — see high, low, average, and volume.",
+    badge: "Read-only",
+    badgeColor: "#22c55e",
+    tags: ["FA2 Tokens", "Price Chart", "Trade History", "objkt"],
+  },
 ];
 
 export default function ToolsPage() {
@@ -136,7 +154,7 @@ export default function ToolsPage() {
         <div style={{ marginTop: "3rem", padding: "1.5rem", background: "rgba(44,125,247,0.04)", border: "1px dashed rgba(44,125,247,0.2)", borderRadius: "10px" }}>
           <div style={{ fontSize: "0.72rem", fontWeight: 800, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.75rem" }}>Coming Soon</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
-            {["Airdrop Checker", "Batch Address Lookup", "Token Explorer", "Token Price History"].map(name => (
+            {["Airdrop Checker", "Batch Address Lookup", "Token Explorer", "Mempool Monitor"].map(name => (
               <span key={name} style={{ fontSize: "0.78rem", padding: "0.35rem 0.875rem", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "20px", color: "rgba(255,255,255,0.35)" }}>
                 {name}
               </span>
