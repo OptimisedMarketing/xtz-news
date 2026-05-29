@@ -46,6 +46,8 @@ import RewardCalculatorPage from "./pages/tools/RewardCalculatorPage";
 import PortfolioTrackerPage from "./pages/tools/PortfolioTrackerPage";
 import AddressBookPage from "./pages/tools/AddressBookPage";
 import TokenPriceHistoryPage from "./pages/tools/TokenPriceHistoryPage";
+import AirdropCheckerPage from "./pages/tools/AirdropCheckerPage";
+import BatchAddressLookupPage from "./pages/tools/BatchAddressLookupPage";
 
 function Router() {
   return (
@@ -92,6 +94,8 @@ function Router() {
       <Route path="/tools/portfolio" component={PortfolioTrackerPage} />
       <Route path="/tools/address-book" component={AddressBookPage} />
       <Route path="/tools/token-price" component={TokenPriceHistoryPage} />
+      <Route path="/tools/airdrop" component={AirdropCheckerPage} />
+      <Route path="/tools/batch-lookup" component={BatchAddressLookupPage} />
       <Route path="/explorer/block/:id" component={BlockPage} />
       <Route path="/explorer/tx/:hash" component={TxPage} />
       <Route path="/explorer/address/:address" component={AddressPage} />

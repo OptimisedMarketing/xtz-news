@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link, useSearch } from "wouter";
-import { ChevronRight, Home, Plus, X, ExternalLink, Copy, TrendingUp, Share2 } from "lucide-react";
+import { ChevronRight, Home, Plus, X, ExternalLink, Copy, TrendingUp, Share2, Download } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
@@ -79,6 +79,23 @@ export default function PortfolioTrackerPage() {
     const url = `${window.location.origin}/tools/portfolio?${params.toString()}`;
     navigator.clipboard.writeText(url);
     toast.success("Portfolio link copied to clipboard!");
+  };
+
+  const exportCSV = () => {
+    if (!wallets.length) return;
+    const header = "Address,Alias,XTZ Balance,Staked XTZ,USD Value,Tokens,NFTs,Delegated To";
+    const rows = wallets.map((w: any) =>
+      `"${w.address}","${w.alias || ""}","${w.balance.toFixed(6)}","${w.stakedBalance.toFixed(6)}","${xtzUsd > 0 ? ((w.balance + w.stakedBalance) * xtzUsd).toFixed(2) : ""}","${w.fungibleTokens.length}","${w.nftCount}","${w.delegatedTo || ""}"`
+    );
+    const csv = [header, ...rows].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `xtz_portfolio_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("CSV downloaded!");
   };
 
   const removeTrackedWallet = (addr: string) => {
@@ -183,6 +200,10 @@ export default function PortfolioTrackerPage() {
                   onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.2)")}
                   onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.1)")}>
                   <Share2 size={13} /> Share Portfolio Link
+                </button>
+                <button onClick={exportCSV}
+                  style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", padding: "0.45rem 1rem", background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.25)", borderRadius: "6px", color: "#22c55e", fontWeight: 700, fontSize: "0.78rem", cursor: "pointer" }}>
+                  <Download size={13} /> Export CSV
                 </button>
               </div>
             </div>

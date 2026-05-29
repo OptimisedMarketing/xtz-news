@@ -544,4 +544,124 @@ export const toolsRouter = router({
           .slice(0, 20),
       };
     }),
+
+  // ─── Batch Address Lookup ───────────────────────────────────────────────────────────────────────────────────────
+  batchAddressLookup: publicProcedure
+    .input(z.object({
+      addresses: z.array(z.string().min(10)).min(1).max(100),
+    }))
+    .query(async ({ input }) => {
+      const addrs = Array.from(new Set(input.addresses.map(a => a.trim()).filter(Boolean)));
+      if (addrs.length === 0) return [];
+
+      // TzKT supports address.in with comma-separated list
+      const chunks: string[][] = [];
+      for (let i = 0; i < addrs.length; i += 50) {
+        chunks.push(addrs.slice(i, i + 50));
+      }
+
+      const results: any[] = [];
+      for (const chunk of chunks) {
+        const encoded = chunk.join(',');
+        const data = await tzkt(
+          `/accounts?address.in=${encoded}&select=address,alias,balance,stakedBalance,delegate,type,numTransactions,firstActivityTime,lastActivityTime&limit=50`
+        ).catch(() => []);
+        results.push(...data);
+      }
+
+      // Build a map for fast lookup
+      const resultMap = new Map(results.map((r: any) => [r.address, r]));
+
+      return addrs.map(addr => {
+        const r = resultMap.get(addr);
+        if (!r) return { address: addr, found: false, balance: 0, stakedBalance: 0, delegatedTo: null, type: 'unknown', numTransactions: 0, firstActivity: null, lastActivity: null };
+        return {
+          address: addr,
+          found: true,
+          alias: r.alias || null,
+          balance: mutez(r.balance),
+          stakedBalance: mutez(r.stakedBalance ?? 0),
+          delegatedTo: r.delegate?.alias || r.delegate?.address || null,
+          type: r.type,
+          numTransactions: r.numTransactions ?? 0,
+          firstActivity: r.firstActivityTime || null,
+          lastActivity: r.lastActivityTime || null,
+        };
+      });
+    }),
+
+  // ─── Airdrop Checker ───────────────────────────────────────────────────────────────────────────────────────
+  airdropCheck: publicProcedure
+    .input(z.object({ address: z.string().min(10) }))
+    .query(async ({ input }) => {
+      const addr = input.address.trim();
+
+      // Known Tezos airdrop/snapshot token contracts to check
+      const AIRDROP_TOKENS = [
+        { name: "Tezos Domains", contract: "KT1GBzLqjsp13K9JcKm65YZWTJsuuWMt4k7k", tokenId: "0", description: "Tezos Domains name service NFTs", url: "https://tezos.domains" },
+        { name: "QuipuSwap (QUIPU)", contract: "KT193D4vozYnhGJQVtw7CoxxqphqUEEwK6Vb", tokenId: "0", description: "QuipuSwap governance token", url: "https://quipuswap.com" },
+        { name: "Youves (YOU)", contract: "KT1Xobej4mc6XgEjDoJoHtTKgbD1ELMvcQuL", tokenId: "0", description: "Youves DeFi governance token", url: "https://app.youves.com" },
+        { name: "Plenty DAO", contract: "KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b", tokenId: "0", description: "Plenty DeFi governance token", url: "https://www.plentydefi.com" },
+        { name: "Kolibri (kDAO)", contract: "KT1JkoE42rrMBP9b2oDhbx6EUr26GcySZMUH", tokenId: "0", description: "Kolibri DAO governance token", url: "https://kolibri.finance" },
+        { name: "Ctez", contract: "KT1SjXiUX63QvdNMcM2m492f7kuf8JxXRLp4", tokenId: "0", description: "Ctez synthetic tez token", url: "https://ctez.app" },
+        { name: "Wrap Protocol (WRAP)", contract: "KT1LRboPna9yQY9BrjtQYDS1DVxhKESK4VVd", tokenId: "0", description: "Wrap Protocol bridge token", url: "https://app.tzwrap.com" },
+        { name: "Spicyswap (SPI)", contract: "KT1CS2xKGHNPTauSh5Re4qE3N9PCfG5u4dPx", tokenId: "0", description: "SpicySwap DEX token", url: "https://spicyswap.xyz" },
+        { name: "Hic et Nunc (hDAO)", contract: "KT1AFA2mwNUMNd4SsujE1YYp29vd8BZejyKW", tokenId: "0", description: "Hic et Nunc DAO token", url: "https://teia.art" },
+        { name: "OBJKT.com Token (OBJKT)", contract: "KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton", tokenId: "0", description: "objkt.com marketplace NFTs", url: "https://objkt.com" },
+      ];
+
+      // Fetch all token balances for this address in one call
+      const allBalances = await tzkt(
+        `/tokens/balances?account=${addr}&limit=200&sort.desc=lastTime`
+      ).catch(() => []);
+
+      // Build a map of contract+tokenId -> balance
+      const balanceMap = new Map<string, any>();
+      for (const b of allBalances) {
+        const key = `${b.token?.contract?.address}:${b.token?.tokenId}`;
+        balanceMap.set(key, b);
+      }
+
+      // Also get account info for basic eligibility
+      const account = await tzkt(`/accounts/${addr}`).catch(() => null);
+      const xtzBalance = account ? mutez(account.balance) : 0;
+      const firstActivityTime = account?.firstActivityTime || null;
+      const isOldAccount = firstActivityTime
+        ? new Date(firstActivityTime) < new Date('2023-01-01')
+        : false;
+
+      // Check each airdrop
+      const checks = AIRDROP_TOKENS.map(token => {
+        const key = `${token.contract}:${token.tokenId}`;
+        const balance = balanceMap.get(key);
+        const rawBalance = balance ? parseFloat(balance.balance || '0') : 0;
+        const decimals = balance?.token?.metadata?.decimals ?? 0;
+        const humanBalance = rawBalance / Math.pow(10, decimals);
+        const eligible = rawBalance > 0;
+        return {
+          ...token,
+          eligible,
+          balance: humanBalance,
+          rawBalance,
+          symbol: balance?.token?.metadata?.symbol || token.name.split(' ')[0],
+          thumbnailUri: balance?.token?.metadata?.thumbnailUri
+            ? (balance.token.metadata.thumbnailUri.startsWith('ipfs://')
+              ? `https://ipfs.io/ipfs/${balance.token.metadata.thumbnailUri.slice(7)}`
+              : balance.token.metadata.thumbnailUri)
+            : null,
+        };
+      });
+
+      const eligibleCount = checks.filter(c => c.eligible).length;
+
+      return {
+        address: addr,
+        alias: account?.alias || null,
+        xtzBalance,
+        isOldAccount,
+        firstActivity: firstActivityTime,
+        eligibleCount,
+        checks,
+      };
+    }),
 });

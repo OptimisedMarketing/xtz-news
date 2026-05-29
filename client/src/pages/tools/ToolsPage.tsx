@@ -65,6 +65,24 @@ const TOOLS = [
     badgeColor: "#22c55e",
     tags: ["FA2 Tokens", "Price Chart", "Trade History", "objkt"],
   },
+  {
+    href: "/tools/airdrop",
+    icon: "🎁",
+    title: "Airdrop Checker",
+    description: "Check if your address holds tokens from 10 major Tezos protocols — QuipuSwap, Youves, Kolibri, Tezos Domains, objkt.com, and more.",
+    badge: "Read-only",
+    badgeColor: "#22c55e",
+    tags: ["Airdrops", "Token Eligibility", "DeFi", "NFTs"],
+  },
+  {
+    href: "/tools/batch-lookup",
+    icon: "📋",
+    title: "Batch Address Lookup",
+    description: "Paste up to 100 Tezos addresses and get XTZ balance, staking, delegation, and activity for each. Export results to CSV.",
+    badge: "Export CSV",
+    badgeColor: "#f97316",
+    tags: ["Batch", "CSV Export", "DAOs", "Events"],
+  },
 ];
 
 export default function ToolsPage() {
@@ -154,7 +172,7 @@ export default function ToolsPage() {
         <div style={{ marginTop: "3rem", padding: "1.5rem", background: "rgba(44,125,247,0.04)", border: "1px dashed rgba(44,125,247,0.2)", borderRadius: "10px" }}>
           <div style={{ fontSize: "0.72rem", fontWeight: 800, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.75rem" }}>Coming Soon</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
-            {["Airdrop Checker", "Batch Address Lookup", "Token Explorer", "Mempool Monitor"].map(name => (
+            {["Mempool Monitor", "Token Explorer", "Tezos Name Service Lookup"].map(name => (
               <span key={name} style={{ fontSize: "0.78rem", padding: "0.35rem 0.875rem", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "20px", color: "rgba(255,255,255,0.35)" }}>
                 {name}
               </span>
