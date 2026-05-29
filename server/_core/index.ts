@@ -291,14 +291,14 @@ async function startServer() {
 
       if (!topPosts.length) return res.json({ ok: true, skipped: "no-posts" });
 
-      // Get all active subscribers
-      const subscribers = await db.select({ email: newsletterSubscribers.email })
+      // Get all active subscribers (with unsubToken for personalised footer links)
+      const subscribers = await db.select({ email: newsletterSubscribers.email, unsubToken: newsletterSubscribers.unsubToken })
         .from(newsletterSubscribers)
         .where(eq(newsletterSubscribers.status, "active"));
 
       if (!subscribers.length) return res.json({ ok: true, skipped: "no-subscribers" });
 
-      // Build the email HTML
+      // Build the email HTML (per-subscriber for personalised footer links)
       const baseUrl = "https://xtz.news";
       const articlesHtml = topPosts.map(p => {
         const excerpt = (p.excerpt || "").replace(/<[^>]*>/g, "").slice(0, 120);
@@ -306,25 +306,32 @@ async function startServer() {
         return `<div style="margin-bottom:28px;padding-bottom:28px;border-bottom:1px solid rgba(255,255,255,0.08)">${img}<h3 style="margin:0 0 8px;font-size:17px;font-weight:700;color:#fff"><a href="${baseUrl}/${p.slug}" style="color:#fff;text-decoration:none">${p.title}</a></h3><p style="margin:0 0 12px;font-size:14px;color:rgba(255,255,255,0.6);line-height:1.6">${excerpt}...</p><a href="${baseUrl}/${p.slug}" style="display:inline-block;padding:8px 18px;background:#2c7df7;color:#fff;text-decoration:none;border-radius:4px;font-size:13px;font-weight:600">Read More</a></div>`;
       }).join("");
 
-      const emailHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:0;background:#000;font-family:Arial,sans-serif"><div style="max-width:600px;margin:0 auto;padding:20px"><div style="text-align:center;padding:24px 0;border-bottom:2px solid #2c7df7;margin-bottom:28px"><img src="${baseUrl}/manus-storage/xtz-logo-square_c6689606.png" alt="XTZ.News" style="height:60px" /><h1 style="color:#fff;font-size:22px;margin:12px 0 4px">XTZ.News Weekly Digest</h1><p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0">Your weekly roundup of Tezos news</p></div>${articlesHtml}<div style="text-align:center;padding:20px 0;border-top:1px solid rgba(255,255,255,0.08);margin-top:8px"><p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0">You're receiving this because you subscribed to XTZ.News. <a href="${baseUrl}" style="color:#2c7df7">Visit XTZ.News</a></p></div></div></body></html>`;
+      const buildDigestHtml = (token: string | null) => {
+        const manageUrl = token ? `${baseUrl}/manage-subscriptions?token=${token}` : `${baseUrl}`;
+        const unsubUrl = token ? `${baseUrl}/unsubscribe?token=${token}` : `${baseUrl}`;
+        return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:0;background:#000;font-family:Arial,sans-serif"><div style="max-width:600px;margin:0 auto;padding:20px"><div style="text-align:center;padding:24px 0;border-bottom:2px solid #2c7df7;margin-bottom:28px"><img src="${baseUrl}/manus-storage/xtz-logo-square_c6689606.png" alt="XTZ.News" style="height:60px" /><h1 style="color:#fff;font-size:22px;margin:12px 0 4px">XTZ.News Weekly Digest</h1><p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0">Your weekly roundup of Tezos news</p></div>${articlesHtml}<div style="text-align:center;padding:20px 0;border-top:1px solid rgba(255,255,255,0.08);margin-top:8px"><p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0 0 8px">You're receiving this because you subscribed to XTZ.News. <a href="${baseUrl}" style="color:#2c7df7">Visit XTZ.News</a></p><p style="color:rgba(255,255,255,0.2);font-size:11px;margin:0"><a href="${manageUrl}" style="color:#2c7df7;text-decoration:none">Manage preferences</a> &nbsp;·&nbsp; <a href="${unsubUrl}" style="color:rgba(255,255,255,0.3);text-decoration:none">Unsubscribe</a></p></div></div></body></html>`;
+      }
 
       // Send via Resend if available, otherwise notify owner
       const RESEND_API_KEY = process.env.RESEND_API_KEY;
       let sent = 0;
       if (RESEND_API_KEY) {
+        // Send individually so each email has personalised unsubscribe link
         const batchSize = 50;
         for (let i = 0; i < subscribers.length; i += batchSize) {
           const batch = subscribers.slice(i, i + batchSize);
-          await fetch("https://api.resend.com/emails", {
-            method: "POST",
-            headers: { "Authorization": `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-            body: JSON.stringify({
-              from: "XTZ.News <newsletter@xtz.news>",
-              to: batch.map((s: any) => s.email),
-              subject: `📰 XTZ.News Weekly Digest — Top Tezos Stories`,
-              html: emailHtml,
-            }),
-          });
+          await Promise.all(batch.map((s: any) =>
+            fetch("https://api.resend.com/emails", {
+              method: "POST",
+              headers: { "Authorization": `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
+              body: JSON.stringify({
+                from: "XTZ.News <newsletter@xtz.news>",
+                to: [s.email],
+                subject: `📰 XTZ.News Weekly Digest — Top Tezos Stories`,
+                html: buildDigestHtml(s.unsubToken),
+              }),
+            })
+          ));
           sent += batch.length;
         }
       } else {
@@ -376,8 +383,8 @@ async function startServer() {
       const proposal = proposals[0];
       const periodLabel = currentPeriod.kind.charAt(0).toUpperCase() + currentPeriod.kind.slice(1);
 
-      // Get active subscribers
-      const subscribers = await db.select({ email: newsletterSubscribers.email })
+      // Get active subscribers with unsubToken for personalised footer links
+      const subscribers = await db.select({ email: newsletterSubscribers.email, unsubToken: newsletterSubscribers.unsubToken })
         .from(newsletterSubscribers)
         .where(eq(newsletterSubscribers.status, "active"));
 
@@ -385,29 +392,33 @@ async function startServer() {
 
       const baseUrl = "https://xtz.news";
       const explorerUrl = `${baseUrl}/explorer`;
-      const shortHash = proposal.hash.slice(0, 16) + "…";
 
-      // Build email HTML
-      const emailHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:0;background:#000;font-family:Arial,sans-serif"><div style="max-width:600px;margin:0 auto;padding:20px"><div style="text-align:center;padding:24px 0;border-bottom:2px solid #2c7df7;margin-bottom:28px"><img src="${baseUrl}/manus-storage/xtz-logo-square_c6689606.png" alt="XTZ.News" style="height:60px" /><h1 style="color:#fff;font-size:22px;margin:12px 0 4px">Tezos Governance Alert</h1><p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0">A new proposal is in the ${periodLabel} phase</p></div><div style="background:#05152e;border:1px solid rgba(44,125,247,0.3);border-radius:8px;padding:24px;margin-bottom:24px"><h2 style="color:#2c7df7;font-size:18px;margin:0 0 12px">Epoch #${epoch.index} — ${periodLabel} Phase</h2><p style="color:rgba(255,255,255,0.7);font-size:14px;margin:0 0 16px">A Tezos protocol upgrade proposal is currently in the <strong style="color:#fff">${periodLabel}</strong> voting period. Bakers are casting their votes now.</p><div style="background:rgba(255,255,255,0.05);border-radius:6px;padding:16px;margin-bottom:16px"><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Proposal Hash</div><div style="font-family:monospace;font-size:13px;color:#2c7df7;word-break:break-all">${proposal.hash}</div></div><a href="${explorerUrl}" style="display:inline-block;padding:12px 24px;background:#2c7df7;color:#fff;text-decoration:none;border-radius:6px;font-size:14px;font-weight:700">View Governance Details →</a></div><div style="text-align:center;padding:20px 0;border-top:1px solid rgba(255,255,255,0.08)"><p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0">You're receiving this because you subscribed to XTZ.News governance alerts. <a href="${baseUrl}" style="color:#2c7df7">Visit XTZ.News</a></p></div></div></body></html>`;
+      // Build email HTML with personalised footer links
+      const buildGovHtml = (token: string | null) => {
+        const manageUrl = token ? `${baseUrl}/manage-subscriptions?token=${token}` : baseUrl;
+        const unsubUrl = token ? `${baseUrl}/unsubscribe?token=${token}` : baseUrl;
+        return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:0;background:#000;font-family:Arial,sans-serif"><div style="max-width:600px;margin:0 auto;padding:20px"><div style="text-align:center;padding:24px 0;border-bottom:2px solid #2c7df7;margin-bottom:28px"><img src="${baseUrl}/manus-storage/xtz-logo-square_c6689606.png" alt="XTZ.News" style="height:60px" /><h1 style="color:#fff;font-size:22px;margin:12px 0 4px">Tezos Governance Alert</h1><p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0">A new proposal is in the ${periodLabel} phase</p></div><div style="background:#05152e;border:1px solid rgba(44,125,247,0.3);border-radius:8px;padding:24px;margin-bottom:24px"><h2 style="color:#2c7df7;font-size:18px;margin:0 0 12px">Epoch #${epoch.index} — ${periodLabel} Phase</h2><p style="color:rgba(255,255,255,0.7);font-size:14px;margin:0 0 16px">A Tezos protocol upgrade proposal is currently in the <strong style="color:#fff">${periodLabel}</strong> voting period. Bakers are casting their votes now.</p><div style="background:rgba(255,255,255,0.05);border-radius:6px;padding:16px;margin-bottom:16px"><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Proposal Hash</div><div style="font-family:monospace;font-size:13px;color:#2c7df7;word-break:break-all">${proposal.hash}</div></div><a href="${explorerUrl}" style="display:inline-block;padding:12px 24px;background:#2c7df7;color:#fff;text-decoration:none;border-radius:6px;font-size:14px;font-weight:700">View Governance Details →</a></div><div style="text-align:center;padding:20px 0;border-top:1px solid rgba(255,255,255,0.08)"><p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0 0 8px">You're receiving this because you opted in to XTZ.News governance alerts. <a href="${baseUrl}" style="color:#2c7df7">Visit XTZ.News</a></p><p style="color:rgba(255,255,255,0.2);font-size:11px;margin:0"><a href="${manageUrl}" style="color:#2c7df7;text-decoration:none">Manage preferences</a> &nbsp;·&nbsp; <a href="${unsubUrl}" style="color:rgba(255,255,255,0.3);text-decoration:none">Unsubscribe</a></p></div></div></body></html>`;
+      };
 
       // Send via Resend if available, otherwise notify owner
       const RESEND_API_KEY = process.env.RESEND_API_KEY;
       let sent = 0;
       if (RESEND_API_KEY) {
-        // Batch send (Resend supports up to 100 recipients per call via bcc)
         const batchSize = 50;
         for (let i = 0; i < subscribers.length; i += batchSize) {
           const batch = subscribers.slice(i, i + batchSize);
-          await fetch("https://api.resend.com/emails", {
-            method: "POST",
-            headers: { "Authorization": `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-            body: JSON.stringify({
-              from: "XTZ.News <newsletter@xtz.news>",
-              to: batch.map(s => s.email),
-              subject: `🗳️ Tezos Governance Alert: Epoch #${epoch.index} ${periodLabel} Phase`,
-              html: emailHtml,
-            }),
-          });
+          await Promise.all(batch.map((s: any) =>
+            fetch("https://api.resend.com/emails", {
+              method: "POST",
+              headers: { "Authorization": `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
+              body: JSON.stringify({
+                from: "XTZ.News <newsletter@xtz.news>",
+                to: [s.email],
+                subject: `🗳️ Tezos Governance Alert: Epoch #${epoch.index} ${periodLabel} Phase`,
+                html: buildGovHtml(s.unsubToken),
+              }),
+            })
+          ));
           sent += batch.length;
         }
       } else {

@@ -423,10 +423,13 @@ export default function ArticlePage() {
           <img
             src={post.featuredImageUrl}
             alt={post.featuredImageAlt || post.title}
-            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", opacity: 0, transition: "opacity 0.6s ease" }}
+            onLoad={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = "1"; }}
             onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = "0"; }}
           />
         )}
+        {/* Skeleton shimmer while image loads */}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, #05152e 25%, #0d2a5e 50%, #05152e 75%)", backgroundSize: "200% 100%", animation: "shimmer 1.5s infinite", zIndex: 0 }} />
         {/* Deep gradient overlay for text legibility */}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%)", pointerEvents: "none" }} />
         {/* Hero text overlay */}
@@ -541,10 +544,20 @@ export default function ArticlePage() {
                 </div>
                 {related.slice(0, 5).map((p, i) => (
                   <Link key={p.id} href={`/${p.slug}`} style={{ display: "flex", gap: "0.75rem", padding: "0.875rem 1rem", borderBottom: i < 4 ? "1px solid rgba(255,255,255,0.05)" : "none", textDecoration: "none", transition: "background 0.15s" }}
-                    onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.05)")}
-                    onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "transparent")}>
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.05)";
+                      const img = (e.currentTarget as HTMLElement).querySelector("img");
+                      if (img) { img.style.transform = "scale(1.06)"; img.style.borderColor = "rgba(44,125,247,0.4)"; }
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLElement).style.background = "transparent";
+                      const img = (e.currentTarget as HTMLElement).querySelector("img");
+                      if (img) { img.style.transform = "scale(1)"; img.style.borderColor = "transparent"; }
+                    }}>
                     {p.featuredImageUrl && (
-                      <img src={p.featuredImageUrl} alt="" style={{ width: "52px", height: "52px", objectFit: "cover", borderRadius: "4px", flexShrink: 0 }} onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
+                      <div style={{ width: "52px", height: "52px", borderRadius: "4px", overflow: "hidden", flexShrink: 0, border: "2px solid transparent", transition: "border-color 0.2s" }}>
+                        <img src={p.featuredImageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.3s ease" }} onError={(e) => { (e.currentTarget as HTMLImageElement).parentElement!.style.display = "none"; }} />
+                      </div>
                     )}
                     <div style={{ minWidth: 0 }}>
                       <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#fff", lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{p.title}</div>

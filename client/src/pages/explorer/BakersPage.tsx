@@ -471,7 +471,68 @@ function StakingCalculator({ bakers }: { bakers: any[] }) {
             })}
           </div>
         )}
-        <p style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.2)", margin: "0.75rem 0 0" }}>Estimates based on 30-day APY. Actual rewards vary by cycle. Not financial advice.</p>
+        {/* 12-month cumulative returns chart */}
+        {topBakers.length > 0 && amount > 0 && (
+          <div style={{ marginTop: "1.25rem" }}>
+            <div style={{ fontSize: "0.72rem", fontWeight: 800, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.75rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+              📈 12-Month Projected Cumulative Returns
+            </div>
+            {/* Legend */}
+            <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginBottom: "0.6rem" }}>
+              {topBakers.slice(0, 3).map((baker, idx) => (
+                <div key={baker.address} style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
+                  <div style={{ width: "10px", height: "10px", borderRadius: "2px", background: ["#2c7df7", "#22c55e", "#f59e0b"][idx] }} />
+                  <span style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.55)" }}>{baker.alias || "Unknown"} ({(baker.apy as number).toFixed(1)}%)</span>
+                </div>
+              ))}
+            </div>
+            {/* SVG bar chart — grouped by month */}
+            <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: "8px", padding: "1rem 0.75rem 0.5rem", overflow: "hidden" }}>
+              <svg width="100%" height="120" viewBox="0 0 600 120" preserveAspectRatio="none">
+                {topBakers.slice(0, 3).map((baker, bakerIdx) => {
+                  const apy = baker.apy as number;
+                  const colors = ["#2c7df7", "#22c55e", "#f59e0b"];
+                  const monthlyRate = apy / 100 / 12;
+                  // Compute cumulative XTZ at end of each month (compound)
+                  const months = Array.from({ length: 12 }, (_, m) => {
+                    const cumulative = amount * (Math.pow(1 + monthlyRate, m + 1) - 1);
+                    return cumulative;
+                  });
+                  const maxVal = amount * (Math.pow(1 + (topBakers[0].apy as number) / 100 / 12, 12) - 1);
+                  const barW = 600 / 12 / 3 - 2;
+                  const barOffset = bakerIdx * (barW + 1);
+                  return months.map((val, m) => {
+                    const x = m * (600 / 12) + barOffset + 4;
+                    const barH = maxVal > 0 ? Math.max(3, (val / maxVal) * 95) : 3;
+                    const y = 110 - barH;
+                    return (
+                      <rect key={`${bakerIdx}-${m}`} x={x} y={y} width={barW} height={barH}
+                        fill={colors[bakerIdx]} opacity={0.8} rx={1}
+                        style={{ transition: "height 0.3s, y 0.3s" }}>
+                        <title>{baker.alias || "Baker"}: +{val.toFixed(2)} ꜩ after month {m + 1}</title>
+                      </rect>
+                    );
+                  });
+                })}
+                {/* Month labels */}
+                {Array.from({ length: 12 }, (_, m) => (
+                  <text key={m} x={m * (600 / 12) + 600 / 24} y={118} textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.25)">
+                    M{m + 1}
+                  </text>
+                ))}
+              </svg>
+              {/* Y-axis hint */}
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.25rem" }}>
+                <span style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.2)" }}>Month 1</span>
+                <span style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.4)", fontWeight: 700 }}>
+                  Top baker after 12 months: +{(amount * (Math.pow(1 + (topBakers[0].apy as number) / 100 / 12, 12) - 1)).toFixed(2)} ꜩ
+                </span>
+                <span style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.2)" }}>Month 12</span>
+              </div>
+            </div>
+          </div>
+        )}
+        <p style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.2)", margin: "0.75rem 0 0" }}>Estimates based on 30-day APY with monthly compounding. Actual rewards vary by cycle. Not financial advice.</p>
       </div>
     </div>
   );
