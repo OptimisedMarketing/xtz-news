@@ -302,15 +302,34 @@ async function startServer() {
 
       const emailHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:0;background:#000;font-family:Arial,sans-serif"><div style="max-width:600px;margin:0 auto;padding:20px"><div style="text-align:center;padding:24px 0;border-bottom:2px solid #2c7df7;margin-bottom:28px"><img src="${baseUrl}/manus-storage/xtz-logo-square_c6689606.png" alt="XTZ.News" style="height:60px" /><h1 style="color:#fff;font-size:22px;margin:12px 0 4px">XTZ.News Weekly Digest</h1><p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0">Your weekly roundup of Tezos news</p></div>${articlesHtml}<div style="text-align:center;padding:20px 0;border-top:1px solid rgba(255,255,255,0.08);margin-top:8px"><p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0">You're receiving this because you subscribed to XTZ.News. <a href="${baseUrl}" style="color:#2c7df7">Visit XTZ.News</a></p></div></div></body></html>`;
 
-      // Send via Manus notification system (owner notification as proxy for now)
-      // In production, integrate with an email service like Resend or SendGrid
-      const { notifyOwner } = await import("./notification");
-      await notifyOwner({
-        title: `Weekly Digest Ready — ${topPosts.length} articles, ${subscribers.length} subscribers`,
-        content: `Top articles this week:\n${topPosts.map((p, i) => `${i+1}. ${p.title} — ${baseUrl}/${p.slug}`).join("\n")}\n\nSubscribers: ${subscribers.length}`,
-      });
+      // Send via Resend if available, otherwise notify owner
+      const RESEND_API_KEY = process.env.RESEND_API_KEY;
+      let sent = 0;
+      if (RESEND_API_KEY) {
+        const batchSize = 50;
+        for (let i = 0; i < subscribers.length; i += batchSize) {
+          const batch = subscribers.slice(i, i + batchSize);
+          await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
+            body: JSON.stringify({
+              from: "XTZ.News <newsletter@xtz.news>",
+              to: batch.map((s: any) => s.email),
+              subject: `📰 XTZ.News Weekly Digest — Top Tezos Stories`,
+              html: emailHtml,
+            }),
+          });
+          sent += batch.length;
+        }
+      } else {
+        const { notifyOwner } = await import("./notification");
+        await notifyOwner({
+          title: `Weekly Digest Ready — ${topPosts.length} articles, ${subscribers.length} subscribers`,
+          content: `Top articles this week:\n${topPosts.map((p: any, i: number) => `${i+1}. ${p.title} — ${baseUrl}/${p.slug}`).join("\n")}\n\nSubscribers: ${subscribers.length}\nNote: Set RESEND_API_KEY to enable actual email delivery.`,
+        });
+      }
 
-      res.json({ ok: true, articles: topPosts.length, subscribers: subscribers.length });
+      res.json({ ok: true, articles: topPosts.length, subscribers: subscribers.length, sent });
     } catch (e: any) {
       console.error("[weekly-digest] error:", e);
       res.status(500).json({ error: e.message, timestamp: new Date().toISOString() });
