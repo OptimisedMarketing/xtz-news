@@ -1,28 +1,51 @@
 import { useState, useMemo } from "react";
 import { Link } from "wouter";
-import { ExternalLink, Search, Copy, ChevronRight, Home, X } from "lucide-react";
+import { ExternalLink, Search, Copy, ChevronRight, Home, X, DollarSign, TrendingUp } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-import { toast } from "sonner";
 
 const templeDelegate = (address: string) =>
   `https://templewallet.com/delegating?baker=${address}`;
 
+type SidebarSort = "apy" | "fee" | "delegators";
+
 export default function StakingPage() {
   const { data: bakers = [], isLoading } = trpc.explorer.bakers.useQuery({ limit: 50 });
+  const { data: networkStats } = trpc.explorer.networkStats.useQuery();
 
   const [xtzAmount, setXtzAmount] = useState("1000");
   const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
   const [searchBaker, setSearchBaker] = useState("");
   const [copied, setCopied] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [currency, setCurrency] = useState<"xtz" | "usd">("xtz");
+  const [sidebarSort, setSidebarSort] = useState<SidebarSort>("apy");
 
+  const xtzUsd = networkStats?.xtzUsd ?? 0;
   const amount = parseFloat(xtzAmount) || 0;
+
+  const fmt = (xtz: number) => {
+    if (currency === "usd" && xtzUsd > 0) {
+      return `$${(xtz * xtzUsd).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+    return `${xtz < 0.01 ? "<0.01" : xtz.toFixed(2)} ꜩ`;
+  };
 
   // All bakers with real APY, sorted by APY desc
   const allBakers = useMemo(() =>
     bakers.filter((b: any) => b.apy != null).sort((a: any, b: any) => (b.apy ?? 0) - (a.apy ?? 0)),
     [bakers]
   );
+
+  const sidebarBakers = useMemo(() => {
+    const list = [...allBakers];
+    if (sidebarSort === "fee") {
+      return list.filter((b: any) => b.feeRate != null).sort((a: any, b: any) => (a.feeRate ?? 100) - (b.feeRate ?? 100));
+    }
+    if (sidebarSort === "delegators") {
+      return list.sort((a: any, b: any) => b.numDelegators - a.numDelegators);
+    }
+    return list; // apy desc (default)
+  }, [allBakers, sidebarSort]);
 
   const selectedBaker = selectedAddress ? allBakers.find((b: any) => b.address === selectedAddress) : null;
   const displayBaker = selectedBaker || allBakers[0];
@@ -44,12 +67,12 @@ export default function StakingPage() {
   const copyResults = () => {
     if (!displayBaker || amount === 0) return;
     const apy = displayBaker.apy as number;
-    const annual = (amount * (Math.pow(1 + apy / 100 / 12, 12) - 1)).toFixed(2);
-    const monthly = (amount * (Math.pow(1 + apy / 100 / 12, 1) - 1)).toFixed(2);
-    const daily = (amount * apy / 100 / 365).toFixed(2);
+    const annual = (amount * (Math.pow(1 + apy / 100 / 12, 12) - 1));
+    const monthly = (amount * (Math.pow(1 + apy / 100 / 12, 1) - 1));
+    const daily = (amount * apy / 100 / 365);
     const text = `XTZ Staking Projections (${displayBaker.alias || displayBaker.address.slice(0, 12)})\n` +
       `Amount: ${amount.toLocaleString()} XTZ | APY: ${apy.toFixed(2)}%\n` +
-      `Daily: +${daily} XTZ | Monthly: +${monthly} XTZ | Annual: +${annual} XTZ\n` +
+      `Daily: +${daily.toFixed(3)} XTZ (${xtzUsd > 0 ? '$' + (daily * xtzUsd).toFixed(2) : 'n/a'}) | Monthly: +${monthly.toFixed(2)} XTZ | Annual: +${annual.toFixed(2)} XTZ\n` +
       `Source: https://xtz.news/staking`;
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true);
@@ -98,6 +121,20 @@ export default function StakingPage() {
             {/* Amount input */}
             <div style={{ background: "#05152e", border: "1px solid rgba(44,125,247,0.2)", borderRadius: "12px", padding: "1.5rem", marginBottom: "1.5rem" }}>
               <div style={{ fontSize: "0.72rem", fontWeight: 800, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "1rem" }}>Your XTZ Amount</div>
+              {/* XTZ / USD toggle */}
+              {xtzUsd > 0 && (
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.875rem" }}>
+                  <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)" }}>Show earnings in:</span>
+                  <div style={{ display: "flex", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "20px", padding: "2px" }}>
+                    {(["xtz", "usd"] as const).map(c => (
+                      <button key={c} onClick={() => setCurrency(c)}
+                        style={{ padding: "0.25rem 0.875rem", background: currency === c ? "#2c7df7" : "transparent", border: "none", borderRadius: "18px", color: currency === c ? "#fff" : "rgba(255,255,255,0.45)", fontSize: "0.72rem", fontWeight: 700, cursor: "pointer", transition: "all 0.15s" }}>
+                        {c === "xtz" ? "ꜩ XTZ" : `$ USD (1 XTZ = $${xtzUsd.toFixed(3)})`}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
                 <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
                   <input type="number" min="0" value={xtzAmount} onChange={(e) => setXtzAmount(e.target.value)}
@@ -203,10 +240,10 @@ export default function StakingPage() {
                   {/* Stats grid */}
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem", marginBottom: "1rem" }}>
                     {[
-                      { label: "APY", value: `${apy.toFixed(2)}%`, color: "#22c55e", big: true },
-                      { label: "Daily", value: `+${daily < 0.01 ? "<0.01" : daily.toFixed(3)} ꜩ`, color: "#f97316", big: false },
-                      { label: "Monthly", value: `+${monthly.toFixed(2)} ꜩ`, color: "#f97316", big: false },
-                      { label: "Annual (compound)", value: `+${annual.toFixed(2)} ꜩ`, color: "#f97316", big: false },
+                  { label: "APY", value: `${apy.toFixed(2)}%`, color: "#22c55e", big: true },
+                  { label: "Daily", value: `+${fmt(daily)}`, color: "#f97316", big: false },
+                  { label: "Monthly", value: `+${fmt(monthly)}`, color: "#f97316", big: false },
+                  { label: "Annual (compound)", value: `+${fmt(annual)}`, color: "#f97316", big: false },
                     ].map(s => (
                       <div key={s.label} style={{ textAlign: "center", background: "rgba(255,255,255,0.04)", borderRadius: "8px", padding: "0.875rem 0.5rem" }}>
                         <div style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.35)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.4rem" }}>{s.label}</div>
@@ -291,22 +328,101 @@ export default function StakingPage() {
                 <p style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.2)", margin: "0.75rem 0 0" }}>Estimates based on 30-day APY with monthly compounding. Actual rewards vary. Not financial advice.</p>
               </div>
             )}
+
+            {/* Staking vs Holding comparison chart */}
+            {displayBaker && amount > 0 && (() => {
+              const apy = displayBaker.apy as number;
+              const years = 5;
+              const months = years * 12;
+              const monthlyRate = apy / 100 / 12;
+              // Staking: compound monthly
+              const stakingValues = Array.from({ length: months + 1 }, (_, m) =>
+                amount * Math.pow(1 + monthlyRate, m)
+              );
+              // Holding: flat
+              const holdingValues = Array.from({ length: months + 1 }, () => amount);
+              const maxVal = stakingValues[months];
+              const minVal = amount;
+              const range = maxVal - minVal;
+              const toY = (v: number) => range > 0 ? 110 - ((v - minVal) / range) * 100 : 110;
+              const stakingPath = stakingValues.map((v, i) => `${i === 0 ? "M" : "L"} ${(i / months) * 580 + 10} ${toY(v)}`).join(" ");
+              const holdingPath = `M 10 110 L 590 110`;
+              const stakingFinal = stakingValues[months];
+              const holdingFinal = amount;
+              const gain = stakingFinal - holdingFinal;
+              return (
+                <div style={{ background: "#05152e", border: "1px solid rgba(44,125,247,0.2)", borderRadius: "12px", padding: "1.5rem", marginTop: "1.5rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem", flexWrap: "wrap", gap: "0.5rem" }}>
+                    <div>
+                      <div style={{ fontSize: "0.72rem", fontWeight: 800, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.1em" }}>📊 Staking vs Holding — 5 Year Projection</div>
+                      <div style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.4)", marginTop: "0.2rem" }}>Staking earns <span style={{ color: "#22c55e", fontWeight: 700 }}>+{fmt(gain)}</span> more than holding over 5 years</div>
+                    </div>
+                  </div>
+                  {/* Legend */}
+                  <div style={{ display: "flex", gap: "1.25rem", marginBottom: "0.75rem" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                      <div style={{ width: "20px", height: "3px", background: "#2c7df7", borderRadius: "2px" }} />
+                      <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.55)" }}>Staking ({apy.toFixed(1)}% APY)</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                      <div style={{ width: "20px", height: "3px", background: "rgba(255,255,255,0.2)", borderRadius: "2px", borderTop: "2px dashed rgba(255,255,255,0.2)" }} />
+                      <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.35)" }}>Holding (0% growth)</span>
+                    </div>
+                  </div>
+                  <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: "8px", padding: "1rem 0.5rem 0.5rem", overflow: "hidden" }}>
+                    <svg width="100%" height="130" viewBox="0 0 600 130" preserveAspectRatio="none">
+                      {/* Shaded area between staking and holding */}
+                      <path d={`${stakingPath} L 590 110 L 10 110 Z`} fill="rgba(44,125,247,0.08)" />
+                      {/* Holding line */}
+                      <path d={holdingPath} stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeDasharray="6,4" fill="none" />
+                      {/* Staking line */}
+                      <path d={stakingPath} stroke="#2c7df7" strokeWidth="2.5" fill="none" />
+                      {/* Year labels */}
+                      {Array.from({ length: years + 1 }, (_, y) => (
+                        <text key={y} x={(y / years) * 580 + 10} y={128} textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.25)">Y{y}</text>
+                      ))}
+                      {/* End labels */}
+                      <text x={590} y={toY(stakingFinal) - 6} textAnchor="end" fontSize="9" fill="#2c7df7" fontWeight="bold">{fmt(stakingFinal)}</text>
+                      <text x={590} y={118} textAnchor="end" fontSize="9" fill="rgba(255,255,255,0.3)">{fmt(holdingFinal)}</text>
+                    </svg>
+                  </div>
+                  <p style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.2)", margin: "0.5rem 0 0" }}>Assumes constant APY. Actual returns vary. Not financial advice.</p>
+                </div>
+              );
+            })()}
           </div>
 
           {/* ── Sidebar: top bakers comparison ── */}
           <div style={{ position: "sticky", top: "80px" }}>
             <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "10px", overflow: "hidden" }}>
-              <div style={{ padding: "0.875rem 1rem", borderBottom: "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <div style={{ width: "3px", height: "16px", background: "#2c7df7", borderRadius: "2px" }} />
-                <span style={{ fontSize: "0.7rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.6)" }}>Top Bakers by APY</span>
+              <div style={{ padding: "0.875rem 1rem", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.625rem" }}>
+                  <div style={{ width: "3px", height: "16px", background: "#2c7df7", borderRadius: "2px" }} />
+                  <span style={{ fontSize: "0.7rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.6)" }}>Baker Rankings</span>
+                </div>
+                {/* Sort pills */}
+                <div style={{ display: "flex", gap: "0.3rem" }}>
+                  {(["apy", "fee", "delegators"] as SidebarSort[]).map(s => (
+                    <button key={s} onClick={() => setSidebarSort(s)}
+                      style={{ padding: "0.2rem 0.6rem", background: sidebarSort === s ? "rgba(44,125,247,0.25)" : "rgba(255,255,255,0.05)", border: `1px solid ${sidebarSort === s ? "rgba(44,125,247,0.5)" : "rgba(255,255,255,0.08)"}`, borderRadius: "12px", color: sidebarSort === s ? "#2c7df7" : "rgba(255,255,255,0.4)", fontSize: "0.62rem", fontWeight: 700, cursor: "pointer", textTransform: "capitalize" }}>
+                      {s === "apy" ? "⭐ APY" : s === "fee" ? "💰 Lowest Fee" : "👥 Delegators"}
+                    </button>
+                  ))}
+                </div>
               </div>
               {isLoading ? (
                 <div style={{ padding: "1.5rem", textAlign: "center", color: "rgba(255,255,255,0.3)", fontSize: "0.82rem" }}>Loading…</div>
               ) : (
-                allBakers.slice(0, 10).map((baker: any, i: number) => {
+                sidebarBakers.slice(0, 10).map((baker: any, i: number) => {
                   const isSelected = selectedAddress === baker.address;
                   const apy = baker.apy as number;
-                  const annual = amount > 0 ? (amount * (Math.pow(1 + apy / 100 / 12, 12) - 1)).toFixed(2) : null;
+                  const annual = amount > 0 ? (amount * (Math.pow(1 + apy / 100 / 12, 12) - 1)) : null;
+                  const rightLabel = sidebarSort === "fee" && baker.feeRate != null
+                    ? `${baker.feeRate.toFixed(1)}% fee`
+                    : sidebarSort === "delegators"
+                    ? `${baker.numDelegators.toLocaleString()} delegators`
+                    : `${apy.toFixed(2)}% APY`;
+                  const rightColor = sidebarSort === "fee" ? "#f59e0b" : sidebarSort === "delegators" ? "#2c7df7" : "#22c55e";
                   return (
                     <button key={baker.address} onClick={() => setSelectedAddress(baker.address)}
                       style={{ width: "100%", display: "flex", alignItems: "center", gap: "0.75rem", padding: "0.75rem 1rem", background: isSelected ? "rgba(44,125,247,0.12)" : "transparent", border: "none", borderBottom: i < 9 ? "1px solid rgba(255,255,255,0.04)" : "none", cursor: "pointer", textAlign: "left", transition: "background 0.12s" }}
@@ -317,9 +433,9 @@ export default function StakingPage() {
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: "0.78rem", fontWeight: 700, color: isSelected ? "#5a9fff" : "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{baker.alias || "Unknown Baker"}</div>
-                        {annual && amount > 0 && <div style={{ fontSize: "0.62rem", color: "#f97316", fontWeight: 600 }}>+{annual} ꜩ/yr</div>}
+                        {annual != null && amount > 0 && <div style={{ fontSize: "0.62rem", color: "#f97316", fontWeight: 600 }}>+{fmt(annual)}/yr</div>}
                       </div>
-                      <div style={{ fontSize: "0.82rem", fontWeight: 800, color: "#22c55e", flexShrink: 0 }}>{apy.toFixed(2)}%</div>
+                      <div style={{ fontSize: "0.78rem", fontWeight: 800, color: rightColor, flexShrink: 0 }}>{rightLabel}</div>
                     </button>
                   );
                 })

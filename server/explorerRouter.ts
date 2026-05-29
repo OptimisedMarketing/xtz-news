@@ -292,6 +292,10 @@ export const explorerRouter = router({
             const stakingCapacity = (b.balance ?? 0) * limitRatio / 1_000_000;
             availableSpace = Math.max(0, mutez(stakingCapacity - (b.externalStakedBalance ?? 0)));
           }
+          // edgeOfBakingOverStaking is in billionths (1_000_000_000 = 100%)
+          const feeRate = b.edgeOfBakingOverStaking != null
+            ? parseFloat((b.edgeOfBakingOverStaking / 1_000_000_000 * 100).toFixed(2))
+            : null;
           return {
             rank: i + 1,
             address: b.address,
@@ -302,6 +306,7 @@ export const explorerRouter = router({
             apy: apyMap[b.address] ?? null,
             frozen: mutez(b.frozenDeposit),
             availableSpace,
+            feeRate, // null = fee not set / delegation-only baker
           };
         });
 
