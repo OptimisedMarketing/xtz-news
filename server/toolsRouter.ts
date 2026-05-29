@@ -56,6 +56,14 @@ export const toolsRouter = router({
         return sum + mutez((cycle.expectedRewards ?? 0) + (cycle.extraRewards ?? 0));
       }, 0);
 
+      // IPFS URI resolver
+      const resolveIpfs = (uri: string | null | undefined): string | null => {
+        if (!uri) return null;
+        if (uri.startsWith("ipfs://")) return `https://ipfs.io/ipfs/${uri.slice(7)}`;
+        if (uri.startsWith("data:") || uri.startsWith("http")) return uri;
+        return null;
+      };
+
       return {
         address: a.address,
         alias: a.alias || null,
@@ -67,8 +75,8 @@ export const toolsRouter = router({
         delegatedToAddress: a.delegate?.address || null,
         delegationLevel: a.delegationLevel || null,
         numTransactions: a.numTransactions ?? 0,
-        firstActivity: a.firstActivity || null,
-        lastActivity: a.lastActivity || null,
+        firstActivity: a.firstActivityTime || null,  // ISO timestamp, not block level
+        lastActivity: a.lastActivityTime || null,     // ISO timestamp, not block level
         // Baker fields (if delegate)
         isBaker: a.type === "delegate",
         numDelegators: a.numDelegators ?? 0,
@@ -81,7 +89,7 @@ export const toolsRouter = router({
           decimals: tok.token?.metadata?.decimals ?? 0,
           contract: tok.token?.contract?.address || "",
           tokenId: tok.token?.tokenId || "0",
-          thumbnailUri: tok.token?.metadata?.thumbnailUri || null,
+          thumbnailUri: resolveIpfs(tok.token?.metadata?.thumbnailUri),
         })),
         nftCount: nfts.length,
         // Recent transactions
@@ -241,28 +249,110 @@ export const toolsRouter = router({
         };
       }
 
-      // For delegators: use balance history to estimate rewards
-      // TzKT doesn't have a direct delegator rewards endpoint, so we compute from balance changes
-      // and delegation info
+      // For delegators: get delegation history and per-baker rewards
       const delegate = account.delegate;
       const delegationLevel = account.delegationLevel;
 
-      // Get balance history (periodic snapshots)
+      // Get all delegation operations (past baker changes)
+      const delegationOps = await tzkt(
+        `/operations/delegations?sender=${addr}&limit=50&sort.desc=id`
+      ).catch(() => []);
+
+      // Get actual delegator rewards from TzKT
+      const delegatorRewards = await tzkt(
+        `/rewards/delegators/${addr}?limit=${Math.min(input.cycles, 50)}&sort.desc=cycle`
+      ).catch(() => []);
+
+      // Build delegation periods from operations
+      const delegationPeriods: Array<{
+        baker: string;
+        bakerAlias: string | null;
+        bakerAddress: string;
+        from: string;
+        to: string | null;
+        cycleCount: number;
+        totalRewards: number;
+        avgApy: number | null;
+      }> = [];
+
+      if (delegationOps.length > 0) {
+        // Sort oldest first
+        const sorted = [...delegationOps].reverse();
+        for (let i = 0; i < sorted.length; i++) {
+          const op = sorted[i];
+          const nextOp = sorted[i + 1];
+          const bakerAddr = op.newDelegate?.address || null;
+          if (!bakerAddr) continue;
+
+          const from = op.timestamp;
+          const to = nextOp ? nextOp.timestamp : null;
+
+          // Find rewards for this baker in this period
+          const periodRewards = delegatorRewards.filter((r: any) => r.baker?.address === bakerAddr);
+          const totalRewards = periodRewards.reduce((s: number, r: any) => {
+            return s + mutez(
+              (r.blockRewardsDelegated ?? 0) +
+              (r.attestationRewardsDelegated ?? 0) +
+              (r.dalAttestationRewardsDelegated ?? 0)
+            );
+          }, 0);
+
+          // Estimate APY from baker's rewards data
+          const apyValues = periodRewards
+            .filter((r: any) => r.bakerRewards?.bakingPower > 0)
+            .map((r: any) => {
+              const bakerTotal = (r.bakerRewards?.blockRewardsDelegated ?? 0) +
+                (r.bakerRewards?.attestationRewardsDelegated ?? 0) +
+                (r.bakerRewards?.dalAttestationRewardsDelegated ?? 0);
+              return (bakerTotal * 365) / r.bakerRewards.bakingPower * 100;
+            });
+          const avgApy = apyValues.length > 0
+            ? parseFloat((apyValues.reduce((s: number, v: number) => s + v, 0) / apyValues.length).toFixed(2))
+            : null;
+
+          // Estimate cycle count
+          const fromDate = new Date(from);
+          const toDate = to ? new Date(to) : new Date();
+          const daysDiff = Math.floor((toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24));
+          const cycleCount = Math.max(1, Math.floor(daysDiff)); // ~1 day per cycle
+
+          delegationPeriods.push({
+            baker: op.newDelegate?.alias || bakerAddr.slice(0, 16) + "…",
+            bakerAlias: op.newDelegate?.alias || null,
+            bakerAddress: bakerAddr,
+            from,
+            to,
+            cycleCount,
+            totalRewards,
+            avgApy,
+          });
+        }
+      }
+
+      // Get balance history for the chart
       const balanceHistory = await tzkt(
         `/accounts/${addr}/balance_history?step=8192&limit=${input.cycles}`
       ).catch(() => []);
 
-      // Estimate rewards from balance changes (rough approximation)
       const cycles = balanceHistory.slice(0, input.cycles).map((snap: any, i: number, arr: any[]) => {
         const prev = arr[i - 1];
         const balChange = prev ? mutez(snap.balance) - mutez(prev.balance) : 0;
         return {
           timestamp: snap.timestamp,
           balance: mutez(snap.balance),
-          estimatedReward: Math.max(0, balChange), // only positive changes (rewards)
+          estimatedReward: Math.max(0, balChange),
           level: snap.level,
         };
       }).filter((c: any) => c.estimatedReward > 0);
+
+      // Compute total rewards from actual delegator rewards data
+      const totalDelegatorRewards = delegatorRewards.reduce((s: number, r: any) => {
+        return s + mutez(
+          (r.blockRewardsDelegated ?? 0) +
+          (r.attestationRewardsDelegated ?? 0) +
+          (r.dalAttestationRewardsDelegated ?? 0)
+        );
+      }, 0);
 
       return {
         type: "delegator" as const,
@@ -275,8 +365,118 @@ export const toolsRouter = router({
         delegationLevel,
         currentCycle,
         cycles,
-        // Estimated APY based on current baker's performance
+        delegationPeriods,
+        totalDelegatorRewards,
+        rewardCycles: delegatorRewards.slice(0, 20).map((r: any) => ({
+          cycle: r.cycle,
+          baker: r.baker?.alias || r.baker?.address?.slice(0, 16) + "…" || "Unknown",
+          bakerAddress: r.baker?.address || null,
+          delegatedBalance: mutez(r.delegatedBalance ?? 0),
+          rewards: mutez(
+            (r.blockRewardsDelegated ?? 0) +
+            (r.attestationRewardsDelegated ?? 0) +
+            (r.dalAttestationRewardsDelegated ?? 0)
+          ),
+        })),
         estimatedApy: null as number | null,
+      };
+    }),
+
+  // ─── Portfolio Tracker ───────────────────────────────────────────────────────────────────────────────────────
+  portfolioTrack: publicProcedure
+    .input(z.object({
+      addresses: z.array(z.string().min(10)).min(1).max(5),
+    }))
+    .query(async ({ input }) => {
+      // Fetch XTZ price
+      const priceRes = await fetch("https://api.tzkt.io/v1/quotes/last").then(r => r.json()).catch(() => ({ usd: 0 }));
+      const xtzUsd = priceRes.usd ?? 0;
+
+      // Fetch all wallets in parallel
+      const walletResults = await Promise.allSettled(
+        input.addresses.map(async (addr) => {
+          const trimmed = addr.trim();
+          const [account, tokens] = await Promise.allSettled([
+            tzkt(`/accounts/${trimmed}`),
+            tzkt(`/tokens/balances?account=${trimmed}&limit=30&sort.desc=lastTime`),
+          ]);
+
+          const a = account.status === "fulfilled" ? account.value : null;
+          const t = tokens.status === "fulfilled" ? tokens.value : [];
+
+          if (!a || a.type === "empty") return null;
+
+          // Separate NFTs from fungible tokens
+          const fungible = t.filter((tok: any) => {
+            const meta = tok.token?.metadata;
+            return !(meta?.artifactUri || meta?.displayUri || meta?.thumbnailUri || tok.token?.totalSupply === "1");
+          });
+          const nftCount = t.length - fungible.length;
+
+          return {
+            address: trimmed,
+            alias: a.alias || null,
+            type: a.type,
+            balance: mutez(a.balance),
+            stakedBalance: mutez(a.stakedBalance ?? 0),
+            unstakedBalance: mutez(a.unstakedBalance ?? 0),
+            delegatedTo: a.delegate?.alias || a.delegate?.address || null,
+            delegatedToAddress: a.delegate?.address || null,
+            isBaker: a.type === "delegate",
+            numDelegators: a.numDelegators ?? 0,
+            stakingBalance: mutez(a.stakingBalance ?? 0),
+            numTransactions: a.numTransactions ?? 0,
+            firstActivity: a.firstActivityTime || null,
+            lastActivity: a.lastActivityTime || null,
+            fungibleTokens: fungible.slice(0, 10).map((tok: any) => ({
+              name: tok.token?.metadata?.name || "Unknown Token",
+              symbol: tok.token?.metadata?.symbol || "",
+              balance: tok.balance,
+              decimals: tok.token?.metadata?.decimals ?? 0,
+              contract: tok.token?.contract?.address || "",
+              tokenId: tok.token?.tokenId || "0",
+              thumbnailUri: tok.token?.metadata?.thumbnailUri || null,
+            })),
+            nftCount,
+          };
+        })
+      );
+
+      const wallets = walletResults
+        .map(r => r.status === "fulfilled" ? r.value : null)
+        .filter(Boolean) as NonNullable<typeof walletResults[0] extends PromiseFulfilledResult<infer T> ? T : never>[];
+
+      // Aggregate totals
+      const totalXtz = wallets.reduce((s, w) => s + (w as any).balance, 0);
+      const totalStaked = wallets.reduce((s, w) => s + (w as any).stakedBalance, 0);
+      const totalUsd = (totalXtz + totalStaked) * xtzUsd;
+
+      // Aggregate fungible tokens across all wallets
+      const tokenMap: Record<string, { name: string; symbol: string; decimals: number; totalBalance: number; thumbnailUri: string | null; wallets: string[] }> = {};
+      for (const w of wallets as any[]) {
+        for (const tok of w.fungibleTokens) {
+          const key = `${tok.contract}:${tok.tokenId}`;
+          if (!tokenMap[key]) {
+            tokenMap[key] = { name: tok.name, symbol: tok.symbol, decimals: tok.decimals, totalBalance: 0, thumbnailUri: tok.thumbnailUri, wallets: [] };
+          }
+          tokenMap[key].totalBalance += parseFloat(tok.balance) / Math.pow(10, tok.decimals);
+          tokenMap[key].wallets.push((w as any).alias || (w as any).address.slice(0, 8));
+        }
+      }
+
+      return {
+        wallets,
+        xtzUsd,
+        totals: {
+          xtz: totalXtz,
+          staked: totalStaked,
+          usd: totalUsd,
+          nfts: wallets.reduce((s, w) => s + (w as any).nftCount, 0),
+          transactions: wallets.reduce((s, w) => s + (w as any).numTransactions, 0),
+        },
+        aggregatedTokens: Object.values(tokenMap)
+          .sort((a, b) => b.totalBalance - a.totalBalance)
+          .slice(0, 20),
       };
     }),
 });

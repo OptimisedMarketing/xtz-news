@@ -38,6 +38,15 @@ const TOOLS = [
     badgeColor: "#22c55e",
     tags: ["Rewards", "APY", "Delegation", "Baking"],
   },
+  {
+    href: "/tools/portfolio",
+    icon: "📊",
+    title: "Portfolio Tracker",
+    description: "Track up to 5 Tezos wallets at once. See combined XTZ balance, total USD value, token holdings, NFT count, and delegation status per wallet.",
+    badge: "Multi-wallet",
+    badgeColor: "#8b5cf6",
+    tags: ["Portfolio", "Multi-wallet", "USD Value", "Tokens"],
+  },
 ];
 
 export default function ToolsPage() {
@@ -127,7 +136,7 @@ export default function ToolsPage() {
         <div style={{ marginTop: "3rem", padding: "1.5rem", background: "rgba(44,125,247,0.04)", border: "1px dashed rgba(44,125,247,0.2)", borderRadius: "10px" }}>
           <div style={{ fontSize: "0.72rem", fontWeight: 800, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.75rem" }}>Coming Soon</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
-            {["Portfolio Tracker (multi-wallet)", "Airdrop Checker", "Batch Address Lookup", "Token Explorer", "Delegation History Viewer"].map(name => (
+            {["Airdrop Checker", "Batch Address Lookup", "Token Explorer", "Token Price History"].map(name => (
               <span key={name} style={{ fontSize: "0.78rem", padding: "0.35rem 0.875rem", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "20px", color: "rgba(255,255,255,0.35)" }}>
                 {name}
               </span>

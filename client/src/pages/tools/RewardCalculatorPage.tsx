@@ -212,44 +212,98 @@ export default function RewardCalculatorPage() {
               </div>
             )}
 
-            {/* Delegator reward history */}
-            {data.type === "delegator" && (
-              <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "12px", padding: "1.5rem" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
-                  <TrendingUp size={14} style={{ color: "#22c55e" }} />
-                  <span style={{ fontWeight: 800, color: "#fff", fontSize: "0.88rem" }}>Balance History</span>
+            {/* Delegator: Delegation History with per-baker breakdown */}
+            {data.type === "delegator" && (data as any).delegationPeriods?.length > 0 && (
+              <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "12px", overflow: "hidden" }}>
+                <div style={{ padding: "1rem 1.25rem", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <span style={{ fontWeight: 800, color: "#fff", fontSize: "0.88rem" }}>🏦 Delegation History</span>
+                    <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.3)" }}>{(data as any).delegationPeriods.length} baker{(data as any).delegationPeriods.length !== 1 ? 's' : ''}</span>
+                  </div>
+                  {(data as any).totalDelegatorRewards > 0 && (
+                    <span style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.5)" }}>
+                      Total rewards: <span style={{ color: "#22c55e", fontWeight: 700 }}>{fmtXtz((data as any).totalDelegatorRewards)}</span>
+                    </span>
+                  )}
                 </div>
-                {data.cycles.length > 0 ? (
-                  <div style={{ overflowX: "auto" }}>
-                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.78rem" }}>
-                      <thead>
-                        <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                          {["Date", "Balance", "Estimated Reward"].map(h => (
-                            <th key={h} style={{ padding: "0.6rem 1rem", textAlign: "left", fontWeight: 700, color: "rgba(255,255,255,0.35)", fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.07em" }}>{h}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {data.cycles.map((c: any, i: number) => (
-                          <tr key={i} style={{ borderBottom: i < data.cycles.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
-                            <td style={{ padding: "0.6rem 1rem", color: "rgba(255,255,255,0.5)" }}>{new Date(c.timestamp).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</td>
-                            <td style={{ padding: "0.6rem 1rem", color: "#fff", fontWeight: 600 }}>{fmtXtz(c.balance)}</td>
-                            <td style={{ padding: "0.6rem 1rem", color: "#22c55e", fontWeight: 700 }}>+{fmtXtz(c.estimatedReward)}</td>
-                          </tr>
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.78rem" }}>
+                    <thead>
+                      <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                        {["Baker", "From", "To", "Duration", "Rewards Earned", "Avg APY"].map(h => (
+                          <th key={h} style={{ padding: "0.6rem 1rem", textAlign: "left", fontWeight: 700, color: "rgba(255,255,255,0.35)", fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.07em", whiteSpace: "nowrap" }}>{h}</th>
                         ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <div style={{ textAlign: "center", padding: "2rem", color: "rgba(255,255,255,0.3)", fontSize: "0.85rem" }}>
-                    <p>Delegation reward history is not directly available from the TzKT API for delegators.</p>
-                    <p style={{ marginTop: "0.5rem" }}>
-                      <a href={`https://tzkt.io/${data.address}/rewards`} target="_blank" rel="noopener noreferrer" style={{ color: "#2c7df7", textDecoration: "none", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: "0.3rem" }}>
-                        View on TzKT <ExternalLink size={12} />
-                      </a>
-                    </p>
-                  </div>
-                )}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(data as any).delegationPeriods.map((p: any, i: number) => {
+                        const fromDate = new Date(p.from);
+                        const toDate = p.to ? new Date(p.to) : new Date();
+                        const days = Math.floor((toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24));
+                        const isCurrentBaker = !p.to;
+                        return (
+                          <tr key={i} style={{ borderBottom: i < (data as any).delegationPeriods.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", background: isCurrentBaker ? "rgba(34,197,94,0.05)" : "transparent" }}>
+                            <td style={{ padding: "0.75rem 1rem" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                {isCurrentBaker && <span style={{ fontSize: "0.55rem", fontWeight: 800, padding: "1px 5px", borderRadius: "8px", background: "rgba(34,197,94,0.2)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.3)", whiteSpace: "nowrap" }}>CURRENT</span>}
+                                <Link href={`/explorer/address/${p.bakerAddress}`} style={{ fontWeight: 700, color: isCurrentBaker ? "#22c55e" : "#2c7df7", textDecoration: "none", fontSize: "0.82rem" }}>
+                                  {p.bakerAlias || p.baker}
+                                </Link>
+                              </div>
+                            </td>
+                            <td style={{ padding: "0.75rem 1rem", color: "rgba(255,255,255,0.5)", whiteSpace: "nowrap" }}>{fromDate.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</td>
+                            <td style={{ padding: "0.75rem 1rem", color: "rgba(255,255,255,0.5)", whiteSpace: "nowrap" }}>{p.to ? new Date(p.to).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : <span style={{ color: "#22c55e", fontWeight: 700 }}>Present</span>}</td>
+                            <td style={{ padding: "0.75rem 1rem", color: "rgba(255,255,255,0.6)", whiteSpace: "nowrap" }}>
+                              {days >= 365 ? `${Math.floor(days / 365)}y ${Math.floor((days % 365) / 30)}m` : days >= 30 ? `${Math.floor(days / 30)}m ${days % 30}d` : `${days}d`}
+                            </td>
+                            <td style={{ padding: "0.75rem 1rem", color: p.totalRewards > 0 ? "#22c55e" : "rgba(255,255,255,0.25)", fontWeight: p.totalRewards > 0 ? 700 : 400 }}>
+                              {p.totalRewards > 0 ? `+${fmtXtz(p.totalRewards)}` : "—"}
+                            </td>
+                            <td style={{ padding: "0.75rem 1rem" }}>
+                              {p.avgApy != null ? (
+                                <span style={{ fontWeight: 800, color: p.avgApy >= 8 ? "#22c55e" : p.avgApy >= 5 ? "#f59e0b" : "#ef4444" }}>{p.avgApy.toFixed(2)}%</span>
+                              ) : <span style={{ color: "rgba(255,255,255,0.2)" }}>—</span>}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Delegator: Recent reward cycles */}
+            {data.type === "delegator" && (data as any).rewardCycles?.length > 0 && (
+              <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "12px", overflow: "hidden" }}>
+                <div style={{ padding: "1rem 1.25rem", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                  <span style={{ fontWeight: 800, color: "#fff", fontSize: "0.88rem" }}>💰 Recent Reward Cycles</span>
+                </div>
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.78rem" }}>
+                    <thead>
+                      <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                        {["Cycle", "Baker", "Delegated Balance", "Rewards"].map(h => (
+                          <th key={h} style={{ padding: "0.6rem 1rem", textAlign: "left", fontWeight: 700, color: "rgba(255,255,255,0.35)", fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.07em", whiteSpace: "nowrap" }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(data as any).rewardCycles.map((c: any, i: number) => (
+                        <tr key={c.cycle} style={{ borderBottom: i < (data as any).rewardCycles.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
+                          <td style={{ padding: "0.6rem 1rem", color: "rgba(255,255,255,0.5)", fontWeight: 600 }}>{c.cycle}</td>
+                          <td style={{ padding: "0.6rem 1rem" }}>
+                            <Link href={`/explorer/address/${c.bakerAddress}`} style={{ color: "#2c7df7", textDecoration: "none", fontWeight: 700, fontSize: "0.78rem" }}>{c.baker}</Link>
+                          </td>
+                          <td style={{ padding: "0.6rem 1rem", color: "rgba(255,255,255,0.6)" }}>{fmtXtz(c.delegatedBalance)}</td>
+                          <td style={{ padding: "0.6rem 1rem", color: c.rewards > 0 ? "#22c55e" : "rgba(255,255,255,0.25)", fontWeight: c.rewards > 0 ? 700 : 400 }}>
+                            {c.rewards > 0 ? `+${fmtXtz(c.rewards)}` : "—"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
 
