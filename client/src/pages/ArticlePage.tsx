@@ -336,6 +336,7 @@ export default function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
   const [readProgress, setReadProgress] = useState(0);
   const [showStickyShare, setShowStickyShare] = useState(false);
+  const [readingMode, setReadingMode] = useState<"dark" | "light">("dark");
   const heroRef = useRef<HTMLDivElement>(null);
 
   // Reading progress bar + sticky share bar trigger
@@ -412,6 +413,13 @@ export default function ArticlePage() {
           <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.5)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, minWidth: 0 }}>{post.title}</div>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexShrink: 0 }}>
             <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.35)", marginRight: "0.25rem" }}>{readProgress}% read</span>
+            {/* Reading mode toggle */}
+            <button
+              onClick={() => setReadingMode(m => m === "dark" ? "light" : "dark")}
+              title={readingMode === "dark" ? "Switch to light reading mode" : "Switch to dark mode"}
+              style={{ display: "flex", alignItems: "center", gap: "0.3rem", padding: "0.3rem 0.65rem", background: readingMode === "light" ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "20px", color: readingMode === "light" ? "#fff" : "rgba(255,255,255,0.5)", fontSize: "0.68rem", fontWeight: 700, cursor: "pointer", transition: "all 0.2s" }}>
+              {readingMode === "dark" ? "☀️" : "🌙"} {readingMode === "dark" ? "Light" : "Dark"}
+            </button>
             <ShareButtons title={post.title} url={pageUrl} />
           </div>
         </div>
@@ -494,8 +502,12 @@ export default function ArticlePage() {
               <span>This article is for informational purposes only and does not constitute financial advice. Always do your own research.</span>
             </div>
 
-            {/* Article body */}
-            <div className="post-content" dangerouslySetInnerHTML={{ __html: post.content || "" }} />
+            {/* Article body — reading mode aware */}
+            <div
+              className={`post-content${readingMode === "light" ? " reading-light" : ""}`}
+              style={{ transition: "background 0.3s, color 0.3s" }}
+              dangerouslySetInnerHTML={{ __html: post.content || "" }}
+            />
 
             {/* Tags */}
             {post.tags && post.tags.length > 0 && (

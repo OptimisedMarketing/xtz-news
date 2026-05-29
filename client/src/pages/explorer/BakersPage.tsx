@@ -474,8 +474,25 @@ function StakingCalculator({ bakers }: { bakers: any[] }) {
         {/* 12-month cumulative returns chart */}
         {topBakers.length > 0 && amount > 0 && (
           <div style={{ marginTop: "1.25rem" }}>
-            <div style={{ fontSize: "0.72rem", fontWeight: 800, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.75rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-              📈 12-Month Projected Cumulative Returns
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem", flexWrap: "wrap", gap: "0.5rem" }}>
+              <div style={{ fontSize: "0.72rem", fontWeight: 800, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.08em", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                📈 12-Month Projected Cumulative Returns
+              </div>
+              {/* Share button */}
+              <button
+                onClick={() => {
+                  const topBaker = topBakers[0];
+                  const annual = (amount * (Math.pow(1 + (topBaker.apy as number) / 100 / 12, 12) - 1)).toFixed(2);
+                  const text = `📈 Staking ${amount.toLocaleString()} XTZ with ${topBaker.alias || 'top baker'} (${(topBaker.apy as number).toFixed(2)}% APY) would earn me +${annual} XTZ in 12 months! Check the XTZ.News Staking Calculator:`;
+                  const url = 'https://xtz.news/explorer/bakers';
+                  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+                }}
+                style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", padding: "0.35rem 0.85rem", background: "rgba(29,161,242,0.15)", border: "1px solid rgba(29,161,242,0.35)", borderRadius: "20px", color: "#1DA1F2", fontWeight: 700, fontSize: "0.7rem", cursor: "pointer", transition: "background 0.15s" }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(29,161,242,0.25)")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(29,161,242,0.15)")}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                Share on X
+              </button>
             </div>
             {/* Legend */}
             <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginBottom: "0.6rem" }}>

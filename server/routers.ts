@@ -500,6 +500,20 @@ const newsletterRouter = router({
     if (!dbConn) return [];
     return dbConn.select().from(newsletterSubscribers).orderBy(desc(newsletterSubscribers.createdAt));
   }),
+
+  // Public count — used by newsletter signup components
+  subscriberCount: publicProcedure.query(async () => {
+    const { getDb } = await import('./db');
+    const { newsletterSubscribers } = await import('../drizzle/schema');
+    const { eq, sql } = await import('drizzle-orm');
+    const dbConn = await getDb();
+    if (!dbConn) return 1026; // fallback
+    const [row] = await dbConn
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(newsletterSubscribers)
+      .where(eq(newsletterSubscribers.status, 'active'));
+    return Number(row?.count ?? 1026);
+  }),
 });
 
 // ─── Price Ticker Router ──────────────────────────────────────────────────────────

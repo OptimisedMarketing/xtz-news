@@ -8,6 +8,10 @@ export default function ArticleNewsletterSignup() {
   const [govAlerts, setGovAlerts] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
 
+  const { data: subscriberCount = 1026 } = trpc.newsletter.subscriberCount.useQuery(undefined, {
+    staleTime: 5 * 60_000, // cache 5 min
+  });
+
   const subscribeMutation = trpc.newsletter.subscribe.useMutation({
     onSuccess: () => {
       setSubscribed(true);
@@ -77,7 +81,7 @@ export default function ArticleNewsletterSignup() {
           Stay ahead of Tezos news
         </h3>
         <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.55)", margin: "0 0 1.25rem", lineHeight: 1.6 }}>
-          Join 1,026+ Tezos enthusiasts who get the week's top stories delivered every Monday. No spam, unsubscribe anytime.
+          Join {subscriberCount.toLocaleString()}+ Tezos enthusiasts who get the week's top stories delivered every Monday. No spam, unsubscribe anytime.
         </p>
 
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
@@ -157,7 +161,7 @@ export default function ArticleNewsletterSignup() {
         </form>
 
         <p style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.3)", margin: "0.75rem 0 0" }}>
-          📬 Sent every Monday · 1,026+ subscribers · No spam
+          📬 Sent every Monday · {subscriberCount.toLocaleString()}+ subscribers · No spam
         </p>
       </div>
     </div>

@@ -410,6 +410,35 @@
   .post-content strong { font-weight: 700; }
   .post-content em { font-style: italic; }
 
+  /* ── Light reading mode overrides ── */
+  .post-content.reading-light {
+    background: #f8f5f0 !important;
+    color: #1a1a1a !important;
+    padding: 2rem 2.5rem !important;
+    border-radius: 10px !important;
+  }
+  .post-content.reading-light p,
+  .post-content.reading-light li {
+    color: #2a2a2a !important;
+  }
+  .post-content.reading-light h1,
+  .post-content.reading-light h2,
+  .post-content.reading-light h3,
+  .post-content.reading-light h4 {
+    color: #111 !important;
+    border-color: rgba(44,125,247,0.3) !important;
+  }
+  .post-content.reading-light a { color: #1a56db !important; }
+  .post-content.reading-light blockquote {
+    background: rgba(44,125,247,0.06) !important;
+    color: #333 !important;
+  }
+  .post-content.reading-light .key-facts {
+    background: rgba(44,125,247,0.04) !important;
+  }
+  .post-content.reading-light .key-facts li { color: #333 !important; }
+  .post-content.reading-light p:first-child::first-letter { color: #1a56db !important; }
+
   /* ── Shimmer animation for image loading ── */
   @keyframes shimmer {
     0% { background-position: -200% 0; }
