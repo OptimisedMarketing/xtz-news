@@ -261,9 +261,15 @@ async function startServer() {
   // ─── Weekly Newsletter Digest ──────────────────────────────────────────────────
   app.post("/api/scheduled/weekly-digest", async (req, res) => {
     try {
-      const { sdk } = await import("./sdk");
-      const user = await sdk.authenticateRequest(req);
-      if (!user.isCron) return res.status(403).json({ error: "cron-only" });
+      // Allow cloud computer to call with CRON_SECRET_KEY header
+      const cronSecret = process.env.CRON_SECRET_KEY;
+      const headerSecret = req.headers["x-cron-secret"];
+      const isCloudCron = cronSecret && headerSecret === cronSecret;
+      if (!isCloudCron) {
+        const { sdk } = await import("./sdk");
+        const user = await sdk.authenticateRequest(req);
+        if (!user.isCron) return res.status(403).json({ error: "cron-only" });
+      }
 
       const { getDb } = await import("../db");
       const { posts, newsletterSubscribers } = await import("../../drizzle/schema");
@@ -338,9 +344,15 @@ async function startServer() {
   // ─── Governance Alert — notify subscribers when a new proposal enters voting ──
   app.post("/api/scheduled/governance-alert", async (req, res) => {
     try {
-      const { sdk } = await import("./sdk");
-      const user = await sdk.authenticateRequest(req);
-      if (!user.isCron) return res.status(403).json({ error: "cron-only" });
+      // Allow cloud computer to call with CRON_SECRET_KEY header
+      const cronSecret = process.env.CRON_SECRET_KEY;
+      const headerSecret = req.headers["x-cron-secret"];
+      const isCloudCron = cronSecret && headerSecret === cronSecret;
+      if (!isCloudCron) {
+        const { sdk } = await import("./sdk");
+        const user = await sdk.authenticateRequest(req);
+        if (!user.isCron) return res.status(403).json({ error: "cron-only" });
+      }
 
       const { getDb } = await import("../db");
       const { newsletterSubscribers } = await import("../../drizzle/schema");

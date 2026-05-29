@@ -15,10 +15,10 @@
   ],
   "git_remote": {
     "repo_url": "s3://vida-prod-gitrepo/webdev-git/310519663300283832/b4WZurEggWt4nzJXT2vL9d",
-    "access_key_id": "ASIAZV3A2ECZFHZFFKNR",
-    "secret_access_key": "hghA1clwIHVHTK92+Z3BBeZS8AtF6IZRhdFJ5uB+",
-    "session_token": "IQoJb3JpZ2luX2VjEP///////////wEaCXVzLWVhc3QtMSJHMEUCIE+IESLRTRKer2l4m3vZLtiGGabBM3FkhxDnkj+78LtdAiEAjNa0r7ejynSd5bjaoDUIhjYjqt048a+jq5fywVSwCc0q/wMIx///////////ARAEGgw2NjUzODYwOTg4NjYiDOv1zwCiM6YBtNPM/irTAyVcOWMSdYLk4sxDlE6W0QsaoIHkWpO+MxHTushREkKVcsGawjoF5kAhjNCVKw6/O6aeQOf3qBDMr3olFC+LJAuU7JYPf51yGQZ8iailIueA+Q2WR9Jpxk1dWIhe74SKJ6hceScsvaYPEChAhBL9aqD5eSwkAqFrEhWepKQqR+/5c1Uyzx1S3lvBhlckz1V1/1/j6+S3Ue28eAyn/JSDcauHAUkJ9QvDkSzcTiMOkjh/lu0/2kd9dGIgXJPxN17cuPP1wOZVm7ukZX2yzQqA7g5mWbYCpK4n/OSjgHybXJzw+Fuv4sUxWX0/R9tAd3rq4xjJ1OdL79lBw8+lLb/4749UXT0hudILLnV+11ZQ4wkgirQ+VBCts9eWti88WTKCDEZlQ+vicZ01vpkGnsrXs8L6kTkzgHUWLw+61+N0U1fsJteidaNY4gpXVE4JwMjKBNYPPPfZ+WVbYFuJgFGfjKnDzM0F4JwxnZvwKyYdFa5QuA5wTXu1DgY9QkpNrmLoX2iaA7G41TtL0NGUaYRKS96HdcMFRQmgUOOq1YvriOfFjxtrl2pm9FiV6SmMY+KCOLg+zlfRuGxp5oQ0eFlZxCFuQEs28V3bivN9SdQ0boMBFgFOMJy/5tAGOp0BjGIRNHEANeQruVm9Y8iryMQUAtQNBs7+VQBVhjJdLkKUfGTY4q0rhqlzWklt3hChIUDhroIx9uJSz9ro62jRRDAAkdgCS4RImZ7bY6chzxfFxzGPk+Wglx/6tqlyL8SU0olaCqBb25meJzdm3nqJtlJ5ubShSsOEBCKi71kixAKhh+vQoXuZqnrDgap2a6rA7DAGhieRBZKbinCE4A==",
-    "expiration": "2026-05-30T02:15:56.000Z"
+    "access_key_id": "ASIAZV3A2ECZM5KC5KXL",
+    "secret_access_key": "5YoOJ6fRtFH5G+LsTYxSRdmv+U8Uwu+kPtPFXnw5",
+    "session_token": "IQoJb3JpZ2luX2VjEP///////////wEaCXVzLWVhc3QtMSJHMEUCIDNCX1BzZ1bT4IpvDgCbmw5mRaRSW2uR7n0oDuzb3GUZAiEAi+sFnn1xVtA24yhFNSJbXV/2TMq0LwmytmoFKSEljdoq/wMIyP//////////ARAEGgw2NjUzODYwOTg4NjYiDIH9R6XkZGUAnCtbFSrTA2oFaF42LFkyiXbsYzCqupOSyxi+cWUwBpB/tpA2uSCMqO926+wCK/ukyI5iaiPZAha6XbgFnH3CooC1SwNVp7DUTz91IAXcY3pSUpkgIyanlPfix5Guxtlw14gjVPYrVakVVRMu20l7/38NSz/g2XInHuMAFebrp7hz5fGayCcdTK05nI5kjLKOzGvaDrgx8cWv1gDTcG/T2uxgWFHCbAkU6NfgpnkHQC4QAP3g+arEhvyE4VNwYQYdf/ewwWurUBRRzi7NKkU/o5dzIljlER/rNjS9vF9YxDOWsXfhqMhZxb35yo7fhHDCkEHs4kf5G0kGumOuwlo2nGcBCnfrDluyrpi8cuQUCLm7L9mogXJTdekrXC8Txno2eFxch0DsC3WnaZuRAG9xNIGgXUL7IzKu4pL2d+tmxWWY7zrWwhL/bqWKziCVB1REkTJnC87lddbiVQtghyD59bU3KIDGOYJ93TdhHN+fxHgwpIkH16HyajKs1JHiz3gd54eBBzyaiJnWtffojy6L0rDbTZDxB+DpsuNOvM3OXsSjIJpt31YLQsWwy1A1oxs1NqmO0bpHGug19xO7+tSCisvoTNDNrKEamhGMAlcmB6Vrg60Dy7HScOQcMKPN5tAGOp0B1pzUOBIDoXBPECUBvLWVvIWhsETZecDx7RGsut0TWeUqX09kugD38Z8CFWMC6ke0mViNrnadBKa7pYo2bm+a3aYBLwZwyFc0zpQPr/5DssGHENnjunbVzJ8uWx1azCQNJRQuB8e/y5F869O2RrVuGgHArw28BKdbVGhfbkrbCSFWuwx6tsMj85wVE6c8WSYFw+1b+zVNgxB8Dj9Z+A==",
+    "expiration": "2026-05-30T02:45:55.000Z"
   },
   "name": "xtz-news",
   "path": "/home/ubuntu/xtz-news",
@@ -26,6 +26,7 @@
   "secrets": {
     "BUILT_IN_FORGE_API_KEY": "iSXas2YHeKWyuXBmh8rxPs",
     "BUILT_IN_FORGE_API_URL": "https://forge.manus.ai",
+    "CRON_SECRET_KEY": "xtz-cron-2026-secret-k9mP3qR7vL2nX5wJ",
     "JWT_SECRET": "bxBvUzEiYSfbU34EnVwXQr",
     "OAUTH_SERVER_URL": "https://api.manus.im",
     "OWNER_NAME": "info",
