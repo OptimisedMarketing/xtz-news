@@ -418,6 +418,32 @@ export const explorerRouter = router({
       };
     }),
 
+  // ─── Delegation history (delegator count + staked balance over cycles) ─────────────
+  delegationHistory: publicProcedure
+    .input(z.object({
+      address: z.string(),
+      cycles: z.number().min(10).max(100).default(50),
+    }))
+    .query(async ({ input }) => {
+      const head = await tzkt(`/head`);
+      const currentCycle = head.cycle ?? 1;
+      const fromCycle = Math.max(1, currentCycle - input.cycles);
+
+      // Fetch reward history with delegator counts
+      const history = await tzkt(
+        `/rewards/bakers/${input.address}?limit=${input.cycles}&sort.asc=cycle&cycle.gt=${fromCycle}&cycle.lt=${currentCycle}`
+      );
+
+      return (history as any[]).map((r: any) => ({
+        cycle: r.cycle,
+        delegatorsCount: r.delegatorsCount ?? 0,
+        stakersCount: r.stakersCount ?? 0,
+        externalDelegatedBalance: mutez(r.externalDelegatedBalance ?? 0),
+        externalStakedBalance: mutez(r.externalStakedBalance ?? 0),
+        totalDelegated: mutez((r.externalDelegatedBalance ?? 0) + (r.externalStakedBalance ?? 0)),
+      }));
+    }),
+
   // ─── Best baker recommendation (for small delegators) ────────────────────────
   bestBaker: publicProcedure.query(async () => {
     // Fetch top 50 active bakers
