@@ -831,8 +831,8 @@ export default function BakersPage() {
 
   const { data: bakers = [], isLoading } = trpc.explorer.bakers.useQuery({ limit: 50 });
 
-  const [sortKey, setSortKey] = useState<SortKey>("rank");
-  const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [sortKey, setSortKey] = useState<SortKey>("apy");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [filterQuery, setFilterQuery] = useState("");
   const [minDelegators, setMinDelegators] = useState<number | "">("");
   const [page, setPage] = useState(1);
@@ -867,7 +867,13 @@ export default function BakersPage() {
       list = list.filter(b => b.numDelegators >= Number(minDelegators));
     }
     list.sort((a, b) => {
-      const nullFallback = (sortKey === "apy" || sortKey === "availableSpace") ? -1 : 0;
+      // Always push null APY bakers to the bottom
+      if (sortKey === "apy") {
+        if (a.apy == null && b.apy == null) return 0;
+        if (a.apy == null) return 1;
+        if (b.apy == null) return -1;
+      }
+      const nullFallback = sortKey === "availableSpace" ? -1 : 0;
       const av = a[sortKey] ?? nullFallback;
       const bv = b[sortKey] ?? nullFallback;
       return sortDir === "desc" ? bv - av : av - bv;

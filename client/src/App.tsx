@@ -37,6 +37,7 @@ import BlockPage from "./pages/explorer/BlockPage";
 import TxPage from "./pages/explorer/TxPage";
 import AddressPage from "./pages/explorer/AddressPage";
 import BakersPage from "./pages/explorer/BakersPage";
+import StakingPage from "./pages/StakingPage";
 
 function Router() {
   return (
@@ -74,6 +75,7 @@ function Router() {
       {/* Explorer routes */}
       <Route path="/explorer" component={ExplorerPage} />
       <Route path="/explorer/bakers" component={BakersPage} />
+      <Route path="/staking" component={StakingPage} />
       <Route path="/explorer/block/:id" component={BlockPage} />
       <Route path="/explorer/tx/:hash" component={TxPage} />
       <Route path="/explorer/address/:address" component={AddressPage} />

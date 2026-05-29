@@ -282,28 +282,32 @@ export const explorerRouter = router({
         batch.forEach((b: any, j: number) => { apyMap[b.address] = results[j]; });
       }
 
-      return bakers.map((b: any, i: number) => {
-        // Available staking space:
-        // limitOfStakingOverBaking is in millionths (5_000_000 = 500% of own balance)
-        // null means baker hasn't opted into staking (delegation only, no hard limit)
-        const limitRatio = b.limitOfStakingOverBaking ?? null;
-        let availableSpace: number | null = null;
-        if (limitRatio !== null) {
-          const stakingCapacity = (b.balance ?? 0) * limitRatio / 1_000_000;
-          availableSpace = Math.max(0, mutez(stakingCapacity - (b.externalStakedBalance ?? 0)));
-        }
-        return {
-          rank: i + 1,
-          address: b.address,
-          alias: b.alias || null,
-          stakingBalance: mutez(b.stakingBalance),
-          ownBalance: mutez(b.balance),
-          numDelegators: b.numDelegators ?? 0,
-          apy: apyMap[b.address] ?? null,
-          frozen: mutez(b.frozenDeposit),
-          availableSpace, // null = delegation-only (no staking limit set)
-        };
-      });
+      // Build result array, filtering out bakers with no alias AND no APY (anonymous inactive bakers)
+      const result = bakers
+        .filter((b: any) => b.alias || apyMap[b.address] != null) // keep if has a name OR has real APY data
+        .map((b: any, i: number) => {
+          const limitRatio = b.limitOfStakingOverBaking ?? null;
+          let availableSpace: number | null = null;
+          if (limitRatio !== null) {
+            const stakingCapacity = (b.balance ?? 0) * limitRatio / 1_000_000;
+            availableSpace = Math.max(0, mutez(stakingCapacity - (b.externalStakedBalance ?? 0)));
+          }
+          return {
+            rank: i + 1,
+            address: b.address,
+            alias: b.alias || null,
+            stakingBalance: mutez(b.stakingBalance),
+            ownBalance: mutez(b.balance),
+            numDelegators: b.numDelegators ?? 0,
+            apy: apyMap[b.address] ?? null,
+            frozen: mutez(b.frozenDeposit),
+            availableSpace,
+          };
+        });
+
+      // Re-assign ranks after filtering
+      result.forEach((r: any, i: number) => { r.rank = i + 1; });
+      return result;
     }),
 
   // ─── Search (address, tx hash, block level/hash) ─────────────────────────────
