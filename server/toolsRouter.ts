@@ -590,6 +590,78 @@ export const toolsRouter = router({
       });
     }),
 
+  // ─── DeFi Dashboard ───────────────────────────────────────────────────────────────────────────────────────
+  defiDashboard: publicProcedure.query(async () => {
+    const LLAMA = 'https://api.llama.fi';
+
+    const [chainTvlRes, protocolsRes, xtzPriceRes] = await Promise.allSettled([
+      fetch(`${LLAMA}/v2/historicalChainTvl/Tezos`).then(r => r.json()),
+      fetch(`${LLAMA}/protocols`).then(r => r.json()),
+      fetch('https://api.tzkt.io/v1/quotes/last').then(r => r.json()),
+    ]);
+
+    const chainHistory = chainTvlRes.status === 'fulfilled' ? chainTvlRes.value : [];
+    const allProtocols = protocolsRes.status === 'fulfilled' ? protocolsRes.value : [];
+    const xtzPrice = xtzPriceRes.status === 'fulfilled' ? (xtzPriceRes.value?.usd ?? 0) : 0;
+
+    // Filter Tezos protocols (exclude CEX)
+    const tezosProtocols = allProtocols
+      .filter((p: any) => p.chains?.includes('Tezos') && p.tvl > 0 && !['CEX', 'Bridge'].includes(p.category))
+      .sort((a: any, b: any) => b.tvl - a.tvl)
+      .slice(0, 15)
+      .map((p: any) => ({
+        name: p.name,
+        slug: p.slug,
+        tvl: p.tvl,
+        tvlPrevDay: p.tvlPrevDay ?? null,
+        change1d: p.change_1d ?? null,
+        change7d: p.change_7d ?? null,
+        category: p.category,
+        logo: p.logo || null,
+        url: p.url || null,
+        description: p.description || null,
+        chains: p.chains || [],
+      }));
+
+    // Total Tezos DeFi TVL (excluding CEX)
+    const totalTvl = tezosProtocols.reduce((s: number, p: any) => s + p.tvl, 0);
+
+    // TVL history (last 90 days)
+    const tvlHistory = chainHistory
+      .slice(-90)
+      .map((d: any) => ({ date: d.date, tvl: d.tvl }));
+
+    // TVL change
+    const latestTvl = tvlHistory[tvlHistory.length - 1]?.tvl ?? 0;
+    const prevDayTvl = tvlHistory[tvlHistory.length - 2]?.tvl ?? 0;
+    const prev7dTvl = tvlHistory[tvlHistory.length - 8]?.tvl ?? 0;
+    const prev30dTvl = tvlHistory[tvlHistory.length - 31]?.tvl ?? 0;
+    const change1d = prevDayTvl > 0 ? ((latestTvl - prevDayTvl) / prevDayTvl) * 100 : 0;
+    const change7d = prev7dTvl > 0 ? ((latestTvl - prev7dTvl) / prev7dTvl) * 100 : 0;
+    const change30d = prev30dTvl > 0 ? ((latestTvl - prev30dTvl) / prev30dTvl) * 100 : 0;
+
+    // Category breakdown
+    const categoryMap: Record<string, number> = {};
+    for (const p of tezosProtocols) {
+      categoryMap[p.category] = (categoryMap[p.category] || 0) + p.tvl;
+    }
+    const categories = Object.entries(categoryMap)
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, tvl]) => ({ name, tvl }));
+
+    return {
+      xtzPrice,
+      chainTvl: latestTvl,
+      chainTvlChange1d: parseFloat(change1d.toFixed(2)),
+      chainTvlChange7d: parseFloat(change7d.toFixed(2)),
+      chainTvlChange30d: parseFloat(change30d.toFixed(2)),
+      totalDeFiTvl: totalTvl,
+      tvlHistory,
+      protocols: tezosProtocols,
+      categories,
+    };
+  }),
+
   // ─── Smart Contract Inspector ───────────────────────────────────────────────────────────────────────────────────────
   contractInspect: publicProcedure
     .input(z.object({ address: z.string().min(10) }))

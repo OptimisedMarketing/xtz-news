@@ -110,6 +110,15 @@ const TOOLS = [
     badgeColor: "#22c55e",
     tags: ["Smart Contracts", "Storage", "Entrypoints", "DeFi"],
   },
+  {
+    href: "/tools/defi",
+    icon: "🏦",
+    title: "DeFi Dashboard",
+    description: "Live Tezos DeFi overview: chain TVL, 90-day chart, protocol rankings with 24h/7d changes, and category breakdown (DEX, Synthetics, CDP, Lending). Powered by DeFiLlama.",
+    badge: "Live",
+    badgeColor: "#2c7df7",
+    tags: ["DeFi", "TVL", "Protocols", "DeFiLlama"],
+  },
 ];
 
 export default function ToolsPage() {
