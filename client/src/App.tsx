@@ -50,6 +50,7 @@ import AirdropCheckerPage from "./pages/tools/AirdropCheckerPage";
 import BatchAddressLookupPage from "./pages/tools/BatchAddressLookupPage";
 import TnsLookupPage from "./pages/tools/TnsLookupPage";
 import LiveOpsMonitorPage from "./pages/tools/LiveOpsMonitorPage";
+import SmartContractInspectorPage from "./pages/tools/SmartContractInspectorPage";
 
 function Router() {
   return (
@@ -100,6 +101,7 @@ function Router() {
       <Route path="/tools/batch-lookup" component={BatchAddressLookupPage} />
       <Route path="/tools/tns" component={TnsLookupPage} />
       <Route path="/tools/live-ops" component={LiveOpsMonitorPage} />
+      <Route path="/tools/contract" component={SmartContractInspectorPage} />
       <Route path="/explorer/block/:id" component={BlockPage} />
       <Route path="/explorer/tx/:hash" component={TxPage} />
       <Route path="/explorer/address/:address" component={AddressPage} />

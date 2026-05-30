@@ -101,6 +101,15 @@ const TOOLS = [
     badgeColor: "#2c7df7",
     tags: ["Live Feed", "Transactions", "Delegations", "Tokens"],
   },
+  {
+    href: "/tools/contract",
+    icon: "📜",
+    title: "Smart Contract Inspector",
+    description: "Inspect any Tezos KT1 contract — view live storage with interactive JSON viewer, all entrypoints with parameter schemas, recent callers, and similar contracts.",
+    badge: "Read-only",
+    badgeColor: "#22c55e",
+    tags: ["Smart Contracts", "Storage", "Entrypoints", "DeFi"],
+  },
 ];
 
 export default function ToolsPage() {
@@ -190,7 +199,7 @@ export default function ToolsPage() {
         <div style={{ marginTop: "3rem", padding: "1.5rem", background: "rgba(44,125,247,0.04)", border: "1px dashed rgba(44,125,247,0.2)", borderRadius: "10px" }}>
           <div style={{ fontSize: "0.72rem", fontWeight: 800, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.75rem" }}>Coming Soon</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
-            {["Token Explorer", "Smart Contract Inspector", "Tezos Wallet Connect (Beacon)"].map(name => (
+            {["Token Explorer", "Tezos Wallet Connect (Beacon)", "Multi-sig Transaction Builder"].map(name => (
               <span key={name} style={{ fontSize: "0.78rem", padding: "0.35rem 0.875rem", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "20px", color: "rgba(255,255,255,0.35)" }}>
                 {name}
               </span>

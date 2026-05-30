@@ -590,6 +590,72 @@ export const toolsRouter = router({
       });
     }),
 
+  // ─── Smart Contract Inspector ───────────────────────────────────────────────────────────────────────────────────────
+  contractInspect: publicProcedure
+    .input(z.object({ address: z.string().min(10) }))
+    .query(async ({ input }) => {
+      const addr = input.address.trim();
+      if (!addr.startsWith('KT')) throw new Error('Must be a KT1 contract address');
+
+      const [info, storage, entrypoints, recentCalls, similar] = await Promise.allSettled([
+        tzkt(`/contracts/${addr}`),
+        tzkt(`/contracts/${addr}/storage`),
+        tzkt(`/contracts/${addr}/entrypoints`),
+        tzkt(`/operations/transactions?target=${addr}&limit=20&sort.desc=id&status=applied`),
+        tzkt(`/contracts/${addr}/similar?limit=5`),
+      ]);
+
+      const contract = info.status === 'fulfilled' ? info.value : null;
+      if (!contract || contract.type === 'user') return null;
+
+      const storageData = storage.status === 'fulfilled' ? storage.value : null;
+      const eps = entrypoints.status === 'fulfilled' ? entrypoints.value : [];
+      const calls = recentCalls.status === 'fulfilled' ? recentCalls.value : [];
+      const sim = similar.status === 'fulfilled' ? similar.value : [];
+
+      // Summarise entrypoint call frequency from recent calls
+      const epCallCount: Record<string, number> = {};
+      for (const call of calls) {
+        const ep = call.parameter?.entrypoint || 'default';
+        epCallCount[ep] = (epCallCount[ep] || 0) + 1;
+      }
+
+      return {
+        address: addr,
+        alias: contract.alias || null,
+        balance: mutez(contract.balance),
+        creator: contract.creator?.alias || contract.creator?.address || null,
+        creatorAddress: contract.creator?.address || null,
+        numTransactions: contract.numTransactions ?? 0,
+        firstActivity: contract.firstActivityTime || null,
+        lastActivity: contract.lastActivityTime || null,
+        typeHash: contract.typeHash,
+        codeHash: contract.codeHash,
+        storage: storageData,
+        entrypoints: eps.map((ep: any) => ({
+          name: ep.name,
+          parameterSchema: ep.parameterSchema,
+          callCount: epCallCount[ep.name] || 0,
+        })),
+        recentCalls: calls.slice(0, 20).map((call: any) => ({
+          hash: call.hash,
+          timestamp: call.timestamp,
+          sender: call.sender?.alias || call.sender?.address || '',
+          senderAddress: call.sender?.address || '',
+          entrypoint: call.parameter?.entrypoint || 'default',
+          amount: mutez(call.amount),
+          parameter: call.parameter?.value,
+          status: call.status,
+        })),
+        similarContracts: sim.slice(0, 5).map((c: any) => ({
+          address: c.address,
+          alias: c.alias || null,
+          balance: mutez(c.balance),
+          numTransactions: c.numTransactions ?? 0,
+        })),
+      };
+    }),
+
   // ─── Tezos Name Service Lookup ───────────────────────────────────────────────────────────────────────────────────────
   tnsLookup: publicProcedure
     .input(z.object({ query: z.string().min(1) }))
