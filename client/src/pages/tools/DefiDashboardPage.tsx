@@ -1,6 +1,6 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "wouter";
-import { ChevronRight, Home, ExternalLink, TrendingUp, TrendingDown } from "lucide-react";
+import { ChevronRight, Home, ExternalLink, TrendingUp, TrendingDown, Search, ChevronUp, ChevronDown } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 function fmtUsd(v: number) {
@@ -25,10 +25,48 @@ function getCategoryColor(cat: string) {
   return CATEGORY_COLORS[cat] || CATEGORY_COLORS.Other;
 }
 
+type SortKey = "tvl" | "change1d" | "change7d" | "name";
+type SortDir = "asc" | "desc";
+
 export default function DefiDashboardPage() {
   const { data, isLoading } = trpc.tools.defiDashboard.useQuery(undefined, {
-    staleTime: 5 * 60_000, // 5 min cache
+    staleTime: 5 * 60_000,
   });
+
+  const [categoryFilter, setCategoryFilter] = useState<string>("All");
+  const [searchFilter, setSearchFilter] = useState("");
+  const [sortKey, setSortKey] = useState<SortKey>("tvl");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
+
+  const handleSort = (key: SortKey) => {
+    if (sortKey === key) setSortDir(d => d === "desc" ? "asc" : "desc");
+    else { setSortKey(key); setSortDir("desc"); }
+  };
+
+  const categories = useMemo(() => {
+    if (!data?.protocols) return [];
+    const cats = Array.from(new Set((data.protocols as any[]).map((p: any) => p.category).filter(Boolean)));
+    return ["All", ...cats.sort()];
+  }, [data?.protocols]);
+
+  const filteredProtocols = useMemo(() => {
+    if (!data?.protocols) return [];
+    let list = [...(data.protocols as any[])];
+    if (categoryFilter !== "All") list = list.filter((p: any) => p.category === categoryFilter);
+    if (searchFilter.trim()) {
+      const q = searchFilter.toLowerCase();
+      list = list.filter((p: any) => p.name.toLowerCase().includes(q) || (p.description || "").toLowerCase().includes(q));
+    }
+    list.sort((a: any, b: any) => {
+      const dir = sortDir === "desc" ? -1 : 1;
+      if (sortKey === "tvl") return dir * (a.tvl - b.tvl);
+      if (sortKey === "change1d") return dir * ((a.change1d ?? -999) - (b.change1d ?? -999));
+      if (sortKey === "change7d") return dir * ((a.change7d ?? -999) - (b.change7d ?? -999));
+      if (sortKey === "name") return dir * a.name.localeCompare(b.name);
+      return 0;
+    });
+    return list;
+  }, [data?.protocols, categoryFilter, searchFilter, sortKey, sortDir]);
 
   // Build TVL chart
   const chartData = data?.tvlHistory || [];
@@ -199,24 +237,66 @@ export default function DefiDashboardPage() {
 
             {/* Protocol table */}
             <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "10px", overflow: "hidden" }}>
-              <div style={{ padding: "1rem 1.25rem", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <span style={{ fontWeight: 800, color: "#fff", fontSize: "0.88rem" }}>Tezos DeFi Protocols</span>
-                <a href="https://defillama.com/chain/Tezos" target="_blank" rel="noopener noreferrer"
-                  style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", fontSize: "0.7rem", color: "#2c7df7", textDecoration: "none", fontWeight: 700 }}>
-                  View on DeFiLlama <ExternalLink size={10} />
-                </a>
+              <div style={{ padding: "1rem 1.25rem", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.875rem", flexWrap: "wrap", gap: "0.5rem" }}>
+                  <span style={{ fontWeight: 800, color: "#fff", fontSize: "0.88rem" }}>Tezos DeFi Protocols</span>
+                  <a href="https://defillama.com/chain/Tezos" target="_blank" rel="noopener noreferrer"
+                    style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", fontSize: "0.7rem", color: "#2c7df7", textDecoration: "none", fontWeight: 700 }}>
+                    View on DeFiLlama <ExternalLink size={10} />
+                  </a>
+                </div>
+                {/* Filter + search row */}
+                <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
+                  {/* Search */}
+                  <div style={{ position: "relative", flex: "1 1 200px" }}>
+                    <Search size={12} style={{ position: "absolute", left: "0.6rem", top: "50%", transform: "translateY(-50%)", color: "rgba(255,255,255,0.3)", pointerEvents: "none" }} />
+                    <input value={searchFilter} onChange={(e) => setSearchFilter(e.target.value)}
+                      placeholder="Search protocols…"
+                      style={{ width: "100%", padding: "0.4rem 0.75rem 0.4rem 2rem", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "5px", color: "#fff", fontSize: "0.78rem", outline: "none", fontFamily: "inherit" }} />
+                  </div>
+                  {/* Category pills */}
+                  <div style={{ display: "flex", gap: "0.3rem", flexWrap: "wrap" }}>
+                    {categories.map(cat => (
+                      <button key={cat} onClick={() => setCategoryFilter(cat)}
+                        style={{ padding: "0.25rem 0.7rem", background: categoryFilter === cat ? `${getCategoryColor(cat === "All" ? "Dexs" : cat)}22` : "rgba(255,255,255,0.05)", border: `1px solid ${categoryFilter === cat ? getCategoryColor(cat === "All" ? "Dexs" : cat) + "55" : "rgba(255,255,255,0.1)"}`, borderRadius: "12px", color: categoryFilter === cat ? (cat === "All" ? "#2c7df7" : getCategoryColor(cat)) : "rgba(255,255,255,0.4)", fontSize: "0.65rem", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                  {/* Result count */}
+                  <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.3)", marginLeft: "auto", whiteSpace: "nowrap" }}>
+                    {filteredProtocols.length} protocol{filteredProtocols.length !== 1 ? "s" : ""}
+                  </span>
+                </div>
               </div>
               <div style={{ overflowX: "auto" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.78rem" }}>
                   <thead>
                     <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                      {["#", "Protocol", "Category", "TVL", "24h Change", "7d Change"].map(h => (
-                        <th key={h} style={{ padding: "0.6rem 1rem", textAlign: "left", fontWeight: 700, color: "rgba(255,255,255,0.35)", fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.07em", whiteSpace: "nowrap" }}>{h}</th>
-                      ))}
+                      <th style={{ padding: "0.6rem 1rem", textAlign: "left", fontWeight: 700, color: "rgba(255,255,255,0.35)", fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.07em", whiteSpace: "nowrap" }}>#</th>
+                      {(["name", "category", "tvl", "change1d", "change7d"] as string[]).map((key) => {
+                        const labels: Record<string, string> = { name: "Protocol", category: "Category", tvl: "TVL", change1d: "24h Change", change7d: "7d Change" };
+                        const isCategory = key === "category";
+                        const isSorted = !isCategory && sortKey === (key as SortKey);
+                        const sortable = !isCategory;
+                        return (
+                          <th key={key}
+                            onClick={sortable ? () => handleSort(key as SortKey) : undefined}
+                            style={{ padding: "0.6rem 1rem", textAlign: "left", fontWeight: 700, color: isSorted ? "#2c7df7" : "rgba(255,255,255,0.35)", fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.07em", whiteSpace: "nowrap", cursor: sortable ? "pointer" : "default", userSelect: "none" }}>
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: "0.2rem" }}>
+                              {labels[key]}
+                              {isSorted ? (sortDir === "desc" ? <ChevronDown size={10} /> : <ChevronUp size={10} />) : null}
+                            </span>
+                          </th>
+                        );
+                      })}
                     </tr>
                   </thead>
                   <tbody>
-                    {data.protocols.map((p: any, i: number) => (
+                    {filteredProtocols.length === 0 && (
+                      <tr><td colSpan={6} style={{ padding: "2rem", textAlign: "center", color: "rgba(255,255,255,0.3)", fontSize: "0.85rem" }}>No protocols match your filters.</td></tr>
+                    )}
+                    {filteredProtocols.map((p: any, i: number) => (
                       <tr key={p.slug} style={{ borderBottom: i < data.protocols.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", cursor: "pointer" }}
                         onClick={() => window.location.href = `/tools/defi/${p.slug}`}>
                         <td style={{ padding: "0.75rem 1rem", color: "rgba(255,255,255,0.3)", fontSize: "0.72rem" }}>{i + 1}</td>
