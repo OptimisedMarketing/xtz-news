@@ -590,6 +590,171 @@ export const toolsRouter = router({
       });
     }),
 
+  // ─── Tezos Name Service Lookup ───────────────────────────────────────────────────────────────────────────────────────
+  tnsLookup: publicProcedure
+    .input(z.object({ query: z.string().min(1) }))
+    .query(async ({ input }) => {
+      const q = input.query.trim().toLowerCase();
+      const isTezDomain = q.endsWith('.tez');
+      const isAddress = q.startsWith('tz') || q.startsWith('kt');
+
+      const GQL = 'https://api.tezos.domains/graphql';
+      const gql = async (query: string) => {
+        const res = await fetch(GQL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query }),
+        });
+        return res.json();
+      };
+
+      if (isTezDomain) {
+        // Forward lookup: domain -> address
+        const data = await gql(`{ domain(name:"${q}"){name address owner expiresAtUtc tokenId} }`);
+        const domain = data.data?.domain;
+        if (!domain) return { type: 'domain', found: false, query: q };
+
+        // Also get TzKT account info for the resolved address
+        const account = domain.address
+          ? await tzkt(`/accounts/${domain.address}`).catch(() => null)
+          : null;
+
+        // Get all domains owned by this owner
+        const ownedData = await gql(`{ domains(where:{owner:{equalTo:"${domain.owner}"}},first:20){items{name address expiresAtUtc}} }`);
+        const ownedDomains = ownedData.data?.domains?.items || [];
+
+        return {
+          type: 'domain' as const,
+          found: true,
+          query: q,
+          name: domain.name,
+          address: domain.address,
+          owner: domain.owner,
+          expiresAt: domain.expiresAtUtc,
+          tokenId: domain.tokenId,
+          accountBalance: account ? mutez(account.balance) : null,
+          accountAlias: account?.alias || null,
+          ownedDomains,
+        };
+      }
+
+      if (isAddress) {
+        // Reverse lookup: address -> domains
+        const data = await gql(`{ domains(where:{address:{equalTo:"${q}"}},first:20){items{name address owner expiresAtUtc tokenId}} }`);
+        const domains = data.data?.domains?.items || [];
+
+        // Also get owned domains
+        const ownedData = await gql(`{ domains(where:{owner:{equalTo:"${q}"}},first:20){items{name address owner expiresAtUtc}} }`);
+        const ownedDomains = ownedData.data?.domains?.items || [];
+
+        // Merge unique
+        const allDomains = [...domains];
+        for (const d of ownedDomains) {
+          if (!allDomains.find(x => x.name === d.name)) allDomains.push(d);
+        }
+
+        const account = await tzkt(`/accounts/${q}`).catch(() => null);
+
+        return {
+          type: 'address' as const,
+          found: allDomains.length > 0 || !!account,
+          query: q,
+          address: q,
+          accountAlias: account?.alias || null,
+          accountBalance: account ? mutez(account.balance) : null,
+          domains: allDomains,
+        };
+      }
+
+      // Try as domain name without .tez
+      const withTez = `${q}.tez`;
+      const data = await gql(`{ domain(name:"${withTez}"){name address owner expiresAtUtc tokenId} }`);
+      const domain = data.data?.domain;
+      if (domain) {
+        return { type: 'domain' as const, found: true, query: withTez, name: domain.name, address: domain.address, owner: domain.owner, expiresAt: domain.expiresAtUtc, tokenId: domain.tokenId, accountBalance: null, accountAlias: null, ownedDomains: [] };
+      }
+
+      return { type: 'unknown' as const, found: false, query: q };
+    }),
+
+  // ─── Live Operations Monitor ───────────────────────────────────────────────────────────────────────────────────────
+  liveOps: publicProcedure
+    .input(z.object({
+      types: z.array(z.enum(['transaction', 'delegation', 'origination', 'transfer'])).default(['transaction', 'delegation']),
+      minAmount: z.number().default(0),
+      limit: z.number().min(5).max(50).default(30),
+    }))
+    .query(async ({ input }) => {
+      const { types, minAmount, limit } = input;
+      const results: any[] = [];
+
+      // Fetch each requested type in parallel
+      await Promise.allSettled([
+        types.includes('transaction') ? tzkt(
+          `/operations/transactions?limit=${limit}&sort.desc=id&status=applied${minAmount > 0 ? `&amount.gt=${Math.floor(minAmount * 1_000_000)}` : ''}`
+        ).then(ops => results.push(...ops.map((op: any) => ({
+          hash: op.hash,
+          type: 'transaction',
+          timestamp: op.timestamp,
+          sender: op.sender?.alias || op.sender?.address || '',
+          senderAddress: op.sender?.address || '',
+          target: op.target?.alias || op.target?.address || '',
+          targetAddress: op.target?.address || '',
+          amount: mutez(op.amount),
+          level: op.level,
+        })))) : Promise.resolve(),
+
+        types.includes('delegation') ? tzkt(
+          `/operations/delegations?limit=${Math.min(limit, 20)}&sort.desc=id&status=applied`
+        ).then(ops => results.push(...ops.map((op: any) => ({
+          hash: op.hash,
+          type: 'delegation',
+          timestamp: op.timestamp,
+          sender: op.sender?.alias || op.sender?.address || '',
+          senderAddress: op.sender?.address || '',
+          target: op.newDelegate?.alias || op.newDelegate?.address || 'Undelegated',
+          targetAddress: op.newDelegate?.address || '',
+          amount: mutez(op.amount ?? 0),
+          level: op.level,
+        })))) : Promise.resolve(),
+
+        types.includes('origination') ? tzkt(
+          `/operations/originations?limit=${Math.min(limit, 10)}&sort.desc=id&status=applied`
+        ).then(ops => results.push(...ops.map((op: any) => ({
+          hash: op.hash,
+          type: 'origination',
+          timestamp: op.timestamp,
+          sender: op.sender?.alias || op.sender?.address || '',
+          senderAddress: op.sender?.address || '',
+          target: op.originatedContract?.address || '',
+          targetAddress: op.originatedContract?.address || '',
+          amount: mutez(op.balance ?? 0),
+          level: op.level,
+        })))) : Promise.resolve(),
+
+        types.includes('transfer') ? tzkt(
+          `/tokens/transfers?limit=${Math.min(limit, 20)}&sort.desc=id`
+        ).then(ops => results.push(...ops.map((op: any) => ({
+          hash: op.transactionId?.toString() || '',
+          type: 'transfer',
+          timestamp: op.timestamp,
+          sender: op.from?.alias || op.from?.address || 'Mint',
+          senderAddress: op.from?.address || '',
+          target: op.to?.alias || op.to?.address || '',
+          targetAddress: op.to?.address || '',
+          amount: 0,
+          tokenName: op.token?.metadata?.name || op.token?.contract?.alias || 'Token',
+          tokenAmount: op.amount,
+          level: op.level,
+        })))) : Promise.resolve(),
+      ]);
+
+      // Sort by timestamp desc and limit
+      return results
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        .slice(0, limit);
+    }),
+
   // ─── Airdrop Checker ───────────────────────────────────────────────────────────────────────────────────────
   airdropCheck: publicProcedure
     .input(z.object({ address: z.string().min(10) }))

@@ -48,6 +48,8 @@ import AddressBookPage from "./pages/tools/AddressBookPage";
 import TokenPriceHistoryPage from "./pages/tools/TokenPriceHistoryPage";
 import AirdropCheckerPage from "./pages/tools/AirdropCheckerPage";
 import BatchAddressLookupPage from "./pages/tools/BatchAddressLookupPage";
+import TnsLookupPage from "./pages/tools/TnsLookupPage";
+import LiveOpsMonitorPage from "./pages/tools/LiveOpsMonitorPage";
 
 function Router() {
   return (
@@ -96,6 +98,8 @@ function Router() {
       <Route path="/tools/token-price" component={TokenPriceHistoryPage} />
       <Route path="/tools/airdrop" component={AirdropCheckerPage} />
       <Route path="/tools/batch-lookup" component={BatchAddressLookupPage} />
+      <Route path="/tools/tns" component={TnsLookupPage} />
+      <Route path="/tools/live-ops" component={LiveOpsMonitorPage} />
       <Route path="/explorer/block/:id" component={BlockPage} />
       <Route path="/explorer/tx/:hash" component={TxPage} />
       <Route path="/explorer/address/:address" component={AddressPage} />

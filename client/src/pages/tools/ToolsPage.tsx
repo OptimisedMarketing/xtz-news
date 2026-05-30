@@ -83,6 +83,24 @@ const TOOLS = [
     badgeColor: "#f97316",
     tags: ["Batch", "CSV Export", "DAOs", "Events"],
   },
+  {
+    href: "/tools/tns",
+    icon: "🌐",
+    title: "TNS Lookup",
+    description: "Resolve .tez domains to addresses, or enter a Tezos address to find all .tez names it owns. Shows expiry dates and all domains by the same owner.",
+    badge: "Read-only",
+    badgeColor: "#22c55e",
+    tags: [".tez Domains", "Reverse Lookup", "Tezos Domains"],
+  },
+  {
+    href: "/tools/live-ops",
+    icon: "⚡",
+    title: "Live Operations Monitor",
+    description: "Real-time feed of Tezos on-chain operations: transactions, delegations, contract originations, and token transfers. Filter by type and minimum amount.",
+    badge: "Live",
+    badgeColor: "#2c7df7",
+    tags: ["Live Feed", "Transactions", "Delegations", "Tokens"],
+  },
 ];
 
 export default function ToolsPage() {
@@ -172,7 +190,7 @@ export default function ToolsPage() {
         <div style={{ marginTop: "3rem", padding: "1.5rem", background: "rgba(44,125,247,0.04)", border: "1px dashed rgba(44,125,247,0.2)", borderRadius: "10px" }}>
           <div style={{ fontSize: "0.72rem", fontWeight: 800, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.75rem" }}>Coming Soon</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
-            {["Mempool Monitor", "Token Explorer", "Tezos Name Service Lookup"].map(name => (
+            {["Token Explorer", "Smart Contract Inspector", "Tezos Wallet Connect (Beacon)"].map(name => (
               <span key={name} style={{ fontSize: "0.78rem", padding: "0.35rem 0.875rem", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "20px", color: "rgba(255,255,255,0.35)" }}>
                 {name}
               </span>
