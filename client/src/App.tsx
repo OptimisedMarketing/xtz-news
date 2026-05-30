@@ -52,6 +52,7 @@ import TnsLookupPage from "./pages/tools/TnsLookupPage";
 import LiveOpsMonitorPage from "./pages/tools/LiveOpsMonitorPage";
 import SmartContractInspectorPage from "./pages/tools/SmartContractInspectorPage";
 import DefiDashboardPage from "./pages/tools/DefiDashboardPage";
+import DefiProtocolPage from "./pages/tools/DefiProtocolPage";
 
 function Router() {
   return (
@@ -104,6 +105,7 @@ function Router() {
       <Route path="/tools/live-ops" component={LiveOpsMonitorPage} />
       <Route path="/tools/contract" component={SmartContractInspectorPage} />
       <Route path="/tools/defi" component={DefiDashboardPage} />
+      <Route path="/tools/defi/:slug" component={DefiProtocolPage} />
       <Route path="/explorer/block/:id" component={BlockPage} />
       <Route path="/explorer/tx/:hash" component={TxPage} />
       <Route path="/explorer/address/:address" component={AddressPage} />

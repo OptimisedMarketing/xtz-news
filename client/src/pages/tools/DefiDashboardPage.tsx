@@ -217,7 +217,8 @@ export default function DefiDashboardPage() {
                   </thead>
                   <tbody>
                     {data.protocols.map((p: any, i: number) => (
-                      <tr key={p.slug} style={{ borderBottom: i < data.protocols.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
+                      <tr key={p.slug} style={{ borderBottom: i < data.protocols.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", cursor: "pointer" }}
+                        onClick={() => window.location.href = `/tools/defi/${p.slug}`}>
                         <td style={{ padding: "0.75rem 1rem", color: "rgba(255,255,255,0.3)", fontSize: "0.72rem" }}>{i + 1}</td>
                         <td style={{ padding: "0.75rem 1rem" }}>
                           <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
@@ -226,7 +227,7 @@ export default function DefiDashboardPage() {
                                 onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
                             )}
                             <div>
-                              <div style={{ fontWeight: 700, color: "#fff", fontSize: "0.85rem" }}>{p.name}</div>
+                              <div style={{ fontWeight: 700, color: "#2c7df7", fontSize: "0.85rem", textDecoration: "underline", textDecorationColor: "rgba(44,125,247,0.3)" }}>{p.name}</div>
                               {p.description && (
                                 <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.3)", maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                                   {p.description}

@@ -590,6 +590,90 @@ export const toolsRouter = router({
       });
     }),
 
+  // ─── DeFi Protocol Detail ───────────────────────────────────────────────────────────────────────────────────────
+  defiProtocol: publicProcedure
+    .input(z.object({ slug: z.string().min(1) }))
+    .query(async ({ input }) => {
+      const { slug } = input;
+      const LLAMA = 'https://api.llama.fi';
+
+      // Fetch protocol detail from DeFiLlama
+      const res = await fetch(`${LLAMA}/protocol/${slug}`);
+      if (!res.ok) return null;
+      const p = await res.json();
+
+      if (!p.name) return null;
+
+      // Extract TVL history (last 90 days)
+      const tvlHistory = (p.tvl || []).slice(-90).map((d: any) => ({
+        date: d.date,
+        tvl: d.totalLiquidityUSD,
+      }));
+
+      // Get token price from CoinGecko if gecko_id available
+      let tokenPrice: number | null = null;
+      let tokenMarketCap: number | null = null;
+      let tokenChange24h: number | null = null;
+      if (p.gecko_id) {
+        try {
+          const cgRes = await fetch(
+            `https://api.coingecko.com/api/v3/simple/price?ids=${p.gecko_id}&vs_currencies=usd&include_24hr_change=true&include_market_cap=true`,
+            { headers: { 'User-Agent': 'XTZNews/1.0' } }
+          );
+          const cgData = await cgRes.json();
+          const tokenData = cgData[p.gecko_id];
+          if (tokenData) {
+            tokenPrice = tokenData.usd ?? null;
+            tokenMarketCap = tokenData.usd_market_cap ?? null;
+            tokenChange24h = tokenData.usd_24h_change ?? null;
+          }
+        } catch {}
+      }
+
+      // Extract contract addresses from Tezos chains
+      const contractAddresses: string[] = [];
+      if (p.address && p.address.startsWith('tezos:')) {
+        contractAddresses.push(p.address.replace('tezos:', ''));
+      }
+
+      // TVL stats
+      const currentTvl = tvlHistory[tvlHistory.length - 1]?.tvl ?? 0;
+      const prevDayTvl = tvlHistory[tvlHistory.length - 2]?.tvl ?? 0;
+      const prev7dTvl = tvlHistory[tvlHistory.length - 8]?.tvl ?? 0;
+      const prev30dTvl = tvlHistory[tvlHistory.length - 31]?.tvl ?? 0;
+      const change1d = prevDayTvl > 0 ? ((currentTvl - prevDayTvl) / prevDayTvl) * 100 : 0;
+      const change7d = prev7dTvl > 0 ? ((currentTvl - prev7dTvl) / prev7dTvl) * 100 : 0;
+      const change30d = prev30dTvl > 0 ? ((currentTvl - prev30dTvl) / prev30dTvl) * 100 : 0;
+      const maxTvl = tvlHistory.length > 0 ? Math.max(...tvlHistory.map((d: any) => d.tvl)) : 0;
+
+      return {
+        slug,
+        name: p.name,
+        logo: p.logo || null,
+        description: p.description || null,
+        url: p.url || null,
+        twitter: p.twitter || null,
+        github: p.github || null,
+        category: p.category || null,
+        audits: p.audits ? parseInt(p.audits) : 0,
+        auditLinks: p.audit_links || [],
+        geckoId: p.gecko_id || null,
+        symbol: p.symbol || null,
+        contractAddresses,
+        stablecoins: p.stablecoins || [],
+        chains: p.chains || [],
+        currentTvl,
+        tvlChange1d: parseFloat(change1d.toFixed(2)),
+        tvlChange7d: parseFloat(change7d.toFixed(2)),
+        tvlChange30d: parseFloat(change30d.toFixed(2)),
+        maxTvl,
+        tvlHistory,
+        tokenPrice,
+        tokenMarketCap,
+        tokenChange24h: tokenChange24h !== null ? parseFloat(tokenChange24h.toFixed(2)) : null,
+      };
+    }),
+
   // ─── DeFi Dashboard ───────────────────────────────────────────────────────────────────────────────────────
   defiDashboard: publicProcedure.query(async () => {
     const LLAMA = 'https://api.llama.fi';
