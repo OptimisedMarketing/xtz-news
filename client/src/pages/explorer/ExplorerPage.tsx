@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useLocation } from "wouter";
 import { Search, Layers, ArrowRightLeft, TrendingUp, TrendingDown, Users, Zap, Shield, ExternalLink, RefreshCw, ChevronRight, Vote, ChevronDown, ChevronUp, ArrowUpDown } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-import { useSEO } from "@/hooks/useSEO";
+import { useSEO, buildWebPageSchema, buildFAQSchema } from "@/hooks/useSEO";
 
 function formatXtz(v: number, decimals = 2) {
   if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(2)}M ꜩ`;
@@ -171,6 +171,17 @@ export default function ExplorerPage() {
     description: "Explore the Tezos blockchain live. Search blocks, transactions, addresses, bakers, and token transfers on the XTZ.News Tezos explorer.",
     keywords: "Tezos explorer, Tezos blockchain explorer, XTZ explorer, Tezos blocks, Tezos transactions, Tezos address lookup",
     canonical: "https://xtz.news/explorer",
+    jsonLd: [
+      buildWebPageSchema({ title: "Tezos Blockchain Explorer", description: "Explore the Tezos blockchain live. Search blocks, transactions, addresses, bakers, and token transfers.", url: "https://xtz.news/explorer", breadcrumbs: [{ name: "Home", url: "https://xtz.news" }, { name: "Explorer", url: "https://xtz.news/explorer" }] }),
+      buildFAQSchema([
+        { question: "What is a Tezos block explorer?", answer: "A Tezos block explorer is a tool that lets you view and search all public data on the Tezos blockchain, including blocks, transactions, wallet addresses, smart contracts, and token transfers. The XTZ.News Explorer shows live Tezos data including the current block height, XTZ price, active bakers, and recent transactions." },
+        { question: "How do I look up a Tezos transaction?", answer: "To look up a Tezos transaction, paste the operation hash (starting with 'o') into the XTZ.News Explorer search bar. You can also search by block level (a number), block hash (starting with 'B'), or wallet address (starting with tz1, tz2, tz3, or KT1)." },
+        { question: "What is a Tezos block?", answer: "A Tezos block is a batch of validated transactions added to the Tezos blockchain approximately every 6 seconds. Each block has a unique hash, level (block number), timestamp, and contains all operations (transactions, delegations, originations) included by the baker who created it." },
+        { question: "What is a Tezos baker?", answer: "A Tezos baker is a node operator who validates transactions and creates new blocks on the Tezos blockchain. Bakers must hold or have delegated to them a minimum amount of XTZ (baking power). In return, they earn baking rewards that are shared with their delegators. There are currently over 300 active bakers on Tezos." },
+        { question: "What is a Tezos cycle?", answer: "A Tezos cycle is a fixed period of 14,400 blocks (approximately 2.8 days at 6 seconds per block). Cycles are used to calculate baking rights, distribute rewards, and govern the Tezos protocol voting process. Staking rewards are distributed at the end of each cycle." },
+        { question: "How do I search for a Tezos address?", answer: "Enter any Tezos address (tz1, tz2, tz3 for user accounts, or KT1 for smart contracts) in the XTZ.News Explorer search bar. You'll see the account balance, transaction history, delegation status, and for bakers, their staking balance and number of delegators." },
+      ]),
+    ],
   });
 
   const [, navigate] = useLocation();

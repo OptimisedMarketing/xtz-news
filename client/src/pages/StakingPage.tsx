@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link } from "wouter";
-import { ExternalLink, Search, Copy, ChevronRight, Home, X, DollarSign, TrendingUp } from "lucide-react";
+import { ExternalLink, Search, Copy, ChevronRight, Home, X, DollarSign, TrendingUp, ChevronDown } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useSEO, buildToolSchema, buildFAQSchema } from "@/hooks/useSEO";
 
@@ -468,6 +468,46 @@ export default function StakingPage() {
           </div>
         </div>
       </div>
+
+      {/* FAQ Accordion Section */}
+      <div className="container" style={{ padding: "3rem 1.25rem 4rem" }}>
+        <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+          <h2 style={{ fontSize: "1.3rem", fontWeight: 900, color: "#fff", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <span style={{ color: "#2c7df7" }}>?</span> Frequently Asked Questions
+          </h2>
+          <FaqAccordion faqs={[
+            { q: "What is Tezos staking?", a: "Tezos staking (also called delegation) lets you earn rewards by delegating your XTZ to a baker. Bakers validate transactions and share a portion of their rewards with delegators. You keep full control of your XTZ — it never leaves your wallet." },
+            { q: "What APY can I earn staking Tezos?", a: "Tezos staking APY typically ranges from 5% to 10% annually, depending on the baker you choose. The XTZ.News Staking Calculator shows real-time APY for all active bakers based on their last completed cycle rewards." },
+            { q: "How do I choose the best Tezos baker?", a: "Look for a baker with high APY (above 8% is excellent), low fee rate (under 10%), high uptime (above 99%), and available staking space. The XTZ.News Best Baker recommendation automatically scores all bakers and highlights the top choice for small delegators." },
+            { q: "Is Tezos staking safe?", a: "Yes. When you delegate XTZ, your tokens never leave your wallet. You simply assign your baking rights to a baker. There is no lock-up period — you can undelegate at any time. The baker cannot access or spend your XTZ." },
+            { q: "How long does it take to start earning Tezos staking rewards?", a: "After delegating, it takes approximately 2-3 cycles (around 5-7 days) before you start receiving rewards. Each Tezos cycle is approximately 2.8 days long (14,400 blocks at 6 seconds per block)." },
+            { q: "What is the minimum amount to stake Tezos?", a: "There is no minimum amount to delegate XTZ. You can delegate any amount, even 1 XTZ. However, some bakers may have a minimum delegation requirement. The XTZ.News Staking Calculator works for any amount." },
+          ]} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FaqAccordion({ faqs }: { faqs: Array<{ q: string; a: string }> }) {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+      {faqs.map((faq, i) => (
+        <div key={i} style={{ background: "#05152e", border: `1px solid ${openIndex === i ? "rgba(44,125,247,0.4)" : "rgba(255,255,255,0.07)"}`, borderRadius: "8px", overflow: "hidden", transition: "border-color 0.2s" }}>
+          <button
+            onClick={() => setOpenIndex(openIndex === i ? null : i)}
+            style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", padding: "1rem 1.25rem", background: "none", border: "none", cursor: "pointer", textAlign: "left" }}>
+            <span style={{ fontSize: "0.92rem", fontWeight: 700, color: openIndex === i ? "#2c7df7" : "#fff", lineHeight: 1.4 }}>{faq.q}</span>
+            <ChevronDown size={16} style={{ color: openIndex === i ? "#2c7df7" : "rgba(255,255,255,0.4)", flexShrink: 0, transform: openIndex === i ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} />
+          </button>
+          {openIndex === i && (
+            <div style={{ padding: "0 1.25rem 1rem", fontSize: "0.88rem", color: "rgba(255,255,255,0.65)", lineHeight: 1.7 }}>
+              {faq.a}
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 }

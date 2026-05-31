@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { Search, ChevronRight, Home, ExternalLink, TrendingUp, Award, ChevronUp, ChevronDown } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import ToolBreadcrumb from "@/components/ToolBreadcrumb";
-import { useSEO, buildToolSchema } from "@/hooks/useSEO";
+import { useSEO, buildToolSchema, buildFAQSchema } from "@/hooks/useSEO";
 
 function fmtXtz(v: number) {
   if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(2)}M ꜩ`;
@@ -25,7 +25,16 @@ export default function RewardCalculatorPage() {
     description: "View baking or delegation reward history for any Tezos address. See APY per cycle, past bakers, total rewards earned, and delegation history.",
     keywords: "Tezos reward calculator, XTZ staking rewards, Tezos delegation rewards, Tezos baking APY, XTZ yield",
     canonical: "https://xtz.news/tools/rewards",
-    jsonLd: buildToolSchema({ name: "Tezos Reward Calculator", description: "View baking or delegation reward history for any Tezos address. See APY per cycle, past bakers, total rewards earned, and delegation history.", url: "https://xtz.news/tools/rewards" }),
+    jsonLd: [
+      buildToolSchema({ name: "Tezos Reward Calculator", description: "View baking or delegation reward history for any Tezos address. See APY per cycle, past bakers, total rewards earned, and delegation history.", url: "https://xtz.news/tools/rewards" }),
+      buildFAQSchema([
+        { question: "How do Tezos baking rewards work?", answer: "Tezos baking rewards are earned by bakers (validators) for creating blocks and attesting to other blocks. Rewards are calculated based on the baker's baking power (their own XTZ plus delegated XTZ). At the end of each cycle (~2.8 days), bakers receive block rewards and attestation rewards, which they share with their delegators after deducting their fee." },
+        { question: "How are Tezos delegation rewards calculated?", answer: "Delegation rewards are calculated as: (delegator balance / total baker staking balance) × baker total rewards × (1 - baker fee). The XTZ.News Reward Calculator fetches actual rewards data from TzKT for each cycle, giving you precise historical rewards rather than estimates." },
+        { question: "How often are Tezos staking rewards paid?", answer: "Tezos staking rewards are distributed once per cycle, which is approximately every 2.8 days (14,400 blocks at 6 seconds per block). However, it takes 2-3 cycles after you delegate before you start receiving rewards. Most bakers pay rewards automatically at the end of each cycle." },
+        { question: "What is the difference between Tezos baking and delegation?", answer: "Baking means running a Tezos node and actively participating in block creation and attestation. Delegation means assigning your XTZ's baking rights to a baker without moving your tokens. Bakers earn full rewards but need technical setup; delegators earn a share of rewards passively with no technical requirements." },
+        { question: "How do I check my Tezos staking rewards history?", answer: "Enter your Tezos address in the XTZ.News Reward Calculator. For baker addresses, it shows APY, total rewards, blocks baked, and missed blocks per cycle. For delegator addresses, it shows your delegation history including which bakers you've used, how long you delegated to each, and estimated rewards earned." },
+      ]),
+    ],
   });
 
   const [input, setInput] = useState("");
