@@ -3,7 +3,7 @@ import { Link, useSearch } from "wouter";
 import { Search, ChevronRight, Home, ExternalLink, ChevronLeft, ChevronRight as ChevronRightIcon } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import ToolBreadcrumb from "@/components/ToolBreadcrumb";
-import { useSEO, buildToolSchema } from "@/hooks/useSEO";
+import { useSEO, buildToolSchema, buildFAQSchema } from "@/hooks/useSEO";
 
 const PAGE_SIZE = 48;
 
@@ -30,7 +30,16 @@ export default function NftGalleryPage() {
     description: "View all Tezos NFTs held by any wallet address. Beautiful visual gallery with links to objkt.com. Free, no login required.",
     keywords: "Tezos NFT gallery, XTZ NFT viewer, Tezos NFT collection, objkt NFT, Tezos FA2 tokens",
     canonical: "https://xtz.news/tools/nft-gallery",
-    jsonLd: buildToolSchema({ name: "Tezos NFT Gallery", description: "View all Tezos NFTs held by any wallet address. Beautiful visual gallery with links to objkt.com. Free, no login required.", url: "https://xtz.news/tools/nft-gallery" }),
+    jsonLd: [
+      buildToolSchema({ name: "Tezos NFT Gallery", description: "View all Tezos NFTs held by any wallet address. Beautiful visual gallery with links to objkt.com. Free, no login required.", url: "https://xtz.news/tools/nft-gallery" }),
+      buildFAQSchema([
+        { question: "How do I view Tezos NFTs in a wallet?", answer: "Enter any Tezos wallet address (tz1, tz2, tz3) in the XTZ.News NFT Gallery. It automatically fetches and displays all FA2 NFTs held by that address in a visual grid, with links to each NFT on objkt.com. No wallet connection or login required." },
+        { question: "What NFT marketplaces are on Tezos?", answer: "The main Tezos NFT marketplaces are objkt.com (the largest, covering all FA2 NFTs), Teia (community-run, formerly Hic et Nunc), fxhash (generative art platform), and Versum (curated digital art). All Tezos NFTs use the FA2 token standard and can be viewed in the XTZ.News NFT Gallery." },
+        { question: "What is an FA2 NFT on Tezos?", answer: "FA2 is the Tezos token standard (TZIP-12) that supports both fungible and non-fungible tokens. Most Tezos NFTs are FA2 tokens stored on smart contracts. Unlike Ethereum ERC-721, FA2 supports multiple token types in a single contract, making it more gas-efficient." },
+        { question: "How do I buy Tezos NFTs?", answer: "To buy Tezos NFTs, you need a Tezos wallet (Temple Wallet or Kukai), some XTZ for the purchase and gas fees, and an account on objkt.com or another Tezos marketplace. Gas fees on Tezos are typically under $0.01, making NFT trading very affordable compared to Ethereum." },
+        { question: "What is objkt.com?", answer: "objkt.com is the largest Tezos NFT marketplace, supporting all FA2 token contracts. It offers buying, selling, and collecting Tezos NFTs with very low fees. The XTZ.News NFT Gallery links directly to each NFT on objkt.com for easy purchasing." },
+      ]),
+    ],
   });
 
   const search = useSearch();

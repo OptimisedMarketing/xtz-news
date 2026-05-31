@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { ChevronRight, Home, ExternalLink, TrendingUp, TrendingDown, Search, ChevronUp, ChevronDown } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import ToolBreadcrumb from "@/components/ToolBreadcrumb";
-import { useSEO, buildToolSchema } from "@/hooks/useSEO";
+import { useSEO, buildToolSchema, buildFAQSchema } from "@/hooks/useSEO";
 
 function fmtUsd(v: number) {
   if (v >= 1_000_000_000) return `$${(v / 1_000_000_000).toFixed(2)}B`;
@@ -36,7 +36,16 @@ export default function DefiDashboardPage() {
     description: "Live Tezos DeFi overview: chain TVL, 90-day chart, protocol rankings with 24h/7d changes, and category breakdown. Powered by DeFiLlama.",
     keywords: "Tezos DeFi, Tezos TVL, Youves, QuipuSwap, Kolibri, Tezos DeFi protocols, XTZ DeFi dashboard",
     canonical: "https://xtz.news/tools/defi",
-    jsonLd: buildToolSchema({ name: "Tezos DeFi Dashboard", description: "Live Tezos DeFi overview: chain TVL, 90-day chart, protocol rankings with 24h/7d changes, and category breakdown. Powered by DeFiLlama.", url: "https://xtz.news/tools/defi" }),
+    jsonLd: [
+      buildToolSchema({ name: "Tezos DeFi Dashboard", description: "Live Tezos DeFi overview: chain TVL, 90-day chart, protocol rankings with 24h/7d changes, and category breakdown. Powered by DeFiLlama.", url: "https://xtz.news/tools/defi" }),
+      buildFAQSchema([
+        { question: "What is Tezos DeFi TVL?", answer: "Tezos DeFi TVL (Total Value Locked) is the total value of cryptocurrency locked in Tezos decentralised finance protocols. As of 2025, the Tezos chain TVL is approximately $27 million USD. The XTZ.News DeFi Dashboard shows live TVL data updated every 5 minutes, sourced from DeFiLlama." },
+        { question: "What are the top Tezos DeFi protocols?", answer: "The top Tezos DeFi protocols by TVL include Youves (synthetic assets and stablecoins), Sirius DEX (decentralised exchange), Kolibri (CDP and kUSD stablecoin), QuipuSwap (AMM DEX), and ctez (synthetic tez). The XTZ.News DeFi Dashboard ranks all active protocols by TVL with 24h and 7d change data." },
+        { question: "How does Tezos DeFi compare to other blockchains?", answer: "Tezos DeFi has a TVL of approximately $27 million USD, making it a smaller but active ecosystem. Tezos offers very low transaction fees (typically under $0.01), fast finality, and a self-amending governance model that allows protocol upgrades without hard forks, making it attractive for DeFi builders." },
+        { question: "What is Youves on Tezos?", answer: "Youves is the largest Tezos DeFi protocol by TVL, offering synthetic assets and stablecoins on Tezos. Users can mint uUSD (a USD-pegged stablecoin), uBTC (synthetic Bitcoin), and uXTZ by locking XTZ as collateral. Youves also has a governance token called YOU." },
+        { question: "What is QuipuSwap on Tezos?", answer: "QuipuSwap is the leading decentralised exchange (DEX) on Tezos, using an automated market maker (AMM) model similar to Uniswap. Users can swap FA2 tokens, provide liquidity, and earn fees. QuipuSwap has a governance token called QUIPU." },
+      ]),
+    ],
   });
 
   const { data, isLoading } = trpc.tools.defiDashboard.useQuery(undefined, {
