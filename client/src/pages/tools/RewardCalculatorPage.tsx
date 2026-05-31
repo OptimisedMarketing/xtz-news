@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { Search, ChevronRight, Home, ExternalLink, TrendingUp, Award, ChevronUp, ChevronDown } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useSEO, buildToolSchema } from "@/hooks/useSEO";
 
 function fmtXtz(v: number) {
   if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(2)}M ꜩ`;
@@ -18,6 +19,14 @@ type DelegSortKey = "baker" | "from" | "duration" | "rewards" | "apy";
 type SortDir = "asc" | "desc";
 
 export default function RewardCalculatorPage() {
+  useSEO({
+    title: "Tezos Reward Calculator — Baking & Delegation History | XTZ.News",
+    description: "View baking or delegation reward history for any Tezos address. See APY per cycle, past bakers, total rewards earned, and delegation history.",
+    keywords: "Tezos reward calculator, XTZ staking rewards, Tezos delegation rewards, Tezos baking APY, XTZ yield",
+    canonical: "https://xtz.news/tools/rewards",
+    jsonLd: buildToolSchema({ name: "Tezos Reward Calculator", description: "View baking or delegation reward history for any Tezos address. See APY per cycle, past bakers, total rewards earned, and delegation history.", url: "https://xtz.news/tools/rewards" }),
+  });
+
   const [input, setInput] = useState("");
   const [address, setAddress] = useState("");
   const [cycles, setCycles] = useState(30);

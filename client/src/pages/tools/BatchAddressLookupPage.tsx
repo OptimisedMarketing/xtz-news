@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { ChevronRight, Home, Download, Copy, Search } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useSEO, buildToolSchema } from "@/hooks/useSEO";
 import { toast } from "sonner";
 
 function fmtXtz(v: number) {
@@ -11,6 +12,14 @@ function fmtXtz(v: number) {
 }
 
 export default function BatchAddressLookupPage() {
+  useSEO({
+    title: "Tezos Batch Address Lookup — Check 100 Wallets at Once | XTZ.News",
+    description: "Paste up to 100 Tezos addresses and get XTZ balance, staking, delegation, and activity for each. Export to CSV. Perfect for DAOs and event organisers.",
+    keywords: "Tezos batch lookup, XTZ bulk address check, Tezos DAO tools, Tezos airdrop distribution",
+    canonical: "https://xtz.news/tools/batch-lookup",
+    jsonLd: buildToolSchema({ name: "Tezos Batch Address Lookup", description: "Paste up to 100 Tezos addresses and get XTZ balance, staking, delegation, and activity for each. Export to CSV. Perfect for DAOs and event organisers.", url: "https://xtz.news/tools/batch-lookup" }),
+  });
+
   const [textInput, setTextInput] = useState("");
   const [addresses, setAddresses] = useState<string[]>([]);
   const [sortKey, setSortKey] = useState<"input" | "balance" | "staked" | "txs">("balance");

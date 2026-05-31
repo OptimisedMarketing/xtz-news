@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useSearch } from "wouter";
 import { Search, ChevronRight, Home, ExternalLink, ChevronLeft, ChevronRight as ChevronRightIcon } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useSEO, buildToolSchema } from "@/hooks/useSEO";
 
 const PAGE_SIZE = 48;
 
@@ -23,6 +24,14 @@ function isImage(mimeType: string | null | undefined, uri: string | null | undef
 }
 
 export default function NftGalleryPage() {
+  useSEO({
+    title: "Tezos NFT Gallery — View Any Wallet's NFTs | XTZ.News",
+    description: "View all Tezos NFTs held by any wallet address. Beautiful visual gallery with links to objkt.com. Free, no login required.",
+    keywords: "Tezos NFT gallery, XTZ NFT viewer, Tezos NFT collection, objkt NFT, Tezos FA2 tokens",
+    canonical: "https://xtz.news/tools/nft-gallery",
+    jsonLd: buildToolSchema({ name: "Tezos NFT Gallery", description: "View all Tezos NFTs held by any wallet address. Beautiful visual gallery with links to objkt.com. Free, no login required.", url: "https://xtz.news/tools/nft-gallery" }),
+  });
+
   const search = useSearch();
   const params = new URLSearchParams(search);
   const urlAddress = params.get("address") || "";

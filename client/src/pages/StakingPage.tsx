@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { ExternalLink, Search, Copy, ChevronRight, Home, X, DollarSign, TrendingUp } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useSEO, buildToolSchema } from "@/hooks/useSEO";
 
 const templeDelegate = (address: string) =>
   `https://app.templewallet.com/delegating?baker=${address}`;
@@ -9,6 +10,14 @@ const templeDelegate = (address: string) =>
 type SidebarSort = "apy" | "fee" | "delegators";
 
 export default function StakingPage() {
+  useSEO({
+    title: "Tezos Staking Calculator — Find the Best Baker | XTZ.News",
+    description: "Compare Tezos bakers by APY, fee, and available space. Calculate your staking rewards in XTZ and USD. Find the best baker for your XTZ.",
+    keywords: "Tezos staking, XTZ staking calculator, Tezos baker, Tezos delegation, XTZ APY, Tezos rewards",
+    canonical: "https://xtz.news/staking",
+    jsonLd: buildToolSchema({ name: "Tezos Staking Calculator", description: "Compare Tezos bakers by APY, fee, and available space. Calculate your staking rewards.", url: "https://xtz.news/staking" }),
+  });
+
   const { data: bakers = [], isLoading } = trpc.explorer.bakers.useQuery({ limit: 50 });
   const { data: networkStats } = trpc.explorer.networkStats.useQuery();
 

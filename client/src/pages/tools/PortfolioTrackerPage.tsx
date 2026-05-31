@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { Link, useSearch } from "wouter";
 import { ChevronRight, Home, Plus, X, ExternalLink, Copy, TrendingUp, Share2, Download } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useSEO, buildToolSchema } from "@/hooks/useSEO";
 import { toast } from "sonner";
 
 function fmtXtz(v: number) {
@@ -24,6 +25,14 @@ function fmtToken(balance: string, decimals: number) {
 const WALLET_COLORS = ["#2c7df7", "#22c55e", "#f97316", "#8b5cf6", "#f59e0b"];
 
 export default function PortfolioTrackerPage() {
+  useSEO({
+    title: "Tezos Portfolio Tracker — Multi-Wallet Dashboard | XTZ.News",
+    description: "Track up to 5 Tezos wallets at once. See combined XTZ balance, total USD value, token holdings, NFT count, and delegation status. Share with a link.",
+    keywords: "Tezos portfolio tracker, XTZ portfolio, multi-wallet Tezos, Tezos wallet dashboard",
+    canonical: "https://xtz.news/tools/portfolio",
+    jsonLd: buildToolSchema({ name: "Tezos Portfolio Tracker", description: "Track up to 5 Tezos wallets at once. See combined XTZ balance, total USD value, token holdings, NFT count, and delegation status. Share with a link.", url: "https://xtz.news/tools/portfolio" }),
+  });
+
   const search = useSearch();
 
   // Parse URL params on load (e.g. ?w1=tz1...&w2=tz1...)

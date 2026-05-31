@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { ChevronRight, Home, Search, ExternalLink, Copy, Code, Database, Zap, GitBranch } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useSEO, buildToolSchema } from "@/hooks/useSEO";
 import { toast } from "sonner";
 
 function fmtXtz(v: number) {
@@ -85,6 +86,14 @@ function JsonViewer({ data, depth = 0 }: { data: any; depth?: number }) {
 }
 
 export default function SmartContractInspectorPage() {
+  useSEO({
+    title: "Tezos Smart Contract Inspector — Storage & Entrypoints | XTZ.News",
+    description: "Inspect any Tezos KT1 smart contract: view live storage, entrypoints with parameter schemas, recent callers, and similar contracts.",
+    keywords: "Tezos smart contract inspector, KT1 contract viewer, Tezos contract storage, Tezos entrypoints, Tezos DeFi contracts",
+    canonical: "https://xtz.news/tools/contract",
+    jsonLd: buildToolSchema({ name: "Tezos Smart Contract Inspector", description: "Inspect any Tezos KT1 smart contract: view live storage, entrypoints with parameter schemas, recent callers, and similar contracts.", url: "https://xtz.news/tools/contract" }),
+  });
+
   const [input, setInput] = useState("");
   const [address, setAddress] = useState("");
   const [activeTab, setActiveTab] = useState<"overview" | "storage" | "entrypoints" | "calls" | "similar">("overview");

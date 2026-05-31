@@ -1,14 +1,21 @@
 import { useParams, Link } from "wouter";
 import { ExternalLink, Globe, ChevronRight, Home, ArrowLeft } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useSEO, buildWebPageSchema } from "@/hooks/useSEO";
 
 export default function ProjectDetailPage() {
   const { slug } = useParams<{ slug: string }>();
-
   const { data: project, isLoading, error } = trpc.projects.bySlug.useQuery(
     { slug: slug || "" },
     { enabled: !!slug }
   );
+  useSEO({
+    title: project ? `${project.title} — Tezos Project | XTZ.News` : "Tezos Project | XTZ.News",
+    description: project?.excerpt?.replace(/<[^>]*>/g, "").slice(0, 155) || "Explore Tezos ecosystem projects on XTZ.News.",
+    keywords: project ? `${project.title}, Tezos project, XTZ ecosystem` : "Tezos projects, XTZ ecosystem",
+    canonical: project ? `https://xtz.news/projects/${project.slug}` : "https://xtz.news/projects",
+    ogImage: project?.featuredImageUrl || undefined,
+  });
 
   if (isLoading) {
     return (

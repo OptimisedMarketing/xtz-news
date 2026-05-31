@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import { ChevronRight, Home, RefreshCw, ExternalLink, ArrowUpRight, ArrowDownLeft, Zap } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useSEO, buildToolSchema } from "@/hooks/useSEO";
 
 function fmtXtz(v: number) {
   if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(2)}M ꜩ`;
@@ -31,6 +32,14 @@ const TYPE_ICONS: Record<string, string> = {
 type OpType = 'transaction' | 'delegation' | 'origination' | 'transfer';
 
 export default function LiveOpsMonitorPage() {
+  useSEO({
+    title: "Tezos Live Operations Monitor — Real-Time On-Chain Activity | XTZ.News",
+    description: "Real-time feed of Tezos on-chain operations: transactions, delegations, originations, and token transfers. Filter by type and minimum XTZ amount.",
+    keywords: "Tezos live transactions, XTZ on-chain activity, Tezos blockchain monitor, Tezos operations feed",
+    canonical: "https://xtz.news/tools/live-ops",
+    jsonLd: buildToolSchema({ name: "Tezos Live Operations Monitor", description: "Real-time feed of Tezos on-chain operations: transactions, delegations, originations, and token transfers. Filter by type and minimum XTZ amount.", url: "https://xtz.news/tools/live-ops" }),
+  });
+
   const [selectedTypes, setSelectedTypes] = useState<OpType[]>(['transaction', 'delegation']);
   const [minAmount, setMinAmount] = useState(0);
   const [autoRefresh, setAutoRefresh] = useState(true);

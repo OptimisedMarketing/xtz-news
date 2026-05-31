@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { ChevronRight, Home, Search, ExternalLink, Copy } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useSEO, buildToolSchema } from "@/hooks/useSEO";
 import { toast } from "sonner";
 
 function fmtXtz(v: number) {
@@ -21,6 +22,14 @@ const EXAMPLES = [
 ];
 
 export default function TnsLookupPage() {
+  useSEO({
+    title: "Tezos Name Service Lookup — .tez Domain Resolver | XTZ.News",
+    description: "Resolve .tez domains to Tezos addresses, or find all .tez names owned by an address. Shows expiry dates and all domains by the same owner.",
+    keywords: "Tezos domains, .tez domain lookup, TNS resolver, Tezos name service, tz1 address lookup",
+    canonical: "https://xtz.news/tools/tns",
+    jsonLd: buildToolSchema({ name: "Tezos Name Service Lookup", description: "Resolve .tez domains to Tezos addresses, or find all .tez names owned by an address. Shows expiry dates and all domains by the same owner.", url: "https://xtz.news/tools/tns" }),
+  });
+
   const [input, setInput] = useState("");
   const [query, setQuery] = useState("");
 

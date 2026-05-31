@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { Search, Copy, ExternalLink, ChevronRight, Home, ArrowUpRight, ArrowDownLeft, Shield, Coins } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useSEO, buildToolSchema } from "@/hooks/useSEO";
 import { toast } from "sonner";
 
 function fmtXtz(v: number) {
@@ -31,6 +32,14 @@ const EXAMPLE_ADDRESSES = [
 ];
 
 export default function WalletInspectorPage() {
+  useSEO({
+    title: "Tezos Wallet Inspector — Check Any XTZ Address | XTZ.News",
+    description: "Inspect any Tezos wallet address: view XTZ balance, FA2 tokens, NFT count, delegation status, staking rewards, and recent transactions. Free, no login required.",
+    keywords: "Tezos wallet inspector, XTZ wallet checker, Tezos address lookup, Tezos balance checker, tz1 address",
+    canonical: "https://xtz.news/tools/wallet",
+    jsonLd: buildToolSchema({ name: "Tezos Wallet Inspector", description: "Inspect any Tezos wallet address: view XTZ balance, FA2 tokens, NFT count, delegation status, staking rewards, and recent transactions. Free, no login required.", url: "https://xtz.news/tools/wallet" }),
+  });
+
   const [input, setInput] = useState("");
   const [address, setAddress] = useState("");
 

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Link, useParams } from "wouter";
 import { ChevronRight, Home, ExternalLink, Twitter, Github, Shield, TrendingUp, TrendingDown, ArrowLeft } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useSEO, buildWebPageSchema } from "@/hooks/useSEO";
 
 function fmtUsd(v: number) {
   if (v >= 1_000_000_000) return `$${(v / 1_000_000_000).toFixed(2)}B`;
@@ -22,11 +23,18 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 export default function DefiProtocolPage() {
   const { slug } = useParams<{ slug: string }>();
-
   const { data, isLoading } = trpc.tools.defiProtocol.useQuery(
     { slug: slug || "" },
     { enabled: !!slug, staleTime: 5 * 60_000 }
   );
+
+  useSEO({
+    title: data ? `${data.name} — Tezos DeFi Protocol | XTZ.News` : "Tezos DeFi Protocol | XTZ.News",
+    description: data?.description?.slice(0, 155) || `View TVL, token price, and smart contract details for ${slug || ""} on Tezos.`,
+    keywords: data ? `${data.name}, Tezos DeFi, ${data.symbol || ""}, TVL, Tezos protocol` : "Tezos DeFi protocol",
+    canonical: `https://xtz.news/tools/defi/${slug || ""}`,
+    ogImage: data?.logo || undefined,
+  });
 
   // Build TVL chart
   const chartData = data?.tvlHistory || [];

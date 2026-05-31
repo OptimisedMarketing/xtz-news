@@ -149,6 +149,28 @@ async function startServer() {
         { url: "/submit-article", priority: "0.5", changefreq: "monthly" },
         { url: "/contact", priority: "0.4", changefreq: "yearly" },
         { url: "/advertise", priority: "0.4", changefreq: "yearly" },
+        // Staking & Prices
+        { url: "/staking", priority: "0.8", changefreq: "daily" },
+        { url: "/prices", priority: "0.8", changefreq: "hourly" },
+        // Explorer
+        { url: "/explorer", priority: "0.7", changefreq: "daily" },
+        { url: "/explorer/bakers", priority: "0.7", changefreq: "daily" },
+        // Tools landing
+        { url: "/tools", priority: "0.9", changefreq: "weekly" },
+        // Individual tools
+        { url: "/tools/wallet", priority: "0.8", changefreq: "monthly" },
+        { url: "/tools/whale-watcher", priority: "0.8", changefreq: "monthly" },
+        { url: "/tools/nft-gallery", priority: "0.7", changefreq: "monthly" },
+        { url: "/tools/rewards", priority: "0.8", changefreq: "monthly" },
+        { url: "/tools/portfolio", priority: "0.8", changefreq: "monthly" },
+        { url: "/tools/address-book", priority: "0.6", changefreq: "monthly" },
+        { url: "/tools/token-price", priority: "0.7", changefreq: "monthly" },
+        { url: "/tools/airdrop", priority: "0.7", changefreq: "monthly" },
+        { url: "/tools/batch-lookup", priority: "0.7", changefreq: "monthly" },
+        { url: "/tools/tns", priority: "0.7", changefreq: "monthly" },
+        { url: "/tools/live-ops", priority: "0.7", changefreq: "monthly" },
+        { url: "/tools/contract", priority: "0.7", changefreq: "monthly" },
+        { url: "/tools/defi", priority: "0.8", changefreq: "daily" },
       ];
 
       let allPosts: { slug: string; publishedAt: Date | null; updatedAt: Date | null }[] = [];
@@ -253,9 +275,28 @@ async function startServer() {
 
   app.get("/robots.txt", (req, res) => {
     res.set("Content-Type", "text/plain");
-    res.send(
-      `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /api/\n\nSitemap: https://xtz.news/sitemap.xml\nSitemap: https://xtz.news/news-sitemap.xml\n`
-    );
+    res.set("Cache-Control", "public, max-age=86400");
+    res.send([
+      "User-agent: *",
+      "Allow: /",
+      "Disallow: /admin",
+      "Disallow: /api/",
+      "Disallow: /unsubscribe",
+      "Disallow: /manage-subscriptions",
+      "",
+      "# Crawl-delay for polite bots",
+      "Crawl-delay: 1",
+      "",
+      "# Sitemaps",
+      "Sitemap: https://xtz.news/sitemap.xml",
+      "Sitemap: https://xtz.news/news-sitemap.xml",
+      "",
+      "# Google News Bot",
+      "User-agent: Googlebot-News",
+      "Allow: /",
+      "Disallow: /admin",
+      "Disallow: /api/",
+    ].join("\n"));
   });
 
   // ─── Weekly Newsletter Digest ──────────────────────────────────────────────────

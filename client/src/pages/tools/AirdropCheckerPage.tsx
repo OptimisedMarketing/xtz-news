@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { ChevronRight, Home, Search, ExternalLink, CheckCircle, XCircle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useSEO, buildToolSchema } from "@/hooks/useSEO";
 
 function fmtXtz(v: number) {
   if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(2)}M ꜩ`;
@@ -15,6 +16,14 @@ const EXAMPLE_ADDRESSES = [
 ];
 
 export default function AirdropCheckerPage() {
+  useSEO({
+    title: "Tezos Airdrop Checker — Token Eligibility | XTZ.News",
+    description: "Check if your Tezos address holds tokens from 10 major protocols: QuipuSwap, Youves, Kolibri, Tezos Domains, objkt.com, and more.",
+    keywords: "Tezos airdrop checker, XTZ token eligibility, QuipuSwap QUIPU, Youves YOU, Tezos DeFi tokens",
+    canonical: "https://xtz.news/tools/airdrop",
+    jsonLd: buildToolSchema({ name: "Tezos Airdrop Checker", description: "Check if your Tezos address holds tokens from 10 major protocols: QuipuSwap, Youves, Kolibri, Tezos Domains, objkt.com, and more.", url: "https://xtz.news/tools/airdrop" }),
+  });
+
   const [input, setInput] = useState("");
   const [address, setAddress] = useState("");
 

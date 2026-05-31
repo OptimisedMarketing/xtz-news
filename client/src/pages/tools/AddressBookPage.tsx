@@ -3,8 +3,17 @@ import { Link } from "wouter";
 import { ChevronRight, Home, Plus, Trash2, Edit2, Check, X, Copy, ExternalLink, BookOpen } from "lucide-react";
 import { useAddressBook } from "@/hooks/useAddressBook";
 import { toast } from "sonner";
+import { useSEO, buildToolSchema } from "@/hooks/useSEO";
 
 export default function AddressBookPage() {
+  useSEO({
+    title: "Tezos Address Book — Save & Label Wallets | XTZ.News",
+    description: "Save and label your frequently-used Tezos addresses. Stored locally in your browser — no account needed. One-click access to wallet tools.",
+    keywords: "Tezos address book, save Tezos addresses, XTZ wallet labels, Tezos wallet manager",
+    canonical: "https://xtz.news/tools/address-book",
+    jsonLd: buildToolSchema({ name: "Tezos Address Book", description: "Save and label your frequently-used Tezos addresses. Stored locally in your browser — no account needed. One-click access to wallet tools.", url: "https://xtz.news/tools/address-book" }),
+  });
+
   const { entries, addEntry, removeEntry, updateLabel, hasEntry } = useAddressBook();
   const [newAddress, setNewAddress] = useState("");
   const [newLabel, setNewLabel] = useState("");

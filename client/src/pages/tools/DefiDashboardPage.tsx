@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "wouter";
 import { ChevronRight, Home, ExternalLink, TrendingUp, TrendingDown, Search, ChevronUp, ChevronDown } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useSEO, buildToolSchema } from "@/hooks/useSEO";
 
 function fmtUsd(v: number) {
   if (v >= 1_000_000_000) return `$${(v / 1_000_000_000).toFixed(2)}B`;
@@ -29,6 +30,14 @@ type SortKey = "tvl" | "change1d" | "change7d" | "name";
 type SortDir = "asc" | "desc";
 
 export default function DefiDashboardPage() {
+  useSEO({
+    title: "Tezos DeFi Dashboard — Live TVL & Protocol Rankings | XTZ.News",
+    description: "Live Tezos DeFi overview: chain TVL, 90-day chart, protocol rankings with 24h/7d changes, and category breakdown. Powered by DeFiLlama.",
+    keywords: "Tezos DeFi, Tezos TVL, Youves, QuipuSwap, Kolibri, Tezos DeFi protocols, XTZ DeFi dashboard",
+    canonical: "https://xtz.news/tools/defi",
+    jsonLd: buildToolSchema({ name: "Tezos DeFi Dashboard", description: "Live Tezos DeFi overview: chain TVL, 90-day chart, protocol rankings with 24h/7d changes, and category breakdown. Powered by DeFiLlama.", url: "https://xtz.news/tools/defi" }),
+  });
+
   const { data, isLoading } = trpc.tools.defiDashboard.useQuery(undefined, {
     staleTime: 5 * 60_000,
   });

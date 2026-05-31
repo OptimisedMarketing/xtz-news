@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { Search, Eye, Image, TrendingUp, ChevronRight, Home, ExternalLink } from "lucide-react";
+import { useSEO, buildToolSchema } from "@/hooks/useSEO";
 
 const TOOLS = [
   {
@@ -122,6 +123,14 @@ const TOOLS = [
 ];
 
 export default function ToolsPage() {
+  useSEO({
+    title: "XTZ.News Tools — Free Tezos Blockchain Tools",
+    description: "Free on-chain tools for the Tezos community: Wallet Inspector, Whale Watcher, NFT Gallery, Staking Calculator, DeFi Dashboard, Smart Contract Inspector, and more.",
+    keywords: "Tezos tools, XTZ tools, Tezos blockchain tools, Tezos wallet inspector, Tezos DeFi, Tezos NFT, Tezos staking",
+    canonical: "https://xtz.news/tools",
+    jsonLd: buildToolSchema({ name: "XTZ.News Tools", description: "Free on-chain tools for the Tezos community: Wallet Inspector, Whale Watcher, NFT Gallery, Staking Calculator, DeFi Dashboard, Smart Contract Inspector, and more.", url: "https://xtz.news/tools" }),
+  });
+
   return (
     <div style={{ background: "#000", minHeight: "100vh" }}>
       {/* Hero */}

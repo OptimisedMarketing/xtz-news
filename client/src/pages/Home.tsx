@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight, Share2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import PostCard from "@/components/PostCard";
 import HomepageFilters from "@/components/HomepageFilters";
+import { useSEO } from "@/hooks/useSEO";
 
 function formatDate(date: Date | string | null | undefined) {
   if (!date) return "";
@@ -347,12 +348,35 @@ export default function Home() {
   const mostRead = data?.mostRead ?? [];
   const featured = data?.featured ?? [];
 
-  useEffect(() => {
-    document.title = "Tezos News | XTZ.News — Latest Tezos Blockchain Updates";
-    const desc = document.querySelector('meta[name="description"]') as HTMLMetaElement | null;
-    if (desc) desc.content = "XTZ.News is the leading source for Tezos news. Get the latest Tezos blockchain updates, XTZ price, DeFi, NFTs, protocol upgrades, and ecosystem developments.";
-    return () => { document.title = "XTZ.News — Tezos News"; };
-  }, []);
+  useSEO({
+    title: "Tezos News | XTZ.News — Latest Tezos Blockchain Updates",
+    description: "XTZ.News is the leading source for Tezos news. Get the latest Tezos blockchain updates, XTZ price, DeFi, NFTs, protocol upgrades, and ecosystem developments.",
+    keywords: "Tezos news, XTZ news, Tezos blockchain, Tezos updates, XTZ price, Tezos DeFi, Tezos NFT, Tezos ecosystem, Tezos protocol upgrade",
+    canonical: "https://xtz.news/",
+    ogType: "website",
+    jsonLd: [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "XTZ.News",
+        "url": "https://xtz.news",
+        "description": "The leading source for Tezos blockchain news, XTZ price, DeFi, NFTs, and ecosystem developments.",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": { "@type": "EntryPoint", "urlTemplate": "https://xtz.news/search?q={search_term_string}" },
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "XTZ.News",
+        "url": "https://xtz.news",
+        "logo": "https://xtz.news/manus-storage/xtz-logo-square_c6689606.png",
+        "sameAs": ["https://twitter.com/XTZNews"]
+      }
+    ],
+  });
 
   return (
     <div style={{ background: "#000" }}>

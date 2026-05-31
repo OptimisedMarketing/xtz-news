@@ -2,6 +2,7 @@ import { useParams, Link } from "wouter";
 import { useState } from "react";
 import { Home, ChevronRight } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useSEO, buildWebPageSchema } from "@/hooks/useSEO";
 import PostCard from "@/components/PostCard";
 
 const PAGE_SIZE = 12;
@@ -9,8 +10,14 @@ const PAGE_SIZE = 12;
 export default function TagPage() {
   const { slug } = useParams<{ slug: string }>();
   const [page, setPage] = useState(1);
-
   const { data: tag } = trpc.tags.bySlug.useQuery({ slug: slug || "" }, { enabled: !!slug });
+  const tagName = (tag as any)?.name || slug?.replace(/-/g, " ") || "";
+  useSEO({
+    title: `${tagName ? `#${tagName} — ` : ""}Tezos News | XTZ.News`,
+    description: `Latest Tezos news tagged with ${tagName || slug || ""}. Stay up to date with XTZ blockchain developments, DeFi, NFTs, and ecosystem updates.`,
+    keywords: `${tagName}, Tezos news, XTZ news, Tezos blockchain`,
+    canonical: `https://xtz.news/tag/${slug || ""}`,
+  });
   const { data, isLoading } = trpc.posts.byTag.useQuery(
     { slug: slug || "", limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE },
     { enabled: !!slug }

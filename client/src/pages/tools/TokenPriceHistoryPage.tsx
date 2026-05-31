@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { ChevronRight, Home, Search, ExternalLink, TrendingUp, TrendingDown } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useSEO, buildToolSchema } from "@/hooks/useSEO";
 
 function fmtXtz(v: number) {
   if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(2)}M ꜩ`;
@@ -25,6 +26,14 @@ const KNOWN_TOKENS = [
 ];
 
 export default function TokenPriceHistoryPage() {
+  useSEO({
+    title: "Tezos Token Price History — FA2 Trade Charts | XTZ.News",
+    description: "View trade history and price charts for any Tezos FA2 token. See high, low, average price, and volume. Powered by objkt.com data.",
+    keywords: "Tezos token price, FA2 token history, Tezos token chart, QUIPU price, kUSD price, Tezos DeFi tokens",
+    canonical: "https://xtz.news/tools/token-price",
+    jsonLd: buildToolSchema({ name: "Tezos Token Price History", description: "View trade history and price charts for any Tezos FA2 token. See high, low, average price, and volume. Powered by objkt.com data.", url: "https://xtz.news/tools/token-price" }),
+  });
+
   const [contractInput, setContractInput] = useState("");
   const [tokenIdInput, setTokenIdInput] = useState("0");
   const [contract, setContract] = useState("");

@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { TrendingUp, TrendingDown, ArrowUpDown, ExternalLink, Star } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useSEO, buildWebPageSchema } from "@/hooks/useSEO";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 function formatPrice(price: number): string {
@@ -44,6 +45,14 @@ function Sparkline({ data, isUp }: { data: number[]; isUp: boolean }) {
 type SortKey = "name" | "price" | "change24h" | "change7d" | "marketCap" | "volume24h";
 
 export default function PricePage() {
+  useSEO({
+    title: "Tezos Token Prices — Live XTZ Price & Ecosystem Tokens | XTZ.News",
+    description: "Live Tezos token prices, XTZ price chart, 24h/7d changes, market cap, and volume. Track QUIPU, kUSD, UUSD, VNXAU, and all Tezos ecosystem tokens.",
+    keywords: "Tezos token prices, XTZ price, Tezos DeFi tokens, QUIPU price, kUSD price, Tezos market cap",
+    canonical: "https://xtz.news/prices",
+    jsonLd: buildWebPageSchema({ title: "Tezos Token Prices", description: "Live Tezos token prices and market data.", url: "https://xtz.news/prices", breadcrumbs: [{ name: "Home", url: "https://xtz.news" }, { name: "Prices", url: "https://xtz.news/prices" }] }),
+  });
+
   const { data: tokens = [], isLoading } = trpc.prices.tezosTokens.useQuery(undefined, {
     refetchInterval: 90_000,
     staleTime: 60_000,

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import { ChevronRight, Home, ExternalLink, RefreshCw, ArrowUpRight } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useSEO, buildToolSchema } from "@/hooks/useSEO";
 
 function fmtXtz(v: number) {
   if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(2)}M ꜩ`;
@@ -30,6 +31,14 @@ const THRESHOLDS = [
 ];
 
 export default function WhaleWatcherPage() {
+  useSEO({
+    title: "Tezos Whale Watcher — Live Large XTZ Transfers | XTZ.News",
+    description: "Watch large XTZ transfers on the Tezos network in real time. Filter by minimum amount (10K–1M+ XTZ). Auto-refreshes every 15 seconds.",
+    keywords: "Tezos whale watcher, large XTZ transfers, Tezos on-chain activity, XTZ whale tracker",
+    canonical: "https://xtz.news/tools/whale-watcher",
+    jsonLd: buildToolSchema({ name: "Tezos Whale Watcher", description: "Watch large XTZ transfers on the Tezos network in real time. Filter by minimum amount (10K–1M+ XTZ). Auto-refreshes every 15 seconds.", url: "https://xtz.news/tools/whale-watcher" }),
+  });
+
   const [minXtz, setMinXtz] = useState(10_000);
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [lastRefresh, setLastRefresh] = useState(Date.now());
