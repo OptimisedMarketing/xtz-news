@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { Search, Eye, Image, TrendingUp, ChevronRight, Home, ExternalLink } from "lucide-react";
+import ToolBreadcrumb from "@/components/ToolBreadcrumb";
 import { useSEO, buildToolSchema } from "@/hooks/useSEO";
 
 const TOOLS = [
@@ -136,11 +137,7 @@ export default function ToolsPage() {
       {/* Hero */}
       <div style={{ background: "linear-gradient(135deg, #05152e 0%, #0d2a5e 100%)", borderBottom: "1px solid rgba(44,125,247,0.2)", padding: "2.5rem 0 2rem" }}>
         <div className="container">
-          <nav style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginBottom: "1.25rem", fontSize: "0.75rem", fontWeight: 600 }}>
-            <Link href="/" style={{ color: "rgba(255,255,255,0.5)", display: "flex", alignItems: "center", textDecoration: "none" }}><Home size={12} /></Link>
-            <ChevronRight size={10} style={{ color: "rgba(255,255,255,0.3)" }} />
-            <span style={{ color: "rgba(255,255,255,0.7)" }}>XTZ Tools</span>
-          </nav>
+          <ToolBreadcrumb items={[{ label: "XTZ Tools" }]} />
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem" }}>

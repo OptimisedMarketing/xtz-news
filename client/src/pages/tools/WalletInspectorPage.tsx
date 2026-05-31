@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { Search, Copy, ExternalLink, ChevronRight, Home, ArrowUpRight, ArrowDownLeft, Shield, Coins } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-import { useSEO, buildToolSchema } from "@/hooks/useSEO";
+import ToolBreadcrumb from "@/components/ToolBreadcrumb";
+import { useSEO, buildToolSchema, buildFAQSchema } from "@/hooks/useSEO";
 import { toast } from "sonner";
 
 function fmtXtz(v: number) {
@@ -37,7 +38,15 @@ export default function WalletInspectorPage() {
     description: "Inspect any Tezos wallet address: view XTZ balance, FA2 tokens, NFT count, delegation status, staking rewards, and recent transactions. Free, no login required.",
     keywords: "Tezos wallet inspector, XTZ wallet checker, Tezos address lookup, Tezos balance checker, tz1 address",
     canonical: "https://xtz.news/tools/wallet",
-    jsonLd: buildToolSchema({ name: "Tezos Wallet Inspector", description: "Inspect any Tezos wallet address: view XTZ balance, FA2 tokens, NFT count, delegation status, staking rewards, and recent transactions. Free, no login required.", url: "https://xtz.news/tools/wallet" }),
+    jsonLd: [
+      buildToolSchema({ name: "Tezos Wallet Inspector", description: "Inspect any Tezos wallet address: view XTZ balance, FA2 tokens, NFT count, delegation status, staking rewards, and recent transactions. Free, no login required.", url: "https://xtz.news/tools/wallet" }),
+      buildFAQSchema([
+        { question: "How do I check a Tezos wallet balance?", answer: "Enter any Tezos address (tz1, tz2, tz3, or KT1) in the XTZ.News Wallet Inspector. It instantly shows the XTZ balance, staked XTZ, FA2 token holdings, NFT count, delegation status, and recent transactions. No login or wallet connection required." },
+        { question: "What information can I see about a Tezos address?", answer: "The Tezos Wallet Inspector shows: XTZ balance, staked and unstaked balances, all FA2 fungible tokens, NFT count (with link to NFT Gallery), delegation status and baker, number of transactions, first and last activity dates, and the last 10 transactions." },
+        { question: "Can I check any Tezos address without connecting my wallet?", answer: "Yes. The XTZ.News Wallet Inspector is completely read-only and requires no wallet connection. Simply paste any Tezos address (tz1, tz2, tz3, or KT1) and click Inspect to view all public on-chain data." },
+        { question: "What is a tz1 address on Tezos?", answer: "A tz1 address is a standard Tezos account address derived from an Ed25519 public key. Most Tezos wallets (Temple, Kukai, Ledger) use tz1 addresses. There are also tz2 (secp256k1) and tz3 (P-256) addresses, and KT1 addresses for smart contracts." },
+      ]),
+    ],
   });
 
   const [input, setInput] = useState("");
@@ -65,13 +74,7 @@ export default function WalletInspectorPage() {
       {/* Hero */}
       <div style={{ background: "linear-gradient(135deg, #05152e 0%, #0d2a5e 100%)", borderBottom: "1px solid rgba(44,125,247,0.2)", padding: "2rem 0" }}>
         <div className="container">
-          <nav style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginBottom: "1rem", fontSize: "0.75rem", fontWeight: 600 }}>
-            <Link href="/" style={{ color: "rgba(255,255,255,0.5)", display: "flex", alignItems: "center", textDecoration: "none" }}><Home size={12} /></Link>
-            <ChevronRight size={10} style={{ color: "rgba(255,255,255,0.3)" }} />
-            <Link href="/tools" style={{ color: "rgba(255,255,255,0.5)", textDecoration: "none" }}>Tools</Link>
-            <ChevronRight size={10} style={{ color: "rgba(255,255,255,0.3)" }} />
-            <span style={{ color: "rgba(255,255,255,0.7)" }}>Wallet Inspector</span>
-          </nav>
+          <ToolBreadcrumb items={[{ label: "Tools", href: "/tools" }, { label: "Wallet Inspector" }]} />
           <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1rem" }}>
             <div style={{ width: "40px", height: "40px", background: "rgba(44,125,247,0.2)", border: "1px solid rgba(44,125,247,0.4)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem" }}>🔍</div>
             <div>

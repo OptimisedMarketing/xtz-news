@@ -26,7 +26,9 @@ function useOpenGraph(post: {
     const description = post.excerpt
       ? post.excerpt.replace(/<[^>]*>/g, "").replace(/&[a-z#0-9]+;/gi, " ").trim().slice(0, 160)
       : "The latest Tezos blockchain news, projects and updates.";
-    const image = post.featuredImageUrl || `${siteUrl}/manus-storage/xtz-logo-square_c6689606.png`;
+    // Use dynamic OG image if no featured image — generates branded 1200x630 PNG
+    const dynamicOgImage = `${siteUrl}/api/og?type=article&title=${encodeURIComponent(post.title.slice(0, 100))}&category=${encodeURIComponent(post.categories?.[0]?.name || 'Tezos News')}`;
+    const image = post.featuredImageUrl || dynamicOgImage;
 
     const setMeta = (property: string, content: string) => {
       let el = document.querySelector(`meta[property="${property}"]`) as HTMLMetaElement | null;

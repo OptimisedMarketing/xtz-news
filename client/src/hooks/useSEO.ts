@@ -151,4 +151,13 @@ export const buildToolSchema = (opts: { name: string; description: string; url: 
   "publisher": { "@type": "Organization", "name": SITE_NAME, "url": SITE_URL },
 });
 
+export const buildFAQSchema = (faqs: Array<{ question: string; answer: string }>) => ({
+  "@context": "https://schema.org", "@type": "FAQPage",
+  "mainEntity": faqs.map(faq => ({
+    "@type": "Question",
+    "name": faq.question,
+    "acceptedAnswer": { "@type": "Answer", "text": faq.answer },
+  })),
+});
+
 export const SITE_URL_CONST = SITE_URL;

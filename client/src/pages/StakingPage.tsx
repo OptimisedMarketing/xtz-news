@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { ExternalLink, Search, Copy, ChevronRight, Home, X, DollarSign, TrendingUp } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-import { useSEO, buildToolSchema } from "@/hooks/useSEO";
+import { useSEO, buildToolSchema, buildFAQSchema } from "@/hooks/useSEO";
 
 const templeDelegate = (address: string) =>
   `https://app.templewallet.com/delegating?baker=${address}`;
@@ -15,7 +15,17 @@ export default function StakingPage() {
     description: "Compare Tezos bakers by APY, fee, and available space. Calculate your staking rewards in XTZ and USD. Find the best baker for your XTZ.",
     keywords: "Tezos staking, XTZ staking calculator, Tezos baker, Tezos delegation, XTZ APY, Tezos rewards",
     canonical: "https://xtz.news/staking",
-    jsonLd: buildToolSchema({ name: "Tezos Staking Calculator", description: "Compare Tezos bakers by APY, fee, and available space. Calculate your staking rewards.", url: "https://xtz.news/staking" }),
+    jsonLd: [
+      buildToolSchema({ name: "Tezos Staking Calculator", description: "Compare Tezos bakers by APY, fee, and available space. Calculate your staking rewards.", url: "https://xtz.news/staking" }),
+      buildFAQSchema([
+        { question: "What is Tezos staking?", answer: "Tezos staking (also called delegation) lets you earn rewards by delegating your XTZ to a baker. Bakers validate transactions and share a portion of their rewards with delegators. You keep full control of your XTZ — it never leaves your wallet." },
+        { question: "What APY can I earn staking Tezos?", answer: "Tezos staking APY typically ranges from 5% to 10% annually, depending on the baker you choose. The XTZ.News Staking Calculator shows real-time APY for all active bakers based on their last completed cycle rewards." },
+        { question: "How do I choose the best Tezos baker?", answer: "Look for a baker with high APY (above 8% is excellent), low fee rate (under 10%), high uptime (above 99%), and available staking space. The XTZ.News Best Baker recommendation automatically scores all bakers and highlights the top choice for small delegators." },
+        { question: "Is Tezos staking safe?", answer: "Yes. When you delegate XTZ, your tokens never leave your wallet. You simply assign your baking rights to a baker. There is no lock-up period — you can undelegate at any time. The baker cannot access or spend your XTZ." },
+        { question: "How long does it take to start earning Tezos staking rewards?", answer: "After delegating, it takes approximately 2-3 cycles (around 5-7 days) before you start receiving rewards. Each Tezos cycle is approximately 2.8 days long (14,400 blocks at 6 seconds per block)." },
+        { question: "What is the minimum amount to stake Tezos?", answer: "There is no minimum amount to delegate XTZ. You can delegate any amount, even 1 XTZ. However, some bakers may have a minimum delegation requirement. The XTZ.News Staking Calculator works for any amount." },
+      ]),
+    ],
   });
 
   const { data: bakers = [], isLoading } = trpc.explorer.bakers.useQuery({ limit: 50 });

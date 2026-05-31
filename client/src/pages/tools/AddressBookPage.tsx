@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { ChevronRight, Home, Plus, Trash2, Edit2, Check, X, Copy, ExternalLink, BookOpen } from "lucide-react";
 import { useAddressBook } from "@/hooks/useAddressBook";
 import { toast } from "sonner";
+import ToolBreadcrumb from "@/components/ToolBreadcrumb";
 import { useSEO, buildToolSchema } from "@/hooks/useSEO";
 
 export default function AddressBookPage() {
@@ -60,13 +61,7 @@ export default function AddressBookPage() {
       {/* Hero */}
       <div style={{ background: "linear-gradient(135deg, #05152e 0%, #0d2a5e 100%)", borderBottom: "1px solid rgba(44,125,247,0.2)", padding: "2rem 0" }}>
         <div className="container">
-          <nav style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginBottom: "1rem", fontSize: "0.75rem", fontWeight: 600 }}>
-            <Link href="/" style={{ color: "rgba(255,255,255,0.5)", display: "flex", alignItems: "center", textDecoration: "none" }}><Home size={12} /></Link>
-            <ChevronRight size={10} style={{ color: "rgba(255,255,255,0.3)" }} />
-            <Link href="/tools" style={{ color: "rgba(255,255,255,0.5)", textDecoration: "none" }}>Tools</Link>
-            <ChevronRight size={10} style={{ color: "rgba(255,255,255,0.3)" }} />
-            <span style={{ color: "rgba(255,255,255,0.7)" }}>Address Book</span>
-          </nav>
+          <ToolBreadcrumb items={[{ label: "Tools", href: "/tools" }, { label: "Address Book" }]} />
           <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1rem" }}>
             <div style={{ width: "40px", height: "40px", background: "rgba(44,125,247,0.2)", border: "1px solid rgba(44,125,247,0.4)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem" }}>📒</div>
             <div>

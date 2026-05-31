@@ -131,6 +131,32 @@ async function startServer() {
   // ─────────────────────────────────────────────────────────────────────────
 
   // ─── Dynamic Sitemap ─────────────────────────────────────────────────────
+
+  // OG Image Generation
+  app.get("/api/og", async (req, res) => {
+    try {
+      const { generateArticleOgImage, generateToolOgImage } = await import("../ogImage");
+      const type = (req.query.type as string) || "article";
+      let imageBuffer: Buffer;
+      if (type === "tool") {
+        const name = ((req.query.name as string) || "XTZ Tool").slice(0, 60);
+        const description = ((req.query.description as string) || "").slice(0, 160);
+        const icon = ((req.query.icon as string) || "");
+        imageBuffer = await generateToolOgImage({ name, description, icon });
+      } else {
+        const title = ((req.query.title as string) || "XTZ.News Article").slice(0, 120);
+        const category = ((req.query.category as string) || "TEZOS NEWS").toUpperCase().slice(0, 30);
+        imageBuffer = await generateArticleOgImage({ title, category });
+      }
+      res.set("Content-Type", "image/png");
+      res.set("Cache-Control", "public, max-age=86400");
+      res.send(imageBuffer);
+    } catch (err) {
+      console.error("[OG Image] Error:", err);
+      res.status(500).send("Error generating OG image");
+    }
+  });
+
   app.get("/sitemap.xml", async (req, res) => {
     try {
       const { getDb } = await import("../db");

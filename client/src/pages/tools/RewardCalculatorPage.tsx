@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { Search, ChevronRight, Home, ExternalLink, TrendingUp, Award, ChevronUp, ChevronDown } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import ToolBreadcrumb from "@/components/ToolBreadcrumb";
 import { useSEO, buildToolSchema } from "@/hooks/useSEO";
 
 function fmtXtz(v: number) {
@@ -67,13 +68,7 @@ export default function RewardCalculatorPage() {
       {/* Hero */}
       <div style={{ background: "linear-gradient(135deg, #05152e 0%, #0d2a5e 100%)", borderBottom: "1px solid rgba(44,125,247,0.2)", padding: "2rem 0" }}>
         <div className="container">
-          <nav style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginBottom: "1rem", fontSize: "0.75rem", fontWeight: 600 }}>
-            <Link href="/" style={{ color: "rgba(255,255,255,0.5)", display: "flex", alignItems: "center", textDecoration: "none" }}><Home size={12} /></Link>
-            <ChevronRight size={10} style={{ color: "rgba(255,255,255,0.3)" }} />
-            <Link href="/tools" style={{ color: "rgba(255,255,255,0.5)", textDecoration: "none" }}>Tools</Link>
-            <ChevronRight size={10} style={{ color: "rgba(255,255,255,0.3)" }} />
-            <span style={{ color: "rgba(255,255,255,0.7)" }}>Reward Calculator</span>
-          </nav>
+          <ToolBreadcrumb items={[{ label: "Tools", href: "/tools" }, { label: "Reward Calculator" }]} />
           <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1rem" }}>
             <div style={{ width: "40px", height: "40px", background: "rgba(34,197,94,0.2)", border: "1px solid rgba(34,197,94,0.4)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem" }}>💰</div>
             <div>
