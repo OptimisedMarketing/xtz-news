@@ -4,6 +4,7 @@ import { Home, ChevronRight } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useSEO, buildWebPageSchema } from "@/hooks/useSEO";
 import PostCard from "@/components/PostCard";
+import RelatedArticles from "@/components/RelatedArticles";
 
 const PAGE_SIZE = 12;
 
@@ -66,6 +67,17 @@ export default function TagPage() {
         ) : (
           <div className="text-center py-16"><p className="text-white/40">No articles found for this tag.</p></div>
         )}
+      </div>
+
+      {/* Related Articles — latest news as fallback since tags don't have category IDs */}
+      <div className="container pb-16">
+        <RelatedArticles
+          postId={0}
+          categoryIds={[]}
+          limit={6}
+          heading={`More Tezos News`}
+          subHeading={tagName ? `More tagged #${tagName}` : "Keep reading"}
+        />
       </div>
     </div>
   );

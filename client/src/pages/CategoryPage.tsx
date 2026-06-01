@@ -4,6 +4,7 @@ import { Home, ChevronRight, ChevronDown, Loader2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import PostCard from "@/components/PostCard";
 import { useSEO } from "@/hooks/useSEO";
+import RelatedArticles from "@/components/RelatedArticles";
 
 const PAGE_SIZE = 12;
 
@@ -186,6 +187,21 @@ export default function CategoryPage() {
           </div>
         )}
       </div>
+
+      {/* Related Articles from other categories */}
+      {category && (
+        <div className="container" style={{ padding: "0 1.25rem 4rem" }}>
+          <RelatedArticles
+            postId={0}
+            categoryIds={category.id ? [category.id] : []}
+            categoryName={category.name}
+            categorySlug={slug || ""}
+            limit={6}
+            heading={`More ${category.name} News`}
+            subHeading="Keep reading"
+          />
+        </div>
+      )}
     </div>
   );
 }
