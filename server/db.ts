@@ -79,6 +79,23 @@ export async function getMostReadPosts(limit = 10) {
     .limit(limit);
 }
 
+export async function getMostReadThisWeek(limit = 10) {
+  const db = await getDb();
+  if (!db) return [];
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const results = await db
+    .select()
+    .from(posts)
+    .where(and(eq(posts.status, "publish"), sql`${posts.publishedAt} >= ${sevenDaysAgo}`))
+    .orderBy(desc(posts.viewCount), desc(posts.publishedAt))
+    .limit(limit);
+  // Fall back to all-time if fewer than 5 results this week
+  if (results.length < 5) {
+    return getMostReadPosts(limit);
+  }
+  return results;
+}
+
 export async function getFeaturedPosts(limit = 6) {
   const db = await getDb();
   if (!db) return [];

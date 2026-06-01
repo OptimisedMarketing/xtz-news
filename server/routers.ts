@@ -83,6 +83,16 @@ const postsRouter = router({
       return withCats;
     }),
 
+  mostReadThisWeek: publicProcedure
+    .input(z.object({ limit: z.number().min(1).max(20).default(10) }))
+    .query(async ({ input }) => {
+      const postList = await db.getMostReadThisWeek(input.limit);
+      const withCats = await Promise.all(
+        postList.map(async (p) => ({ ...p, categories: await db.getPostCategories(p.id) }))
+      );
+      return withCats;
+    }),
+
   featured: publicProcedure
     .input(z.object({ limit: z.number().min(1).max(20).default(6) }))
     .query(async ({ input }) => {
@@ -95,20 +105,22 @@ const postsRouter = router({
 
   // Combined homepage query — single round trip
   homepageData: publicProcedure.query(async () => {
-    const [latestRaw, mostReadRaw] = await Promise.all([
+    const [latestRaw, mostReadRaw, trendingRaw] = await Promise.all([
       db.getLatestPosts(10, 0),
       db.getMostReadPosts(8),
+      db.getMostReadThisWeek(10),
     ]);
-    const allPosts = [...latestRaw, ...mostReadRaw];
+    const allPosts = [...latestRaw, ...mostReadRaw, ...trendingRaw];
     const uniqueIds = Array.from(new Set(allPosts.map((p) => p.id)));
     const catsMap: Record<number, Awaited<ReturnType<typeof db.getPostCategories>>> = {};
     await Promise.all(uniqueIds.map(async (id) => { catsMap[id] = await db.getPostCategories(id); }));
     const withCats = (posts: typeof latestRaw) => posts.map((p) => ({ ...p, categories: catsMap[p.id] ?? [] }));
     const latest = withCats(latestRaw);
     const mostRead = withCats(mostReadRaw);
+    const trending = withCats(trendingRaw);
     const featured = latest.filter((p) => p.isFeatured).slice(0, 6);
     const featuredToShow = featured.length >= 3 ? featured : latest.slice(0, 6);
-    return { latest, mostRead, featured: featuredToShow };
+    return { latest, mostRead, trending, featured: featuredToShow };
   }),
 
   bySlug: publicProcedure

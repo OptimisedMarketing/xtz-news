@@ -314,13 +314,27 @@ function FeaturedNewsGrid({ posts }: { posts: any[] }) {
 }
 
 // ─── Latest News ──────────────────────────────────────────────────────────────
-function TrendingNowWidget({ posts }: { posts: any[] }) {
-  if (!posts.length) return null;
+function TrendingNowWidget({ weekPosts, allTimePosts }: { weekPosts: any[]; allTimePosts: any[] }) {
+  const [tab, setTab] = useState<"week" | "alltime">("week");
+  const posts = tab === "week" ? weekPosts : allTimePosts;
+  if (!weekPosts.length && !allTimePosts.length) return null;
   return (
     <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", overflow: "hidden", position: "sticky", top: "1rem" }}>
-      <div style={{ padding: "1rem 1.25rem", borderBottom: "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-        <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#f97316", animation: "pulse 2s infinite" }} />
-        <span style={{ fontSize: "0.72rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.1em", color: "#fff" }}>Trending Now</span>
+      <div style={{ padding: "0.875rem 1.25rem", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.6rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#f97316", animation: "pulse 2s infinite" }} />
+            <span style={{ fontSize: "0.72rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.1em", color: "#fff" }}>Trending</span>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: "0.3rem" }}>
+          {(["week", "alltime"] as const).map((t) => (
+            <button key={t} onClick={() => setTab(t)}
+              style={{ padding: "0.25rem 0.65rem", borderRadius: "3px", fontSize: "0.62rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", cursor: "pointer", border: tab === t ? "1px solid #f97316" : "1px solid rgba(255,255,255,0.12)", background: tab === t ? "rgba(249,115,22,0.15)" : "transparent", color: tab === t ? "#f97316" : "rgba(255,255,255,0.4)", transition: "all 0.15s" }}>
+              {t === "week" ? "This Week" : "All Time"}
+            </button>
+          ))}
+        </div>
       </div>
       <div style={{ padding: "0.5rem 0" }}>
         {posts.slice(0, 7).map((post, i) => (
@@ -349,14 +363,65 @@ function TrendingNowWidget({ posts }: { posts: any[] }) {
   );
 }
 
-function LatestNewsSection({ posts, trendingPosts }: { posts: any[]; trendingPosts: any[] }) {
+function NewsletterCTABanner() {
+  const [email, setEmail] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const subscribeMutation = trpc.newsletter.subscribe.useMutation({
+    onSuccess: () => setSubmitted(true),
+  });
+  const { data: countData } = trpc.newsletter.subscriberCount.useQuery(undefined, { staleTime: 5 * 60_000 });
+  const count = typeof countData === "number" ? countData : 1026;
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+    subscribeMutation.mutate({ email: email.trim(), govAlerts: false });
+  };
+  return (
+    <section style={{ background: "linear-gradient(135deg, #05152e 0%, #0d2a5e 60%, #05152e 100%)", borderTop: "1px solid rgba(44,125,247,0.2)", borderBottom: "1px solid rgba(44,125,247,0.2)", padding: "2.5rem 0" }}>
+      <div className="container">
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "1.5rem" }}>
+          <div style={{ flex: "1 1 300px" }}>
+            <p style={{ margin: "0 0 0.3rem", fontSize: "0.65rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "#2c7df7" }}>Free Newsletter</p>
+            <h2 style={{ margin: "0 0 0.5rem", fontSize: "clamp(1.2rem, 3vw, 1.75rem)", fontWeight: 900, color: "#fff", lineHeight: 1.2 }}>Stay ahead of Tezos</h2>
+            <p style={{ margin: 0, fontSize: "0.85rem", color: "rgba(255,255,255,0.55)" }}>Join {count.toLocaleString()}+ readers. Weekly digest every Monday.</p>
+          </div>
+          <div style={{ flex: "1 1 360px" }}>
+            {submitted ? (
+              <div style={{ background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.3)", borderRadius: "6px", padding: "1rem 1.5rem", textAlign: "center" }}>
+                <p style={{ margin: 0, color: "#22c55e", fontWeight: 700 }}>✓ You're subscribed! Check your inbox.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} style={{ display: "flex", gap: "0.5rem" }}>
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="your@email.com" required
+                  style={{ flex: 1, padding: "0.75rem 1rem", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "4px", color: "#fff", fontSize: "0.88rem", outline: "none", fontFamily: "inherit" }}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = "#2c7df7")}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)")} />
+                <button type="submit" disabled={subscribeMutation.isPending}
+                  style={{ padding: "0.75rem 1.5rem", background: "#2c7df7", border: "none", borderRadius: "4px", color: "#fff", fontSize: "0.82rem", fontWeight: 700, cursor: subscribeMutation.isPending ? "not-allowed" : "pointer", whiteSpace: "nowrap", transition: "background 0.2s", opacity: subscribeMutation.isPending ? 0.7 : 1 }}
+                  onMouseEnter={(e) => { if (!subscribeMutation.isPending) (e.currentTarget as HTMLElement).style.background = "#1a6ae0"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "#2c7df7"; }}>
+                  {subscribeMutation.isPending ? "Subscribing…" : "Subscribe Free"}
+                </button>
+              </form>
+            )}
+            {subscribeMutation.isError && <p style={{ margin: "0.5rem 0 0", fontSize: "0.75rem", color: "#ef4444" }}>Something went wrong. Please try again.</p>}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function LatestNewsSection({ posts, weekPosts, allTimePosts }: { posts: any[]; weekPosts: any[]; allTimePosts: any[] }) {
   const [isMobile, setIsMobile] = useState(false);
+  const [showAll, setShowAll] = useState(false);
   useEffect(() => {
     const update = () => setIsMobile(window.innerWidth < 900);
     update();
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
   }, []);
+  const visiblePosts = showAll ? posts : posts.slice(0, 8);
   return (
     <section style={{ padding: "2.5rem 0", background: "#000" }}>
       <div className="container">
@@ -368,18 +433,36 @@ function LatestNewsSection({ posts, trendingPosts }: { posts: any[]; trendingPos
               <Link href="/category/latest-news" className="btn-read-more" style={{ fontSize: "0.65rem", padding: "0.4rem 1rem" }}>VIEW MORE</Link>
             </div>
             {posts.length === 0 ? <CardsSkeleton count={isMobile ? 2 : 4} cols={isMobile ? 1 : 2} /> : (
-              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill, minmax(220px, 1fr))", gap: "1rem" }}>
-                {posts.map((post) => <PostCard key={post.id} post={post} variant="default" />)}
-              </div>
+              <>
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill, minmax(220px, 1fr))", gap: "1rem" }}>
+                  {visiblePosts.map((post) => <PostCard key={post.id} post={post} variant="default" />)}
+                </div>
+                {/* Load More button */}
+                {!showAll && posts.length > 8 && (
+                  <div style={{ textAlign: "center", marginTop: "1.75rem" }}>
+                    <button onClick={() => setShowAll(true)}
+                      style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.75rem 2rem", background: "transparent", border: "2px solid rgba(44,125,247,0.5)", borderRadius: "3px", color: "#2c7df7", fontSize: "0.78rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", cursor: "pointer", transition: "all 0.2s" }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.1)"; (e.currentTarget as HTMLElement).style.borderColor = "#2c7df7"; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(44,125,247,0.5)"; }}>
+                      Load More Articles
+                    </button>
+                  </div>
+                )}
+                {showAll && (
+                  <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
+                    <Link href="/category/latest-news" style={{ fontSize: "0.75rem", fontWeight: 700, color: "#2c7df7", textDecoration: "none" }}>View all latest news →</Link>
+                  </div>
+                )}
+              </>
             )}
           </div>
           {/* Trending Now sidebar */}
-          {!isMobile && <TrendingNowWidget posts={trendingPosts} />}
+          {!isMobile && <TrendingNowWidget weekPosts={weekPosts} allTimePosts={allTimePosts} />}
         </div>
         {/* Trending on mobile — below the grid */}
-        {isMobile && trendingPosts.length > 0 && (
+        {isMobile && (weekPosts.length > 0 || allTimePosts.length > 0) && (
           <div style={{ marginTop: "2rem" }}>
-            <TrendingNowWidget posts={trendingPosts} />
+            <TrendingNowWidget weekPosts={weekPosts} allTimePosts={allTimePosts} />
           </div>
         )}
       </div>
@@ -436,7 +519,8 @@ export default function Home() {
       <HomepageFilters />
       <MostPopularCarousel posts={mostRead} />
       <FeaturedNewsGrid posts={featured} />
-      <LatestNewsSection posts={latest.slice(0, 8)} trendingPosts={mostRead} />
+      <NewsletterCTABanner />
+      <LatestNewsSection posts={latest.slice(0, 8)} weekPosts={(data as any)?.trending ?? mostRead} allTimePosts={mostRead} />
     </div>
   );
 }
