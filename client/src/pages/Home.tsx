@@ -314,25 +314,72 @@ function FeaturedNewsGrid({ posts }: { posts: any[] }) {
 }
 
 // ─── Latest News ──────────────────────────────────────────────────────────────
-function LatestNewsSection({ posts }: { posts: any[] }) {
+function TrendingNowWidget({ posts }: { posts: any[] }) {
+  if (!posts.length) return null;
+  return (
+    <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", overflow: "hidden", position: "sticky", top: "1rem" }}>
+      <div style={{ padding: "1rem 1.25rem", borderBottom: "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#f97316", animation: "pulse 2s infinite" }} />
+        <span style={{ fontSize: "0.72rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.1em", color: "#fff" }}>Trending Now</span>
+      </div>
+      <div style={{ padding: "0.5rem 0" }}>
+        {posts.slice(0, 7).map((post, i) => (
+          <Link key={post.id} href={`/${post.slug}`} style={{ textDecoration: "none", display: "flex", alignItems: "flex-start", gap: "0.75rem", padding: "0.75rem 1.25rem", transition: "background 0.15s" }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.04)")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "transparent")}>
+            <span style={{ fontSize: "1.1rem", fontWeight: 900, color: i < 3 ? "#f97316" : "rgba(255,255,255,0.2)", flexShrink: 0, width: "1.5rem", lineHeight: 1.3 }}>{i + 1}</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ margin: 0, fontSize: "0.82rem", fontWeight: 700, color: "rgba(255,255,255,0.85)", lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{post.title}</p>
+              {post.categories?.[0] && (
+                <span style={{ fontSize: "0.6rem", fontWeight: 700, color: "#2c7df7", textTransform: "uppercase", letterSpacing: "0.08em", marginTop: "0.2rem", display: "block" }}>{post.categories[0].name}</span>
+              )}
+            </div>
+            {post.viewCount > 0 && (
+              <span style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.25)", flexShrink: 0, fontWeight: 600 }}>{post.viewCount >= 1000 ? `${(post.viewCount / 1000).toFixed(1)}k` : post.viewCount}</span>
+            )}
+          </Link>
+        ))}
+      </div>
+      <div style={{ padding: "0.75rem 1.25rem", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <Link href="/search" style={{ fontSize: "0.7rem", fontWeight: 700, color: "#2c7df7", textDecoration: "none", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+          View all trending →
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function LatestNewsSection({ posts, trendingPosts }: { posts: any[]; trendingPosts: any[] }) {
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
-    const update = () => setIsMobile(window.innerWidth < 640);
+    const update = () => setIsMobile(window.innerWidth < 900);
     update();
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
   }, []);
-
   return (
     <section style={{ padding: "2.5rem 0", background: "#000" }}>
       <div className="container">
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem" }}>
-          <h2 className="section-title" style={{ marginBottom: 0 }}>LATEST NEWS</h2>
-          <Link href="/category/latest-news" className="btn-read-more" style={{ fontSize: "0.65rem", padding: "0.4rem 1rem" }}>VIEW MORE</Link>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 300px", gap: "2rem", alignItems: "start" }}>
+          {/* Main article grid */}
+          <div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem" }}>
+              <h2 className="section-title" style={{ marginBottom: 0 }}>LATEST NEWS</h2>
+              <Link href="/category/latest-news" className="btn-read-more" style={{ fontSize: "0.65rem", padding: "0.4rem 1rem" }}>VIEW MORE</Link>
+            </div>
+            {posts.length === 0 ? <CardsSkeleton count={isMobile ? 2 : 4} cols={isMobile ? 1 : 2} /> : (
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill, minmax(220px, 1fr))", gap: "1rem" }}>
+                {posts.map((post) => <PostCard key={post.id} post={post} variant="default" />)}
+              </div>
+            )}
+          </div>
+          {/* Trending Now sidebar */}
+          {!isMobile && <TrendingNowWidget posts={trendingPosts} />}
         </div>
-        {posts.length === 0 ? <CardsSkeleton count={isMobile ? 2 : 4} cols={isMobile ? 1 : 4} /> : (
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill, minmax(240px, 1fr))", gap: "1rem" }}>
-            {posts.map((post) => <PostCard key={post.id} post={post} variant="default" />)}
+        {/* Trending on mobile — below the grid */}
+        {isMobile && trendingPosts.length > 0 && (
+          <div style={{ marginTop: "2rem" }}>
+            <TrendingNowWidget posts={trendingPosts} />
           </div>
         )}
       </div>
@@ -389,7 +436,7 @@ export default function Home() {
       <HomepageFilters />
       <MostPopularCarousel posts={mostRead} />
       <FeaturedNewsGrid posts={featured} />
-      <LatestNewsSection posts={latest.slice(0, 8)} />
+      <LatestNewsSection posts={latest.slice(0, 8)} trendingPosts={mostRead} />
     </div>
   );
 }
