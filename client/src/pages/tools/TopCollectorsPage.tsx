@@ -309,9 +309,14 @@ export default function TopCollectorsPage() {
                       </div>
                       <div style={{ textAlign: "right", flexShrink: 0 }}>
                         <p style={{ margin: 0, fontSize: "1rem", fontWeight: 900, color: rankColor }}>
-                          {showUsd && volUsd ? `$${volUsd >= 1_000_000 ? (volUsd / 1_000_000).toFixed(1) + 'M' : volUsd >= 1000 ? (volUsd / 1000).toFixed(1) + 'K' : volUsd.toFixed(0)}` : `${formatXtz(vol)} ꜩ`}
+                          {formatXtz(vol)} <span style={{ fontSize: "0.7rem", fontWeight: 600 }}>ꜩ</span>
                         </p>
-                        <p style={{ margin: "1px 0 0", fontSize: "0.62rem", color: "rgba(255,255,255,0.3)", fontWeight: 600 }}>
+                        {volUsd && (
+                          <p style={{ margin: "1px 0 0", fontSize: "0.72rem", fontWeight: 700, color: "rgba(34,197,94,0.8)" }}>
+                            ${volUsd >= 1_000_000 ? (volUsd / 1_000_000).toFixed(1) + 'M' : volUsd >= 1000 ? (volUsd / 1000).toFixed(1) + 'K' : volUsd.toFixed(0)}
+                          </p>
+                        )}
+                        <p style={{ margin: "1px 0 0", fontSize: "0.58rem", color: "rgba(255,255,255,0.25)", fontWeight: 600 }}>
                           {collectionsSortBy === 'volume_24h' ? '24h vol' : collectionsSortBy === 'items' ? 'items' : collectionsSortBy === 'owners' ? 'owners' : 'total vol'}
                         </p>
                       </div>
@@ -397,11 +402,14 @@ export default function TopCollectorsPage() {
                     {/* Volume */}
                     <div style={{ textAlign: "right", flexShrink: 0 }}>
                       <p style={{ margin: 0, fontSize: "1rem", fontWeight: 900, color: rankColor }}>
-                        {showUsd && collector.volumeUsd
-                          ? `$${collector.volumeUsd >= 1000 ? (collector.volumeUsd / 1000).toFixed(1) + 'K' : collector.volumeUsd.toFixed(0)}`
-                          : `${formatXtz(collector.volume)} ꜩ`}
+                        {formatXtz(collector.volume)} <span style={{ fontSize: "0.7rem", fontWeight: 600 }}>ꜩ</span>
                       </p>
-                      <p style={{ margin: "1px 0 0", fontSize: "0.62rem", color: "rgba(255,255,255,0.3)", fontWeight: 600 }}>
+                      {collector.volumeUsd && (
+                        <p style={{ margin: "1px 0 0", fontSize: "0.72rem", fontWeight: 700, color: "rgba(34,197,94,0.8)" }}>
+                          ${collector.volumeUsd >= 1_000_000 ? (collector.volumeUsd / 1_000_000).toFixed(1) + 'M' : collector.volumeUsd >= 1000 ? (collector.volumeUsd / 1000).toFixed(1) + 'K' : collector.volumeUsd.toFixed(0)}
+                        </p>
+                      )}
+                      <p style={{ margin: "1px 0 0", fontSize: "0.58rem", color: "rgba(255,255,255,0.25)", fontWeight: 600 }}>
                         {period === 'all' ? 'all time' : `${period}d`} {tab === 'collectors' ? 'spend' : 'earned'}
                       </p>
                     </div>
