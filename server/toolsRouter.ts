@@ -1539,4 +1539,48 @@ export const toolsRouter = router({
         return [];
       }
     }),
+
+  // ─── Top Collections ───────────────────────────────────────────────────────────────────────────────────────
+  topCollections: publicProcedure
+    .input(z.object({ sortBy: z.enum(['volume_total', 'volume_24h', 'items', 'owners']).default('volume_total'), limit: z.number().min(1).max(1000).default(1000) }))
+    .query(async ({ input }) => {
+      const OBJKT = 'https://data.objkt.com/v3/graphql';
+      const orderBy = `{${input.sortBy}: desc}`;
+      const query = (offset: number) => `{ fa(limit: 500, offset: ${offset}, order_by: ${orderBy}, where: {live: {_eq: true}, name: {_is_null: false}, ${input.sortBy}: {_gt: 0}}) { contract name logo description volume_total volume_24h floor_price items owners collection_type twitter website } }`;
+      try {
+        const [res1, res2, priceRes] = await Promise.all([
+          fetch(OBJKT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: query(0) }), signal: AbortSignal.timeout(15000) }),
+          fetch(OBJKT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: query(500) }), signal: AbortSignal.timeout(15000) }),
+          fetch('https://api.coingecko.com/api/v3/simple/price?ids=tezos&vs_currencies=usd', { signal: AbortSignal.timeout(5000) }),
+        ]);
+        const [d1, d2, priceData] = await Promise.all([res1.json(), res2.json(), priceRes.json()]);
+        const xtzUsd = priceData?.tezos?.usd || 0;
+        const allFa = [...(d1?.data?.fa || []), ...(d2?.data?.fa || [])];
+        const seen = new Set<string>();
+        const results = allFa
+          .filter((f: any) => { if (seen.has(f.contract)) return false; seen.add(f.contract); return true; })
+          .slice(0, input.limit)
+          .map((f: any, i: number) => ({
+            rank: i + 1,
+            contract: f.contract,
+            name: f.name,
+            logo: f.logo,
+            description: f.description || null,
+            volumeTotal: f.volume_total / 1_000_000,
+            volumeTotalUsd: xtzUsd > 0 ? (f.volume_total / 1_000_000) * xtzUsd : null,
+            volume24h: f.volume_24h / 1_000_000,
+            volume24hUsd: xtzUsd > 0 ? (f.volume_24h / 1_000_000) * xtzUsd : null,
+            floorPrice: f.floor_price ? f.floor_price / 1_000_000 : null,
+            items: f.items,
+            owners: f.owners,
+            collectionType: f.collection_type,
+            twitter: f.twitter,
+            website: f.website,
+            objktUrl: `https://objkt.com/collections/${f.contract}`,
+          }));
+        return { results, xtzUsd };
+      } catch (e) {
+        return { results: [], xtzUsd: 0 };
+      }
+    }),
 });

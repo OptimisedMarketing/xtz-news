@@ -130,13 +130,15 @@ function getRankEmoji(rank: number) {
 
 export default function TopCollectorsPage() {
   const [period, setPeriod] = useState<'7' | '30' | 'all'>('30');
-  const [tab, setTab] = useState<'collectors' | 'sellers'>('collectors');
+  const [tab, setTab] = useState<'collectors' | 'sellers' | 'collections'>('collectors');
   const [selectedCollector, setSelectedCollector] = useState<any>(null);
+  const [collectionsSortBy, setCollectionsSortBy] = useState<'volume_total' | 'volume_24h' | 'items' | 'owners'>('volume_total');
+  const [visibleCount, setVisibleCount] = useState(50);
 
   useSEO({
-    title: "Top Tezos NFT Collectors & Sellers | XTZ.News — Leaderboard",
-    description: "Leaderboard of the most active Tezos NFT collectors and highest-earning artists ranked by spend/sales volume on objkt.com. Filter by 7d, 30d, or All Time.",
-    keywords: "Tezos NFT collectors, Tezos NFT sellers, objkt leaderboard, Tezos art collectors, Tezos artists",
+    title: "Top Tezos NFT Collectors, Sellers & Collections | XTZ.News",
+    description: "Leaderboard of the top 1,000 Tezos NFT collectors, artists, and collections ranked by volume. Filter by 7d, 30d, or All Time. USD equivalents included.",
+    keywords: "Tezos NFT collectors, Tezos NFT sellers, Tezos collections, objkt leaderboard, Tezos art",
     canonical: "https://xtz.news/tools/top-collectors",
   });
 
@@ -153,18 +155,24 @@ export default function TopCollectorsPage() {
     { staleTime: 5 * 60_000, refetchInterval: 10 * 60_000 }
   );
 
-  const activeData = tab === 'collectors' ? collectorsData : sellersData;
-  const xtzUsd = activeData?.xtzUsd || 0;
-  const allResults: any[] = activeData?.results || [];
+  const { data: collectionsData, isLoading: collectionsLoading } = trpc.tools.topCollections.useQuery(
+    { sortBy: collectionsSortBy, limit: 1000 },
+    { staleTime: 5 * 60_000, refetchInterval: 10 * 60_000 }
+  );
+
+  const activeData = tab === 'collectors' ? collectorsData : tab === 'sellers' ? sellersData : collectionsData;
+  const xtzUsd = (activeData as any)?.xtzUsd || 0;
+  const allResults: any[] = (activeData as any)?.results || [];
   const filteredResults = searchQuery.trim()
     ? allResults.filter((c: any) => {
         const q = searchQuery.toLowerCase();
+        if (tab === 'collections') return (c.name || '').toLowerCase().includes(q) || c.contract.toLowerCase().includes(q);
         return (c.alias || '').toLowerCase().includes(q) || c.address.toLowerCase().includes(q);
       })
     : allResults;
-  const isLoading = tab === 'collectors' ? collectorsLoading : sellersLoading;
-  const activeList = filteredResults;
-  const totalVolume = allResults.reduce((sum: number, c: any) => sum + c.volume, 0);
+  const isLoading = tab === 'collectors' ? collectorsLoading : tab === 'sellers' ? sellersLoading : collectionsLoading;
+  const activeList = filteredResults.slice(0, visibleCount);
+  const totalVolume = allResults.reduce((sum: number, c: any) => sum + (c.volume || c.volumeTotal || 0), 0);
 
   return (
     <div style={{ background: "#000", minHeight: "100vh" }}>
@@ -188,14 +196,28 @@ export default function TopCollectorsPage() {
                   style={{ padding: "0.4rem 1rem", borderRadius: "4px", fontSize: "0.78rem", fontWeight: 700, cursor: "pointer", border: tab === 'collectors' ? "1px solid #fbbf24" : "1px solid rgba(255,255,255,0.15)", background: tab === 'collectors' ? "rgba(251,191,36,0.15)" : "transparent", color: tab === 'collectors' ? "#fbbf24" : "rgba(255,255,255,0.5)", transition: "all 0.15s" }}>
                   🏆 Collectors
                 </button>
-                <button onClick={() => setTab('sellers')}
+                <button onClick={() => { setTab('sellers'); setVisibleCount(50); }}
                   style={{ padding: "0.4rem 1rem", borderRadius: "4px", fontSize: "0.78rem", fontWeight: 700, cursor: "pointer", border: tab === 'sellers' ? "1px solid #a78bfa" : "1px solid rgba(255,255,255,0.15)", background: tab === 'sellers' ? "rgba(167,139,250,0.15)" : "transparent", color: tab === 'sellers' ? "#a78bfa" : "rgba(255,255,255,0.5)", transition: "all 0.15s" }}>
                   🎨 Artists / Sellers
                 </button>
+                <button onClick={() => { setTab('collections'); setVisibleCount(50); }}
+                  style={{ padding: "0.4rem 1rem", borderRadius: "4px", fontSize: "0.78rem", fontWeight: 700, cursor: "pointer", border: tab === 'collections' ? "1px solid #22c55e" : "1px solid rgba(255,255,255,0.15)", background: tab === 'collections' ? "rgba(34,197,94,0.15)" : "transparent", color: tab === 'collections' ? "#22c55e" : "rgba(255,255,255,0.5)", transition: "all 0.15s" }}>
+                  🖼️ Collections
+                </button>
               </div>
               <p style={{ margin: 0, fontSize: "0.82rem", color: "rgba(255,255,255,0.5)" }}>
-                {tab === 'collectors' ? 'Most active Tezos NFT collectors ranked by spend volume on objkt.com' : 'Highest-earning Tezos artists ranked by sales volume on objkt.com'}
+                {tab === 'collectors' ? 'Most active Tezos NFT collectors ranked by spend volume on objkt.com' : tab === 'sellers' ? 'Highest-earning Tezos artists ranked by sales volume on objkt.com' : 'Top Tezos NFT collections ranked by all-time volume, 24h volume, items, or owners'}
               </p>
+              {tab === 'collections' && (
+                <div style={{ display: "flex", gap: "0.4rem", marginTop: "0.5rem", flexWrap: "wrap" }}>
+                  {([['volume_total', 'All-Time Vol'], ['volume_24h', '24h Vol'], ['items', 'Items'], ['owners', 'Owners']] as const).map(([val, label]) => (
+                    <button key={val} onClick={() => { setCollectionsSortBy(val); setVisibleCount(50); }}
+                      style={{ padding: "0.3rem 0.75rem", borderRadius: "3px", fontSize: "0.7rem", fontWeight: 700, cursor: "pointer", border: collectionsSortBy === val ? "1px solid #22c55e" : "1px solid rgba(255,255,255,0.12)", background: collectionsSortBy === val ? "rgba(34,197,94,0.15)" : "transparent", color: collectionsSortBy === val ? "#22c55e" : "rgba(255,255,255,0.4)", transition: "all 0.15s" }}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             {/* Controls row */}
             <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
@@ -254,7 +276,52 @@ export default function TopCollectorsPage() {
           </div>
         ) : allResults.length > 0 ? (
           <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            {(activeList as any[]).map((collector: any) => {
+            {tab === 'collections' ? (
+              (activeList as any[]).map((col: any) => {
+                const rankColor = getRankColor(col.rank);
+                const rankEmoji = getRankEmoji(col.rank);
+                const vol = collectionsSortBy === 'volume_24h' ? col.volume24h : col.volumeTotal;
+                const volUsd = collectionsSortBy === 'volume_24h' ? col.volume24hUsd : col.volumeTotalUsd;
+                const maxVol = allResults[0] ? (collectionsSortBy === 'volume_24h' ? allResults[0].volume24h : allResults[0].volumeTotal) : 1;
+                const barWidth = maxVol > 0 ? (vol / maxVol) * 100 : 0;
+                return (
+                  <a key={col.contract} href={col.objktUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+                    <div style={{ background: "#05152e", border: `1px solid ${col.rank <= 3 ? `${rankColor}30` : "rgba(255,255,255,0.07)"}`, borderRadius: "8px", padding: "0.875rem 1.25rem", display: "flex", alignItems: "center", gap: "1rem", transition: "transform 0.15s, border-color 0.15s", position: "relative", overflow: "hidden" }}
+                      onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.transform = "translateX(4px)"; el.style.borderColor = `${rankColor}60`; }}
+                      onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.transform = "translateX(0)"; el.style.borderColor = col.rank <= 3 ? `${rankColor}30` : "rgba(255,255,255,0.07)"; }}>
+                      <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: `${barWidth}%`, background: `${rankColor}08`, pointerEvents: "none" }} />
+                      <div style={{ width: "2.5rem", flexShrink: 0, textAlign: "center" }}>
+                        {rankEmoji ? <span style={{ fontSize: "1.3rem" }}>{rankEmoji}</span> : <span style={{ fontSize: "1rem", fontWeight: 900, color: rankColor }}>{col.rank}</span>}
+                      </div>
+                      <div style={{ width: "40px", height: "40px", borderRadius: "6px", background: `${rankColor}20`, border: `2px solid ${rankColor}40`, overflow: "hidden", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        {col.logo ? <img src={col.logo} alt={col.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} /> : <span style={{ fontSize: "1rem" }}>🖼️</span>}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                          <span style={{ fontSize: "0.92rem", fontWeight: 800, color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{col.name}</span>
+                          {col.collectionType && <span style={{ fontSize: "0.58rem", fontWeight: 700, padding: "1px 6px", borderRadius: "2px", background: "rgba(34,197,94,0.15)", color: "#22c55e", flexShrink: 0 }}>{col.collectionType}</span>}
+                        </div>
+                        <div style={{ display: "flex", gap: "0.75rem", marginTop: "2px" }}>
+                          <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.35)" }}>{col.items?.toLocaleString()} items</span>
+                          <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.35)" }}>{col.owners?.toLocaleString()} owners</span>
+                          {col.floorPrice && <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.35)" }}>Floor: {col.floorPrice.toFixed(2)} ꜩ</span>}
+                        </div>
+                      </div>
+                      <div style={{ textAlign: "right", flexShrink: 0 }}>
+                        <p style={{ margin: 0, fontSize: "1rem", fontWeight: 900, color: rankColor }}>
+                          {showUsd && volUsd ? `$${volUsd >= 1_000_000 ? (volUsd / 1_000_000).toFixed(1) + 'M' : volUsd >= 1000 ? (volUsd / 1000).toFixed(1) + 'K' : volUsd.toFixed(0)}` : `${formatXtz(vol)} ꜩ`}
+                        </p>
+                        <p style={{ margin: "1px 0 0", fontSize: "0.62rem", color: "rgba(255,255,255,0.3)", fontWeight: 600 }}>
+                          {collectionsSortBy === 'volume_24h' ? '24h vol' : collectionsSortBy === 'items' ? 'items' : collectionsSortBy === 'owners' ? 'owners' : 'total vol'}
+                        </p>
+                      </div>
+                      <ExternalLink size={12} style={{ color: "rgba(255,255,255,0.2)", flexShrink: 0 }} />
+                    </div>
+                  </a>
+                );
+              })
+            ) : (
+            (activeList as any[]).map((collector: any) => {
               const rankColor = getRankColor(collector.rank);
               const rankEmoji = getRankEmoji(collector.rank);
               const barWidth = allResults.length > 0 && allResults[0].volume > 0 ? (collector.volume / allResults[0].volume) * 100 : 0;
@@ -343,11 +410,28 @@ export default function TopCollectorsPage() {
                   </div>
                 </div>
               );
-            })}
+            }))}
           </div>
         ) : (
           <div style={{ textAlign: "center", padding: "4rem 0" }}>
-            <p style={{ color: "rgba(255,255,255,0.4)" }}>No collector data available.</p>
+            <p style={{ color: "rgba(255,255,255,0.4)" }}>No data available.</p>
+          </div>
+        )}
+
+        {/* Load More */}
+        {filteredResults.length > visibleCount && (
+          <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
+            <button onClick={() => setVisibleCount(v => v + 50)}
+              style={{ padding: "0.75rem 2rem", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "4px", color: "rgba(255,255,255,0.7)", fontSize: "0.82rem", fontWeight: 700, cursor: "pointer", transition: "all 0.2s" }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.1)"; (e.currentTarget as HTMLElement).style.color = "#fff"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)"; (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.7)"; }}>
+              Load More ({filteredResults.length - visibleCount} remaining)
+            </button>
+          </div>
+        )}
+        {filteredResults.length > 0 && filteredResults.length <= visibleCount && filteredResults.length > 50 && (
+          <div style={{ textAlign: "center", marginTop: "1rem" }}>
+            <p style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.25)" }}>Showing all {filteredResults.length.toLocaleString()} results</p>
           </div>
         )}
 
