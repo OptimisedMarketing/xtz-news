@@ -126,6 +126,11 @@ export default function ArtPage() {
     staleTime: 60 * 60_000, // cache 1 hour
   });
 
+  const { data: trendingCollections = [] } = trpc.tools.trendingCollections.useQuery(
+    { limit: 5 },
+    { staleTime: 10 * 60_000 }
+  );
+
   return (
     <div style={{ background: "#000", minHeight: "100vh" }}>
 
@@ -230,6 +235,59 @@ export default function ArtPage() {
           </div>
         </div>
       </section>
+
+      {/* ── Trending Collections ── */}
+      {trendingCollections.length > 0 && (
+        <section style={{ padding: "2rem 0", background: "#05152e", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+          <div className="container">
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem", flexWrap: "wrap", gap: "0.75rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                <div style={{ width: "4px", height: "28px", background: "#f97316", borderRadius: "2px" }} />
+                <div>
+                  <p style={{ margin: 0, fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: "#f97316", marginBottom: "2px" }}>24h Volume</p>
+                  <h2 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#fff" }}>Trending Collections</h2>
+                </div>
+              </div>
+              <a href="https://objkt.com/explore/collections" target="_blank" rel="noopener noreferrer"
+                style={{ fontSize: "0.7rem", fontWeight: 700, color: "#f97316", textDecoration: "none", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                View all on objkt <ExternalLink size={11} />
+              </a>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: "0.875rem" }}>
+              {(trendingCollections as any[]).map((col: any, i: number) => (
+                <a key={col.contract} href={col.objktUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+                  <div style={{ background: "#000", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", padding: "1rem", display: "flex", flexDirection: "column", gap: "0.5rem", transition: "border-color 0.2s, transform 0.2s" }}
+                    onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "rgba(249,115,22,0.4)"; el.style.transform = "translateY(-2px)"; }}
+                    onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "rgba(255,255,255,0.07)"; el.style.transform = "translateY(0)"; }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                      <span style={{ fontSize: "1.1rem", fontWeight: 900, color: i < 3 ? "#f97316" : "rgba(255,255,255,0.2)", flexShrink: 0, width: "1.2rem" }}>{i + 1}</span>
+                      {col.logo ? (
+                        <img src={col.logo} alt={col.name} style={{ width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
+                          onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
+                      ) : (
+                        <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "rgba(249,115,22,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.9rem", flexShrink: 0 }}>🎨</div>
+                      )}
+                      <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{col.name}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div>
+                        <p style={{ margin: 0, fontSize: "0.6rem", color: "rgba(255,255,255,0.35)", fontWeight: 600 }}>24h Vol</p>
+                        <p style={{ margin: 0, fontSize: "0.88rem", fontWeight: 800, color: "#f97316" }}>{col.volume24h.toFixed(0)} ꜩ</p>
+                      </div>
+                      {col.floorPrice && (
+                        <div style={{ textAlign: "right" }}>
+                          <p style={{ margin: 0, fontSize: "0.6rem", color: "rgba(255,255,255,0.35)", fontWeight: 600 }}>Floor</p>
+                          <p style={{ margin: 0, fontSize: "0.82rem", fontWeight: 700, color: "rgba(255,255,255,0.7)" }}>{col.floorPrice.toFixed(1)} ꜩ</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── Featured Artist Spotlight ── */}
       {featuredArtist && (

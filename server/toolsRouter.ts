@@ -1162,4 +1162,155 @@ export const toolsRouter = router({
       objktUrl: profile?.address ? `https://objkt.com/profile/${profile.address}` : `https://objkt.com/explore/creators`,
     };
   }),
+
+  // ─── Live Auctions ───────────────────────────────────────────────────────────────────────────────────────
+  liveAuctions: publicProcedure
+    .input(z.object({ type: z.enum(['english', 'dutch', 'all']).default('all'), limit: z.number().min(1).max(50).default(20) }))
+    .query(async ({ input }) => {
+      const OBJKT = 'https://data.objkt.com/v3/graphql';
+      const resolveIpfs = (uri: string | null) => {
+        if (!uri) return null;
+        if (uri.startsWith('ipfs://')) return `https://ipfs.io/ipfs/${uri.slice(7)}`;
+        return uri;
+      };
+      const results: any[] = [];
+
+      if (input.type === 'english' || input.type === 'all') {
+        try {
+          const res = await fetch(OBJKT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: `{ english_auction_active(limit: ${input.limit}, order_by: {end_time: asc}) { id end_time highest_bid_xtz reserve_xtz start_time ophash token { name thumbnail_uri display_uri fa { name logo } } seller { alias address } highest_bidder { alias } } }` }),
+            signal: AbortSignal.timeout(10000),
+          });
+          const data = await res.json();
+          for (const a of data?.data?.english_auction_active || []) {
+            results.push({
+              id: a.id,
+              type: 'english',
+              endTime: a.end_time,
+              startTime: a.start_time,
+              currentBid: a.highest_bid_xtz ? a.highest_bid_xtz / 1_000_000 : null,
+              reserve: a.reserve_xtz ? a.reserve_xtz / 1_000_000 : null,
+              tokenName: a.token?.name || 'Untitled',
+              thumbnailUri: resolveIpfs(a.token?.thumbnail_uri || a.token?.display_uri),
+              collectionName: a.token?.fa?.name || null,
+              collectionLogo: a.token?.fa?.logo || null,
+              seller: a.seller?.alias || null,
+              topBidder: a.highest_bidder?.alias || null,
+              ophash: a.ophash,
+              objktUrl: `https://objkt.com/auction/english/${a.id}`,
+            });
+          }
+        } catch (e) { /* ignore */ }
+      }
+
+      if (input.type === 'dutch' || input.type === 'all') {
+        try {
+          const res = await fetch(OBJKT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: `{ dutch_auction_active(limit: ${Math.min(input.limit, 20)}, order_by: {end_time: asc}) { id end_time start_price_xtz end_price_xtz start_time ophash token { name thumbnail_uri display_uri fa { name logo } } seller { alias address } } }` }),
+            signal: AbortSignal.timeout(10000),
+          });
+          const data = await res.json();
+          for (const a of data?.data?.dutch_auction_active || []) {
+            const now = Date.now();
+            const start = new Date(a.start_time).getTime();
+            const end = new Date(a.end_time).getTime();
+            const elapsed = Math.max(0, now - start);
+            const duration = Math.max(1, end - start);
+            const progress = Math.min(1, elapsed / duration);
+            const startP = a.start_price_xtz / 1_000_000;
+            const endP = a.end_price_xtz / 1_000_000;
+            const currentPrice = startP - (startP - endP) * progress;
+            results.push({
+              id: a.id,
+              type: 'dutch',
+              endTime: a.end_time,
+              startTime: a.start_time,
+              currentBid: Math.round(currentPrice * 100) / 100,
+              reserve: endP,
+              startPrice: startP,
+              tokenName: a.token?.name || 'Untitled',
+              thumbnailUri: resolveIpfs(a.token?.thumbnail_uri || a.token?.display_uri),
+              collectionName: a.token?.fa?.name || null,
+              collectionLogo: a.token?.fa?.logo || null,
+              seller: a.seller?.alias || null,
+              topBidder: null,
+              ophash: a.ophash,
+              objktUrl: `https://objkt.com/auction/dutch/${a.id}`,
+            });
+          }
+        } catch (e) { /* ignore */ }
+      }
+
+      results.sort((a, b) => new Date(a.endTime || '9999').getTime() - new Date(b.endTime || '9999').getTime());
+      return results.slice(0, input.limit);
+    }),
+
+  // ─── Trending Collections ───────────────────────────────────────────────────────────────────────────────────────
+  trendingCollections: publicProcedure
+    .input(z.object({ limit: z.number().min(1).max(20).default(5) }))
+    .query(async ({ input }) => {
+      const OBJKT = 'https://data.objkt.com/v3/graphql';
+      try {
+        const res = await fetch(OBJKT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: `{ fa(limit: ${input.limit}, order_by: {volume_24h: desc}, where: {volume_24h: {_gt: 0}, live: {_eq: true}, name: {_is_null: false}}) { contract name logo volume_24h volume_total floor_price items owners collection_type } }` }),
+          signal: AbortSignal.timeout(10000),
+        });
+        const data = await res.json();
+        return (data?.data?.fa || []).map((f: any) => ({
+          contract: f.contract,
+          name: f.name,
+          logo: f.logo,
+          volume24h: f.volume_24h / 1_000_000,
+          volumeTotal: f.volume_total / 1_000_000,
+          floorPrice: f.floor_price ? f.floor_price / 1_000_000 : null,
+          items: f.items,
+          owners: f.owners,
+          collectionType: f.collection_type,
+          objktUrl: `https://objkt.com/collections/${f.contract}`,
+        }));
+      } catch (e) {
+        return [];
+      }
+    }),
+
+  // ─── Recent NFT Sales ───────────────────────────────────────────────────────────────────────────────────────
+  recentNftSales: publicProcedure
+    .input(z.object({ limit: z.number().min(1).max(30).default(15), minPrice: z.number().default(0) }))
+    .query(async ({ input }) => {
+      const OBJKT = 'https://data.objkt.com/v3/graphql';
+      const resolveIpfs = (uri: string | null) => {
+        if (!uri) return null;
+        if (uri.startsWith('ipfs://')) return `https://ipfs.io/ipfs/${uri.slice(7)}`;
+        return uri;
+      };
+      const minPriceMutez = Math.floor(input.minPrice * 1_000_000);
+      try {
+        const res = await fetch(OBJKT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: `{ event(limit: ${input.limit}, order_by: {timestamp: desc}, where: {marketplace_event_type: {_eq: "list_buy"}, price_xtz: {_gt: ${minPriceMutez}}, reverted: {_eq: false}}) { price_xtz timestamp ophash token { name thumbnail_uri fa { name } } creator { alias address } recipient { alias address } } }` }),
+          signal: AbortSignal.timeout(10000),
+        });
+        const data = await res.json();
+        return (data?.data?.event || []).map((e: any) => ({
+          price: e.price_xtz / 1_000_000,
+          timestamp: e.timestamp,
+          tokenName: e.token?.name || 'Untitled',
+          thumbnailUri: resolveIpfs(e.token?.thumbnail_uri),
+          collectionName: e.token?.fa?.name || null,
+          seller: e.creator?.alias || (e.creator?.address ? `${e.creator.address.slice(0, 8)}...` : null),
+          buyer: e.recipient?.alias || (e.recipient?.address ? `${e.recipient.address.slice(0, 8)}...` : null),
+          ophash: e.ophash,
+          objktUrl: e.ophash ? `https://tzkt.io/${e.ophash}` : 'https://objkt.com',
+        }));
+      } catch (e) {
+        return [];
+      }
+    }),
 });

@@ -121,6 +121,15 @@ const TOOLS = [
     badgeColor: "#2c7df7",
     tags: ["DeFi", "TVL", "Protocols", "DeFiLlama"],
   },
+  {
+    href: "/tools/auctions",
+    icon: "🔨",
+    title: "Live Auction Tracker",
+    description: "Track all active Tezos NFT auctions from objkt.com — English and Dutch auctions with live countdown timers, current bids, thumbnail previews, and filters.",
+    badge: "Live",
+    badgeColor: "#2c7df7",
+    tags: ["NFT Auctions", "English Auction", "Dutch Auction", "objkt"],
+  },
 ];
 
 export default function ToolsPage() {

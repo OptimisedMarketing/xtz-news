@@ -233,6 +233,39 @@ function NewsTicker({ posts }: { posts: any[] }) {
   );
 }
 
+// ─── NFT Sales Ticker ────────────────────────────────────────────────────────
+function NftSalesTicker() {
+  const { data: sales = [] } = trpc.tools.recentNftSales.useQuery(
+    { limit: 15, minPrice: 1 },
+    { staleTime: 30_000, refetchInterval: 60_000 }
+  );
+  if (!sales.length) return null;
+  const items = [...sales, ...sales];
+  return (
+    <div style={{ background: "#0a0a1a", borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "0.5rem 0", overflow: "hidden" }}>
+      <div className="container" style={{ display: "flex", alignItems: "center", gap: "0.875rem" }}>
+        <span style={{ fontSize: "0.58rem", fontWeight: 900, letterSpacing: "0.12em", textTransform: "uppercase", background: "rgba(124,58,237,0.9)", color: "#fff", padding: "0.2rem 0.55rem", borderRadius: "2px", flexShrink: 0, whiteSpace: "nowrap" }}>NFT SALES</span>
+        <div className="ticker-wrap" style={{ flex: 1 }}>
+          <div className="ticker-content">
+            {items.map((s: any, i: number) => (
+              <a key={i} href={s.objktUrl} target="_blank" rel="noopener noreferrer"
+                style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", marginRight: "2rem", textDecoration: "none" }}>
+                {s.thumbnailUri && (
+                  <img src={s.thumbnailUri} alt="" style={{ width: "18px", height: "18px", borderRadius: "2px", objectFit: "cover", flexShrink: 0 }}
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
+                )}
+                <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.75)", whiteSpace: "nowrap" }}>{s.tokenName}</span>
+                <span style={{ fontSize: "0.72rem", fontWeight: 900, color: "#a78bfa", whiteSpace: "nowrap" }}>{s.price.toFixed(1)} ꜩ</span>
+                <span style={{ color: "rgba(255,255,255,0.15)", fontSize: "0.4rem" }}>◆</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Most Popular ─────────────────────────────────────────────────────────────
 function MostPopularCarousel({ posts }: { posts: any[] }) {
   const [start, setStart] = useState(0);
@@ -516,6 +549,7 @@ export default function Home() {
       </h1>
       {isLoading ? <HeroSkeleton /> : <HeroSection latestPosts={latest} mostReadPosts={mostRead} />}
       <NewsTicker posts={latest.slice(0, 10)} />
+      <NftSalesTicker />
       <HomepageFilters />
       <MostPopularCarousel posts={mostRead} />
       <FeaturedNewsGrid posts={featured} />
