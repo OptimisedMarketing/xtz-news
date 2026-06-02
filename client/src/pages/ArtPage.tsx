@@ -131,10 +131,22 @@ export default function ArtPage() {
     { staleTime: 10 * 60_000 }
   );
 
-  const { data: newDrops = [] } = trpc.tools.newDrops.useQuery(
-    { limit: 6, hours: 24 },
+  const [dropsHours, setDropsHours] = useState(24);
+  const [dropsMinPrice, setDropsMinPrice] = useState(0);
+  const [dropsArtistSearch, setDropsArtistSearch] = useState('');
+  const { data: newDropsRaw = [] } = trpc.tools.newDrops.useQuery(
+    { limit: 12, hours: dropsHours },
     { staleTime: 5 * 60_000, refetchInterval: 10 * 60_000 }
   );
+  const newDrops = (newDropsRaw as any[]).filter((d: any) => {
+    if (dropsMinPrice > 0 && (!d.price || d.price < dropsMinPrice)) return false;
+    if (dropsArtistSearch.trim()) {
+      const q = dropsArtistSearch.toLowerCase();
+      return d.creators.some((c: string) => c.toLowerCase().includes(q)) ||
+        (d.collectionName || '').toLowerCase().includes(q);
+    }
+    return true;
+  }).slice(0, 6);
 
   return (
     <div style={{ background: "#000", minHeight: "100vh" }}>
@@ -334,10 +346,35 @@ export default function ArtPage() {
                 </div>
                 <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#22c55e", animation: "pulse 2s infinite" }} />
               </div>
-              <a href="https://objkt.com/explore/tokens" target="_blank" rel="noopener noreferrer"
-                style={{ fontSize: "0.7rem", fontWeight: 700, color: "#22c55e", textDecoration: "none", display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                View all on objkt <ExternalLink size={11} />
-              </a>
+              <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
+                {/* Time range */}
+                <div style={{ display: "flex", gap: "0.3rem" }}>
+                  {[6, 24, 48].map((h) => (
+                    <button key={h} onClick={() => setDropsHours(h)}
+                      style={{ padding: "0.25rem 0.6rem", borderRadius: "3px", fontSize: "0.62rem", fontWeight: 700, cursor: "pointer", border: dropsHours === h ? "1px solid #22c55e" : "1px solid rgba(255,255,255,0.12)", background: dropsHours === h ? "rgba(34,197,94,0.15)" : "transparent", color: dropsHours === h ? "#22c55e" : "rgba(255,255,255,0.4)", transition: "all 0.15s" }}>
+                      {h}h
+                    </button>
+                  ))}
+                </div>
+                {/* Price filter */}
+                <select value={dropsMinPrice} onChange={(e) => setDropsMinPrice(Number(e.target.value))}
+                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "3px", color: "rgba(255,255,255,0.6)", padding: "0.25rem 0.4rem", fontSize: "0.62rem", cursor: "pointer" }}>
+                  <option value={0}>Any price</option>
+                  <option value={1}>1+ ꜩ</option>
+                  <option value={5}>5+ ꜩ</option>
+                  <option value={10}>10+ ꜩ</option>
+                </select>
+                {/* Artist search */}
+                <input type="text" value={dropsArtistSearch} onChange={(e) => setDropsArtistSearch(e.target.value)}
+                  placeholder="Filter by artist..."
+                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "3px", color: "#fff", padding: "0.25rem 0.5rem", fontSize: "0.62rem", outline: "none", width: "110px", fontFamily: "inherit" }}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = "#22c55e")}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)")} />
+                <a href="https://objkt.com/explore/tokens" target="_blank" rel="noopener noreferrer"
+                  style={{ fontSize: "0.7rem", fontWeight: 700, color: "#22c55e", textDecoration: "none", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                  View all <ExternalLink size={11} />
+                </a>
+              </div>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "1rem" }}>
               {(newDrops as any[]).map((drop: any, i: number) => (

@@ -1280,6 +1280,39 @@ export const toolsRouter = router({
       }
     }),
 
+  // ─── Collector Profile ───────────────────────────────────────────────────────────────────────────────────────
+  collectorProfile: publicProcedure
+    .input(z.object({ address: z.string().min(10), limit: z.number().min(1).max(20).default(8) }))
+    .query(async ({ input }) => {
+      const OBJKT = 'https://data.objkt.com/v3/graphql';
+      const resolveIpfs = (uri: string | null) => {
+        if (!uri) return null;
+        if (uri.startsWith('ipfs://')) return `https://ipfs.io/ipfs/${uri.slice(7)}`;
+        return uri;
+      };
+      try {
+        const res = await fetch(OBJKT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: `{ event(limit: ${input.limit}, order_by: {timestamp: desc}, where: {marketplace_event_type: {_eq: "list_buy"}, recipient_address: {_eq: "${input.address}"}, reverted: {_eq: false}}) { price_xtz timestamp token { name thumbnail_uri display_uri fa { name contract } } creator { alias } } }` }),
+          signal: AbortSignal.timeout(10000),
+        });
+        const data = await res.json();
+        return (data?.data?.event || []).map((e: any) => ({
+          price: e.price_xtz / 1_000_000,
+          timestamp: e.timestamp,
+          tokenName: e.token?.name || 'Untitled',
+          thumbnailUri: resolveIpfs(e.token?.thumbnail_uri || e.token?.display_uri),
+          collectionName: e.token?.fa?.name || null,
+          collectionContract: e.token?.fa?.contract || null,
+          seller: e.creator?.alias || null,
+          objktUrl: e.token?.fa?.contract ? `https://objkt.com/collections/${e.token.fa.contract}` : 'https://objkt.com',
+        }));
+      } catch (e) {
+        return [];
+      }
+    }),
+
   // ─── Top Collectors ───────────────────────────────────────────────────────────────────────────────────────
   topCollectors: publicProcedure
     .input(z.object({ period: z.enum(['7', '30', '90']).default('30'), limit: z.number().min(1).max(50).default(25) }))

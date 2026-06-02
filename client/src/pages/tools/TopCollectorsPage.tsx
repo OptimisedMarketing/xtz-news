@@ -1,8 +1,112 @@
-import { useState } from "react";
-import { ExternalLink, Trophy, Twitter, Globe, TrendingUp } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ExternalLink, Trophy, Twitter, Globe, TrendingUp, X, ShoppingCart, Clock } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useSEO } from "@/hooks/useSEO";
 import ToolBreadcrumb from "@/components/ToolBreadcrumb";
+
+function CollectorProfileModal({ collector, onClose }: { collector: any; onClose: () => void }) {
+  const { data: purchases = [], isLoading } = trpc.tools.collectorProfile.useQuery(
+    { address: collector.address, limit: 8 },
+    { staleTime: 5 * 60_000 }
+  );
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [onClose]);
+
+  const rankColor = getRankColor(collector.rank);
+
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}
+      onClick={onClose}>
+      <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px", width: "100%", maxWidth: "600px", maxHeight: "85vh", overflow: "hidden", display: "flex", flexDirection: "column" }}
+        onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div style={{ padding: "1.5rem", borderBottom: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", gap: "1rem" }}>
+          <div style={{ width: "52px", height: "52px", borderRadius: "50%", background: `${rankColor}20`, border: `2px solid ${rankColor}60`, overflow: "hidden", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            {collector.logo ? (
+              <img src={collector.logo} alt={collector.alias || ''} style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
+            ) : <span style={{ fontSize: "1.2rem" }}>🎨</span>}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <h2 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 900, color: "#fff" }}>
+                {collector.alias || `${collector.address.slice(0, 8)}...${collector.address.slice(-4)}`}
+              </h2>
+              <span style={{ fontSize: "0.75rem" }}>{getRankEmoji(collector.rank) || `#${collector.rank}`}</span>
+            </div>
+            <p style={{ margin: "2px 0 0", fontSize: "0.72rem", color: rankColor, fontWeight: 700 }}>
+              {formatXtz(collector.volume)} ꜩ total spend
+            </p>
+          </div>
+          <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+            {collector.twitter && (
+              <a href={collector.twitter} target="_blank" rel="noopener noreferrer" style={{ color: "rgba(255,255,255,0.4)", transition: "color 0.15s" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#1DA1F2"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.4)"; }}>
+                <Twitter size={16} />
+              </a>
+            )}
+            <a href={collector.objktUrl} target="_blank" rel="noopener noreferrer"
+              style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", padding: "0.4rem 0.875rem", background: "rgba(251,191,36,0.15)", border: "1px solid rgba(251,191,36,0.4)", borderRadius: "4px", color: "#fbbf24", textDecoration: "none", fontSize: "0.72rem", fontWeight: 700 }}>
+              objkt <ExternalLink size={11} />
+            </a>
+            <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.4)", padding: "0.2rem", display: "flex", alignItems: "center", transition: "color 0.15s" }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#fff"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.4)"; }}>
+              <X size={18} />
+            </button>
+          </div>
+        </div>
+
+        {/* Recent purchases */}
+        <div style={{ padding: "1.25rem", overflowY: "auto", flex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
+            <ShoppingCart size={14} style={{ color: "rgba(255,255,255,0.4)" }} />
+            <span style={{ fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)" }}>Recent Purchases</span>
+          </div>
+          {isLoading ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              {Array.from({ length: 4 }).map((_, i) => <div key={i} className="skeleton" style={{ height: "60px", borderRadius: "6px" }} />)}
+            </div>
+          ) : purchases.length > 0 ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              {(purchases as any[]).map((p: any, i: number) => (
+                <a key={i} href={p.objktUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", padding: "0.6rem 0.75rem", background: "rgba(255,255,255,0.03)", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.06)", transition: "background 0.15s" }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)"; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.03)"; }}>
+                    {p.thumbnailUri ? (
+                      <img src={p.thumbnailUri} alt={p.tokenName} style={{ width: "40px", height: "40px", borderRadius: "4px", objectFit: "cover", flexShrink: 0 }}
+                        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
+                    ) : (
+                      <div style={{ width: "40px", height: "40px", borderRadius: "4px", background: "rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>🖼️</div>
+                    )}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ margin: 0, fontSize: "0.82rem", fontWeight: 700, color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.tokenName}</p>
+                      {p.collectionName && <p style={{ margin: "1px 0 0", fontSize: "0.65rem", color: "rgba(255,255,255,0.4)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.collectionName}</p>}
+                    </div>
+                    <div style={{ textAlign: "right", flexShrink: 0 }}>
+                      <p style={{ margin: 0, fontSize: "0.88rem", fontWeight: 800, color: "#fbbf24" }}>{p.price.toFixed(1)} ꜩ</p>
+                      <p style={{ margin: "1px 0 0", fontSize: "0.6rem", color: "rgba(255,255,255,0.3)", display: "flex", alignItems: "center", gap: "0.2rem", justifyContent: "flex-end" }}>
+                        <Clock size={9} /> {new Date(p.timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                      </p>
+                    </div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.82rem", textAlign: "center", padding: "2rem 0" }}>No recent purchases found.</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function formatXtz(v: number) {
   if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
@@ -26,6 +130,7 @@ function getRankEmoji(rank: number) {
 
 export default function TopCollectorsPage() {
   const [period, setPeriod] = useState<'7' | '30' | '90'>('30');
+  const [selectedCollector, setSelectedCollector] = useState<any>(null);
 
   useSEO({
     title: "Top Tezos NFT Collectors | XTZ.News — Leaderboard by Spend Volume",
@@ -43,6 +148,9 @@ export default function TopCollectorsPage() {
 
   return (
     <div style={{ background: "#000", minHeight: "100vh" }}>
+      {selectedCollector && (
+        <CollectorProfileModal collector={selectedCollector} onClose={() => setSelectedCollector(null)} />
+      )}
       <ToolBreadcrumb items={[{ label: "Top Collectors" }]} />
 
       {/* Header */}
@@ -104,8 +212,8 @@ export default function TopCollectorsPage() {
               const barWidth = totalVolume > 0 ? (collector.volume / (collectors[0] as any).volume) * 100 : 0;
 
               return (
-                <a key={collector.address} href={collector.objktUrl} target="_blank" rel="noopener noreferrer"
-                  style={{ textDecoration: "none", display: "block" }}>
+                <div key={collector.address} onClick={() => setSelectedCollector(collector)}
+                  style={{ cursor: "pointer" }}>
                   <div style={{
                     background: "#05152e", border: `1px solid ${collector.rank <= 3 ? `${rankColor}30` : "rgba(255,255,255,0.07)"}`,
                     borderRadius: "8px", padding: "0.875rem 1.25rem",
@@ -180,7 +288,7 @@ export default function TopCollectorsPage() {
 
                     <ExternalLink size={12} style={{ color: "rgba(255,255,255,0.2)", flexShrink: 0 }} />
                   </div>
-                </a>
+                </div>
               );
             })}
           </div>
