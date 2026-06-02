@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { ExternalLink, ArrowRight, Palette, Image, Music, Layers } from "lucide-react";
+import { ExternalLink, ArrowRight, Palette, Image, Music, Layers, Star, Twitter, Globe } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import PostCard from "@/components/PostCard";
 import { useSEO, buildWebPageSchema } from "@/hooks/useSEO";
@@ -122,6 +122,10 @@ export default function ArtPage() {
   );
   const artPosts = artPostsData?.posts ?? [];
 
+  const { data: featuredArtist } = trpc.tools.featuredArtist.useQuery(undefined, {
+    staleTime: 60 * 60_000, // cache 1 hour
+  });
+
   return (
     <div style={{ background: "#000", minHeight: "100vh" }}>
 
@@ -226,6 +230,107 @@ export default function ArtPage() {
           </div>
         </div>
       </section>
+
+      {/* ── Featured Artist Spotlight ── */}
+      {featuredArtist && (
+        <section style={{ padding: "3rem 0", background: "#000", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+          <div className="container">
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.75rem" }}>
+              <div style={{ width: "4px", height: "28px", background: "#f97316", borderRadius: "2px" }} />
+              <div>
+                <p style={{ margin: 0, fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: "#f97316", marginBottom: "2px" }}>Weekly Spotlight</p>
+                <h2 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#fff" }}>Featured Artist</h2>
+              </div>
+              <span style={{ marginLeft: "auto", fontSize: "0.6rem", fontWeight: 700, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Rotates weekly</span>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem", alignItems: "start" }}>
+              {/* Artist info */}
+              <div style={{ background: "#05152e", border: "1px solid rgba(249,115,22,0.2)", borderRadius: "8px", padding: "2rem" }}>
+                <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem", marginBottom: "1.25rem" }}>
+                  <div style={{ width: "56px", height: "56px", borderRadius: "50%", background: "linear-gradient(135deg, #f97316, #7c3aed)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: "1.5rem" }}>
+                    🎨
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+                      <h3 style={{ margin: 0, fontSize: "1.25rem", fontWeight: 900, color: "#fff" }}>{featuredArtist.alias}</h3>
+                      <Star size={14} style={{ color: "#f97316" }} />
+                    </div>
+                    <p style={{ margin: "2px 0 0", fontSize: "0.72rem", fontWeight: 700, color: "#f97316", textTransform: "uppercase", letterSpacing: "0.06em" }}>{featuredArtist.note}</p>
+                  </div>
+                </div>
+
+                {featuredArtist.description && (
+                  <p style={{ margin: "0 0 1.25rem", fontSize: "0.88rem", color: "rgba(255,255,255,0.65)", lineHeight: 1.6 }}>
+                    {featuredArtist.description}
+                  </p>
+                )}
+
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+                  <a href={featuredArtist.objktUrl} target="_blank" rel="noopener noreferrer"
+                    style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", padding: "0.5rem 1rem", background: "rgba(249,115,22,0.15)", border: "1px solid rgba(249,115,22,0.4)", borderRadius: "4px", color: "#f97316", textDecoration: "none", fontSize: "0.78rem", fontWeight: 700, transition: "all 0.2s" }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(249,115,22,0.25)"; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(249,115,22,0.15)"; }}>
+                    View on objkt <ExternalLink size={11} />
+                  </a>
+                  {featuredArtist.twitter && (
+                    <a href={featuredArtist.twitter} target="_blank" rel="noopener noreferrer"
+                      style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", padding: "0.5rem 1rem", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", color: "rgba(255,255,255,0.6)", textDecoration: "none", fontSize: "0.78rem", fontWeight: 700, transition: "all 0.2s" }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.1)"; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)"; }}>
+                      <Twitter size={12} /> Twitter
+                    </a>
+                  )}
+                  {featuredArtist.website && (
+                    <a href={featuredArtist.website} target="_blank" rel="noopener noreferrer"
+                      style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", padding: "0.5rem 1rem", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", color: "rgba(255,255,255,0.6)", textDecoration: "none", fontSize: "0.78rem", fontWeight: 700, transition: "all 0.2s" }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.1)"; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)"; }}>
+                      <Globe size={12} /> Website
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* Recent works */}
+              <div>
+                <p style={{ margin: "0 0 1rem", fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)" }}>Recent Works</p>
+                {featuredArtist.recentWorks.length > 0 ? (
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.75rem" }}>
+                    {featuredArtist.recentWorks.slice(0, 6).map((work: any, i: number) => (
+                      <a key={i} href={`https://objkt.com/explore/tokens?creator=${featuredArtist.address}`} target="_blank" rel="noopener noreferrer"
+                        style={{ textDecoration: "none", display: "block" }}>
+                        <div style={{ aspectRatio: "1", background: "#05152e", borderRadius: "6px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.07)", transition: "border-color 0.2s" }}
+                          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(249,115,22,0.4)"; }}
+                          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.07)"; }}>
+                          {work.thumbnailUri ? (
+                            <img src={work.thumbnailUri} alt={work.name || 'Artwork'} loading="lazy"
+                              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
+                          ) : (
+                            <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem", opacity: 0.3 }}>🎨</div>
+                          )}
+                        </div>
+                        {work.name && (
+                          <p style={{ margin: "0.3rem 0 0", fontSize: "0.65rem", color: "rgba(255,255,255,0.5)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{work.name}</p>
+                        )}
+                      </a>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ background: "#05152e", borderRadius: "8px", padding: "2rem", textAlign: "center" }}>
+                    <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.85rem" }}>No recent works found on objkt</p>
+                    <a href={featuredArtist.objktUrl} target="_blank" rel="noopener noreferrer"
+                      style={{ display: "inline-block", marginTop: "0.75rem", color: "#f97316", fontSize: "0.8rem", fontWeight: 700, textDecoration: "none" }}>
+                      View profile on objkt →
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── Art News ── */}
       <section style={{ padding: "3rem 0" }}>

@@ -1051,4 +1051,98 @@ export const toolsRouter = router({
         checks,
       };
     }),
+
+  // ─── Featured Artist (weekly rotation) ───────────────────────────────────────────────────────────────────────────────────
+  featuredArtist: publicProcedure.query(async () => {
+    // Curated list of notable Tezos artists with objkt aliases
+    const ARTISTS = [
+      { alias: 'quayola', twitter: 'quayola', note: 'Generative & computational art' },
+      { alias: 'Gabriel Massan', twitter: 'gabrielmassan', note: '3D & narrative digital art' },
+      { alias: 'Memo Akten', twitter: 'memotv', note: 'AI & generative systems' },
+      { alias: 'Zancan', twitter: 'zancan', note: 'Generative art & landscapes' },
+      { alias: 'Iskra Velitchkova', twitter: 'iskravel', note: 'Abstract digital painting' },
+      { alias: 'Alida Sun', twitter: 'alidasun', note: 'AI dialogue & machine learning' },
+      { alias: 'Hind Al Saad', twitter: 'hindsaad', note: 'Digital identity & memory' },
+      { alias: 'Varvara & Mar', twitter: 'varvara_mar', note: 'Generative systems & machinima' },
+      { alias: 'Joanie Lemercier', twitter: 'joanielemercier', note: 'Light & projection art' },
+      { alias: 'Operator', twitter: 'operatornft', note: 'Generative & algorithmic art' },
+      { alias: 'Dmitri Cherniak', twitter: 'dmitricherniak', note: 'Generative & Ringers creator' },
+      { alias: 'Kim Asendorf', twitter: 'kimasendorf', note: 'Pixel art & generative systems' },
+    ];
+
+    // Pick artist based on week number (rotates weekly)
+    const weekNum = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
+    const artist = ARTISTS[weekNum % ARTISTS.length];
+
+    const OBJKT = 'https://data.objkt.com/v3/graphql';
+
+    // Fetch artist profile from objkt
+    const profileQuery = {
+      query: `{ holder(where: {alias: {_eq: "${artist.alias}"}}, limit: 1) { address alias description website twitter instagram } }`
+    };
+
+    let profile: any = null;
+    let recentWorks: any[] = [];
+
+    try {
+      const profileRes = await fetch(OBJKT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(profileQuery),
+        signal: AbortSignal.timeout(10000),
+      });
+      const profileData = await profileRes.json();
+      profile = profileData?.data?.holder?.[0] || null;
+    } catch (e) {
+      // fallback — use static data
+    }
+
+    // Fetch recent tokens by this artist
+    if (profile?.address) {
+      try {
+        const worksQuery = {
+          query: `{ token(limit: 6, order_by: {timestamp: desc}, where: {creators: {holder_address: {_eq: "${profile.address}"}}}) { name description display_uri thumbnail_uri timestamp supply fa { name } } }`
+        };
+        const worksRes = await fetch(OBJKT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(worksQuery),
+          signal: AbortSignal.timeout(10000),
+        });
+        const worksData = await worksRes.json();
+        recentWorks = (worksData?.data?.token || []).map((t: any) => ({
+          name: t.name,
+          description: t.description,
+          thumbnailUri: t.thumbnail_uri
+            ? (t.thumbnail_uri.startsWith('ipfs://')
+              ? `https://ipfs.io/ipfs/${t.thumbnail_uri.slice(7)}`
+              : t.thumbnail_uri)
+            : null,
+          displayUri: t.display_uri
+            ? (t.display_uri.startsWith('ipfs://')
+              ? `https://ipfs.io/ipfs/${t.display_uri.slice(7)}`
+              : t.display_uri)
+            : null,
+          timestamp: t.timestamp,
+          supply: t.supply,
+          collection: t.fa?.name || null,
+        }));
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    return {
+      alias: profile?.alias || artist.alias,
+      address: profile?.address || null,
+      description: profile?.description || artist.note,
+      website: profile?.website || null,
+      twitter: profile?.twitter || (artist.twitter ? `https://twitter.com/${artist.twitter}` : null),
+      instagram: profile?.instagram || null,
+      note: artist.note,
+      recentWorks,
+      weekNum,
+      objktUrl: profile?.address ? `https://objkt.com/profile/${profile.address}` : `https://objkt.com/explore/creators`,
+    };
+  }),
 });
