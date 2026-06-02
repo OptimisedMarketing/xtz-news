@@ -1068,6 +1068,22 @@ export const toolsRouter = router({
       { alias: 'Operator', twitter: 'operatornft', note: 'Generative & algorithmic art' },
       { alias: 'Dmitri Cherniak', twitter: 'dmitricherniak', note: 'Generative & Ringers creator' },
       { alias: 'Kim Asendorf', twitter: 'kimasendorf', note: 'Pixel art & generative systems' },
+      // 15 additional prominent Tezos artists
+      { alias: 'Ciphrd', twitter: 'ciphrd', note: 'Generative art & fxhash founder' },
+      { alias: 'Licia He', twitter: 'blahblahpapercut', note: 'Plotter & generative drawing art' },
+      { alias: 'Yazid', twitter: 'yazidxyz', note: 'Generative & abstract digital art' },
+      { alias: 'Helena Sarin', twitter: 'NeuralBricolage', note: 'AI & neural network art' },
+      { alias: 'Andreas Rau', twitter: 'andreasrau_eu', note: 'Generative & code-based art' },
+      { alias: 'Piter Pasma', twitter: 'piterpasma', note: 'Mathematical & generative art' },
+      { alias: 'DistCollective', twitter: 'DistCollective', note: 'Collaborative generative art' },
+      { alias: 'Mathieu Stern', twitter: 'MathieuStern', note: 'Photography & digital art' },
+      { alias: 'Fabrizio Lamoncha', twitter: 'fabriziolamoncha', note: 'Generative & abstract systems' },
+      { alias: 'Aleksandra Jovanić', twitter: 'alexjovanic', note: 'Generative art & data visualisation' },
+      { alias: 'Tezos Commons', twitter: 'TezosCommons', note: 'Tezos community art curator' },
+      { alias: 'absurdeity', twitter: 'absurdeity', note: 'Community art events & curation' },
+      { alias: 'BonsaiFox', twitter: 'BonsaiFox1', note: 'Community art events organiser' },
+      { alias: 'Fabrizio Brarez', twitter: 'fabriziobrarez', note: 'Art criticism & curation' },
+      { alias: 'V4wEnko', twitter: 'V4wEnko', note: 'Generative organic art & GLB' },
     ];
 
     // Pick artist based on week number (rotates weekly)
@@ -1078,7 +1094,7 @@ export const toolsRouter = router({
 
     // Fetch artist profile from objkt
     const profileQuery = {
-      query: `{ holder(where: {alias: {_eq: "${artist.alias}"}}, limit: 1) { address alias description website twitter instagram } }`
+      query: `{ holder(where: {alias: {_ilike: "${artist.alias}"}}, limit: 1, order_by: {held_tokens_aggregate: {count: desc}}) { address alias description website twitter instagram logo } }`
     };
 
     let profile: any = null;
@@ -1139,6 +1155,7 @@ export const toolsRouter = router({
       website: profile?.website || null,
       twitter: profile?.twitter || (artist.twitter ? `https://twitter.com/${artist.twitter}` : null),
       instagram: profile?.instagram || null,
+      logo: profile?.logo || null,
       note: artist.note,
       recentWorks,
       weekNum,

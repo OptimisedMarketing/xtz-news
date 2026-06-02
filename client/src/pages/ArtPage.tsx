@@ -248,8 +248,12 @@ export default function ArtPage() {
               {/* Artist info */}
               <div style={{ background: "#05152e", border: "1px solid rgba(249,115,22,0.2)", borderRadius: "8px", padding: "2rem" }}>
                 <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem", marginBottom: "1.25rem" }}>
-                  <div style={{ width: "56px", height: "56px", borderRadius: "50%", background: "linear-gradient(135deg, #f97316, #7c3aed)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: "1.5rem" }}>
-                    🎨
+                  <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: "linear-gradient(135deg, #f97316, #7c3aed)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: "1.5rem", overflow: "hidden", border: "2px solid rgba(249,115,22,0.4)" }}>
+                    {featuredArtist.logo ? (
+                      <img src={featuredArtist.logo} alt={featuredArtist.alias} style={{ width: "100%", height: "100%", objectFit: "cover" }} onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
+                    ) : (
+                      <span style={{ fontSize: "1.5rem" }}>🎨</span>
+                    )}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
@@ -300,9 +304,20 @@ export default function ArtPage() {
                     {featuredArtist.recentWorks.slice(0, 6).map((work: any, i: number) => (
                       <a key={i} href={`https://objkt.com/explore/tokens?creator=${featuredArtist.address}`} target="_blank" rel="noopener noreferrer"
                         style={{ textDecoration: "none", display: "block" }}>
-                        <div style={{ aspectRatio: "1", background: "#05152e", borderRadius: "6px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.07)", transition: "border-color 0.2s" }}
-                          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(249,115,22,0.4)"; }}
-                          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.07)"; }}>
+                        <div
+                          style={{ aspectRatio: "1", background: "#05152e", borderRadius: "6px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.07)", transition: "border-color 0.2s", position: "relative" }}
+                          onMouseEnter={(e) => {
+                            const el = e.currentTarget as HTMLElement;
+                            el.style.borderColor = "rgba(249,115,22,0.4)";
+                            const overlay = el.querySelector('.artwork-overlay') as HTMLElement;
+                            if (overlay) overlay.style.opacity = '1';
+                          }}
+                          onMouseLeave={(e) => {
+                            const el = e.currentTarget as HTMLElement;
+                            el.style.borderColor = "rgba(255,255,255,0.07)";
+                            const overlay = el.querySelector('.artwork-overlay') as HTMLElement;
+                            if (overlay) overlay.style.opacity = '0';
+                          }}>
                           {work.thumbnailUri ? (
                             <img src={work.thumbnailUri} alt={work.name || 'Artwork'} loading="lazy"
                               style={{ width: "100%", height: "100%", objectFit: "cover" }}
@@ -310,10 +325,18 @@ export default function ArtPage() {
                           ) : (
                             <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem", opacity: 0.3 }}>🎨</div>
                           )}
+                          {/* Hover overlay with title */}
+                          {work.name && (
+                            <div className="artwork-overlay" style={{
+                              position: "absolute", inset: 0,
+                              background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)",
+                              display: "flex", alignItems: "flex-end", padding: "0.5rem",
+                              opacity: 0, transition: "opacity 0.2s ease",
+                            }}>
+                              <p style={{ margin: 0, fontSize: "0.62rem", fontWeight: 700, color: "#fff", lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{work.name}</p>
+                            </div>
+                          )}
                         </div>
-                        {work.name && (
-                          <p style={{ margin: "0.3rem 0 0", fontSize: "0.65rem", color: "rgba(255,255,255,0.5)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{work.name}</p>
-                        )}
                       </a>
                     ))}
                   </div>
@@ -384,6 +407,33 @@ export default function ArtPage() {
               <p style={{ fontSize: "0.8rem", marginTop: "0.5rem" }}>Check back after the weekly recap publishes every Friday.</p>
             </div>
           )}
+        </div>
+      </section>
+
+      {/* ── Submit Artwork CTA ── */}
+      <section style={{ padding: "2.5rem 0", background: "linear-gradient(90deg, #05152e 0%, #0d1f3c 50%, #05152e 100%)", borderTop: "1px solid rgba(44,125,247,0.15)", borderBottom: "1px solid rgba(44,125,247,0.15)" }}>
+        <div className="container">
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "1.5rem" }}>
+            <div style={{ flex: "1 1 300px" }}>
+              <p style={{ margin: "0 0 0.3rem", fontSize: "0.65rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "#2c7df7" }}>For Artists</p>
+              <h2 style={{ margin: "0 0 0.5rem", fontSize: "clamp(1.2rem, 3vw, 1.75rem)", fontWeight: 900, color: "#fff", lineHeight: 1.2 }}>Get your artwork featured on XTZ.News</h2>
+              <p style={{ margin: 0, fontSize: "0.85rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.5 }}>Submit your Tezos artwork, exhibition, or collection for coverage. We reach 1,000+ Tezos collectors and enthusiasts every week.</p>
+            </div>
+            <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", flexShrink: 0 }}>
+              <Link href="/submit-article"
+                style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.875rem 1.75rem", background: "#2c7df7", border: "none", borderRadius: "4px", color: "#fff", textDecoration: "none", fontSize: "0.85rem", fontWeight: 700, transition: "background 0.2s" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#1a6ae0"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "#2c7df7"; }}>
+                Submit Your Artwork <ArrowRight size={14} />
+              </Link>
+              <a href="https://objkt.com" target="_blank" rel="noopener noreferrer"
+                style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.875rem 1.75rem", background: "transparent", border: "2px solid rgba(44,125,247,0.4)", borderRadius: "4px", color: "#2c7df7", textDecoration: "none", fontSize: "0.85rem", fontWeight: 700, transition: "all 0.2s" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "#2c7df7"; (e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.1)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(44,125,247,0.4)"; (e.currentTarget as HTMLElement).style.background = "transparent"; }}>
+                Mint on objkt <ExternalLink size={13} />
+              </a>
+            </div>
+          </div>
         </div>
       </section>
 
