@@ -140,19 +140,31 @@ export default function TopCollectorsPage() {
     canonical: "https://xtz.news/tools/top-collectors",
   });
 
-  const { data: collectors = [], isLoading: collectorsLoading } = trpc.tools.topCollectors.useQuery(
-    { period, limit: 25 },
+  const [showUsd, setShowUsd] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const { data: collectorsData, isLoading: collectorsLoading } = trpc.tools.topCollectors.useQuery(
+    { period, limit: 1000 },
     { staleTime: 5 * 60_000, refetchInterval: 10 * 60_000 }
   );
 
-  const { data: sellers = [], isLoading: sellersLoading } = trpc.tools.topSellers.useQuery(
-    { period, limit: 25 },
+  const { data: sellersData, isLoading: sellersLoading } = trpc.tools.topSellers.useQuery(
+    { period, limit: 1000 },
     { staleTime: 5 * 60_000, refetchInterval: 10 * 60_000 }
   );
 
+  const activeData = tab === 'collectors' ? collectorsData : sellersData;
+  const xtzUsd = activeData?.xtzUsd || 0;
+  const allResults: any[] = activeData?.results || [];
+  const filteredResults = searchQuery.trim()
+    ? allResults.filter((c: any) => {
+        const q = searchQuery.toLowerCase();
+        return (c.alias || '').toLowerCase().includes(q) || c.address.toLowerCase().includes(q);
+      })
+    : allResults;
   const isLoading = tab === 'collectors' ? collectorsLoading : sellersLoading;
-  const activeList = tab === 'collectors' ? collectors : sellers;
-  const totalVolume = (activeList as any[]).reduce((sum: number, c: any) => sum + c.volume, 0);
+  const activeList = filteredResults;
+  const totalVolume = allResults.reduce((sum: number, c: any) => sum + c.volume, 0);
 
   return (
     <div style={{ background: "#000", minHeight: "100vh" }}>
@@ -185,6 +197,22 @@ export default function TopCollectorsPage() {
                 {tab === 'collectors' ? 'Most active Tezos NFT collectors ranked by spend volume on objkt.com' : 'Highest-earning Tezos artists ranked by sales volume on objkt.com'}
               </p>
             </div>
+            {/* Controls row */}
+            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
+              {/* Search */}
+              <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search by name or address..."
+                style={{ flex: "1 1 200px", minWidth: "160px", padding: "0.45rem 0.75rem", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", color: "#fff", fontSize: "0.8rem", outline: "none", fontFamily: "inherit" }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "#fbbf24")}
+                onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)")} />
+              {/* USD toggle */}
+              {xtzUsd > 0 && (
+                <button onClick={() => setShowUsd(!showUsd)}
+                  style={{ padding: "0.45rem 0.875rem", borderRadius: "4px", fontSize: "0.72rem", fontWeight: 700, cursor: "pointer", border: showUsd ? "1px solid #22c55e" : "1px solid rgba(255,255,255,0.15)", background: showUsd ? "rgba(34,197,94,0.15)" : "transparent", color: showUsd ? "#22c55e" : "rgba(255,255,255,0.5)", transition: "all 0.15s" }}>
+                  {showUsd ? '$ USD' : 'ꜩ XTZ'}
+                </button>
+              )}
+            </div>
             {/* Period selector */}
             <div style={{ display: "flex", gap: "0.4rem" }}>
               {([['7', '7d'], ['30', '30d'], ['all', 'All Time']] as const).map(([val, label]) => (
@@ -197,13 +225,14 @@ export default function TopCollectorsPage() {
           </div>
 
           {/* Summary stats */}
-          {(activeList as any[]).length > 0 && (
+          {allResults.length > 0 && (
             <div style={{ display: "flex", flexWrap: "wrap", gap: "1.25rem", marginTop: "1.5rem" }}>
               {[
-                { label: `${tab === 'collectors' ? 'Collectors' : 'Artists'} ranked`, value: (activeList as any[]).length.toString() },
+                { label: `${tab === 'collectors' ? 'Collectors' : 'Artists'} ranked`, value: allResults.length.toLocaleString() },
                 { label: `Total volume (${period === 'all' ? 'all time' : period + 'd'})`, value: `${formatXtz(totalVolume)} ꜩ` },
-                { label: `Top ${tab === 'collectors' ? 'collector' : 'artist'}`, value: (activeList[0] as any)?.alias || `${(activeList[0] as any)?.address?.slice(0, 8)}...` },
-                { label: tab === 'collectors' ? 'Top spend' : 'Top earnings', value: `${formatXtz((activeList[0] as any)?.volume || 0)} ꜩ` },
+                { label: `Top ${tab === 'collectors' ? 'collector' : 'artist'}`, value: allResults[0]?.alias || `${allResults[0]?.address?.slice(0, 8)}...` },
+                { label: tab === 'collectors' ? 'Top spend' : 'Top earnings', value: showUsd && allResults[0]?.volumeUsd ? `$${(allResults[0].volumeUsd / 1000).toFixed(1)}K` : `${formatXtz(allResults[0]?.volume || 0)} ꜩ` },
+                ...(xtzUsd > 0 ? [{ label: 'XTZ Price', value: `$${xtzUsd.toFixed(3)}` }] : []),
               ].map(({ label, value }) => (
                 <div key={label} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "6px", padding: "0.75rem 1.25rem" }}>
                   <p style={{ margin: "0 0 0.2rem", fontSize: "0.6rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)" }}>{label}</p>
@@ -223,12 +252,12 @@ export default function TopCollectorsPage() {
               <div key={i} className="skeleton" style={{ height: "72px", borderRadius: "8px" }} />
             ))}
           </div>
-        ) : (activeList as any[]).length > 0 ? (
+        ) : allResults.length > 0 ? (
           <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
             {(activeList as any[]).map((collector: any) => {
               const rankColor = getRankColor(collector.rank);
               const rankEmoji = getRankEmoji(collector.rank);
-              const barWidth = totalVolume > 0 ? (collector.volume / (activeList[0] as any).volume) * 100 : 0;
+              const barWidth = allResults.length > 0 && allResults[0].volume > 0 ? (collector.volume / allResults[0].volume) * 100 : 0;
 
               return (
                 <div key={collector.address} onClick={() => setSelectedCollector(collector)}
@@ -301,7 +330,9 @@ export default function TopCollectorsPage() {
                     {/* Volume */}
                     <div style={{ textAlign: "right", flexShrink: 0 }}>
                       <p style={{ margin: 0, fontSize: "1rem", fontWeight: 900, color: rankColor }}>
-                        {formatXtz(collector.volume)} <span style={{ fontSize: "0.7rem", fontWeight: 600 }}>ꜩ</span>
+                        {showUsd && collector.volumeUsd
+                          ? `$${collector.volumeUsd >= 1000 ? (collector.volumeUsd / 1000).toFixed(1) + 'K' : collector.volumeUsd.toFixed(0)}`
+                          : `${formatXtz(collector.volume)} ꜩ`}
                       </p>
                       <p style={{ margin: "1px 0 0", fontSize: "0.62rem", color: "rgba(255,255,255,0.3)", fontWeight: 600 }}>
                         {period === 'all' ? 'all time' : `${period}d`} {tab === 'collectors' ? 'spend' : 'earned'}

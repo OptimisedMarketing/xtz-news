@@ -1282,24 +1282,28 @@ export const toolsRouter = router({
 
   // ─── Top Sellers ───────────────────────────────────────────────────────────────────────────────────────
   topSellers: publicProcedure
-    .input(z.object({ period: z.enum(['7', '30', 'all']).default('30'), limit: z.number().min(1).max(50).default(25) }))
+    .input(z.object({ period: z.enum(['7', '30', 'all']).default('30'), limit: z.number().min(1).max(1000).default(1000) }))
     .query(async ({ input }) => {
       const OBJKT = 'https://data.objkt.com/v3/graphql';
       const intervalDays = input.period === 'all' ? 3650 : parseInt(input.period);
+      const query = (offset: number) => `{ sales_stat(limit: 500, offset: ${offset}, order_by: {volume: desc}, where: {type: {_eq: "seller"}, interval_days: {_eq: ${intervalDays}}}) { volume rank subject { alias address logo description twitter website } } }`;
       try {
-        const res = await fetch(OBJKT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: `{ sales_stat(limit: ${input.limit * 2}, order_by: {volume: desc}, where: {type: {_eq: "seller"}, interval_days: {_eq: ${intervalDays}}}) { volume rank subject { alias address logo description twitter website } } }` }),
-          signal: AbortSignal.timeout(10000),
-        });
-        const data = await res.json();
+        // Fetch XTZ price and two pages in parallel
+        const [res1, res2, priceRes] = await Promise.all([
+          fetch(OBJKT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: query(0) }), signal: AbortSignal.timeout(15000) }),
+          fetch(OBJKT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: query(500) }), signal: AbortSignal.timeout(15000) }),
+          fetch('https://api.coingecko.com/api/v3/simple/price?ids=tezos&vs_currencies=usd', { signal: AbortSignal.timeout(5000) }),
+        ]);
+        const [d1, d2, priceData] = await Promise.all([res1.json(), res2.json(), priceRes.json()]);
+        const xtzUsd = priceData?.tezos?.usd || 0;
+        const allStats = [...(d1?.data?.sales_stat || []), ...(d2?.data?.sales_stat || [])];
         const seen = new Set<string>();
         const results: any[] = [];
-        for (const s of data?.data?.sales_stat || []) {
+        for (const s of allStats) {
           const addr = s.subject?.address;
           if (!addr || seen.has(addr)) continue;
           seen.add(addr);
+          const volumeXtz = s.volume / 1_000_000;
           results.push({
             rank: results.length + 1,
             address: addr,
@@ -1308,14 +1312,15 @@ export const toolsRouter = router({
             description: s.subject?.description || null,
             twitter: s.subject?.twitter || null,
             website: s.subject?.website || null,
-            volume: s.volume / 1_000_000,
+            volume: volumeXtz,
+            volumeUsd: xtzUsd > 0 ? volumeXtz * xtzUsd : null,
             objktUrl: `https://objkt.com/profile/${addr}`,
           });
           if (results.length >= input.limit) break;
         }
-        return results;
+        return { results, xtzUsd };
       } catch (e) {
-        return [];
+        return { results: [], xtzUsd: 0 };
       }
     }),
 
@@ -1418,26 +1423,27 @@ export const toolsRouter = router({
 
   // ─── Top Collectors ───────────────────────────────────────────────────────────────────────────────────────
   topCollectors: publicProcedure
-    .input(z.object({ period: z.enum(['7', '30', 'all']).default('30'), limit: z.number().min(1).max(50).default(25) }))
+    .input(z.object({ period: z.enum(['7', '30', 'all']).default('30'), limit: z.number().min(1).max(1000).default(1000) }))
     .query(async ({ input }) => {
       const OBJKT = 'https://data.objkt.com/v3/graphql';
-      // objkt supports interval_days: 1, 7, 30, 3650 (all time)
       const intervalDays = input.period === 'all' ? 3650 : parseInt(input.period);
+      const query = (offset: number) => `{ sales_stat(limit: 500, offset: ${offset}, order_by: {volume: desc}, where: {type: {_eq: "buyer"}, interval_days: {_eq: ${intervalDays}}}) { volume rank subject { alias address logo description twitter website } } }`;
       try {
-        const res = await fetch(OBJKT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: `{ sales_stat(limit: ${input.limit * 2}, order_by: {volume: desc}, where: {type: {_eq: "buyer"}, interval_days: {_eq: ${intervalDays}}}) { volume rank subject { alias address logo description twitter website } } }` }),
-          signal: AbortSignal.timeout(10000),
-        });
-        const data = await res.json();
-        // Deduplicate by address (same address can appear multiple times)
+        const [res1, res2, priceRes] = await Promise.all([
+          fetch(OBJKT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: query(0) }), signal: AbortSignal.timeout(15000) }),
+          fetch(OBJKT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: query(500) }), signal: AbortSignal.timeout(15000) }),
+          fetch('https://api.coingecko.com/api/v3/simple/price?ids=tezos&vs_currencies=usd', { signal: AbortSignal.timeout(5000) }),
+        ]);
+        const [d1, d2, priceData] = await Promise.all([res1.json(), res2.json(), priceRes.json()]);
+        const xtzUsd = priceData?.tezos?.usd || 0;
+        const allStats = [...(d1?.data?.sales_stat || []), ...(d2?.data?.sales_stat || [])];
         const seen = new Set<string>();
         const results: any[] = [];
-        for (const s of data?.data?.sales_stat || []) {
+        for (const s of allStats) {
           const addr = s.subject?.address;
           if (!addr || seen.has(addr)) continue;
           seen.add(addr);
+          const volumeXtz = s.volume / 1_000_000;
           results.push({
             rank: results.length + 1,
             address: addr,
@@ -1446,14 +1452,15 @@ export const toolsRouter = router({
             description: s.subject?.description || null,
             twitter: s.subject?.twitter || null,
             website: s.subject?.website || null,
-            volume: s.volume / 1_000_000,
+            volume: volumeXtz,
+            volumeUsd: xtzUsd > 0 ? volumeXtz * xtzUsd : null,
             objktUrl: `https://objkt.com/profile/${addr}`,
           });
           if (results.length >= input.limit) break;
         }
-        return results;
+        return { results, xtzUsd };
       } catch (e) {
-        return [];
+        return { results: [], xtzUsd: 0 };
       }
     }),
 
