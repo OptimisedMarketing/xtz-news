@@ -56,6 +56,7 @@ import SmartContractInspectorPage from "./pages/tools/SmartContractInspectorPage
 import DefiDashboardPage from "./pages/tools/DefiDashboardPage";
 import DefiProtocolPage from "./pages/tools/DefiProtocolPage";
 import LiveAuctionTrackerPage from "./pages/tools/LiveAuctionTrackerPage";
+import TopCollectorsPage from "./pages/tools/TopCollectorsPage";
 
 function Router() {
   return (
@@ -112,6 +113,7 @@ function Router() {
       <Route path="/tools/defi" component={DefiDashboardPage} />
       <Route path="/tools/defi/:slug" component={DefiProtocolPage} />
       <Route path="/tools/auctions" component={LiveAuctionTrackerPage} />
+      <Route path="/tools/top-collectors" component={TopCollectorsPage} />
       <Route path="/explorer/block/:id" component={BlockPage} />
       <Route path="/explorer/tx/:hash" component={TxPage} />
       <Route path="/explorer/address/:address" component={AddressPage} />

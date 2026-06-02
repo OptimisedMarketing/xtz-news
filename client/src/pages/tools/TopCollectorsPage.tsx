@@ -1,0 +1,202 @@
+import { useState } from "react";
+import { ExternalLink, Trophy, Twitter, Globe, TrendingUp } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+import { useSEO } from "@/hooks/useSEO";
+import ToolBreadcrumb from "@/components/ToolBreadcrumb";
+
+function formatXtz(v: number) {
+  if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
+  if (v >= 1_000) return `${(v / 1_000).toFixed(1)}K`;
+  return v.toFixed(0);
+}
+
+function getRankColor(rank: number) {
+  if (rank === 1) return "#fbbf24"; // gold
+  if (rank === 2) return "#94a3b8"; // silver
+  if (rank === 3) return "#cd7c2f"; // bronze
+  return "rgba(255,255,255,0.2)";
+}
+
+function getRankEmoji(rank: number) {
+  if (rank === 1) return "🥇";
+  if (rank === 2) return "🥈";
+  if (rank === 3) return "🥉";
+  return null;
+}
+
+export default function TopCollectorsPage() {
+  const [period, setPeriod] = useState<'7' | '30' | '90'>('30');
+
+  useSEO({
+    title: "Top Tezos NFT Collectors | XTZ.News — Leaderboard by Spend Volume",
+    description: "Leaderboard of the most active Tezos NFT collectors ranked by total spend volume on objkt.com. Filter by 7, 30, or 90 day periods.",
+    keywords: "Tezos NFT collectors, objkt collectors, Tezos art collectors, NFT leaderboard",
+    canonical: "https://xtz.news/tools/top-collectors",
+  });
+
+  const { data: collectors = [], isLoading } = trpc.tools.topCollectors.useQuery(
+    { period, limit: 25 },
+    { staleTime: 5 * 60_000, refetchInterval: 10 * 60_000 }
+  );
+
+  const totalVolume = collectors.reduce((sum: number, c: any) => sum + c.volume, 0);
+
+  return (
+    <div style={{ background: "#000", minHeight: "100vh" }}>
+      <ToolBreadcrumb items={[{ label: "Top Collectors" }]} />
+
+      {/* Header */}
+      <div style={{ background: "linear-gradient(135deg, #05152e 0%, #1a0a3e 100%)", borderBottom: "1px solid rgba(255,255,255,0.08)", padding: "2rem 0 1.5rem" }}>
+        <div className="container">
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "0.5rem" }}>
+                <Trophy size={20} style={{ color: "#fbbf24" }} />
+                <h1 style={{ margin: 0, fontSize: "1.75rem", fontWeight: 900, color: "#fff" }}>Top Collectors</h1>
+              </div>
+              <p style={{ margin: 0, fontSize: "0.85rem", color: "rgba(255,255,255,0.5)" }}>
+                Most active Tezos NFT collectors ranked by spend volume on objkt.com
+              </p>
+            </div>
+            {/* Period selector */}
+            <div style={{ display: "flex", gap: "0.4rem" }}>
+              {(['7', '30', '90'] as const).map((p) => (
+                <button key={p} onClick={() => setPeriod(p)}
+                  style={{ padding: "0.5rem 1rem", borderRadius: "4px", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", border: period === p ? "1px solid #fbbf24" : "1px solid rgba(255,255,255,0.15)", background: period === p ? "rgba(251,191,36,0.15)" : "transparent", color: period === p ? "#fbbf24" : "rgba(255,255,255,0.5)", transition: "all 0.15s" }}>
+                  {p}d
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Summary stats */}
+          {collectors.length > 0 && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "1.25rem", marginTop: "1.5rem" }}>
+              {[
+                { label: "Collectors ranked", value: collectors.length.toString() },
+                { label: `Total volume (${period}d)`, value: `${formatXtz(totalVolume)} ꜩ` },
+                { label: "Top collector", value: (collectors[0] as any)?.alias || `${(collectors[0] as any)?.address?.slice(0, 8)}...` },
+                { label: "Top spend", value: `${formatXtz((collectors[0] as any)?.volume || 0)} ꜩ` },
+              ].map(({ label, value }) => (
+                <div key={label} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "6px", padding: "0.75rem 1.25rem" }}>
+                  <p style={{ margin: "0 0 0.2rem", fontSize: "0.6rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)" }}>{label}</p>
+                  <p style={{ margin: 0, fontSize: "1rem", fontWeight: 900, color: "#fff" }}>{value}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Leaderboard */}
+      <div className="container" style={{ padding: "2rem 1.25rem" }}>
+        {isLoading ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+            {Array.from({ length: 10 }).map((_, i) => (
+              <div key={i} className="skeleton" style={{ height: "72px", borderRadius: "8px" }} />
+            ))}
+          </div>
+        ) : collectors.length > 0 ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+            {collectors.map((collector: any) => {
+              const rankColor = getRankColor(collector.rank);
+              const rankEmoji = getRankEmoji(collector.rank);
+              const barWidth = totalVolume > 0 ? (collector.volume / (collectors[0] as any).volume) * 100 : 0;
+
+              return (
+                <a key={collector.address} href={collector.objktUrl} target="_blank" rel="noopener noreferrer"
+                  style={{ textDecoration: "none", display: "block" }}>
+                  <div style={{
+                    background: "#05152e", border: `1px solid ${collector.rank <= 3 ? `${rankColor}30` : "rgba(255,255,255,0.07)"}`,
+                    borderRadius: "8px", padding: "0.875rem 1.25rem",
+                    display: "flex", alignItems: "center", gap: "1rem",
+                    transition: "transform 0.15s, border-color 0.15s, box-shadow 0.15s",
+                    position: "relative", overflow: "hidden",
+                  }}
+                    onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.transform = "translateX(4px)"; el.style.borderColor = `${rankColor}60`; el.style.boxShadow = "0 4px 16px rgba(0,0,0,0.3)"; }}
+                    onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.transform = "translateX(0)"; el.style.borderColor = collector.rank <= 3 ? `${rankColor}30` : "rgba(255,255,255,0.07)"; el.style.boxShadow = "none"; }}>
+
+                    {/* Volume bar background */}
+                    <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: `${barWidth}%`, background: `${rankColor}08`, pointerEvents: "none" }} />
+
+                    {/* Rank */}
+                    <div style={{ width: "2.5rem", flexShrink: 0, textAlign: "center" }}>
+                      {rankEmoji ? (
+                        <span style={{ fontSize: "1.3rem" }}>{rankEmoji}</span>
+                      ) : (
+                        <span style={{ fontSize: "1rem", fontWeight: 900, color: rankColor }}>{collector.rank}</span>
+                      )}
+                    </div>
+
+                    {/* Avatar */}
+                    <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: `${rankColor}20`, border: `2px solid ${rankColor}40`, overflow: "hidden", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      {collector.logo ? (
+                        <img src={collector.logo} alt={collector.alias || ''} style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
+                      ) : (
+                        <span style={{ fontSize: "1rem" }}>🎨</span>
+                      )}
+                    </div>
+
+                    {/* Name & description */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+                        <span style={{ fontSize: "0.92rem", fontWeight: 800, color: "#fff" }}>
+                          {collector.alias || `${collector.address.slice(0, 8)}...${collector.address.slice(-4)}`}
+                        </span>
+                        {collector.twitter && (
+                          <a href={collector.twitter} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}
+                            style={{ color: "rgba(255,255,255,0.3)", transition: "color 0.15s" }}
+                            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#1DA1F2"; }}
+                            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.3)"; }}>
+                            <Twitter size={12} />
+                          </a>
+                        )}
+                        {collector.website && (
+                          <a href={collector.website} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}
+                            style={{ color: "rgba(255,255,255,0.3)", transition: "color 0.15s" }}
+                            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#fff"; }}
+                            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.3)"; }}>
+                            <Globe size={12} />
+                          </a>
+                        )}
+                      </div>
+                      {collector.description && (
+                        <p style={{ margin: "1px 0 0", fontSize: "0.72rem", color: "rgba(255,255,255,0.4)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {collector.description}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Volume */}
+                    <div style={{ textAlign: "right", flexShrink: 0 }}>
+                      <p style={{ margin: 0, fontSize: "1rem", fontWeight: 900, color: rankColor }}>
+                        {formatXtz(collector.volume)} <span style={{ fontSize: "0.7rem", fontWeight: 600 }}>ꜩ</span>
+                      </p>
+                      <p style={{ margin: "1px 0 0", fontSize: "0.62rem", color: "rgba(255,255,255,0.3)", fontWeight: 600 }}>
+                        {period}d spend
+                      </p>
+                    </div>
+
+                    <ExternalLink size={12} style={{ color: "rgba(255,255,255,0.2)", flexShrink: 0 }} />
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        ) : (
+          <div style={{ textAlign: "center", padding: "4rem 0" }}>
+            <p style={{ color: "rgba(255,255,255,0.4)" }}>No collector data available.</p>
+          </div>
+        )}
+
+        <div style={{ marginTop: "2rem", padding: "1rem 1.25rem", background: "rgba(255,255,255,0.03)", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.06)" }}>
+          <p style={{ margin: 0, fontSize: "0.72rem", color: "rgba(255,255,255,0.3)", lineHeight: 1.5 }}>
+            <TrendingUp size={11} style={{ display: "inline", marginRight: "0.3rem", verticalAlign: "middle" }} />
+            Rankings based on total spend volume on objkt.com for the selected period. Data from the objkt.com public API. Updated every 10 minutes.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}

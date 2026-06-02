@@ -130,6 +130,15 @@ const TOOLS = [
     badgeColor: "#2c7df7",
     tags: ["NFT Auctions", "English Auction", "Dutch Auction", "objkt"],
   },
+  {
+    href: "/tools/top-collectors",
+    icon: "🏆",
+    title: "Top Collectors",
+    description: "Leaderboard of the most active Tezos NFT collectors ranked by total spend volume on objkt.com. Filter by 7, 30, or 90 day periods.",
+    badge: "Live",
+    badgeColor: "#fbbf24",
+    tags: ["Collectors", "Leaderboard", "Spend Volume", "objkt"],
+  },
 ];
 
 export default function ToolsPage() {

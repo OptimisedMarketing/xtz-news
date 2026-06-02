@@ -131,6 +131,11 @@ export default function ArtPage() {
     { staleTime: 10 * 60_000 }
   );
 
+  const { data: newDrops = [] } = trpc.tools.newDrops.useQuery(
+    { limit: 6, hours: 24 },
+    { staleTime: 5 * 60_000, refetchInterval: 10 * 60_000 }
+  );
+
   return (
     <div style={{ background: "#000", minHeight: "100vh" }}>
 
@@ -308,6 +313,70 @@ export default function ArtPage() {
                         <p style={{ margin: "0.5rem 0 0", fontSize: "0.62rem", fontWeight: 700, color: "#f97316" }}>{col.items} items · {col.owners} owners</p>
                       </div>
                     )}
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── New Drops ── */}
+      {(newDrops as any[]).length > 0 && (
+        <section style={{ padding: "2.5rem 0", background: "#000", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+          <div className="container">
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.5rem", flexWrap: "wrap", gap: "0.75rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                <div style={{ width: "4px", height: "28px", background: "#22c55e", borderRadius: "2px" }} />
+                <div>
+                  <p style={{ margin: 0, fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: "#22c55e", marginBottom: "2px" }}>Last 24 Hours</p>
+                  <h2 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#fff" }}>New Drops</h2>
+                </div>
+                <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#22c55e", animation: "pulse 2s infinite" }} />
+              </div>
+              <a href="https://objkt.com/explore/tokens" target="_blank" rel="noopener noreferrer"
+                style={{ fontSize: "0.7rem", fontWeight: 700, color: "#22c55e", textDecoration: "none", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                View all on objkt <ExternalLink size={11} />
+              </a>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "1rem" }}>
+              {(newDrops as any[]).map((drop: any, i: number) => (
+                <a key={i} href={drop.objktUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+                  <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", overflow: "hidden", transition: "transform 0.2s, border-color 0.2s, box-shadow 0.2s" }}
+                    onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.transform = "translateY(-3px)"; el.style.borderColor = "rgba(34,197,94,0.4)"; el.style.boxShadow = "0 8px 24px rgba(0,0,0,0.4)"; }}
+                    onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.transform = "translateY(0)"; el.style.borderColor = "rgba(255,255,255,0.07)"; el.style.boxShadow = "none"; }}>
+                    {/* Thumbnail */}
+                    <div style={{ aspectRatio: "1", background: "#000", overflow: "hidden", position: "relative" }}>
+                      {drop.thumbnailUri ? (
+                        <img src={drop.thumbnailUri} alt={drop.name} loading="lazy"
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
+                      ) : (
+                        <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2rem", opacity: 0.2 }}>🎨</div>
+                      )}
+                      {/* NEW badge */}
+                      <div style={{ position: "absolute", top: "0.4rem", left: "0.4rem", background: "rgba(34,197,94,0.9)", color: "#fff", fontSize: "0.55rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.1em", padding: "2px 6px", borderRadius: "2px" }}>NEW</div>
+                      {/* Price badge */}
+                      {drop.price && (
+                        <div style={{ position: "absolute", bottom: "0.4rem", right: "0.4rem", background: "rgba(0,0,0,0.85)", color: "#22c55e", fontSize: "0.7rem", fontWeight: 800, padding: "2px 7px", borderRadius: "3px" }}>
+                          {drop.price.toFixed(1)} ꜩ
+                        </div>
+                      )}
+                    </div>
+                    {/* Info */}
+                    <div style={{ padding: "0.75rem" }}>
+                      <h3 style={{ margin: "0 0 0.2rem", fontSize: "0.82rem", fontWeight: 700, color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{drop.name}</h3>
+                      {drop.creators.length > 0 && (
+                        <p style={{ margin: "0 0 0.2rem", fontSize: "0.65rem", color: "#22c55e", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>by {drop.creators.join(', ')}</p>
+                      )}
+                      {drop.collectionName && (
+                        <p style={{ margin: 0, fontSize: "0.62rem", color: "rgba(255,255,255,0.35)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{drop.collectionName}</p>
+                      )}
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "0.4rem" }}>
+                        <span style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.3)" }}>{drop.supply > 1 ? `Ed. ${drop.supply}` : '1/1'}</span>
+                        <span style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.25)" }}>{new Date(drop.timestamp).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
+                      </div>
+                    </div>
                   </div>
                 </a>
               ))}

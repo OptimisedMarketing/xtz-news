@@ -1280,6 +1280,86 @@ export const toolsRouter = router({
       }
     }),
 
+  // ─── Top Collectors ───────────────────────────────────────────────────────────────────────────────────────
+  topCollectors: publicProcedure
+    .input(z.object({ period: z.enum(['7', '30', '90']).default('30'), limit: z.number().min(1).max(50).default(25) }))
+    .query(async ({ input }) => {
+      const OBJKT = 'https://data.objkt.com/v3/graphql';
+      try {
+        const res = await fetch(OBJKT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: `{ sales_stat(limit: ${input.limit * 2}, order_by: {volume: desc}, where: {type: {_eq: "buyer"}, interval_days: {_eq: ${input.period}}}) { volume rank subject { alias address logo description twitter website } } }` }),
+          signal: AbortSignal.timeout(10000),
+        });
+        const data = await res.json();
+        // Deduplicate by address (same address can appear multiple times)
+        const seen = new Set<string>();
+        const results: any[] = [];
+        for (const s of data?.data?.sales_stat || []) {
+          const addr = s.subject?.address;
+          if (!addr || seen.has(addr)) continue;
+          seen.add(addr);
+          results.push({
+            rank: results.length + 1,
+            address: addr,
+            alias: s.subject?.alias || null,
+            logo: s.subject?.logo || null,
+            description: s.subject?.description || null,
+            twitter: s.subject?.twitter || null,
+            website: s.subject?.website || null,
+            volume: s.volume / 1_000_000,
+            objktUrl: `https://objkt.com/profile/${addr}`,
+          });
+          if (results.length >= input.limit) break;
+        }
+        return results;
+      } catch (e) {
+        return [];
+      }
+    }),
+
+  // ─── New Drops ───────────────────────────────────────────────────────────────────────────────────────
+  newDrops: publicProcedure
+    .input(z.object({ limit: z.number().min(1).max(24).default(6), hours: z.number().min(1).max(72).default(24) }))
+    .query(async ({ input }) => {
+      const OBJKT = 'https://data.objkt.com/v3/graphql';
+      const since = new Date(Date.now() - input.hours * 3600000).toISOString();
+      const resolveIpfs = (uri: string | null) => {
+        if (!uri) return null;
+        if (uri.startsWith('ipfs://')) return `https://ipfs.io/ipfs/${uri.slice(7)}`;
+        return uri;
+      };
+      try {
+        const res = await fetch(OBJKT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: `{ token(limit: ${input.limit}, order_by: {timestamp: desc}, where: {timestamp: {_gte: "${since}"}, supply: {_gt: 0}}) { name description thumbnail_uri display_uri timestamp supply fa { contract name } creators { holder { alias address } } listings_active { price_xtz } } }` }),
+          signal: AbortSignal.timeout(10000),
+        });
+        const data = await res.json();
+        return (data?.data?.token || []).map((t: any) => {
+          const lowestListing = t.listings_active?.length
+            ? Math.min(...t.listings_active.map((l: any) => l.price_xtz)) / 1_000_000
+            : null;
+          return {
+            name: t.name || 'Untitled',
+            description: t.description || null,
+            thumbnailUri: resolveIpfs(t.thumbnail_uri || t.display_uri),
+            timestamp: t.timestamp,
+            supply: t.supply,
+            collectionName: t.fa?.name || null,
+            collectionContract: t.fa?.contract || null,
+            creators: (t.creators || []).map((c: any) => c.holder?.alias || c.holder?.address?.slice(0, 8) + '...').filter(Boolean),
+            price: lowestListing,
+            objktUrl: t.fa?.contract ? `https://objkt.com/collections/${t.fa.contract}` : 'https://objkt.com',
+          };
+        });
+      } catch (e) {
+        return [];
+      }
+    }),
+
   // ─── Recent NFT Sales ───────────────────────────────────────────────────────────────────────────────────────
   recentNftSales: publicProcedure
     .input(z.object({ limit: z.number().min(1).max(30).default(15), minPrice: z.number().default(0) }))

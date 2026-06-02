@@ -32,7 +32,6 @@ const NAV_ITEMS = [
       { label: "ART HUB", href: "/art" },
       { label: "ART RECAP", href: "/category/art" },
       { label: "EXHIBITION", href: "/category/exhibition" },
-      { label: "NFT", href: "/category/nft" },
       { label: "MUSIC", href: "/category/music" },
       { label: "── TOOLS ──", href: "/tools" },
       { label: "NFT GALLERY", href: "/tools/nft-gallery" },
