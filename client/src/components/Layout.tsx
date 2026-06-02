@@ -5,6 +5,7 @@ import Header from "./Header";
 import Footer from "./Footer";
 import SearchModal from "./SearchModal";
 import PriceTicker from "./PriceTicker";
+import BreakingNewsBanner from "./BreakingNewsBanner";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -33,6 +34,7 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <div className="flex flex-col min-h-screen" style={{ background: "var(--body-bg)" }}>
+      <BreakingNewsBanner />
       <div className="sticky top-0 z-50">
         <PriceTicker />
         <Header onSearchOpen={() => setSearchOpen(true)} />

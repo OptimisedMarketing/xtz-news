@@ -25,6 +25,18 @@ const NAV_ITEMS = [
   },
   { label: "TIMELINE", href: "/timeline" },
   { label: "PROJECTS", href: "/projects" },
+  {
+    label: "ART",
+    href: "/category/art",
+    children: [
+      { label: "ART RECAP", href: "/category/art" },
+      { label: "EXHIBITION", href: "/category/exhibition" },
+      { label: "NFT", href: "/category/nft" },
+      { label: "MUSIC", href: "/category/music" },
+      { label: "GAMES", href: "/category/games" },
+      { label: "ALL ART", href: "/category/art" },
+    ],
+  },
   { label: "EXPLORER", href: "/explorer" },
   { label: "STAKING", href: "/staking" },
   { label: "TOOLS", href: "/tools" },

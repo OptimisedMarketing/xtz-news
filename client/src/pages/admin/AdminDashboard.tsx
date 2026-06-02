@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { FileText, Tag, FolderOpen, Inbox, BarChart2, ChevronRight } from "lucide-react";
+import { FileText, Tag, FolderOpen, Inbox, BarChart2, ChevronRight, Settings } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -49,6 +49,7 @@ export default function AdminDashboard() {
     { label: "Manage Projects", href: "/admin/projects", icon: <FolderOpen size={16} /> },
     { label: "Article Submissions", href: "/admin/submissions", icon: <Inbox size={16} />, badge: pendingSubmissions },
     { label: "Newsletter Subscribers", href: "/admin/subscribers", icon: <BarChart2 size={16} /> },
+    { label: "Site Settings", href: "/admin/settings", icon: <Settings size={16} /> },
   ];
 
   return (

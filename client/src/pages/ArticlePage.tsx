@@ -7,6 +7,7 @@ import { trpc } from "@/lib/trpc";
 import PostCard from "@/components/PostCard";
 import AudioPlayer from "@/components/AudioPlayer";
 import { toast } from "sonner";
+import ReadingProgressBar from "@/components/ReadingProgressBar";
 
 /** Injects / updates Open Graph + Twitter Card meta tags in <head> */
 function useOpenGraph(post: {

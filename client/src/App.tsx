@@ -27,6 +27,7 @@ import AdminCategories from "./pages/admin/AdminCategories";
 import AdminProjects from "./pages/admin/AdminProjects";
 import AdminSubmissions from "./pages/admin/AdminSubmissions";
 import AdminSubscribers from "./pages/admin/AdminSubscribers";
+import AdminSettings from "./pages/admin/AdminSettings";
 import NotFound from "./pages/NotFound";
 import PricePage from "./pages/PricePage";
 import SubmitProjectPage from "./pages/SubmitProjectPage";
@@ -82,6 +83,7 @@ function Router() {
       <Route path="/admin/projects" component={AdminProjects} />
       <Route path="/admin/submissions" component={AdminSubmissions} />
       <Route path="/admin/subscribers" component={AdminSubscribers} />
+      <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/prices" component={PricePage} />
       <Route path="/submit-project" component={SubmitProjectPage} />
       <Route path="/unsubscribe" component={UnsubscribePage} />

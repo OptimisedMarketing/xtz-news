@@ -683,6 +683,29 @@ const imageMigrationRouter = router({
     }),
 });
 
+
+// ─── Settings Router ──────────────────────────────────────────────────────────
+const settingsRouter = router({
+  getBreakingNews: publicProcedure.query(async () => {
+    const [text, url, active] = await Promise.all([
+      db.getSetting('breaking_news_text'),
+      db.getSetting('breaking_news_url'),
+      db.getSetting('breaking_news_active'),
+    ]);
+    return { text, url, active: active === 'true' };
+  }),
+  setBreakingNews: adminProcedure
+    .input(z.object({ text: z.string(), url: z.string().optional(), active: z.boolean() }))
+    .mutation(async ({ input }) => {
+      await Promise.all([
+        db.setSetting('breaking_news_text', input.text),
+        db.setSetting('breaking_news_url', input.url || ''),
+        db.setSetting('breaking_news_active', input.active ? 'true' : 'false'),
+      ]);
+      return { success: true };
+    }),
+});
+
 // ─── App Router ───────────────────────────────────────────────────────────────
 export const appRouter = router({
   system: systemRouter,
@@ -707,5 +730,6 @@ export const appRouter = router({
   imageMigration: imageMigrationRouter,
   explorer: explorerRouter,
   tools: toolsRouter,
+  settings: settingsRouter,
 })
 export type AppRouter = typeof appRouter;
