@@ -118,6 +118,7 @@ function AuctionCard({ auction }: { auction: any }) {
 export default function LiveAuctionTrackerPage() {
   const [auctionType, setAuctionType] = useState<'all' | 'english' | 'dutch'>('all');
   const [minBid, setMinBid] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
 
   useSEO({
@@ -132,7 +133,16 @@ export default function LiveAuctionTrackerPage() {
     { staleTime: 30_000, refetchInterval: 60_000 }
   );
 
-  const filteredAuctions = auctions.filter((a: any) => (a.currentBid ?? a.reserve ?? 0) >= minBid);
+  const filteredAuctions = auctions.filter((a: any) => {
+    const priceOk = (a.currentBid ?? a.reserve ?? 0) >= minBid;
+    if (!searchQuery.trim()) return priceOk;
+    const q = searchQuery.toLowerCase();
+    return priceOk && (
+      (a.tokenName || '').toLowerCase().includes(q) ||
+      (a.collectionName || '').toLowerCase().includes(q) ||
+      (a.seller || '').toLowerCase().includes(q)
+    );
+  });
 
   const handleRefresh = useCallback(() => {
     setRefreshKey(k => k + 1);
@@ -190,6 +200,16 @@ export default function LiveAuctionTrackerPage() {
       <div style={{ background: "#05152e", borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "0.75rem 0" }}>
         <div className="container" style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", alignItems: "center" }}>
           <Filter size={14} style={{ color: "rgba(255,255,255,0.4)" }} />
+          {/* Search bar */}
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by artwork, collection, or artist..."
+            style={{ flex: "1 1 200px", minWidth: "160px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", padding: "0.4rem 0.75rem", color: "#fff", fontSize: "0.8rem", outline: "none", fontFamily: "inherit" }}
+            onFocus={(e) => (e.currentTarget.style.borderColor = "#2c7df7")}
+            onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)")}
+          />
           <div style={{ display: "flex", gap: "0.4rem" }}>
             {(['all', 'english', 'dutch'] as const).map((t) => (
               <button key={t} onClick={() => setAuctionType(t)}

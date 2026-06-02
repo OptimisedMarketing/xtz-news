@@ -1258,7 +1258,7 @@ export const toolsRouter = router({
         const res = await fetch(OBJKT, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: `{ fa(limit: ${input.limit}, order_by: {volume_24h: desc}, where: {volume_24h: {_gt: 0}, live: {_eq: true}, name: {_is_null: false}}) { contract name logo volume_24h volume_total floor_price items owners collection_type } }` }),
+          body: JSON.stringify({ query: `{ fa(limit: ${input.limit}, order_by: {volume_24h: desc}, where: {volume_24h: {_gt: 0}, live: {_eq: true}, name: {_is_null: false}}) { contract name logo description volume_24h volume_total floor_price items owners collection_type } }` }),
           signal: AbortSignal.timeout(10000),
         });
         const data = await res.json();
@@ -1266,6 +1266,7 @@ export const toolsRouter = router({
           contract: f.contract,
           name: f.name,
           logo: f.logo,
+          description: f.description || null,
           volume24h: f.volume_24h / 1_000_000,
           volumeTotal: f.volume_total / 1_000_000,
           floorPrice: f.floor_price ? f.floor_price / 1_000_000 : null,

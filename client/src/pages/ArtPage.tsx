@@ -127,7 +127,7 @@ export default function ArtPage() {
   });
 
   const { data: trendingCollections = [] } = trpc.tools.trendingCollections.useQuery(
-    { limit: 5 },
+    { limit: 6 },
     { staleTime: 10 * 60_000 }
   );
 
@@ -256,9 +256,21 @@ export default function ArtPage() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: "0.875rem" }}>
               {(trendingCollections as any[]).map((col: any, i: number) => (
                 <a key={col.contract} href={col.objktUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
-                  <div style={{ background: "#000", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", padding: "1rem", display: "flex", flexDirection: "column", gap: "0.5rem", transition: "border-color 0.2s, transform 0.2s" }}
-                    onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "rgba(249,115,22,0.4)"; el.style.transform = "translateY(-2px)"; }}
-                    onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.borderColor = "rgba(255,255,255,0.07)"; el.style.transform = "translateY(0)"; }}>
+                  <div style={{ background: "#000", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", padding: "1rem", display: "flex", flexDirection: "column", gap: "0.5rem", transition: "border-color 0.2s, transform 0.2s", position: "relative", overflow: "hidden" }}
+                    onMouseEnter={(e) => {
+                      const el = e.currentTarget as HTMLElement;
+                      el.style.borderColor = "rgba(249,115,22,0.4)";
+                      el.style.transform = "translateY(-2px)";
+                      const desc = el.querySelector('.col-desc') as HTMLElement;
+                      if (desc) desc.style.opacity = '1';
+                    }}
+                    onMouseLeave={(e) => {
+                      const el = e.currentTarget as HTMLElement;
+                      el.style.borderColor = "rgba(255,255,255,0.07)";
+                      el.style.transform = "translateY(0)";
+                      const desc = el.querySelector('.col-desc') as HTMLElement;
+                      if (desc) desc.style.opacity = '0';
+                    }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
                       <span style={{ fontSize: "1.1rem", fontWeight: 900, color: i < 3 ? "#f97316" : "rgba(255,255,255,0.2)", flexShrink: 0, width: "1.2rem" }}>{i + 1}</span>
                       {col.logo ? (
@@ -281,6 +293,21 @@ export default function ArtPage() {
                         </div>
                       )}
                     </div>
+                    {/* Hover description overlay */}
+                    {col.description && (
+                      <div className="col-desc" style={{
+                        position: "absolute", inset: 0,
+                        background: "rgba(5,21,46,0.95)",
+                        padding: "0.875rem",
+                        display: "flex", flexDirection: "column", justifyContent: "center",
+                        opacity: 0, transition: "opacity 0.2s ease",
+                        borderRadius: "8px",
+                      }}>
+                        <p style={{ margin: "0 0 0.5rem", fontSize: "0.78rem", fontWeight: 800, color: "#fff" }}>{col.name}</p>
+                        <p style={{ margin: 0, fontSize: "0.72rem", color: "rgba(255,255,255,0.65)", lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{col.description}</p>
+                        <p style={{ margin: "0.5rem 0 0", fontSize: "0.62rem", fontWeight: 700, color: "#f97316" }}>{col.items} items · {col.owners} owners</p>
+                      </div>
+                    )}
                   </div>
                 </a>
               ))}

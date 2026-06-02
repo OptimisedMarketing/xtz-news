@@ -29,12 +29,16 @@ const NAV_ITEMS = [
     label: "ART",
     href: "/art",
     children: [
-      { label: "ART RECAP", href: "/art" },
+      { label: "ART HUB", href: "/art" },
+      { label: "ART RECAP", href: "/category/art" },
       { label: "EXHIBITION", href: "/category/exhibition" },
       { label: "NFT", href: "/category/nft" },
       { label: "MUSIC", href: "/category/music" },
-      { label: "GAMES", href: "/category/games" },
-      { label: "ALL ART", href: "/category/art" },
+      { label: "── TOOLS ──", href: "/tools" },
+      { label: "NFT GALLERY", href: "/tools/nft-gallery" },
+      { label: "LIVE AUCTIONS", href: "/tools/auctions" },
+      { label: "TOKEN PRICES", href: "/tools/token-price" },
+      { label: "AIRDROP CHECK", href: "/tools/airdrop" },
     ],
   },
   { label: "EXPLORER", href: "/explorer" },
@@ -128,13 +132,19 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                     {openDropdown === item.label && (
                       <div style={{ position: "absolute", top: "100%", left: 0, minWidth: "160px", background: "#05152e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", boxShadow: "0 8px 32px rgba(0,0,0,0.6)", zIndex: 100, padding: "0.25rem 0" }}>
                         {item.children.map((child) => (
-                          <Link key={child.label} href={child.href}
-                            style={{ display: "block", padding: "0.5rem 1rem", fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", textDecoration: "none", transition: "all 0.2s" }}
-                            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#fff"; (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.05)"; }}
-                            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.7)"; (e.currentTarget as HTMLElement).style.background = "none"; }}
-                          >
-                            {child.label}
-                          </Link>
+                          child.label.startsWith('\u2500\u2500') ? (
+                            <div key={child.label} style={{ padding: "0.35rem 1rem 0.2rem", fontSize: "0.58rem", fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "#2c7df7", borderTop: "1px solid rgba(255,255,255,0.07)", marginTop: "0.25rem" }}>
+                              TOOLS
+                            </div>
+                          ) : (
+                            <Link key={child.label} href={child.href}
+                              style={{ display: "block", padding: "0.5rem 1rem", fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", textDecoration: "none", transition: "all 0.2s" }}
+                              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#fff"; (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.05)"; }}
+                              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.7)"; (e.currentTarget as HTMLElement).style.background = "none"; }}
+                            >
+                              {child.label}
+                            </Link>
+                          )
                         ))}
                       </div>
                     )}
@@ -244,10 +254,14 @@ export default function Header({ onSearchOpen }: HeaderProps) {
                 {item.children && (
                   <div style={{ paddingLeft: "1rem" }}>
                     {item.children.map((child) => (
+                      child.label.startsWith('──') ? (
+                        <div key={child.label} style={{ padding: "0.3rem 1.5rem 0.15rem", fontSize: "0.58rem", fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "#2c7df7", borderTop: "1px solid rgba(255,255,255,0.07)", marginTop: "0.2rem" }}>TOOLS</div>
+                      ) : (
                       <Link key={child.label} href={child.href}
                         style={{ display: "block", padding: "0.5rem 0.75rem", fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "rgba(255,255,255,0.5)", textDecoration: "none" }}>
                         {child.label}
                       </Link>
+                      )
                     ))}
                   </div>
                 )}
