@@ -1315,14 +1315,16 @@ export const toolsRouter = router({
 
   // ─── Top Collectors ───────────────────────────────────────────────────────────────────────────────────────
   topCollectors: publicProcedure
-    .input(z.object({ period: z.enum(['7', '30', '90']).default('30'), limit: z.number().min(1).max(50).default(25) }))
+    .input(z.object({ period: z.enum(['7', '30', 'all']).default('30'), limit: z.number().min(1).max(50).default(25) }))
     .query(async ({ input }) => {
       const OBJKT = 'https://data.objkt.com/v3/graphql';
+      // objkt supports interval_days: 1, 7, 30, 3650 (all time)
+      const intervalDays = input.period === 'all' ? 3650 : parseInt(input.period);
       try {
         const res = await fetch(OBJKT, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: `{ sales_stat(limit: ${input.limit * 2}, order_by: {volume: desc}, where: {type: {_eq: "buyer"}, interval_days: {_eq: ${input.period}}}) { volume rank subject { alias address logo description twitter website } } }` }),
+          body: JSON.stringify({ query: `{ sales_stat(limit: ${input.limit * 2}, order_by: {volume: desc}, where: {type: {_eq: "buyer"}, interval_days: {_eq: ${intervalDays}}}) { volume rank subject { alias address logo description twitter website } } }` }),
           signal: AbortSignal.timeout(10000),
         });
         const data = await res.json();

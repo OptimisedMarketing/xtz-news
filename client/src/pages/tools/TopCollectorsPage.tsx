@@ -129,7 +129,7 @@ function getRankEmoji(rank: number) {
 }
 
 export default function TopCollectorsPage() {
-  const [period, setPeriod] = useState<'7' | '30' | '90'>('30');
+  const [period, setPeriod] = useState<'7' | '30' | 'all'>('30');
   const [selectedCollector, setSelectedCollector] = useState<any>(null);
 
   useSEO({
@@ -168,10 +168,10 @@ export default function TopCollectorsPage() {
             </div>
             {/* Period selector */}
             <div style={{ display: "flex", gap: "0.4rem" }}>
-              {(['7', '30', '90'] as const).map((p) => (
-                <button key={p} onClick={() => setPeriod(p)}
-                  style={{ padding: "0.5rem 1rem", borderRadius: "4px", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", border: period === p ? "1px solid #fbbf24" : "1px solid rgba(255,255,255,0.15)", background: period === p ? "rgba(251,191,36,0.15)" : "transparent", color: period === p ? "#fbbf24" : "rgba(255,255,255,0.5)", transition: "all 0.15s" }}>
-                  {p}d
+              {([['7', '7d'], ['30', '30d'], ['all', 'All Time']] as const).map(([val, label]) => (
+                <button key={val} onClick={() => setPeriod(val)}
+                  style={{ padding: "0.5rem 1rem", borderRadius: "4px", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", border: period === val ? "1px solid #fbbf24" : "1px solid rgba(255,255,255,0.15)", background: period === val ? "rgba(251,191,36,0.15)" : "transparent", color: period === val ? "#fbbf24" : "rgba(255,255,255,0.5)", transition: "all 0.15s" }}>
+                  {label}
                 </button>
               ))}
             </div>
@@ -182,7 +182,7 @@ export default function TopCollectorsPage() {
             <div style={{ display: "flex", flexWrap: "wrap", gap: "1.25rem", marginTop: "1.5rem" }}>
               {[
                 { label: "Collectors ranked", value: collectors.length.toString() },
-                { label: `Total volume (${period}d)`, value: `${formatXtz(totalVolume)} ꜩ` },
+                { label: `Total volume (${period === 'all' ? 'all time' : period + 'd'})`, value: `${formatXtz(totalVolume)} ꜩ` },
                 { label: "Top collector", value: (collectors[0] as any)?.alias || `${(collectors[0] as any)?.address?.slice(0, 8)}...` },
                 { label: "Top spend", value: `${formatXtz((collectors[0] as any)?.volume || 0)} ꜩ` },
               ].map(({ label, value }) => (
@@ -282,7 +282,7 @@ export default function TopCollectorsPage() {
                         {formatXtz(collector.volume)} <span style={{ fontSize: "0.7rem", fontWeight: 600 }}>ꜩ</span>
                       </p>
                       <p style={{ margin: "1px 0 0", fontSize: "0.62rem", color: "rgba(255,255,255,0.3)", fontWeight: 600 }}>
-                        {period}d spend
+                        {period === 'all' ? 'all time' : `${period}d`} spend
                       </p>
                     </div>
 
