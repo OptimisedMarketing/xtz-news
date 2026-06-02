@@ -39,6 +39,7 @@ import TxPage from "./pages/explorer/TxPage";
 import AddressPage from "./pages/explorer/AddressPage";
 import BakersPage from "./pages/explorer/BakersPage";
 import StakingPage from "./pages/StakingPage";
+import ArtPage from "./pages/ArtPage";
 import ToolsPage from "./pages/tools/ToolsPage";
 import WalletInspectorPage from "./pages/tools/WalletInspectorPage";
 import NftGalleryPage from "./pages/tools/NftGalleryPage";
@@ -93,6 +94,7 @@ function Router() {
       <Route path="/explorer" component={ExplorerPage} />
       <Route path="/explorer/bakers" component={BakersPage} />
       <Route path="/staking" component={StakingPage} />
+      <Route path="/art" component={ArtPage} />
       <Route path="/tools" component={ToolsPage} />
       <Route path="/tools/wallet" component={WalletInspectorPage} />
       <Route path="/tools/nft-gallery" component={NftGalleryPage} />

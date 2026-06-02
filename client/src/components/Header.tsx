@@ -27,9 +27,9 @@ const NAV_ITEMS = [
   { label: "PROJECTS", href: "/projects" },
   {
     label: "ART",
-    href: "/category/art",
+    href: "/art",
     children: [
-      { label: "ART RECAP", href: "/category/art" },
+      { label: "ART RECAP", href: "/art" },
       { label: "EXHIBITION", href: "/category/exhibition" },
       { label: "NFT", href: "/category/nft" },
       { label: "MUSIC", href: "/category/music" },
