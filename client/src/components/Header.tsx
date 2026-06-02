@@ -37,6 +37,7 @@ const NAV_ITEMS = [
       { label: "NFT GALLERY", href: "/tools/nft-gallery" },
       { label: "LIVE AUCTIONS", href: "/tools/auctions" },
       { label: "TOP COLLECTORS", href: "/tools/top-collectors" },
+      { label: "COLLECTION STATS", href: "/tools/collection-stats" },
       { label: "TOKEN PRICES", href: "/tools/token-price" },
       { label: "AIRDROP CHECK", href: "/tools/airdrop" },
     ],

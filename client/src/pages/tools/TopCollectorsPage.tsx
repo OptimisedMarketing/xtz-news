@@ -130,21 +130,29 @@ function getRankEmoji(rank: number) {
 
 export default function TopCollectorsPage() {
   const [period, setPeriod] = useState<'7' | '30' | 'all'>('30');
+  const [tab, setTab] = useState<'collectors' | 'sellers'>('collectors');
   const [selectedCollector, setSelectedCollector] = useState<any>(null);
 
   useSEO({
-    title: "Top Tezos NFT Collectors | XTZ.News — Leaderboard by Spend Volume",
-    description: "Leaderboard of the most active Tezos NFT collectors ranked by total spend volume on objkt.com. Filter by 7, 30, or 90 day periods.",
-    keywords: "Tezos NFT collectors, objkt collectors, Tezos art collectors, NFT leaderboard",
+    title: "Top Tezos NFT Collectors & Sellers | XTZ.News — Leaderboard",
+    description: "Leaderboard of the most active Tezos NFT collectors and highest-earning artists ranked by spend/sales volume on objkt.com. Filter by 7d, 30d, or All Time.",
+    keywords: "Tezos NFT collectors, Tezos NFT sellers, objkt leaderboard, Tezos art collectors, Tezos artists",
     canonical: "https://xtz.news/tools/top-collectors",
   });
 
-  const { data: collectors = [], isLoading } = trpc.tools.topCollectors.useQuery(
+  const { data: collectors = [], isLoading: collectorsLoading } = trpc.tools.topCollectors.useQuery(
     { period, limit: 25 },
     { staleTime: 5 * 60_000, refetchInterval: 10 * 60_000 }
   );
 
-  const totalVolume = collectors.reduce((sum: number, c: any) => sum + c.volume, 0);
+  const { data: sellers = [], isLoading: sellersLoading } = trpc.tools.topSellers.useQuery(
+    { period, limit: 25 },
+    { staleTime: 5 * 60_000, refetchInterval: 10 * 60_000 }
+  );
+
+  const isLoading = tab === 'collectors' ? collectorsLoading : sellersLoading;
+  const activeList = tab === 'collectors' ? collectors : sellers;
+  const totalVolume = (activeList as any[]).reduce((sum: number, c: any) => sum + c.volume, 0);
 
   return (
     <div style={{ background: "#000", minHeight: "100vh" }}>
@@ -158,12 +166,23 @@ export default function TopCollectorsPage() {
         <div className="container">
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
             <div>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "0.5rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "0.75rem" }}>
                 <Trophy size={20} style={{ color: "#fbbf24" }} />
-                <h1 style={{ margin: 0, fontSize: "1.75rem", fontWeight: 900, color: "#fff" }}>Top Collectors</h1>
+                <h1 style={{ margin: 0, fontSize: "1.75rem", fontWeight: 900, color: "#fff" }}>Top {tab === 'collectors' ? 'Collectors' : 'Sellers'}</h1>
               </div>
-              <p style={{ margin: 0, fontSize: "0.85rem", color: "rgba(255,255,255,0.5)" }}>
-                Most active Tezos NFT collectors ranked by spend volume on objkt.com
+              {/* Tab toggle */}
+              <div style={{ display: "flex", gap: "0.4rem", marginBottom: "0.5rem" }}>
+                <button onClick={() => setTab('collectors')}
+                  style={{ padding: "0.4rem 1rem", borderRadius: "4px", fontSize: "0.78rem", fontWeight: 700, cursor: "pointer", border: tab === 'collectors' ? "1px solid #fbbf24" : "1px solid rgba(255,255,255,0.15)", background: tab === 'collectors' ? "rgba(251,191,36,0.15)" : "transparent", color: tab === 'collectors' ? "#fbbf24" : "rgba(255,255,255,0.5)", transition: "all 0.15s" }}>
+                  🏆 Collectors
+                </button>
+                <button onClick={() => setTab('sellers')}
+                  style={{ padding: "0.4rem 1rem", borderRadius: "4px", fontSize: "0.78rem", fontWeight: 700, cursor: "pointer", border: tab === 'sellers' ? "1px solid #a78bfa" : "1px solid rgba(255,255,255,0.15)", background: tab === 'sellers' ? "rgba(167,139,250,0.15)" : "transparent", color: tab === 'sellers' ? "#a78bfa" : "rgba(255,255,255,0.5)", transition: "all 0.15s" }}>
+                  🎨 Artists / Sellers
+                </button>
+              </div>
+              <p style={{ margin: 0, fontSize: "0.82rem", color: "rgba(255,255,255,0.5)" }}>
+                {tab === 'collectors' ? 'Most active Tezos NFT collectors ranked by spend volume on objkt.com' : 'Highest-earning Tezos artists ranked by sales volume on objkt.com'}
               </p>
             </div>
             {/* Period selector */}
@@ -178,13 +197,13 @@ export default function TopCollectorsPage() {
           </div>
 
           {/* Summary stats */}
-          {collectors.length > 0 && (
+          {(activeList as any[]).length > 0 && (
             <div style={{ display: "flex", flexWrap: "wrap", gap: "1.25rem", marginTop: "1.5rem" }}>
               {[
-                { label: "Collectors ranked", value: collectors.length.toString() },
+                { label: `${tab === 'collectors' ? 'Collectors' : 'Artists'} ranked`, value: (activeList as any[]).length.toString() },
                 { label: `Total volume (${period === 'all' ? 'all time' : period + 'd'})`, value: `${formatXtz(totalVolume)} ꜩ` },
-                { label: "Top collector", value: (collectors[0] as any)?.alias || `${(collectors[0] as any)?.address?.slice(0, 8)}...` },
-                { label: "Top spend", value: `${formatXtz((collectors[0] as any)?.volume || 0)} ꜩ` },
+                { label: `Top ${tab === 'collectors' ? 'collector' : 'artist'}`, value: (activeList[0] as any)?.alias || `${(activeList[0] as any)?.address?.slice(0, 8)}...` },
+                { label: tab === 'collectors' ? 'Top spend' : 'Top earnings', value: `${formatXtz((activeList[0] as any)?.volume || 0)} ꜩ` },
               ].map(({ label, value }) => (
                 <div key={label} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "6px", padding: "0.75rem 1.25rem" }}>
                   <p style={{ margin: "0 0 0.2rem", fontSize: "0.6rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)" }}>{label}</p>
@@ -204,12 +223,12 @@ export default function TopCollectorsPage() {
               <div key={i} className="skeleton" style={{ height: "72px", borderRadius: "8px" }} />
             ))}
           </div>
-        ) : collectors.length > 0 ? (
+        ) : (activeList as any[]).length > 0 ? (
           <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            {collectors.map((collector: any) => {
+            {(activeList as any[]).map((collector: any) => {
               const rankColor = getRankColor(collector.rank);
               const rankEmoji = getRankEmoji(collector.rank);
-              const barWidth = totalVolume > 0 ? (collector.volume / (collectors[0] as any).volume) * 100 : 0;
+              const barWidth = totalVolume > 0 ? (collector.volume / (activeList[0] as any).volume) * 100 : 0;
 
               return (
                 <div key={collector.address} onClick={() => setSelectedCollector(collector)}
@@ -249,9 +268,12 @@ export default function TopCollectorsPage() {
                     {/* Name & description */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
-                        <span style={{ fontSize: "0.92rem", fontWeight: 800, color: "#fff" }}>
+                        <a href={collector.objktUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}
+                          style={{ fontSize: "0.92rem", fontWeight: 800, color: "#fff", textDecoration: "none", transition: "color 0.15s" }}
+                          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = rankColor; }}
+                          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#fff"; }}>
                           {collector.alias || `${collector.address.slice(0, 8)}...${collector.address.slice(-4)}`}
-                        </span>
+                        </a>
                         {collector.twitter && (
                           <a href={collector.twitter} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}
                             style={{ color: "rgba(255,255,255,0.3)", transition: "color 0.15s" }}
@@ -282,7 +304,7 @@ export default function TopCollectorsPage() {
                         {formatXtz(collector.volume)} <span style={{ fontSize: "0.7rem", fontWeight: 600 }}>ꜩ</span>
                       </p>
                       <p style={{ margin: "1px 0 0", fontSize: "0.62rem", color: "rgba(255,255,255,0.3)", fontWeight: 600 }}>
-                        {period === 'all' ? 'all time' : `${period}d`} spend
+                        {period === 'all' ? 'all time' : `${period}d`} {tab === 'collectors' ? 'spend' : 'earned'}
                       </p>
                     </div>
 

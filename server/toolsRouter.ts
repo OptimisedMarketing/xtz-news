@@ -1280,6 +1280,109 @@ export const toolsRouter = router({
       }
     }),
 
+  // ─── Top Sellers ───────────────────────────────────────────────────────────────────────────────────────
+  topSellers: publicProcedure
+    .input(z.object({ period: z.enum(['7', '30', 'all']).default('30'), limit: z.number().min(1).max(50).default(25) }))
+    .query(async ({ input }) => {
+      const OBJKT = 'https://data.objkt.com/v3/graphql';
+      const intervalDays = input.period === 'all' ? 3650 : parseInt(input.period);
+      try {
+        const res = await fetch(OBJKT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: `{ sales_stat(limit: ${input.limit * 2}, order_by: {volume: desc}, where: {type: {_eq: "seller"}, interval_days: {_eq: ${intervalDays}}}) { volume rank subject { alias address logo description twitter website } } }` }),
+          signal: AbortSignal.timeout(10000),
+        });
+        const data = await res.json();
+        const seen = new Set<string>();
+        const results: any[] = [];
+        for (const s of data?.data?.sales_stat || []) {
+          const addr = s.subject?.address;
+          if (!addr || seen.has(addr)) continue;
+          seen.add(addr);
+          results.push({
+            rank: results.length + 1,
+            address: addr,
+            alias: s.subject?.alias || null,
+            logo: s.subject?.logo || null,
+            description: s.subject?.description || null,
+            twitter: s.subject?.twitter || null,
+            website: s.subject?.website || null,
+            volume: s.volume / 1_000_000,
+            objktUrl: `https://objkt.com/profile/${addr}`,
+          });
+          if (results.length >= input.limit) break;
+        }
+        return results;
+      } catch (e) {
+        return [];
+      }
+    }),
+
+  // ─── Collection Stats ───────────────────────────────────────────────────────────────────────────────────────
+  collectionStats: publicProcedure
+    .input(z.object({ contract: z.string().min(10) }))
+    .query(async ({ input }) => {
+      const OBJKT = 'https://data.objkt.com/v3/graphql';
+      const resolveIpfs = (uri: string | null) => {
+        if (!uri) return null;
+        if (uri.startsWith('ipfs://')) return `https://ipfs.io/ipfs/${uri.slice(7)}`;
+        return uri;
+      };
+      try {
+        // Fetch collection info and recent sales in parallel
+        const [collectionRes, salesRes] = await Promise.all([
+          fetch(OBJKT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: `{ fa(where: {contract: {_eq: "${input.contract}"}}, limit: 1) { contract name description logo floor_price volume_24h volume_total items owners collection_type website twitter creator { alias address } } }` }),
+            signal: AbortSignal.timeout(10000),
+          }),
+          fetch(OBJKT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: `{ event(limit: 20, order_by: {timestamp: desc}, where: {fa_contract: {_eq: "${input.contract}"}, marketplace_event_type: {_eq: "list_buy"}, reverted: {_eq: false}}) { price_xtz timestamp token { name thumbnail_uri } creator { alias } recipient { alias } } }` }),
+            signal: AbortSignal.timeout(10000),
+          }),
+        ]);
+
+        const collectionData = await collectionRes.json();
+        const salesData = await salesRes.json();
+        const fa = collectionData?.data?.fa?.[0];
+        if (!fa) return null;
+
+        const recentSales = (salesData?.data?.event || []).map((e: any) => ({
+          price: e.price_xtz / 1_000_000,
+          timestamp: e.timestamp,
+          tokenName: e.token?.name || 'Untitled',
+          thumbnailUri: resolveIpfs(e.token?.thumbnail_uri),
+          seller: e.creator?.alias || null,
+          buyer: e.recipient?.alias || null,
+        }));
+
+        return {
+          contract: fa.contract,
+          name: fa.name,
+          description: fa.description,
+          logo: fa.logo,
+          floorPrice: fa.floor_price ? fa.floor_price / 1_000_000 : null,
+          volume24h: fa.volume_24h / 1_000_000,
+          volumeTotal: fa.volume_total / 1_000_000,
+          items: fa.items,
+          owners: fa.owners,
+          collectionType: fa.collection_type,
+          website: fa.website,
+          twitter: fa.twitter,
+          creator: fa.creator?.alias || null,
+          creatorAddress: fa.creator?.address || null,
+          recentSales,
+          objktUrl: `https://objkt.com/collections/${fa.contract}`,
+        };
+      } catch (e) {
+        return null;
+      }
+    }),
+
   // ─── Collector Profile ───────────────────────────────────────────────────────────────────────────────────────
   collectorProfile: publicProcedure
     .input(z.object({ address: z.string().min(10), limit: z.number().min(1).max(20).default(8) }))

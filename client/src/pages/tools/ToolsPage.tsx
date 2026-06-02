@@ -133,11 +133,20 @@ const TOOLS = [
   {
     href: "/tools/top-collectors",
     icon: "🏆",
-    title: "Top Collectors",
-    description: "Leaderboard of the most active Tezos NFT collectors ranked by total spend volume on objkt.com. Filter by 7, 30, or 90 day periods.",
+    title: "Top Collectors & Sellers",
+    description: "Leaderboard of the most active Tezos NFT collectors and highest-earning artists ranked by spend/sales volume on objkt.com.",
     badge: "Live",
     badgeColor: "#fbbf24",
-    tags: ["Collectors", "Leaderboard", "Spend Volume", "objkt"],
+    tags: ["Collectors", "Artists", "Leaderboard", "objkt"],
+  },
+  {
+    href: "/tools/collection-stats",
+    icon: "📊",
+    title: "Collection Stats",
+    description: "Enter any Tezos NFT collection contract to see floor price, 24h volume, total volume, items, owners, and recent sales.",
+    badge: "Read-only",
+    badgeColor: "#22c55e",
+    tags: ["Collection", "Floor Price", "Volume", "objkt"],
   },
 ];
 
