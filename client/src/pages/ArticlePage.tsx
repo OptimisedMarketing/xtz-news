@@ -513,7 +513,7 @@ export default function ArticlePage() {
           {/* ── Main article column ── */}
           <div>
             {/* Audio Player */}
-            <AudioPlayer src={(post as any).audioUrl || null} title={post.title} postId={post.id} />
+            <AudioPlayer src={(post as any).audioUrl || null} title={post.title} postId={post.id} featuredImageUrl={post.featuredImageUrl} slug={post.slug} />
 
             {/* Disclaimer */}
             <div style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", padding: "0.75rem 1rem", borderRadius: "6px", marginBottom: "1.75rem", background: "rgba(44,125,247,0.06)", border: "1px solid rgba(44,125,247,0.15)", fontSize: "0.78rem", color: "rgba(255,255,255,0.5)" }}>

@@ -157,6 +157,73 @@ async function startServer() {
     }
   });
 
+  // ─── Podcast RSS Feed ─────────────────────────────────────────────────────────────────────────
+  app.get("/podcast.rss", async (req, res) => {
+    try {
+      const { getDb } = await import("../db");
+      const { posts } = await import("../../drizzle/schema");
+      const { desc, isNotNull, ne, and, eq } = await import("drizzle-orm");
+      const db = await getDb();
+      const baseUrl = "https://xtz.news";
+
+      const podcastPosts = db ? await db
+        .select({ id: posts.id, title: posts.title, slug: posts.slug, excerpt: posts.excerpt, featuredImageUrl: posts.featuredImageUrl, audioUrl: posts.audioUrl, publishedAt: posts.publishedAt })
+        .from(posts)
+        .where(and(eq(posts.status, 'publish'), isNotNull(posts.audioUrl), ne(posts.audioUrl, '')))
+        .orderBy(desc(posts.publishedAt))
+        .limit(100) : [];
+
+      const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+      const items = podcastPosts.map(p => {
+        const pubDate = p.publishedAt ? new Date(p.publishedAt).toUTCString() : new Date().toUTCString();
+        const description = (p.excerpt || '').replace(/<[^>]+>/g, '').slice(0, 300);
+        const audioUrl = p.audioUrl!.startsWith('http') ? p.audioUrl! : baseUrl + p.audioUrl!;
+        const imageUrl = p.featuredImageUrl ? (p.featuredImageUrl.startsWith('http') ? p.featuredImageUrl : baseUrl + p.featuredImageUrl) : `${baseUrl}/manus-storage/xtz-logo-square_c6689606.png`;
+        return `    <item>
+      <title>${esc(p.title)}</title>
+      <link>${baseUrl}/${p.slug}</link>
+      <guid isPermaLink="false">${baseUrl}/${p.slug}</guid>
+      <description>${esc(description)}</description>
+      <pubDate>${pubDate}</pubDate>
+      <enclosure url="${audioUrl}" type="audio/mpeg" />
+      <itunes:title>${esc(p.title)}</itunes:title>
+      <itunes:summary>${esc(description)}</itunes:summary>
+      <itunes:image href="${imageUrl}" />
+      <itunes:duration>0</itunes:duration>
+    </item>`;
+      }).join('\n');
+
+      const rss = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>XTZ.News Podcast — Tezos Blockchain News</title>
+    <link>${baseUrl}</link>
+    <description>The latest Tezos blockchain news, analysis, and ecosystem updates — narrated by George from ElevenLabs.</description>
+    <language>en-us</language>
+    <copyright>XTZ.News ${new Date().getFullYear()}</copyright>
+    <atom:link href="${baseUrl}/podcast.rss" rel="self" type="application/rss+xml" />
+    <itunes:author>XTZ.News</itunes:author>
+    <itunes:owner><itunes:name>XTZ.News</itunes:name><itunes:email>info@xtz.news</itunes:email></itunes:owner>
+    <itunes:image href="${baseUrl}/manus-storage/xtz-logo-square_c6689606.png" />
+    <itunes:category text="Technology" />
+    <itunes:category text="News" />
+    <itunes:explicit>no</itunes:explicit>
+    <image><url>${baseUrl}/manus-storage/xtz-logo-square_c6689606.png</url><title>XTZ.News Podcast</title><link>${baseUrl}</link></image>
+${items}
+  </channel>
+</rss>`;
+
+      res.set('Content-Type', 'application/rss+xml; charset=utf-8');
+      res.set('Cache-Control', 'public, max-age=1800');
+      res.send(rss);
+    } catch (err) {
+      console.error('[podcast.rss] error:', err);
+      res.status(500).send('Error generating podcast feed');
+    }
+  });
+  // ─────────────────────────────────────────────────────────────────────────
+
   app.get("/sitemap.xml", async (req, res) => {
     try {
       const { getDb } = await import("../db");

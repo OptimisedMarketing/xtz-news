@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
-import { Zap, Save, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Zap, Save, Eye, EyeOff, ArrowLeft, Headphones, Rss } from "lucide-react";
 
 export default function AdminSettings() {
   const { user } = useAuth();
@@ -29,6 +29,42 @@ export default function AdminSettings() {
 
   const handleSave = () => {
     setBreakingNews.mutate({ text, url, active });
+  };
+
+  const [batchProgress, setBatchProgress] = useState<{ done: number; total: number; running: boolean } | null>(null);
+  const generateAudio = trpc.audio.getOrGenerate.useMutation();
+
+  const handleBatchGenerate = async () => {
+    if (batchProgress?.running) return;
+    const confirmed = window.confirm('This will generate George ElevenLabs audio for all articles without audio. This may take several hours and will use ElevenLabs credits. Continue?');
+    if (!confirmed) return;
+    setBatchProgress({ done: 0, total: 0, running: true });
+    try {
+      // Get all posts without audio via the admin list
+      const res = await fetch('/api/trpc/posts.adminList?input=' + encodeURIComponent(JSON.stringify({ json: { page: 1, limit: 2000 } })));
+      const data = await res.json();
+      const allPosts: any[] = data?.result?.data?.json?.posts || [];
+      const withoutAudio = allPosts.filter((p: any) => !p.audioUrl);
+      setBatchProgress({ done: 0, total: withoutAudio.length, running: true });
+      toast.info(`Starting batch audio generation for ${withoutAudio.length} articles...`);
+      let done = 0;
+      for (const post of withoutAudio) {
+        try {
+          await generateAudio.mutateAsync({ postId: post.id });
+          done++;
+          setBatchProgress({ done, total: withoutAudio.length, running: true });
+        } catch (e) {
+          console.error('Failed for post', post.id, e);
+        }
+        // Small delay to avoid rate limiting
+        await new Promise(r => setTimeout(r, 500));
+      }
+      setBatchProgress({ done, total: withoutAudio.length, running: false });
+      toast.success(`Batch complete! Generated audio for ${done} articles.`);
+    } catch (e) {
+      setBatchProgress(prev => prev ? { ...prev, running: false } : null);
+      toast.error('Batch generation failed.');
+    }
   };
 
   if (isLoading) return <div style={{ background: "#000", minHeight: "100vh" }} />;
@@ -156,6 +192,65 @@ export default function AdminSettings() {
               <Save size={14} />
               {setBreakingNews.isPending ? "Saving…" : "Save Banner Settings"}
             </button>
+          </div>
+
+          {/* Audio & Podcast */}
+          <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "8px", padding: "1.5rem", marginBottom: "1.5rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.25rem" }}>
+              <div style={{ width: "32px", height: "32px", borderRadius: "6px", background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Headphones size={16} style={{ color: "#22c55e" }} />
+              </div>
+              <div>
+                <h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800, color: "#fff" }}>Audio &amp; Podcast</h2>
+                <p style={{ margin: 0, fontSize: "0.75rem", color: "rgba(255,255,255,0.4)" }}>ElevenLabs George voice narration for all articles</p>
+              </div>
+            </div>
+
+            {/* Podcast RSS */}
+            <div style={{ marginBottom: "1.5rem", padding: "1rem", background: "rgba(34,197,94,0.05)", border: "1px solid rgba(34,197,94,0.15)", borderRadius: "6px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+                <Rss size={14} style={{ color: "#22c55e" }} />
+                <span style={{ fontSize: "0.78rem", fontWeight: 700, color: "#22c55e" }}>Podcast RSS Feed</span>
+              </div>
+              <p style={{ margin: "0 0 0.75rem", fontSize: "0.78rem", color: "rgba(255,255,255,0.5)" }}>Submit this URL to Apple Podcasts, Spotify, and Google Podcasts:</p>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <code style={{ flex: 1, padding: "0.5rem 0.75rem", background: "rgba(0,0,0,0.3)", borderRadius: "4px", fontSize: "0.8rem", color: "#22c55e", fontFamily: "monospace", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>https://xtz.news/podcast.rss</code>
+                <button onClick={() => { navigator.clipboard.writeText('https://xtz.news/podcast.rss'); toast.success('Copied!'); }}
+                  style={{ padding: "0.5rem 0.875rem", background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", borderRadius: "4px", color: "#22c55e", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>Copy URL</button>
+                <a href="https://xtz.news/podcast.rss" target="_blank" rel="noopener noreferrer"
+                  style={{ padding: "0.5rem 0.875rem", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", color: "rgba(255,255,255,0.6)", fontSize: "0.75rem", fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap" }}>Preview</a>
+              </div>
+            </div>
+
+            {/* Batch generation */}
+            <div style={{ padding: "1rem", background: "rgba(255,165,0,0.05)", border: "1px solid rgba(255,165,0,0.15)", borderRadius: "6px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+                <Headphones size={14} style={{ color: "#ffa500" }} />
+                <span style={{ fontSize: "0.78rem", fontWeight: 700, color: "#ffa500" }}>Batch Audio Generation</span>
+              </div>
+              <p style={{ margin: "0 0 0.875rem", fontSize: "0.78rem", color: "rgba(255,255,255,0.5)" }}>
+                Generate George ElevenLabs narration for all articles that don't have audio yet. This runs in the browser and may take several hours for 1,400+ articles. You can close the tab — audio already generated is cached.
+              </p>
+              {batchProgress && (
+                <div style={{ marginBottom: "0.875rem" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.3rem" }}>
+                    <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.5)" }}>{batchProgress.running ? 'Generating...' : 'Complete'}</span>
+                    <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#ffa500" }}>{batchProgress.done} / {batchProgress.total}</span>
+                  </div>
+                  <div style={{ height: "6px", background: "rgba(255,255,255,0.1)", borderRadius: "3px", overflow: "hidden" }}>
+                    <div style={{ height: "100%", width: batchProgress.total > 0 ? `${(batchProgress.done / batchProgress.total) * 100}%` : '0%', background: "#ffa500", borderRadius: "3px", transition: "width 0.3s" }} />
+                  </div>
+                </div>
+              )}
+              <button
+                onClick={handleBatchGenerate}
+                disabled={batchProgress?.running}
+                style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.65rem 1.25rem", background: batchProgress?.running ? "rgba(255,165,0,0.1)" : "rgba(255,165,0,0.15)", border: "1px solid rgba(255,165,0,0.3)", borderRadius: "4px", color: batchProgress?.running ? "rgba(255,165,0,0.5)" : "#ffa500", fontSize: "0.8rem", fontWeight: 700, cursor: batchProgress?.running ? "not-allowed" : "pointer" }}
+              >
+                <Headphones size={14} />
+                {batchProgress?.running ? `Generating ${batchProgress.done}/${batchProgress.total}...` : 'Generate Audio for All Articles'}
+              </button>
+            </div>
           </div>
 
           {/* Quick links */}
