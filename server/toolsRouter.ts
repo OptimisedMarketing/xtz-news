@@ -1054,35 +1054,32 @@ export const toolsRouter = router({
 
   // ─── Featured Artist (weekly rotation) ───────────────────────────────────────────────────────────────────────────────────
   featuredArtist: publicProcedure.query(async () => {
-    // Curated list of notable Tezos artists with objkt aliases
-    const ARTISTS = [
-      { alias: 'quayola', twitter: 'quayola', note: 'Generative & computational art' },
+    // Curated list of notable Tezos artists — address field enables reliable works lookup
+    const ARTISTS: Array<{ alias: string; address?: string; twitter: string; note: string }> = [
+      { alias: 'QUAYOLA', address: 'tz2Wqd9ryeQUqDGfjXDoB6zVe9GE4KPa39gC', twitter: 'quayola', note: 'Generative & computational art' },
       { alias: 'Gabriel Massan', twitter: 'gabrielmassan', note: '3D & narrative digital art' },
       { alias: 'Memo Akten', twitter: 'memotv', note: 'AI & generative systems' },
-      { alias: 'Zancan', twitter: 'zancan', note: 'Generative art & landscapes' },
+      { alias: 'zancan', address: 'tz1bbbZ6Hqjnn9G6Tu2i7uXKRenCaB1Eikbz', twitter: 'zancan', note: 'Generative art & landscapes' },
       { alias: 'Iskra Velitchkova', twitter: 'iskravel', note: 'Abstract digital painting' },
-      { alias: 'Alida Sun', twitter: 'alidasun', note: 'AI dialogue & machine learning' },
+      { alias: 'Alida Sun', address: 'tz1QR8esDbBTWbfwTrPve5aQ46kxSCubk1ZR', twitter: 'alidasun', note: 'AI dialogue & machine learning' },
       { alias: 'Hind Al Saad', twitter: 'hindsaad', note: 'Digital identity & memory' },
       { alias: 'Varvara & Mar', twitter: 'varvara_mar', note: 'Generative systems & machinima' },
-      { alias: 'Joanie Lemercier', twitter: 'joanielemercier', note: 'Light & projection art' },
+      { alias: 'Joanie Lemercier', address: 'tz1Rzgqir9kEteYTdoVTnoFWsrwPSro78c2K', twitter: 'joanielemercier', note: 'Light & projection art' },
       { alias: 'Operator', twitter: 'operatornft', note: 'Generative & algorithmic art' },
       { alias: 'Dmitri Cherniak', twitter: 'dmitricherniak', note: 'Generative & Ringers creator' },
       { alias: 'Kim Asendorf', twitter: 'kimasendorf', note: 'Pixel art & generative systems' },
-      // 15 additional prominent Tezos artists
       { alias: 'Ciphrd', twitter: 'ciphrd', note: 'Generative art & fxhash founder' },
       { alias: 'Licia He', twitter: 'blahblahpapercut', note: 'Plotter & generative drawing art' },
       { alias: 'Yazid', twitter: 'yazidxyz', note: 'Generative & abstract digital art' },
       { alias: 'Helena Sarin', twitter: 'NeuralBricolage', note: 'AI & neural network art' },
       { alias: 'Andreas Rau', twitter: 'andreasrau_eu', note: 'Generative & code-based art' },
-      { alias: 'Piter Pasma', twitter: 'piterpasma', note: 'Mathematical & generative art' },
+      { alias: 'Piter Pasma', address: 'tz1hgnuh2GNURBYeR8yWQhw8cynnXsbf6eFF', twitter: 'piterpasma', note: 'Mathematical & generative art' },
       { alias: 'DistCollective', twitter: 'DistCollective', note: 'Collaborative generative art' },
       { alias: 'Mathieu Stern', twitter: 'MathieuStern', note: 'Photography & digital art' },
       { alias: 'Fabrizio Lamoncha', twitter: 'fabriziolamoncha', note: 'Generative & abstract systems' },
       { alias: 'Aleksandra Jovanić', twitter: 'alexjovanic', note: 'Generative art & data visualisation' },
-      { alias: 'Tezos Commons', twitter: 'TezosCommons', note: 'Tezos community art curator' },
       { alias: 'absurdeity', twitter: 'absurdeity', note: 'Community art events & curation' },
       { alias: 'BonsaiFox', twitter: 'BonsaiFox1', note: 'Community art events organiser' },
-      { alias: 'Fabrizio Brarez', twitter: 'fabriziobrarez', note: 'Art criticism & curation' },
       { alias: 'V4wEnko', twitter: 'V4wEnko', note: 'Generative organic art & GLB' },
     ];
 
@@ -1092,15 +1089,14 @@ export const toolsRouter = router({
 
     const OBJKT = 'https://data.objkt.com/v3/graphql';
 
-    // Fetch artist profile from objkt
-    const profileQuery = {
-      query: `{ holder(where: {alias: {_ilike: "${artist.alias}"}}, limit: 1, order_by: {held_tokens_aggregate: {count: desc}}) { address alias description website twitter instagram logo } }`
-    };
-
+    // Fetch artist profile from objkt — prefer address lookup if available
     let profile: any = null;
     let recentWorks: any[] = [];
 
     try {
+      const profileQuery = artist.address
+        ? { query: `{ holder(where: {address: {_eq: "${artist.address}"}}, limit: 1) { address alias description website twitter instagram logo } }` }
+        : { query: `{ holder(where: {alias: {_ilike: "${artist.alias}"}}, limit: 1, order_by: {held_tokens_aggregate: {count: desc}}) { address alias description website twitter instagram logo } }` };
       const profileRes = await fetch(OBJKT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1109,6 +1105,8 @@ export const toolsRouter = router({
       });
       const profileData = await profileRes.json();
       profile = profileData?.data?.holder?.[0] || null;
+      // If profile found but alias is empty, use static alias
+      if (profile && !profile.alias) profile.alias = artist.alias;
     } catch (e) {
       // fallback — use static data
     }

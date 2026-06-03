@@ -447,7 +447,10 @@ export default function ArticlePage() {
           <img
             src={post.featuredImageUrl}
             alt={post.featuredImageAlt || post.title}
-            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", opacity: 0, transition: "opacity 0.6s ease" }}
+            fetchPriority="high"
+            loading="eager"
+            decoding="async"
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", opacity: 0, transition: "opacity 0.4s ease", position: "relative", zIndex: 1 }}
             onLoad={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = "1"; }}
             onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = "0"; }}
           />

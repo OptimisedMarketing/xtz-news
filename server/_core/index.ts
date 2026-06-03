@@ -505,6 +505,107 @@ async function startServer() {
     }
   });
   // ─────────────────────────────────────────────────────────────────────────
+  // ─── Social Crawler OG Meta Injection ────────────────────────────────────
+  // Intercepts requests from Twitter/X, Facebook, Slack, Discord, etc. and
+  // injects article-specific og:image, og:title, og:description into the HTML
+  // so social sharing previews show the featured image instead of the site logo.
+  const SOCIAL_BOTS = /Twitterbot|facebookexternalhit|Slackbot|Discordbot|WhatsApp|LinkedInBot|TelegramBot|Pinterest|Googlebot|bingbot|Applebot|redditbot|Embedly|Quora|Facebot|OutboundLink|W3C_Validator/i;
+
+  app.use(async (req, res, next) => {
+    const ua = req.headers['user-agent'] || '';
+    if (!SOCIAL_BOTS.test(ua)) return next();
+    // Only handle page routes (not API, assets, etc.)
+    const p = req.path;
+    if (p.startsWith('/api/') || p.startsWith('/manus-storage/') || p.includes('.')) return next();
+
+    try {
+      const baseUrl = 'https://xtz.news';
+      let title = 'XTZ.News — Tezos Blockchain News & Tools';
+      let description = 'The leading source for Tezos blockchain news, analysis, tools, and ecosystem updates.';
+      let image = `${baseUrl}/manus-storage/xtz-logo-square_c6689606.png`;
+      let imageWidth = '1200';
+      let imageHeight = '630';
+      let type = 'website';
+      let publishedTime = '';
+      let author = 'XTZ.News';
+
+      // Try to match article slug (not a known route prefix)
+      const knownPrefixes = new Set(['category', 'tag', 'projects', 'timeline', 'contact', 'admin', 'explorer', 'staking', 'tools', 'art', 'prices', 'search', 'unsubscribe', 'manage-subscriptions']);
+      const slug = p.replace(/^\//, '');
+      const firstSegment = slug.split('/')[0];
+
+      if (slug && !knownPrefixes.has(firstSegment) && !slug.includes('/')) {
+        // Looks like an article slug — fetch from DB
+        try {
+          const { getDb } = await import('../db');
+          const db = await getDb();
+          if (db) {
+            const { posts } = await import('../../drizzle/schema');
+            const { eq } = await import('drizzle-orm');
+            const [post] = await db.select({
+              title: posts.title, excerpt: posts.excerpt,
+              featuredImageUrl: posts.featuredImageUrl, publishedAt: posts.publishedAt,
+            }).from(posts).where(eq(posts.slug, slug)).limit(1);
+
+            if (post) {
+              title = post.title;
+              description = (post.excerpt || '').replace(/<[^>]*>/g, '').slice(0, 200) || description;
+              if (post.featuredImageUrl) {
+                image = post.featuredImageUrl.startsWith('http') ? post.featuredImageUrl
+                  : post.featuredImageUrl.startsWith('/') ? baseUrl + post.featuredImageUrl
+                  : post.featuredImageUrl;
+              } else {
+                image = `${baseUrl}/api/og?type=article&title=${encodeURIComponent(title.slice(0, 80))}`;
+              }
+              type = 'article';
+              publishedTime = post.publishedAt ? new Date(post.publishedAt).toISOString() : '';
+            }
+          }
+        } catch {}
+      }
+
+      // Read the index.html and inject meta tags
+      let html: string;
+      try {
+        const fs = await import('fs');
+        const path = await import('path');
+        const htmlPath = process.env.NODE_ENV === 'development'
+          ? path.resolve(import.meta.dirname, '../..', 'client', 'index.html')
+          : path.resolve(import.meta.dirname, 'public', 'index.html');
+        html = await fs.promises.readFile(htmlPath, 'utf-8');
+      } catch {
+        return next();
+      }
+
+      const metaTags = [
+        `<meta property="og:title" content="${title.replace(/"/g, '&quot;')}" />`,
+        `<meta property="og:description" content="${description.replace(/"/g, '&quot;')}" />`,
+        `<meta property="og:image" content="${image}" />`,
+        `<meta property="og:image:width" content="${imageWidth}" />`,
+        `<meta property="og:image:height" content="${imageHeight}" />`,
+        `<meta property="og:type" content="${type}" />`,
+        `<meta property="og:url" content="${baseUrl}${p}" />`,
+        `<meta property="og:site_name" content="XTZ.News" />`,
+        `<meta name="twitter:card" content="summary_large_image" />`,
+        `<meta name="twitter:site" content="@XTZNews" />`,
+        `<meta name="twitter:title" content="${title.replace(/"/g, '&quot;')}" />`,
+        `<meta name="twitter:description" content="${description.replace(/"/g, '&quot;')}" />`,
+        `<meta name="twitter:image" content="${image}" />`,
+        publishedTime ? `<meta property="article:published_time" content="${publishedTime}" />` : '',
+        author ? `<meta name="author" content="${author}" />` : '',
+      ].filter(Boolean).join('\n    ');
+
+      // Inject before </head>
+      html = html.replace('</head>', `    ${metaTags}\n  </head>`);
+
+      res.set('Content-Type', 'text/html');
+      res.set('Cache-Control', 'public, max-age=300');
+      return res.send(html);
+    } catch (e) {
+      return next();
+    }
+  });
+  // ─────────────────────────────────────────────────────────────────────────
   // tRPC API
   app.use(
     "/api/trpc",
