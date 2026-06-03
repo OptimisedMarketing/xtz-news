@@ -12,17 +12,29 @@ export default function TezosWidgetsStrip() {
       borderTop: '1px solid rgba(44,125,247,0.15)',
       borderBottom: '1px solid rgba(44,125,247,0.15)',
       padding: '1rem 0',
-      overflow: 'hidden',
+      position: 'relative',
     }}>
-      <div className="container">
+      {/* Fade-out gradient on right to indicate scrollability */}
+      <div style={{
+        position: 'absolute',
+        right: 0,
+        top: 0,
+        bottom: 0,
+        width: '80px',
+        background: 'linear-gradient(to right, transparent, #020d1e)',
+        pointerEvents: 'none',
+        zIndex: 2,
+      }} />
+
+      <div style={{ overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         <div style={{
           display: 'flex',
           gap: '0.75rem',
           alignItems: 'center',
-          overflowX: 'auto',
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
+          paddingLeft: '1.25rem',
+          paddingRight: '5rem', // extra right padding so last widget is fully visible
           paddingBottom: '2px',
+          width: 'max-content',
         }}>
           {/* Label */}
           <div style={{
@@ -57,8 +69,9 @@ export default function TezosWidgetsStrip() {
           <TezosWidget widget="governance" theme="abyss" accent="2c7df7" width={220} height={120} />
         </div>
       </div>
+
       {/* Attribution */}
-      <div style={{ textAlign: 'right', padding: '0.3rem 1.25rem 0', maxWidth: '1400px', margin: '0 auto' }}>
+      <div style={{ textAlign: 'right', padding: '0.3rem 1.25rem 0', position: 'relative', zIndex: 3 }}>
         <a
           href="https://tezos.systems"
           target="_blank"
