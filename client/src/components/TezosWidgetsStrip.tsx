@@ -56,6 +56,19 @@ export default function TezosWidgetsStrip() {
           <TezosWidget widget="governance" theme="abyss" accent="2c7df7" width={200} height={80} />
         </div>
       </div>
+      {/* Attribution */}
+      <div style={{ textAlign: 'right', padding: '0.3rem 1.25rem 0', maxWidth: '1400px', margin: '0 auto' }}>
+        <a
+          href="https://tezos.systems"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ fontSize: '0.58rem', color: 'rgba(255,255,255,0.2)', textDecoration: 'none', letterSpacing: '0.04em', transition: 'color 0.15s' }}
+          onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(44,125,247,0.6)')}
+          onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.2)')}
+        >
+          ⬡ Powered by tezos.systems
+        </a>
+      </div>
       <style>{`
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
       `}</style>
