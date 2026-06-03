@@ -364,7 +364,7 @@
   .post-content blockquote {
     border-left: 5px solid #2c7df7;
     padding: 1.75rem 2rem 1.75rem 2.5rem;
-    margin: 3rem -1rem;
+    margin: 3.5rem -1rem 0 -1rem;
     background: linear-gradient(135deg, rgba(44,125,247,0.12) 0%, rgba(44,125,247,0.03) 100%);
     border-radius: 0 12px 12px 0;
     font-style: italic;
@@ -404,6 +404,15 @@
     letter-spacing: 0.1em;
     padding-top: 0.75rem;
     border-top: 1px solid rgba(44,125,247,0.25);
+    padding-bottom: 0.25rem;
+  }
+  /* Space after blockquote — the element following a blockquote needs top margin */
+  .post-content blockquote + p,
+  .post-content blockquote + h2,
+  .post-content blockquote + h3,
+  .post-content blockquote + ul,
+  .post-content blockquote + ol {
+    margin-top: 3rem !important;
   }
   /* Full-bleed images with captions */
   .post-content img {
