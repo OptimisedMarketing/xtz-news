@@ -1,4 +1,5 @@
 import TezosWidget from './TezosWidget';
+import XtzPriceStripWidget from './XtzPriceStripWidget';
 
 /**
  * TezosWidgetsStrip — a horizontal strip of live tezos.systems widgets
@@ -37,23 +38,23 @@ export default function TezosWidgetsStrip() {
             </span>
           </div>
 
-          {/* XTZ Price (USD) */}
-          <TezosWidget widget="price" theme="abyss" accent="2c7df7" width={220} height={100} />
+          {/* XTZ Price (USD) — custom widget using our own price data */}
+          <XtzPriceStripWidget width={220} height={120} />
 
           {/* Block Height */}
-          <TezosWidget widget="block-height" theme="abyss" accent="2c7df7" width={220} height={100} />
+          <TezosWidget widget="block-height" theme="abyss" accent="2c7df7" width={220} height={120} />
 
           {/* Baker Count */}
-          <TezosWidget widget="baker-count" theme="abyss" accent="2c7df7" width={220} height={100} />
+          <TezosWidget widget="baker-count" theme="abyss" accent="2c7df7" width={220} height={120} />
 
           {/* Staking Ratio */}
-          <TezosWidget widget="staking-ratio" theme="abyss" accent="2c7df7" width={220} height={100} />
+          <TezosWidget widget="staking-ratio" theme="abyss" accent="2c7df7" width={220} height={120} />
 
           {/* Protocol */}
-          <TezosWidget widget="protocol" theme="abyss" accent="2c7df7" width={220} height={100} />
+          <TezosWidget widget="protocol" theme="abyss" accent="2c7df7" width={220} height={120} />
 
           {/* Governance */}
-          <TezosWidget widget="governance" theme="abyss" accent="2c7df7" width={220} height={100} />
+          <TezosWidget widget="governance" theme="abyss" accent="2c7df7" width={220} height={120} />
         </div>
       </div>
       {/* Attribution */}
