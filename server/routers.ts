@@ -706,6 +706,68 @@ const settingsRouter = router({
     }),
 });
 
+// ─── Audio Router (on-demand ElevenLabs generation) ──────────────────────────
+const GEORGE_VOICE_ID = 'JBFqnCBsd6RMkjVDRZzb';
+const MAX_CHARS = 4500;
+
+function htmlToSpeechText(html: string, title: string): string {
+  let text = html
+    .replace(/<div[^>]*>(?:[\s\S]*?)<\/div>/gi, (m) => m.includes('iframe') || m.includes('youtube') ? '' : m)
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ').trim();
+  return `${title}. ${text}`;
+}
+
+async function generateElevenLabsAudio(text: string, apiKey: string): Promise<Buffer> {
+  const chunks: string[] = [];
+  let remaining = text;
+  while (remaining.length > 0) {
+    if (remaining.length <= MAX_CHARS) { chunks.push(remaining); break; }
+    const cut = remaining.lastIndexOf('. ', MAX_CHARS);
+    if (cut === -1) { chunks.push(remaining.slice(0, MAX_CHARS)); remaining = remaining.slice(MAX_CHARS); }
+    else { chunks.push(remaining.slice(0, cut + 1)); remaining = remaining.slice(cut + 2); }
+  }
+  const buffers: Buffer[] = [];
+  for (const chunk of chunks) {
+    const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${GEORGE_VOICE_ID}`, {
+      method: 'POST',
+      headers: { 'xi-api-key': apiKey, 'Content-Type': 'application/json', 'Accept': 'audio/mpeg' },
+      body: JSON.stringify({ text: chunk, model_id: 'eleven_turbo_v2_5', voice_settings: { stability: 0.5, similarity_boost: 0.75, style: 0.3, use_speaker_boost: true } }),
+      signal: AbortSignal.timeout(60000),
+    });
+    if (!res.ok) throw new Error(`ElevenLabs error: ${res.status}`);
+    buffers.push(Buffer.from(await res.arrayBuffer()));
+  }
+  return Buffer.concat(buffers);
+}
+
+const audioRouter = router({
+  getOrGenerate: publicProcedure
+    .input(z.object({ postId: z.number() }))
+    .mutation(async ({ input }) => {
+      const { getDb } = await import('./db');
+      const { posts } = await import('../drizzle/schema');
+      const { eq } = await import('drizzle-orm');
+      const { storagePut } = await import('./storage');
+      const db = await getDb();
+      if (!db) throw new Error('DB unavailable');
+      const [post] = await db.select({ id: posts.id, title: posts.title, content: posts.content, audioUrl: posts.audioUrl, slug: posts.slug })
+        .from(posts).where(eq(posts.id, input.postId)).limit(1);
+      if (!post) throw new Error('Post not found');
+      if (post.audioUrl) return { audioUrl: post.audioUrl, cached: true };
+      const apiKey = process.env.ELEVENLABS_API_KEY;
+      if (!apiKey) throw new Error('ELEVENLABS_API_KEY not configured');
+      const speechText = htmlToSpeechText(post.content || '', post.title);
+      const audioBuffer = await generateElevenLabsAudio(speechText, apiKey);
+      const key = `article-audio/${post.slug}-audio.mp3`;
+      const { url } = await storagePut(key, audioBuffer, 'audio/mpeg');
+      await db.update(posts).set({ audioUrl: url }).where(eq(posts.id, input.postId));
+      return { audioUrl: url, cached: false };
+    }),
+});
+// ─────────────────────────────────────────────────────────────────────────────
+
 // ─── App Router ───────────────────────────────────────────────────────────────
 export const appRouter = router({
   system: systemRouter,
@@ -731,5 +793,7 @@ export const appRouter = router({
   explorer: explorerRouter,
   tools: toolsRouter,
   settings: settingsRouter,
+  audio: audioRouter,
 })
 export type AppRouter = typeof appRouter;
+

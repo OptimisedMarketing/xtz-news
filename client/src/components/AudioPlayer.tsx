@@ -1,9 +1,12 @@
 import { useState, useRef, useEffect } from "react";
-import { Play, Pause, Volume2, VolumeX, Headphones } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, Headphones, Download, Loader2 } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
 interface AudioPlayerProps {
-  src: string;
+  src?: string | null;
   title?: string;
+  postId?: number;
 }
 
 function formatTime(seconds: number) {
@@ -13,7 +16,7 @@ function formatTime(seconds: number) {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
-export default function AudioPlayer({ src, title }: AudioPlayerProps) {
+export default function AudioPlayer({ src: initialSrc, title, postId }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const [playing, setPlaying] = useState(false);
@@ -21,11 +24,29 @@ export default function AudioPlayer({ src, title }: AudioPlayerProps) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [audioLoading, setAudioLoading] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [audioSrc, setAudioSrc] = useState<string | null>(initialSrc || null);
+  const [hasTriedGenerate, setHasTriedGenerate] = useState(false);
+
+  const generateAudio = trpc.audio.getOrGenerate.useMutation({
+    onSuccess: (data) => {
+      setAudioSrc(data.audioUrl);
+      setGenerating(false);
+      if (!data.cached) {
+        toast.success("Audio generated! Press play to listen.");
+      }
+    },
+    onError: (err) => {
+      setGenerating(false);
+      toast.error("Could not generate audio. Please try again.");
+      console.error("Audio generation error:", err);
+    },
+  });
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio) return;
+    if (!audio || !audioSrc) return;
 
     const onTimeUpdate = () => {
       setCurrentTime(audio.currentTime);
@@ -33,8 +54,8 @@ export default function AudioPlayer({ src, title }: AudioPlayerProps) {
     };
     const onLoadedMetadata = () => setDuration(audio.duration);
     const onEnded = () => setPlaying(false);
-    const onWaiting = () => setLoading(true);
-    const onCanPlay = () => setLoading(false);
+    const onWaiting = () => setAudioLoading(true);
+    const onCanPlay = () => setAudioLoading(false);
 
     audio.addEventListener("timeupdate", onTimeUpdate);
     audio.addEventListener("loadedmetadata", onLoadedMetadata);
@@ -49,19 +70,43 @@ export default function AudioPlayer({ src, title }: AudioPlayerProps) {
       audio.removeEventListener("waiting", onWaiting);
       audio.removeEventListener("canplay", onCanPlay);
     };
-  }, []);
+  }, [audioSrc]);
 
-  const togglePlay = () => {
+  const handlePlay = async () => {
+    // If no audio yet and we have a postId, generate on first play
+    if (!audioSrc && postId && !hasTriedGenerate) {
+      setHasTriedGenerate(true);
+      setGenerating(true);
+      generateAudio.mutate({ postId });
+      return;
+    }
+
     const audio = audioRef.current;
-    if (!audio) return;
+    if (!audio || !audioSrc) return;
+
     if (playing) {
       audio.pause();
       setPlaying(false);
     } else {
-      audio.play();
-      setPlaying(true);
+      try {
+        await audio.play();
+        setPlaying(true);
+      } catch (e) {
+        console.error("Play error:", e);
+      }
     }
   };
+
+  // Auto-play when audio becomes available after generation
+  useEffect(() => {
+    if (audioSrc && hasTriedGenerate && !playing) {
+      const audio = audioRef.current;
+      if (audio) {
+        audio.load();
+        audio.play().then(() => setPlaying(true)).catch(() => {});
+      }
+    }
+  }, [audioSrc]);
 
   const toggleMute = () => {
     const audio = audioRef.current;
@@ -79,6 +124,24 @@ export default function AudioPlayer({ src, title }: AudioPlayerProps) {
     audio.currentTime = ratio * duration;
   };
 
+  const handleDownload = () => {
+    if (!audioSrc) {
+      toast.error("Generate the audio first by pressing play.");
+      return;
+    }
+    const a = document.createElement("a");
+    a.href = audioSrc;
+    a.download = `${(title || "article").replace(/[^a-z0-9]/gi, "-").toLowerCase()}-george-elevenlabs.mp3`;
+    a.target = "_blank";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    toast.success("Downloading audio...");
+  };
+
+  const isLoading = audioLoading || generating;
+  const hasAudio = !!audioSrc;
+
   return (
     <div
       style={{
@@ -89,37 +152,51 @@ export default function AudioPlayer({ src, title }: AudioPlayerProps) {
         marginBottom: "1.5rem",
       }}
     >
-      <audio ref={audioRef} src={src} preload="metadata" />
+      {audioSrc && <audio ref={audioRef} src={audioSrc} preload="metadata" />}
 
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.875rem" }}>
-        <Headphones size={14} style={{ color: "#2c7df7", flexShrink: 0 }} />
-        <span style={{ fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#2c7df7" }}>
-          Listen to this article
-        </span>
-
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.875rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <Headphones size={14} style={{ color: "#2c7df7", flexShrink: 0 }} />
+          <span style={{ fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#2c7df7" }}>
+            Listen to this article
+          </span>
+          {!hasAudio && (
+            <span style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.35)", fontStyle: "italic" }}>
+              · George, ElevenLabs
+            </span>
+          )}
+        </div>
+        {/* Download button */}
+        <button
+          onClick={handleDownload}
+          title={hasAudio ? "Download MP3" : "Generate audio first"}
+          style={{
+            background: "none", border: "none", cursor: hasAudio ? "pointer" : "default",
+            color: hasAudio ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.2)",
+            display: "flex", alignItems: "center", gap: "0.3rem", padding: "2px 6px",
+            borderRadius: "3px", fontSize: "0.65rem", fontWeight: 600, transition: "all 0.15s",
+          }}
+          onMouseEnter={(e) => { if (hasAudio) (e.currentTarget as HTMLElement).style.color = "#2c7df7"; }}
+          onMouseLeave={(e) => { if (hasAudio) (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.5)"; }}
+        >
+          <Download size={12} />
+          <span>MP3</span>
+        </button>
       </div>
 
       {/* Controls row */}
       <div style={{ display: "flex", alignItems: "center", gap: "0.875rem" }}>
         {/* Play/Pause button */}
         <button
-          onClick={togglePlay}
-          disabled={loading}
+          onClick={handlePlay}
+          disabled={isLoading && !hasAudio}
           style={{
-            width: "40px",
-            height: "40px",
-            borderRadius: "50%",
-            background: "#2c7df7",
-            border: "none",
-            color: "#fff",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            flexShrink: 0,
+            width: "40px", height: "40px", borderRadius: "50%",
+            background: "#2c7df7", border: "none", color: "#fff",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            cursor: "pointer", flexShrink: 0,
             transition: "background 0.2s, transform 0.1s",
-            opacity: loading ? 0.6 : 1,
           }}
           onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "#1a6ae0")}
           onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "#2c7df7")}
@@ -127,7 +204,9 @@ export default function AudioPlayer({ src, title }: AudioPlayerProps) {
           onMouseUp={(e) => ((e.currentTarget as HTMLElement).style.transform = "scale(1)")}
           aria-label={playing ? "Pause" : "Play"}
         >
-          {loading ? (
+          {generating ? (
+            <Loader2 size={16} style={{ animation: "spin 0.8s linear infinite" }} />
+          ) : isLoading ? (
             <div style={{ width: "14px", height: "14px", border: "2px solid rgba(255,255,255,0.4)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
           ) : playing ? (
             <Pause size={16} />
@@ -136,43 +215,34 @@ export default function AudioPlayer({ src, title }: AudioPlayerProps) {
           )}
         </button>
 
-        {/* Progress bar + times */}
+        {/* Progress bar + status */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "0.3rem" }}>
-          {/* Clickable progress bar */}
-          <div
-            ref={progressRef}
-            onClick={handleProgressClick}
-            style={{
-              height: "4px",
-              background: "rgba(255,255,255,0.1)",
-              borderRadius: "2px",
-              cursor: "pointer",
-              position: "relative",
-              overflow: "hidden",
-            }}
-          >
-            <div
-              style={{
-                position: "absolute",
-                left: 0,
-                top: 0,
-                height: "100%",
-                width: `${progress}%`,
-                background: "#2c7df7",
-                borderRadius: "2px",
-                transition: "width 0.1s linear",
-              }}
-            />
-          </div>
-          {/* Time display */}
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.45)", fontVariantNumeric: "tabular-nums" }}>
-              {formatTime(currentTime)}
-            </span>
-            <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.45)", fontVariantNumeric: "tabular-nums" }}>
-              {formatTime(duration)}
-            </span>
-          </div>
+          {generating ? (
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <div style={{ flex: 1, height: "4px", background: "rgba(255,255,255,0.1)", borderRadius: "2px", overflow: "hidden" }}>
+                <div style={{ height: "100%", width: "100%", background: "linear-gradient(90deg, transparent, #2c7df7, transparent)", backgroundSize: "200% 100%", animation: "shimmer 1.5s infinite" }} />
+              </div>
+              <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.45)", whiteSpace: "nowrap" }}>Generating...</span>
+            </div>
+          ) : (
+            <>
+              <div
+                ref={progressRef}
+                onClick={handleProgressClick}
+                style={{ height: "4px", background: "rgba(255,255,255,0.1)", borderRadius: "2px", cursor: hasAudio ? "pointer" : "default", position: "relative", overflow: "hidden" }}
+              >
+                <div style={{ position: "absolute", left: 0, top: 0, height: "100%", width: `${progress}%`, background: "#2c7df7", borderRadius: "2px", transition: "width 0.1s linear" }} />
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.45)", fontVariantNumeric: "tabular-nums" }}>
+                  {hasAudio ? formatTime(currentTime) : "Press ▶ to generate"}
+                </span>
+                <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.45)", fontVariantNumeric: "tabular-nums" }}>
+                  {formatTime(duration)}
+                </span>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Mute button */}
@@ -189,6 +259,7 @@ export default function AudioPlayer({ src, title }: AudioPlayerProps) {
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
       `}</style>
     </div>
   );
