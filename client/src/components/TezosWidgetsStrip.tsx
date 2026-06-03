@@ -38,22 +38,22 @@ export default function TezosWidgetsStrip() {
           </div>
 
           {/* XTZ Price (USD) */}
-          <TezosWidget widget="price" theme="abyss" accent="2c7df7" width={200} height={80} />
+          <TezosWidget widget="price" theme="abyss" accent="2c7df7" width={220} height={100} />
 
           {/* Block Height */}
-          <TezosWidget widget="block-height" theme="abyss" accent="2c7df7" width={200} height={80} />
+          <TezosWidget widget="block-height" theme="abyss" accent="2c7df7" width={220} height={100} />
 
           {/* Baker Count */}
-          <TezosWidget widget="baker-count" theme="abyss" accent="2c7df7" width={200} height={80} />
+          <TezosWidget widget="baker-count" theme="abyss" accent="2c7df7" width={220} height={100} />
 
           {/* Staking Ratio */}
-          <TezosWidget widget="staking-ratio" theme="abyss" accent="2c7df7" width={200} height={80} />
+          <TezosWidget widget="staking-ratio" theme="abyss" accent="2c7df7" width={220} height={100} />
 
           {/* Protocol */}
-          <TezosWidget widget="protocol" theme="abyss" accent="2c7df7" width={200} height={80} />
+          <TezosWidget widget="protocol" theme="abyss" accent="2c7df7" width={220} height={100} />
 
           {/* Governance */}
-          <TezosWidget widget="governance" theme="abyss" accent="2c7df7" width={200} height={80} />
+          <TezosWidget widget="governance" theme="abyss" accent="2c7df7" width={220} height={100} />
         </div>
       </div>
       {/* Attribution */}
