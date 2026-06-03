@@ -1,0 +1,64 @@
+import TezosWidget from './TezosWidget';
+
+/**
+ * TezosWidgetsStrip — a horizontal strip of live tezos.systems widgets
+ * Used on the home page below the hero section
+ */
+export default function TezosWidgetsStrip() {
+  return (
+    <div style={{
+      background: 'linear-gradient(90deg, #020d1e 0%, #05152e 50%, #020d1e 100%)',
+      borderTop: '1px solid rgba(44,125,247,0.15)',
+      borderBottom: '1px solid rgba(44,125,247,0.15)',
+      padding: '1rem 0',
+      overflow: 'hidden',
+    }}>
+      <div className="container">
+        <div style={{
+          display: 'flex',
+          gap: '0.75rem',
+          alignItems: 'center',
+          overflowX: 'auto',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+          paddingBottom: '2px',
+        }}>
+          {/* Label */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            flexShrink: 0,
+            marginRight: '0.25rem',
+          }}>
+            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e', animation: 'pulse 2s infinite' }} />
+            <span style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.35)', whiteSpace: 'nowrap' }}>
+              Live Network
+            </span>
+          </div>
+
+          {/* XTZ Price */}
+          <TezosWidget widget="xtz-price" theme="abyss" width={200} height={80} />
+
+          {/* Block Height */}
+          <TezosWidget widget="block-height" theme="abyss" width={200} height={80} />
+
+          {/* Baker Count */}
+          <TezosWidget widget="baker-count" theme="abyss" width={200} height={80} />
+
+          {/* Staking Ratio */}
+          <TezosWidget widget="staking-ratio" theme="abyss" width={200} height={80} />
+
+          {/* Protocol */}
+          <TezosWidget widget="protocol" theme="abyss" width={200} height={80} />
+
+          {/* Governance */}
+          <TezosWidget widget="governance" theme="abyss" width={200} height={80} />
+        </div>
+      </div>
+      <style>{`
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+      `}</style>
+    </div>
+  );
+}

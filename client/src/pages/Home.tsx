@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import { ChevronLeft, ChevronRight, Share2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import TezosWidgetsStrip from "@/components/TezosWidgetsStrip";
 import PostCard from "@/components/PostCard";
 import HomepageFilters from "@/components/HomepageFilters";
 import { useSEO } from "@/hooks/useSEO";
@@ -550,6 +551,7 @@ export default function Home() {
       {isLoading ? <HeroSkeleton /> : <HeroSection latestPosts={latest} mostReadPosts={mostRead} />}
       <NewsTicker posts={latest.slice(0, 10)} />
       <NftSalesTicker />
+      <TezosWidgetsStrip />
       <HomepageFilters />
       <MostPopularCarousel posts={mostRead} />
       <FeaturedNewsGrid posts={featured} />

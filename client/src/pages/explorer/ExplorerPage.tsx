@@ -272,6 +272,12 @@ export default function ExplorerPage() {
               Search
             </button>
           </form>
+          {/* tezos.systems live widgets */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", marginTop: "1.5rem", marginBottom: "0.5rem" }}>
+            <iframe src="https://tezos.systems/widgets/combo-strip.html?theme=abyss" width="400" height="80" frameBorder={0} scrolling="no" title="Tezos network stats" style={{ borderRadius: "8px", border: "none", display: "block" }} />
+            <iframe src="https://tezos.systems/widgets/block-height.html?theme=abyss" width="200" height="80" frameBorder={0} scrolling="no" title="Block height" style={{ borderRadius: "8px", border: "none", display: "block" }} />
+            <iframe src="https://tezos.systems/widgets/staking-ratio.html?theme=abyss" width="200" height="80" frameBorder={0} scrolling="no" title="Staking ratio" style={{ borderRadius: "8px", border: "none", display: "block" }} />
+          </div>
           {/* Quick links */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginTop: "1rem" }}>
             {[
@@ -309,6 +315,12 @@ export default function ExplorerPage() {
         {/* ── Governance tab ─────────────────────────────────────────────── */}
         {activeTab === "governance" && (
           <div>
+            {/* tezos.systems live governance widgets */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", marginBottom: "1.5rem" }}>
+              <iframe src="https://tezos.systems/widgets/governance.html?theme=abyss" width="300" height="120" frameBorder={0} scrolling="no" title="Tezos governance" style={{ borderRadius: "8px", border: "none", display: "block" }} />
+              <iframe src="https://tezos.systems/widgets/protocol.html?theme=abyss" width="300" height="120" frameBorder={0} scrolling="no" title="Tezos protocol" style={{ borderRadius: "8px", border: "none", display: "block" }} />
+              <iframe src="https://tezos.systems/widgets/baker-count.html?theme=abyss" width="200" height="120" frameBorder={0} scrolling="no" title="Active bakers" style={{ borderRadius: "8px", border: "none", display: "block" }} />
+            </div>
             {govLoading ? (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "0.75rem", marginBottom: "2rem" }}>
                 {Array.from({ length: 4 }).map((_, i) => (

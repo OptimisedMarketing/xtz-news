@@ -110,6 +110,12 @@ export default function StakingPage() {
             <ChevronRight size={10} style={{ color: "rgba(255,255,255,0.3)" }} />
             <span style={{ color: "rgba(255,255,255,0.7)" }}>Staking Calculator</span>
           </nav>
+          {/* tezos.systems live widgets */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", marginBottom: "1.5rem" }}>
+            <iframe src="https://tezos.systems/widgets/staking-ratio.html?theme=abyss" width="200" height="80" frameBorder={0} scrolling="no" title="Staking ratio" style={{ borderRadius: "8px", border: "none", display: "block" }} />
+            <iframe src="https://tezos.systems/widgets/baker-count.html?theme=abyss" width="200" height="80" frameBorder={0} scrolling="no" title="Active bakers" style={{ borderRadius: "8px", border: "none", display: "block" }} />
+            <iframe src="https://tezos.systems/widgets/xtz-price.html?theme=abyss" width="200" height="80" frameBorder={0} scrolling="no" title="XTZ price" style={{ borderRadius: "8px", border: "none", display: "block" }} />
+          </div>
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem" }}>
