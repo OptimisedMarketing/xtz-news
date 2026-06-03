@@ -228,3 +228,64 @@ export const siteSettings = mysqlTable("site_settings", {
   value: longtext("value"),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
+
+// ─── Post Translations ────────────────────────────────────────────────────────
+// Stores translated versions of articles for 10 international locales.
+// No new categories/tags are created — same taxonomy, translated display names only.
+// Locales: zh, ko, ja, de, es, fr, pt, ru, ar, tr
+export const postTranslations = mysqlTable(
+  "post_translations",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    postId: int("postId").notNull(),
+    locale: varchar("locale", { length: 10 }).notNull(),
+    title: text("title").notNull(),
+    slug: varchar("slug", { length: 500 }).notNull(),
+    excerpt: text("excerpt"),
+    content: longtext("content").notNull(),
+    metaTitle: varchar("metaTitle", { length: 255 }),
+    metaDescription: text("metaDescription"),
+    audioUrl: text("audioUrl"),
+    status: mysqlEnum("status", ["draft", "published"]).default("published").notNull(),
+    translatedAt: timestamp("translatedAt").defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("pt_post_locale_idx").on(t.postId, t.locale),
+    index("pt_locale_idx").on(t.locale),
+    index("pt_postId_idx").on(t.postId),
+  ]
+);
+export type PostTranslation = typeof postTranslations.$inferSelect;
+export type InsertPostTranslation = typeof postTranslations.$inferInsert;
+
+// Supported locales for the translation system
+export const SUPPORTED_LOCALES = ["zh", "ko", "ja", "de", "es", "fr", "pt", "ru", "ar", "tr"] as const;
+export type SupportedLocale = typeof SUPPORTED_LOCALES[number];
+
+export const LOCALE_NAMES: Record<SupportedLocale, string> = {
+  zh: "中文",
+  ko: "한국어",
+  ja: "日本語",
+  de: "Deutsch",
+  es: "Español",
+  fr: "Français",
+  pt: "Português",
+  ru: "Русский",
+  ar: "العربية",
+  tr: "Türkçe",
+};
+
+export const LOCALE_ENGLISH_NAMES: Record<SupportedLocale, string> = {
+  zh: "Chinese",
+  ko: "Korean",
+  ja: "Japanese",
+  de: "German",
+  es: "Spanish",
+  fr: "French",
+  pt: "Portuguese",
+  ru: "Russian",
+  ar: "Arabic",
+  tr: "Turkish",
+};
+
+export const RTL_LOCALES: SupportedLocale[] = ["ar"];

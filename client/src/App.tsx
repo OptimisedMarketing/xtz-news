@@ -58,6 +58,8 @@ import DefiProtocolPage from "./pages/tools/DefiProtocolPage";
 import LiveAuctionTrackerPage from "./pages/tools/LiveAuctionTrackerPage";
 import TopCollectorsPage from "./pages/tools/TopCollectorsPage";
 import CollectionStatsPage from "./pages/tools/CollectionStatsPage";
+import TranslatedArticlePage from "./pages/TranslatedArticlePage";
+import LocaleArchivePage from "./pages/LocaleArchivePage";
 
 function Router() {
   return (
@@ -119,6 +121,10 @@ function Router() {
       <Route path="/explorer/block/:id" component={BlockPage} />
       <Route path="/explorer/tx/:hash" component={TxPage} />
       <Route path="/explorer/address/:address" component={AddressPage} />
+
+      {/* Internationalisation routes — must be before article catch-all */}
+      <Route path="/:locale(zh|ko|ja|de|es|fr|pt|ru|ar|tr)" component={LocaleArchivePage} />
+      <Route path="/:locale(zh|ko|ja|de|es|fr|pt|ru|ar|tr)/:slug+" component={TranslatedArticlePage} />
 
       {/* Article pages — must be last to catch all slugs */}
       <Route path="/:slug" component={ArticlePage} />

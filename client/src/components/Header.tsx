@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
-import { Search, X, ChevronDown, ExternalLink } from "lucide-react";
+import { Search, X, ChevronDown, ExternalLink, Globe } from "lucide-react";
+import { SUPPORTED_LOCALES, LOCALE_FLAGS, LOCALE_NAMES, type SupportedLocale } from "@shared/locales";
 
 interface HeaderProps {
   onSearchOpen?: () => void;
@@ -92,6 +93,29 @@ export default function Header({ onSearchOpen }: HeaderProps) {
             <ExternalLink size={10} />
             TEZOS TOKEN TRACKER
           </Link>
+          {/* Language Switcher */}
+          <div style={{ position: "relative" }}
+            onMouseEnter={(e) => { const d = (e.currentTarget as HTMLElement).querySelector('.lang-dropdown') as HTMLElement; if (d) d.style.display = 'block'; }}
+            onMouseLeave={(e) => { const d = (e.currentTarget as HTMLElement).querySelector('.lang-dropdown') as HTMLElement; if (d) d.style.display = 'none'; }}
+          >
+            <button style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.2)", borderRadius: "4px", padding: "0.2rem 0.5rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem", color: "rgba(255,255,255,0.8)", fontSize: "0.65rem", fontWeight: 700 }}>
+              <Globe size={10} /> 🇬🇧 EN <ChevronDown size={9} />
+            </button>
+            <div className="lang-dropdown" style={{ display: "none", position: "absolute", right: 0, top: "100%", background: "#05152e", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "6px", padding: "0.4rem", zIndex: 1000, minWidth: "160px", boxShadow: "0 8px 24px rgba(0,0,0,0.5)" }}>
+              <Link href="/" style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.35rem 0.6rem", borderRadius: "4px", textDecoration: "none", fontSize: "0.72rem", color: "rgba(255,255,255,0.9)", fontWeight: 700 }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.15)")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "transparent")}>
+                🇬🇧 English
+              </Link>
+              {SUPPORTED_LOCALES.map((l: SupportedLocale) => (
+                <Link key={l} href={`/${l}`} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.35rem 0.6rem", borderRadius: "4px", textDecoration: "none", fontSize: "0.72rem", color: "rgba(255,255,255,0.7)" }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.15)")}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "transparent")}>
+                  {LOCALE_FLAGS[l]} {LOCALE_NAMES[l]}
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 

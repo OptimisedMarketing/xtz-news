@@ -297,6 +297,7 @@ ${items}
       let allPosts: { slug: string; publishedAt: Date | null; updatedAt: Date | null }[] = [];
       let allCats: { slug: string }[] = [];
       let allTagsList: { slug: string }[] = [];
+      let allTranslations: { locale: string; slug: string; translatedAt: Date }[] = [];
 
       if (db) {
         allPosts = await db
@@ -308,6 +309,16 @@ ${items}
 
         allCats = await db.select({ slug: categories.slug }).from(categories);
         allTagsList = await db.select({ slug: tags.slug }).from(tags);
+
+        // Fetch translated articles for sitemap
+        try {
+          const { postTranslations } = await import("../../drizzle/schema");
+          allTranslations = await db
+            .select({ locale: postTranslations.locale, slug: postTranslations.slug, translatedAt: postTranslations.translatedAt })
+            .from(postTranslations)
+            .where(eq(postTranslations.status, "published"))
+            .limit(20000);
+        } catch (e) { /* table may not exist yet */ }
       }
 
       const formatDate = (d: Date | null) =>
@@ -346,6 +357,22 @@ ${items}
         const lastmod = formatDate(post.updatedAt || post.publishedAt);
         lines.push(
           `  <url>\n    <loc>${baseUrl}/${post.slug}</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n    <lastmod>${lastmod}</lastmod>\n  </url>`
+        );
+      }
+
+      // Locale archive pages (one per supported language)
+      const SUPPORTED_LOCALES = ["zh", "ko", "ja", "de", "es", "fr", "pt", "ru", "ar", "tr"];
+      for (const locale of SUPPORTED_LOCALES) {
+        lines.push(
+          `  <url>\n    <loc>${baseUrl}/${locale}</loc>\n    <changefreq>daily</changefreq>\n    <priority>0.7</priority>\n    <lastmod>${today}</lastmod>\n  </url>`
+        );
+      }
+
+      // Translated article pages
+      for (const t of allTranslations) {
+        const lastmod = t.translatedAt ? new Date(t.translatedAt).toISOString().split("T")[0] : today;
+        lines.push(
+          `  <url>\n    <loc>${baseUrl}/${t.locale}/${t.slug}</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n    <lastmod>${lastmod}</lastmod>\n  </url>`
         );
       }
 

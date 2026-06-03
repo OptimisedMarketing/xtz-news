@@ -8,6 +8,7 @@ import { notifyOwner } from "./_core/notification";
 import * as db from "./db";
 import { explorerRouter } from "./explorerRouter";
 import { toolsRouter } from "./toolsRouter";
+import { translationsRouter } from "./translationsRouter";
 
 // ─── Admin guard ──────────────────────────────────────────────────────────────
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -794,6 +795,7 @@ export const appRouter = router({
   tools: toolsRouter,
   settings: settingsRouter,
   audio: audioRouter,
+  translations: translationsRouter,
 })
 export type AppRouter = typeof appRouter;
 

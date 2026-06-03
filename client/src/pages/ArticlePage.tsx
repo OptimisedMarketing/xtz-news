@@ -374,6 +374,33 @@ export default function ArticlePage() {
     { enabled: !!post }
   );
 
+  // Fetch available translations for hreflang tags
+  const { data: availableTranslations = [] } = trpc.translations.byPostId.useQuery(
+    { postId: post?.id ?? 0 },
+    { enabled: !!post?.id }
+  );
+
+  // Inject hreflang link tags for SEO
+  useEffect(() => {
+    if (!post?.slug) return;
+    // Remove existing hreflang tags
+    document.querySelectorAll('link[hreflang]').forEach((el) => el.remove());
+    // Add x-default and en
+    const addHreflang = (lang: string, href: string) => {
+      const el = document.createElement('link');
+      el.setAttribute('rel', 'alternate');
+      el.setAttribute('hreflang', lang);
+      el.setAttribute('href', href);
+      document.head.appendChild(el);
+    };
+    addHreflang('en', `https://xtz.news/${post.slug}`);
+    addHreflang('x-default', `https://xtz.news/${post.slug}`);
+    availableTranslations.forEach((t: { locale: string; slug: string }) => {
+      addHreflang(t.locale, `https://xtz.news/${t.locale}/${t.slug}`);
+    });
+    return () => { document.querySelectorAll('link[hreflang]').forEach((el) => el.remove()); };
+  }, [post?.slug, availableTranslations]);
+
   // Inject Open Graph + Twitter Card meta tags
   useOpenGraph(post);
 
