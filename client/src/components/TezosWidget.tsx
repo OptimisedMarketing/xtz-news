@@ -15,11 +15,12 @@
  */
 
 interface TezosWidgetProps {
-  widget: 'baker-count' | 'xtz-price' | 'block-height' | 'staking-ratio' | 'protocol' | 'governance' | 'baker-card' | 'combo-strip';
+  widget: 'baker-count' | 'price' | 'xtz-price' | 'block-height' | 'staking-ratio' | 'protocol' | 'governance' | 'baker-card' | 'combo-strip' | 'combo';
   theme?: string;
   width?: number;
   height?: number;
   baker?: string; // for baker-card widget
+  accent?: string; // hex colour without # e.g. '2c7df7'
   refresh?: number; // seconds
   style?: React.CSSProperties;
   className?: string;
@@ -31,11 +32,13 @@ export default function TezosWidget({
   width = 300,
   height = 120,
   baker,
+  accent,
   refresh = 60,
   style,
   className,
 }: TezosWidgetProps) {
   let src = `https://tezos.systems/widgets/${widget}.html?theme=${theme}`;
+  if (accent) src += `&accent=${accent.replace('#', '')}`;
   if (baker) src += `&baker=${encodeURIComponent(baker)}`;
   if (refresh !== 60) src += `&refresh=${refresh}`;
 
