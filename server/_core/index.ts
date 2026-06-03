@@ -157,6 +157,34 @@ async function startServer() {
     }
   });
 
+  // ─── Audio→MP4 Proxy (routes to cloud computer FFmpeg service) ─────────────────────────────────────────────────────────────────────────
+  app.post("/api/audio-to-video", async (req, res) => {
+    try {
+      const CLOUD_SERVICE = 'http://34.52.212.6:8085';
+      const body = req.body;
+      const upstream = await fetch(`${CLOUD_SERVICE}/convert`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(600000), // 10 min timeout
+      });
+      if (!upstream.ok) {
+        const err = await upstream.text();
+        return res.status(upstream.status).json({ error: err });
+      }
+      res.set('Content-Type', 'video/mp4');
+      const slug = (body.slug || 'xtz-news-article').replace(/[^a-z0-9-]/gi, '-').toLowerCase();
+      res.set('Content-Disposition', `attachment; filename="${slug}-george-elevenlabs.mp4"`);
+      // Stream the response
+      const arrayBuffer = await upstream.arrayBuffer();
+      res.send(Buffer.from(arrayBuffer));
+    } catch (err: any) {
+      console.error('[audio-to-video] error:', err.message);
+      res.status(500).json({ error: err.message });
+    }
+  });
+  // ─────────────────────────────────────────────────────────────────────────
+
   // ─── Podcast RSS Feed ─────────────────────────────────────────────────────────────────────────
   app.get("/podcast.rss", async (req, res) => {
     try {

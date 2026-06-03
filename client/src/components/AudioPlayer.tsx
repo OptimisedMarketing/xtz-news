@@ -18,7 +18,7 @@ function formatTime(seconds: number) {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
-const AUDIO_VIDEO_SERVICE = 'http://34.52.212.6:8085';
+const AUDIO_VIDEO_ENDPOINT = '/api/audio-to-video';
 
 export default function AudioPlayer({ src: initialSrc, title, postId, featuredImageUrl, slug }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -152,7 +152,7 @@ export default function AudioPlayer({ src: initialSrc, title, postId, featuredIm
     setDownloadingMp4(true);
     toast.info("Converting to MP4 for X/Twitter... this may take 30-60 seconds.");
     try {
-      const res = await fetch(`${AUDIO_VIDEO_SERVICE}/convert`, {
+      const res = await fetch(AUDIO_VIDEO_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
