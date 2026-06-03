@@ -274,9 +274,18 @@ export default function ExplorerPage() {
           </form>
           {/* tezos.systems live widgets */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", marginTop: "1.5rem", marginBottom: "0.5rem" }}>
-            <iframe src="https://tezos.systems/widgets/combo.html?theme=abyss&accent=2c7df7" width="400" height="80" frameBorder={0} scrolling="no" title="Tezos network stats" style={{ borderRadius: "8px", border: "none", display: "block" }} />
-            <iframe src="https://tezos.systems/widgets/block-height.html?theme=abyss&accent=2c7df7" width="200" height="80" frameBorder={0} scrolling="no" title="Block height" style={{ borderRadius: "8px", border: "none", display: "block" }} />
-            <iframe src="https://tezos.systems/widgets/staking-ratio.html?theme=abyss&accent=2c7df7" width="200" height="80" frameBorder={0} scrolling="no" title="Staking ratio" style={{ borderRadius: "8px", border: "none", display: "block" }} />
+            <div style={{ position: "relative", display: "inline-block", borderRadius: "8px", overflow: "hidden", flexShrink: 0 }}>
+              <iframe src="https://tezos.systems/widgets/combo.html?theme=abyss&accent=2c7df7" width="400" height="80" frameBorder={0} scrolling="no" title="Tezos network stats" style={{ borderRadius: "8px", border: "none", display: "block" }} />
+              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "16px", background: "#0A0E1A", pointerEvents: "none", borderRadius: "0 0 8px 8px" }} />
+            </div>
+            <div style={{ position: "relative", display: "inline-block", borderRadius: "8px", overflow: "hidden", flexShrink: 0 }}>
+              <iframe src="https://tezos.systems/widgets/block-height.html?theme=abyss&accent=2c7df7" width="200" height="80" frameBorder={0} scrolling="no" title="Block height" style={{ borderRadius: "8px", border: "none", display: "block" }} />
+              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "16px", background: "#0A0E1A", pointerEvents: "none", borderRadius: "0 0 8px 8px" }} />
+            </div>
+            <div style={{ position: "relative", display: "inline-block", borderRadius: "8px", overflow: "hidden", flexShrink: 0 }}>
+              <iframe src="https://tezos.systems/widgets/staking-ratio.html?theme=abyss&accent=2c7df7" width="200" height="80" frameBorder={0} scrolling="no" title="Staking ratio" style={{ borderRadius: "8px", border: "none", display: "block" }} />
+              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "16px", background: "#0A0E1A", pointerEvents: "none", borderRadius: "0 0 8px 8px" }} />
+            </div>
           </div>
           {/* Quick links */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginTop: "1rem" }}>
@@ -317,9 +326,18 @@ export default function ExplorerPage() {
           <div>
             {/* tezos.systems live governance widgets */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", marginBottom: "1.5rem" }}>
+              <div style={{ position: "relative", display: "inline-block", borderRadius: "8px", overflow: "hidden", flexShrink: 0 }}>
               <iframe src="https://tezos.systems/widgets/governance.html?theme=abyss&accent=2c7df7" width="300" height="120" frameBorder={0} scrolling="no" title="Tezos governance" style={{ borderRadius: "8px", border: "none", display: "block" }} />
+              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "16px", background: "#0A0E1A", pointerEvents: "none", borderRadius: "0 0 8px 8px" }} />
+            </div>
+              <div style={{ position: "relative", display: "inline-block", borderRadius: "8px", overflow: "hidden", flexShrink: 0 }}>
               <iframe src="https://tezos.systems/widgets/protocol.html?theme=abyss&accent=2c7df7" width="300" height="120" frameBorder={0} scrolling="no" title="Tezos protocol" style={{ borderRadius: "8px", border: "none", display: "block" }} />
+              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "16px", background: "#0A0E1A", pointerEvents: "none", borderRadius: "0 0 8px 8px" }} />
+            </div>
+              <div style={{ position: "relative", display: "inline-block", borderRadius: "8px", overflow: "hidden", flexShrink: 0 }}>
               <iframe src="https://tezos.systems/widgets/baker-count.html?theme=abyss&accent=2c7df7" width="200" height="120" frameBorder={0} scrolling="no" title="Active bakers" style={{ borderRadius: "8px", border: "none", display: "block" }} />
+              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "16px", background: "#0A0E1A", pointerEvents: "none", borderRadius: "0 0 8px 8px" }} />
+            </div>
             </div>
             {govLoading ? (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "0.75rem", marginBottom: "2rem" }}>

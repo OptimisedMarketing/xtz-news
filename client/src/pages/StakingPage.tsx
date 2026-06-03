@@ -112,9 +112,18 @@ export default function StakingPage() {
           </nav>
           {/* tezos.systems live widgets */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", marginBottom: "1.5rem" }}>
-            <iframe src="https://tezos.systems/widgets/staking-ratio.html?theme=abyss&accent=2c7df7" width="200" height="80" frameBorder={0} scrolling="no" title="Staking ratio" style={{ borderRadius: "8px", border: "none", display: "block" }} />
-            <iframe src="https://tezos.systems/widgets/baker-count.html?theme=abyss&accent=2c7df7" width="200" height="80" frameBorder={0} scrolling="no" title="Active bakers" style={{ borderRadius: "8px", border: "none", display: "block" }} />
-            <iframe src="https://tezos.systems/widgets/price.html?theme=abyss&accent=2c7df7" width="200" height="80" frameBorder={0} scrolling="no" title="XTZ price" style={{ borderRadius: "8px", border: "none", display: "block" }} />
+            <div style={{ position: "relative", display: "inline-block", borderRadius: "8px", overflow: "hidden", flexShrink: 0 }}>
+              <iframe src="https://tezos.systems/widgets/staking-ratio.html?theme=abyss&accent=2c7df7" width="200" height="80" frameBorder={0} scrolling="no" title="Staking ratio" style={{ borderRadius: "8px", border: "none", display: "block" }} />
+              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "16px", background: "#0A0E1A", pointerEvents: "none", borderRadius: "0 0 8px 8px" }} />
+            </div>
+            <div style={{ position: "relative", display: "inline-block", borderRadius: "8px", overflow: "hidden", flexShrink: 0 }}>
+              <iframe src="https://tezos.systems/widgets/baker-count.html?theme=abyss&accent=2c7df7" width="200" height="80" frameBorder={0} scrolling="no" title="Active bakers" style={{ borderRadius: "8px", border: "none", display: "block" }} />
+              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "16px", background: "#0A0E1A", pointerEvents: "none", borderRadius: "0 0 8px 8px" }} />
+            </div>
+            <div style={{ position: "relative", display: "inline-block", borderRadius: "8px", overflow: "hidden", flexShrink: 0 }}>
+              <iframe src="https://tezos.systems/widgets/price.html?theme=abyss&accent=2c7df7" width="200" height="80" frameBorder={0} scrolling="no" title="XTZ price" style={{ borderRadius: "8px", border: "none", display: "block" }} />
+              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "16px", background: "#0A0E1A", pointerEvents: "none", borderRadius: "0 0 8px 8px" }} />
+            </div>
           </div>
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
             <div>

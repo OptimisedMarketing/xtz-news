@@ -43,21 +43,30 @@ export default function TezosWidget({
   if (refresh !== 60) src += `&refresh=${refresh}`;
 
   return (
-    <iframe
-      src={src}
-      width={width}
-      height={height}
-      frameBorder={0}
-      scrolling="no"
-      title={`Tezos ${widget} widget`}
-      style={{
-        borderRadius: '8px',
-        overflow: 'hidden',
-        display: 'block',
-        border: 'none',
-        ...style,
-      }}
+    <div
+      style={{ position: 'relative', display: 'inline-block', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, ...style }}
       className={className}
-    />
+    >
+      <iframe
+        src={src}
+        width={width}
+        height={height}
+        frameBorder={0}
+        scrolling="no"
+        title={`Tezos ${widget} widget`}
+        style={{ display: 'block', border: 'none' }}
+      />
+      {/* Overlay to cover the tezos.systems watermark at the bottom of each widget */}
+      <div style={{
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: '16px',
+        background: '#0A0E1A', // matches the Abyss theme bg
+        pointerEvents: 'none',
+        borderRadius: '0 0 8px 8px',
+      }} />
+    </div>
   );
 }
