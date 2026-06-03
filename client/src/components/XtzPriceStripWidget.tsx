@@ -12,11 +12,13 @@ export default function XtzPriceStripWidget({ width = 220, height = 100 }: { wid
   });
 
   const xtz = tokens?.find((t: any) => t.id === "tezos" || t.symbol?.toUpperCase() === "XTZ");
-  const price = xtz?.current_price ?? xtz?.price;
-  const change = xtz?.price_change_percentage_24h ?? xtz?.change24h;
+  const price = xtz?.price ?? xtz?.current_price;
+  // change24h is a decimal fraction (e.g. -0.00277 = -0.277%), multiply by 100
+  const rawChange = xtz?.change24h ?? xtz?.price_change_percentage_24h;
+  const change = rawChange != null ? (Math.abs(Number(rawChange)) < 1 ? Number(rawChange) * 100 : Number(rawChange)) : null;
 
-  const isUp = change != null && Number(change) >= 0;
-  const changeStr = change != null ? `${isUp ? "+" : ""}${Number(change).toFixed(2)}%` : "—%";
+  const isUp = change != null && change >= 0;
+  const changeStr = change != null ? `${isUp ? "+" : ""}${change.toFixed(2)}%` : "—%";
   const priceStr = price != null ? `$${Number(price).toFixed(4)}` : "—";
 
   return (
