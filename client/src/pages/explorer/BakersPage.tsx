@@ -81,9 +81,9 @@ function BakerModal({ address, onClose }: { address: string; onClose: () => void
   useEffect(() => { document.body.style.overflow = "hidden"; return () => { document.body.style.overflow = ""; }; }, []);
   const maxApy = data ? Math.max(...(data.cycles as any[]).map((c: any) => c.apy ?? 0), 1) : 1;
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: "0.5rem" }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div style={{ background: "#05152e", border: "1px solid rgba(44,125,247,0.25)", borderRadius: "12px", width: "100%", maxWidth: "680px", maxHeight: "90vh", overflow: "auto", boxShadow: "0 24px 60px rgba(0,0,0,0.7)" }}>
+      <div style={{ background: "#05152e", border: "1px solid rgba(44,125,247,0.25)", borderRadius: "12px", width: "100%", maxWidth: "680px", maxHeight: "95vh", overflow: "auto", boxShadow: "0 24px 60px rgba(0,0,0,0.7)" }}>
         <div style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, background: "#05152e", zIndex: 1 }}>
           <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
             <div style={{ width: "36px", height: "36px", background: "rgba(249,115,22,0.2)", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -100,12 +100,12 @@ function BakerModal({ address, onClose }: { address: string; onClose: () => void
         </div>
         <div style={{ padding: "1.5rem" }}>
           {isLoading ? (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.75rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: "0.75rem" }}>
               {Array.from({ length: 6 }).map((_, i) => <div key={i} style={{ background: "rgba(255,255,255,0.04)", borderRadius: "8px", padding: "1rem" }}><div className="skeleton" style={{ height: "10px", width: "60%", marginBottom: "8px" }} /><div className="skeleton" style={{ height: "20px", width: "80%" }} /></div>)}
             </div>
           ) : data ? (
             <>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: "0.75rem", marginBottom: "1.5rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: "0.5rem", marginBottom: "1.25rem" }}>
                 {[
                   { label: "Avg APY (10 cycles)", value: data.avgApy != null ? `${data.avgApy}%` : "—", color: data.avgApy != null ? (data.avgApy >= 8 ? "#22c55e" : data.avgApy >= 5 ? "#f59e0b" : "#ef4444") : "rgba(255,255,255,0.4)" },
                   { label: "Avg Uptime", value: data.avgUptime != null ? `${data.avgUptime}%` : "—", color: data.avgUptime != null ? (data.avgUptime >= 99 ? "#22c55e" : "#f59e0b") : "rgba(255,255,255,0.4)" },
@@ -127,11 +127,11 @@ function BakerModal({ address, onClose }: { address: string; onClose: () => void
                   <iframe
                     src={`https://tezos.systems/widgets/baker-card.html?theme=abyss&baker=${address}&accent=2c7df7`}
                     width="100%"
-                    height="200"
+                    height="220"
                     frameBorder={0}
                     scrolling="no"
                     title="Baker Card"
-                    style={{ display: "block", border: "none", borderRadius: "8px" }}
+                    style={{ display: "block", border: "none", borderRadius: "8px", minHeight: "180px" }}
                   />
                 </div>
               </div>
