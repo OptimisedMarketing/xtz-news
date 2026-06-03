@@ -120,6 +120,21 @@ function BakerModal({ address, onClose }: { address: string; onClose: () => void
                   </div>
                 ))}
               </div>
+              {/* tezos.systems Baker Card widget */}
+              <div style={{ marginBottom: "1.5rem" }}>
+                <h3 style={{ fontSize: "0.75rem", fontWeight: 800, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 0.75rem" }}>Live Baker Report</h3>
+                <div style={{ position: "relative", overflow: "hidden", borderRadius: "8px" }}>
+                  <iframe
+                    src={`https://tezos.systems/widgets/baker-card.html?theme=abyss&baker=${address}&accent=2c7df7`}
+                    width="100%"
+                    height="200"
+                    frameBorder={0}
+                    scrolling="no"
+                    title="Baker Card"
+                    style={{ display: "block", border: "none", borderRadius: "8px" }}
+                  />
+                </div>
+              </div>
               <div style={{ marginBottom: "1.5rem" }}>
                 <h3 style={{ fontSize: "0.75rem", fontWeight: 800, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 0.75rem" }}>APY History — Last 10 Cycles</h3>
                 <div style={{ display: "flex", alignItems: "flex-end", gap: "6px", height: "80px" }}>
