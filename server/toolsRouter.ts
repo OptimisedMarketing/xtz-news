@@ -1057,26 +1057,17 @@ export const toolsRouter = router({
     // Curated list of notable Tezos artists — address field enables reliable works lookup
     const ARTISTS: Array<{ alias: string; address?: string; twitter: string; note: string }> = [
       { alias: 'QUAYOLA', address: 'tz2Wqd9ryeQUqDGfjXDoB6zVe9GE4KPa39gC', twitter: 'quayola', note: 'Generative & computational art' },
-      { alias: 'Gabriel Massan', twitter: 'gabrielmassan', note: '3D & narrative digital art' },
       { alias: 'zancan', address: 'tz1bbbZ6Hqjnn9G6Tu2i7uXKRenCaB1Eikbz', twitter: 'zancan', note: 'Generative art & landscapes' },
       { alias: 'Iskra Velitchkova', address: 'tz1PEcnL3UvtPPXSwXT258xKVxwdpGabaWsh', twitter: 'iskravel', note: 'Abstract digital painting' },
       { alias: 'Alida Sun', address: 'tz1QR8esDbBTWbfwTrPve5aQ46kxSCubk1ZR', twitter: 'alidasun', note: 'AI dialogue & machine learning' },
-      { alias: 'Hind Al Saad', twitter: 'hindsaad', note: 'Digital identity & memory' },
       { alias: 'Varvara&Mar', address: 'tz1ZJJPSdvqFnjCoLiSDHoo17B3YLfdeANA3', twitter: 'varvara_mar', note: 'Generative systems & machinima' },
       { alias: 'Joanie Lemercier', address: 'tz1Rzgqir9kEteYTdoVTnoFWsrwPSro78c2K', twitter: 'joanielemercier', note: 'Light & projection art' },
       { alias: 'Operator', address: 'tz1YyLW3Wd1UzV7XL8gBZV23dLSh8wu6ijFm', twitter: 'operatornft', note: 'Generative & algorithmic art' },
-      { alias: 'Dmitri Cherniak', twitter: 'dmitricherniak', note: 'Generative & Ringers creator' },
       { alias: 'Kim Asendorf', address: 'tz1N1vuWBsDtGMyj3No8NfeJdCBFu8v6gvSX', twitter: 'kimasendorf', note: 'Pixel art & generative systems' },
       { alias: 'ciphrd', address: 'tz1PoDdN2oyRyF6DA73zTWAWYhNL4UGr3Egj', twitter: 'ciphrd', note: 'Generative art & fxhash founder' },
-      { alias: 'Licia He', twitter: 'blahblahpapercut', note: 'Plotter & generative drawing art' },
       { alias: 'Yazid', address: 'tz1QgjmhrUD3X7kgS9mMHbUz4cS6uDiFGhAU', twitter: 'yazidxyz', note: 'Generative & abstract digital art' },
-      { alias: 'Helena Sarin', twitter: 'NeuralBricolage', note: 'AI & neural network art' },
       { alias: 'andreasrau', address: 'tz1Roq6end2LFtkpGrmuyRZH82xsWfaRCat1', twitter: 'andreasrau_eu', note: 'Generative & code-based art' },
       { alias: 'Piter Pasma', address: 'tz1hgnuh2GNURBYeR8yWQhw8cynnXsbf6eFF', twitter: 'piterpasma', note: 'Mathematical & generative art' },
-      { alias: 'DistCollective', twitter: 'DistCollective', note: 'Collaborative generative art' },
-      { alias: 'Mathieu Stern', twitter: 'MathieuStern', note: 'Photography & digital art' },
-      { alias: 'Fabrizio Lamoncha', twitter: 'fabriziolamoncha', note: 'Generative & abstract systems' },
-      { alias: 'Aleksandra Jovanić', twitter: 'alexjovanic', note: 'Generative art & data visualisation' },
       { alias: 'Absurdeity.tez', address: 'tz1X568Wdkb1ZUs8qfVYcsZD31YQ4UV3sdY4', twitter: 'absurdeity', note: 'Community art events & curation' },
       { alias: 'Bonsaifox', address: 'tz1XS6dS499nK7TuNjLsdbioAVEdVgK4P5sG', twitter: 'BonsaiFox1', note: 'Community art events organiser' },
       { alias: 'V4w.enko', address: 'tz1Mpr7WD3UG47UFPbizLPnBCNhh8pcdbSyz', twitter: 'V4wEnko', note: 'Generative organic art & GLB' },
@@ -1111,19 +1102,19 @@ export const toolsRouter = router({
       // fallback — use static data
     }
 
-    // Fetch recent tokens by this artist
+    // Fetch recent tokens by this artist — try both creators.holder_address and fa.creator_address
     if (profile?.address) {
       try {
-        const worksQuery = {
-          query: `{ token(limit: 6, order_by: {timestamp: desc}, where: {creators: {holder_address: {_eq: "${profile.address}"}}}) { name description display_uri thumbnail_uri timestamp supply fa { name } } }`
-        };
-        const worksRes = await fetch(OBJKT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(worksQuery),
-          signal: AbortSignal.timeout(10000),
-        });
-        const worksData = await worksRes.json();
+        const [worksRes1, worksRes2] = await Promise.all([
+          fetch(OBJKT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: `{ token(limit: 6, order_by: {timestamp: desc}, where: {creators: {holder_address: {_eq: "${profile.address}"}}}) { name description display_uri thumbnail_uri timestamp supply fa { name } } }` }), signal: AbortSignal.timeout(10000) }),
+          fetch(OBJKT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: `{ token(limit: 6, order_by: {timestamp: desc}, where: {fa: {creator_address: {_eq: "${profile.address}"}}}) { name description display_uri thumbnail_uri timestamp supply fa { name } } }` }), signal: AbortSignal.timeout(10000) }),
+        ]);
+        const [d1, d2] = await Promise.all([worksRes1.json(), worksRes2.json()]);
+        const combined = [...(d1?.data?.token || []), ...(d2?.data?.token || [])];
+        // Deduplicate by name and take 6 most recent
+        const seen = new Set<string>();
+        const tokens = combined.filter(t => { if (seen.has(t.name)) return false; seen.add(t.name); return true; }).slice(0, 6);
+        const worksData = { data: { token: tokens } };
         recentWorks = (worksData?.data?.token || []).map((t: any) => ({
           name: t.name,
           description: t.description,
