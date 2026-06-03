@@ -122,9 +122,13 @@ function Router() {
       <Route path="/explorer/tx/:hash" component={TxPage} />
       <Route path="/explorer/address/:address" component={AddressPage} />
 
-      {/* Internationalisation routes — must be before article catch-all */}
-      <Route path="/:locale(zh|ko|ja|de|es|fr|pt|ru|ar|tr)" component={LocaleArchivePage} />
-      <Route path="/:locale(zh|ko|ja|de|es|fr|pt|ru|ar|tr)/:slug+" component={TranslatedArticlePage} />
+      {/* Internationalisation routes — explicit locale paths to avoid conflicting with article slugs */}
+      {["zh", "ko", "ja", "de", "es", "fr", "pt", "ru", "ar", "tr"].map((locale) => (
+        <Route key={locale} path={`/${locale}`} component={LocaleArchivePage} />
+      ))}
+      {["zh", "ko", "ja", "de", "es", "fr", "pt", "ru", "ar", "tr"].map((locale) => (
+        <Route key={`${locale}-article`} path={`/${locale}/:slug+`} component={TranslatedArticlePage} />
+      ))}
 
       {/* Article pages — must be last to catch all slugs */}
       <Route path="/:slug" component={ArticlePage} />
