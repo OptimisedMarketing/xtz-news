@@ -85,7 +85,8 @@ export default function Header({ onSearchOpen }: HeaderProps) {
         className="hidden lg:flex"
         style={{ background: "#123262", borderBottom: "1px solid rgba(255,255,255,0.1)", height: "36px", alignItems: "center" }}
       >
-        <div className="container" style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "1.5rem" }}>
+        <div className="container" style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "1rem" }}>
+          <DonateButton variant="header" />
           <Link href="/" style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.8)", textDecoration: "none" }}>
             XTZ.NEWS
           </Link>
@@ -188,9 +189,8 @@ export default function Header({ onSearchOpen }: HeaderProps) {
             ))}
           </nav>
 
-          {/* Desktop: donate + search */}
-          <div className="hidden lg:flex" style={{ alignItems: "center", gap: "0.5rem", marginLeft: "auto" }}>
-            <DonateButton variant="header" />
+          {/* Desktop: search only (donate is in top bar) */}
+          <div className="hidden lg:flex" style={{ alignItems: "center", gap: "0.4rem", marginLeft: "auto" }}>
             <button onClick={onSearchOpen} className="dark-mode-toggle" aria-label="Search">
               <Search size={16} />
             </button>
@@ -269,6 +269,10 @@ export default function Header({ onSearchOpen }: HeaderProps) {
       {mobileOpen && (
         <div style={{ background: "#05152e", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
           <nav className="container" style={{ padding: "0.75rem 0", display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+            {/* Mobile donate button */}
+            <div style={{ padding: "0.5rem 0.75rem 0.25rem" }}>
+              <DonateButton variant="article" />
+            </div>
             {NAV_ITEMS.map((item) => (
               <div key={item.label}>
                 <Link href={item.href}

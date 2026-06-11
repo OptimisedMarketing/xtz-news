@@ -544,10 +544,18 @@ export default function ArticlePage() {
             {/* Audio Player */}
             <AudioPlayer src={(post as any).audioUrl || null} title={post.title} postId={post.id} featuredImageUrl={post.featuredImageUrl} slug={post.slug} />
 
-            {/* Disclaimer + Donate row */}
-            <div style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", padding: "0.75rem 1rem", borderRadius: "6px", marginBottom: "1.75rem", background: "rgba(44,125,247,0.06)", border: "1px solid rgba(44,125,247,0.15)", fontSize: "0.78rem", color: "rgba(255,255,255,0.5)" }}>
+            {/* Disclaimer */}
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", padding: "0.75rem 1rem", borderRadius: "6px", marginBottom: "1rem", background: "rgba(44,125,247,0.06)", border: "1px solid rgba(44,125,247,0.15)", fontSize: "0.78rem", color: "rgba(255,255,255,0.5)" }}>
               <span style={{ color: "#5a9fff", fontWeight: 900, flexShrink: 0 }}>ℹ</span>
-              <span style={{ flex: 1 }}>This article is for informational purposes only and does not constitute financial advice. Always do your own research.</span>
+              <span>This article is for informational purposes only and does not constitute financial advice. Always do your own research.</span>
+            </div>
+
+            {/* Donate banner — prominent, below disclaimer */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.75rem", padding: "0.875rem 1.25rem", borderRadius: "8px", marginBottom: "1.75rem", background: "linear-gradient(135deg, rgba(44,125,247,0.12) 0%, rgba(26,106,224,0.08) 100%)", border: "1px solid rgba(44,125,247,0.25)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
+                <svg width="18" height="18" viewBox="0 0 32 32" fill="#2c7df7"><path d="M16 2L2 9.5v13L16 30l14-7.5v-13L16 2zm0 3.09l10.5 5.63v11.56L16 27.91 5.5 22.28V10.72L16 5.09z"/><path d="M13 10v12h2v-5h4a3 3 0 000-6h-4V9h-2v1zm2 2h4a1 1 0 010 2h-4v-2z"/></svg>
+                <span style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.75)", fontWeight: 600 }}>XTZ.News is independent &amp; community-funded. Support us with a XTZ donation.</span>
+              </div>
               <DonateButton variant="article" />
             </div>
 
