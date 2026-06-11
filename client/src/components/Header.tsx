@@ -49,6 +49,7 @@ const NAV_ITEMS = [
   { label: "TOOLS", href: "/tools" },
   { label: "SUBMIT ARTICLE", href: "/submit-article" },
   { label: "CONTACT", href: "/contact" },
+  { label: "SUPPORT US ❤️", href: "/support" },
 ];
 
 export default function Header({ onSearchOpen }: HeaderProps) {

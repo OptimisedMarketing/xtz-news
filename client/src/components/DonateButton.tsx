@@ -224,14 +224,26 @@ export default function DonateButton({ variant = "header" }: DonateButtonProps) 
                     href={`https://tzkt.io/${txHash}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", fontSize: "0.75rem", color: "#2c7df7", textDecoration: "none", fontWeight: 700 }}
+                    style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", fontSize: "0.75rem", color: "#2c7df7", textDecoration: "none", fontWeight: 700, marginBottom: "1rem" }}
                   >
                     View transaction on TzKT →
                   </a>
                 )}
+                {/* Share on Twitter */}
+                <a
+                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`I just donated ${amount} XTZ to @XTZNews to support independent Tezos news! ❤️%0A%0ASupport them too: https://xtz.news/support`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", width: "100%", padding: "0.75rem", background: "#000", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px", color: "#fff", textDecoration: "none", fontSize: "0.85rem", fontWeight: 700, marginBottom: "0.5rem", transition: "background 0.15s" }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "#1a1a1a")}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "#000")}
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                  Share on X (Twitter)
+                </a>
                 <button
                   onClick={handleClose}
-                  style={{ display: "block", width: "100%", marginTop: "1.25rem", padding: "0.75rem", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "8px", color: "rgba(255,255,255,0.7)", cursor: "pointer", fontSize: "0.82rem", fontWeight: 700, fontFamily: "inherit" }}
+                  style={{ display: "block", width: "100%", padding: "0.75rem", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "8px", color: "rgba(255,255,255,0.7)", cursor: "pointer", fontSize: "0.82rem", fontWeight: 700, fontFamily: "inherit" }}
                 >
                   Close
                 </button>
