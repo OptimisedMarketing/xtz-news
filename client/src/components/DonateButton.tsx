@@ -25,12 +25,12 @@ async function getTaquito() {
   if (!taquitoInstance) {
     const { TezosToolkit } = await import("@taquito/taquito");
     const { BeaconWallet } = await import("@taquito/beacon-wallet");
-    // Use multiple reliable public Tezos mainnet RPC nodes
     const Tezos = new TezosToolkit("https://rpc.tzbeta.net");
+    // In newer BeaconWallet versions, network must be passed in the constructor
     const wallet = new BeaconWallet({
       name: "XTZ.News",
-      network: { type: "mainnet" as any },
-    });
+      network: { type: "mainnet" },
+    } as any);
     Tezos.setWalletProvider(wallet);
     taquitoInstance = Tezos;
     walletInstance = wallet;
@@ -69,7 +69,8 @@ export default function DonateButton({ variant = "header" }: DonateButtonProps) 
       const activeAccount = await wallet.client.getActiveAccount();
       if (!activeAccount) {
         // This opens the Beacon wallet picker (Temple, Kukai, etc.)
-        await wallet.requestPermissions({ network: { type: "mainnet" as any } });
+        // Network is already set in the constructor — don't pass it here
+        await wallet.requestPermissions();
       }
 
       setStatus("sending");
