@@ -232,7 +232,7 @@ async function startServer() {
     <copyright>XTZ.News ${new Date().getFullYear()}</copyright>
     <atom:link href="${baseUrl}/podcast.rss" rel="self" type="application/rss+xml" />
     <itunes:author>XTZ.News</itunes:author>
-    <itunes:owner><itunes:name>XTZ.News</itunes:name><itunes:email>info@xtz.news</itunes:email></itunes:owner>
+    <itunes:owner><itunes:name>XTZ.News</itunes:name><itunes:email>hello@xtz.news</itunes:email></itunes:owner>
     <itunes:image href="${baseUrl}/manus-storage/xtz-logo-square_c6689606.png" />
     <itunes:category text="Technology" />
     <itunes:category text="News" />

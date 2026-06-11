@@ -75,7 +75,7 @@ export default function SubmitProjectPage() {
       });
       setSubmitted(true);
     } catch {
-      setError("Something went wrong. Please email us directly at info@xtz.news");
+      setError("Something went wrong. Please email us directly at hello@xtz.news");
     } finally {
       setLoading(false);
     }
@@ -259,7 +259,7 @@ export default function SubmitProjectPage() {
               <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.6)", margin: "0 0 0.75rem", lineHeight: 1.6 }}>
                 Want to update your project's information or logo? Contact us directly.
               </p>
-              <a href="mailto:info@xtz.news" style={{ fontSize: "0.85rem", color: "#2c7df7", textDecoration: "none", fontWeight: 700 }}>info@xtz.news</a>
+              <a href="mailto:hello@xtz.news" style={{ fontSize: "0.85rem", color: "#2c7df7", textDecoration: "none", fontWeight: 700 }}>hello@xtz.news</a>
             </div>
           </div>
         </div>

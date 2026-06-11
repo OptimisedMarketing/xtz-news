@@ -81,7 +81,7 @@ export default function ContactPage() {
       });
       setSubmitted(true);
     } catch {
-      setError("Something went wrong. Please email us directly at info@xtz.news");
+      setError("Something went wrong. Please email us directly at hello@xtz.news");
     } finally {
       setLoading(false);
     }
@@ -204,7 +204,7 @@ export default function ContactPage() {
               <h3 style={{ fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#2c7df7", margin: "0 0 1.25rem" }}>Direct Contact</h3>
               <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
                 {[
-                  { icon: <Mail size={16} style={{ color: "#2c7df7" }} />, label: "Email", value: "info@xtz.news", href: "mailto:info@xtz.news", bg: "rgba(44,125,247,0.12)", hover: "rgba(44,125,247,0.08)" },
+                  { icon: <Mail size={16} style={{ color: "#2c7df7" }} />, label: "Email", value: "hello@xtz.news", href: "mailto:hello@xtz.news", bg: "rgba(44,125,247,0.12)", hover: "rgba(44,125,247,0.08)" },
                   { icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="#1DA1F2"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>, label: "Twitter / X", value: "@xtz_news", href: "https://twitter.com/xtz_news", bg: "rgba(29,161,242,0.12)", hover: "rgba(29,161,242,0.08)" },
                 ].map((item) => (
                   <a key={item.label} href={item.href} target={item.href.startsWith("http") ? "_blank" : undefined} rel={item.href.startsWith("http") ? "nofollow noopener noreferrer" : undefined}

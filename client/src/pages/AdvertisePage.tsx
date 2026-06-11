@@ -67,7 +67,7 @@ export default function AdvertisePage() {
                     </li>
                   ))}
                 </ul>
-                <a href="mailto:info@xtz.news?subject=Newsletter Sponsorship Enquiry" style={{ display: "block", textAlign: "center", padding: "0.65rem", borderRadius: "4px", background: pkg.highlight ? "#2c7df7" : "transparent", border: pkg.highlight ? "none" : "1px solid rgba(255,255,255,0.2)", color: "#fff", fontWeight: 700, fontSize: "0.82rem", textDecoration: "none", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                <a href="mailto:hello@xtz.news?subject=Newsletter Sponsorship Enquiry" style={{ display: "block", textAlign: "center", padding: "0.65rem", borderRadius: "4px", background: pkg.highlight ? "#2c7df7" : "transparent", border: pkg.highlight ? "none" : "1px solid rgba(255,255,255,0.2)", color: "#fff", fontWeight: 700, fontSize: "0.82rem", textDecoration: "none", textTransform: "uppercase", letterSpacing: "0.06em" }}>
                   Get Started
                 </a>
               </div>
@@ -102,7 +102,7 @@ export default function AdvertisePage() {
                     </li>
                   ))}
                 </ul>
-                <a href="mailto:info@xtz.news?subject=Sponsored Article Enquiry" style={{ display: "block", textAlign: "center", padding: "0.65rem", borderRadius: "4px", background: "transparent", border: "1px solid rgba(255,255,255,0.2)", color: "#fff", fontWeight: 700, fontSize: "0.82rem", textDecoration: "none", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                <a href="mailto:hello@xtz.news?subject=Sponsored Article Enquiry" style={{ display: "block", textAlign: "center", padding: "0.65rem", borderRadius: "4px", background: "transparent", border: "1px solid rgba(255,255,255,0.2)", color: "#fff", fontWeight: 700, fontSize: "0.82rem", textDecoration: "none", textTransform: "uppercase", letterSpacing: "0.06em" }}>
                   Enquire Now
                 </a>
               </div>
@@ -134,7 +134,7 @@ export default function AdvertisePage() {
                 ))}
               </ul>
             </div>
-            <a href="mailto:info@xtz.news?subject=Featured Project Listing Enquiry" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.75rem 1.5rem", borderRadius: "4px", background: "#2c7df7", color: "#fff", fontWeight: 700, fontSize: "0.85rem", textDecoration: "none", textTransform: "uppercase", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>
+            <a href="mailto:hello@xtz.news?subject=Featured Project Listing Enquiry" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.75rem 1.5rem", borderRadius: "4px", background: "#2c7df7", color: "#fff", fontWeight: 700, fontSize: "0.85rem", textDecoration: "none", textTransform: "uppercase", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>
               <Star size={14} /> Get Featured
             </a>
           </div>
@@ -147,7 +147,7 @@ export default function AdvertisePage() {
           <p style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.9rem", maxWidth: "500px", margin: "0 auto 1.5rem", lineHeight: 1.7 }}>
             Looking for something bespoke? We work with Tezos projects of all sizes. Get in touch to discuss a custom advertising package.
           </p>
-          <a href="mailto:info@xtz.news?subject=Advertising Enquiry" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.75rem 2rem", borderRadius: "4px", background: "#2c7df7", color: "#fff", fontWeight: 700, fontSize: "0.9rem", textDecoration: "none" }}>
+          <a href="mailto:hello@xtz.news?subject=Advertising Enquiry" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.75rem 2rem", borderRadius: "4px", background: "#2c7df7", color: "#fff", fontWeight: 700, fontSize: "0.9rem", textDecoration: "none" }}>
             <Mail size={15} /> Contact Us
           </a>
         </section>

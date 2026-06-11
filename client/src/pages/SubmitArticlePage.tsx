@@ -267,7 +267,7 @@ export default function SubmitArticlePage() {
             <div style={{ background: "rgba(44,125,247,0.06)", border: "1px solid rgba(44,125,247,0.2)", borderRadius: "8px", padding: "1.5rem" }}>
               <h3 style={{ fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#2c7df7", margin: "0 0 0.75rem" }}>Need Help?</h3>
               <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.6)", margin: "0 0 0.75rem", lineHeight: 1.6 }}>Having trouble with the form? Contact us directly.</p>
-              <a href="mailto:info@xtz.news" style={{ fontSize: "0.85rem", color: "#2c7df7", textDecoration: "none", fontWeight: 700 }}>info@xtz.news</a>
+              <a href="mailto:hello@xtz.news" style={{ fontSize: "0.85rem", color: "#2c7df7", textDecoration: "none", fontWeight: 700 }}>hello@xtz.news</a>
             </div>
             <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "8px", padding: "1.5rem" }}>
               <h3 style={{ fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)", margin: "0 0 0.875rem" }}>Topics We Cover</h3>
