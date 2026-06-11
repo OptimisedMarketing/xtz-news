@@ -470,67 +470,63 @@ export default function ArticlePage() {
         </div>
       </div>
 
-      {/* 1. Full-bleed hero with title overlay */}
-      <div ref={heroRef} style={{ position: "relative", width: "100%", height: "clamp(320px, 55vw, 600px)", overflow: "hidden", background: "#05152e" }}>
-        {post.featuredImageUrl && (
+      {/* 1. Featured image — full-bleed, NO text overlay (avoids covering image content) */}
+      {post.featuredImageUrl && (
+        <div ref={heroRef} style={{ position: "relative", width: "100%", maxHeight: "520px", overflow: "hidden", background: "#05152e" }}>
           <img
             src={post.featuredImageUrl}
             alt={post.featuredImageAlt || post.title}
             fetchPriority="high"
             loading="eager"
             decoding="async"
-            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", opacity: 0, transition: "opacity 0.4s ease", position: "relative", zIndex: 1 }}
+            style={{ width: "100%", height: "auto", maxHeight: "520px", objectFit: "cover", display: "block", opacity: 0, transition: "opacity 0.4s ease" }}
             onLoad={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = "1"; }}
-            onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = "0"; }}
+            onError={(e) => { (e.currentTarget as HTMLElement).parentElement!.style.display = "none"; }}
           />
-        )}
-        {/* Skeleton shimmer while image loads */}
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, #05152e 25%, #0d2a5e 50%, #05152e 75%)", backgroundSize: "200% 100%", animation: "shimmer 1.5s infinite", zIndex: 0 }} />
-        {/* Deep gradient overlay for text legibility */}
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%)", pointerEvents: "none" }} />
-        {/* Hero text overlay */}
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "clamp(1.5rem, 4vw, 3rem)" }}>
-          <div className="container">
-            {/* Breadcrumb in hero */}
-            <nav style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.35rem", marginBottom: "0.75rem", fontSize: "0.75rem", fontWeight: 600 }}>
-              <Link href="/" style={{ color: "rgba(255,255,255,0.6)", display: "flex", alignItems: "center", textDecoration: "none" }}><Home size={12} /></Link>
-              <ChevronRight size={10} style={{ color: "rgba(255,255,255,0.3)" }} />
-              {post.categories?.[0] && (
-                <Link href={`/category/${post.categories[0].slug}`} style={{ color: "#5a9fff", textDecoration: "none", fontWeight: 700, textTransform: "capitalize" }}>{post.categories[0].name}</Link>
-              )}
-            </nav>
-            {/* Category badges */}
-            {post.categories && post.categories.length > 0 && (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", marginBottom: "0.875rem" }}>
-                {post.categories.map((cat) => (
-                  <Link key={cat.id} href={`/category/${cat.slug}`} style={{ fontSize: "0.6rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", padding: "3px 9px", background: "#2c7df7", color: "#fff", borderRadius: "3px", textDecoration: "none" }}>{cat.name}</Link>
-                ))}
-              </div>
+          {/* Skeleton shimmer while image loads */}
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, #05152e 25%, #0d2a5e 50%, #05152e 75%)", backgroundSize: "200% 100%", animation: "shimmer 1.5s infinite", zIndex: -1 }} />
+        </div>
+      )}
+
+      {/* 1b. Title block — always below image, never overlaid */}
+      <div style={{ background: "linear-gradient(180deg, #05152e 0%, #030e1f 100%)", borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "2rem 0 1.75rem" }}>
+        <div className="container">
+          {/* Breadcrumb */}
+          <nav style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.35rem", marginBottom: "0.75rem", fontSize: "0.75rem", fontWeight: 600 }}>
+            <Link href="/" style={{ color: "rgba(255,255,255,0.5)", display: "flex", alignItems: "center", textDecoration: "none" }}><Home size={12} /></Link>
+            <ChevronRight size={10} style={{ color: "rgba(255,255,255,0.25)" }} />
+            {post.categories?.[0] && (
+              <Link href={`/category/${post.categories[0].slug}`} style={{ color: "#5a9fff", textDecoration: "none", fontWeight: 700, textTransform: "capitalize" }}>{post.categories[0].name}</Link>
             )}
-            {/* Title in hero */}
-            <h1 style={{ fontSize: "clamp(1.5rem, 4vw, 2.75rem)", fontWeight: 900, color: "#fff", lineHeight: 1.15, letterSpacing: "-0.02em", margin: "0 0 1rem", maxWidth: "820px", textShadow: "0 2px 12px rgba(0,0,0,0.5)" }}>
-              {post.title}
-            </h1>
-            {/* Meta row in hero */}
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.75rem" }}>
-              {/* Author */}
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <div style={{ width: "28px", height: "28px", borderRadius: "50%", background: "#2c7df7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", fontWeight: 900, color: "#fff", flexShrink: 0 }}>X</div>
-                <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "rgba(255,255,255,0.85)" }}>XTZ News</span>
-              </div>
-              <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.75rem" }}>{formatDate(post.publishedAt)}</span>
-              {/* 7. Read time as pill */}
-              <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", fontSize: "0.68rem", fontWeight: 700, padding: "3px 9px", background: "rgba(255,255,255,0.12)", borderRadius: "20px", color: "rgba(255,255,255,0.8)" }}>
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                {readMins} min read
-              </span>
-              {/* 10. Progress in hero meta */}
-              {readProgress > 0 && (
-                <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", fontSize: "0.68rem", fontWeight: 700, padding: "3px 9px", background: "rgba(44,125,247,0.2)", borderRadius: "20px", color: "#5a9fff" }}>
-                  {readProgress}% read
-                </span>
-              )}
+          </nav>
+          {/* Category badges */}
+          {post.categories && post.categories.length > 0 && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", marginBottom: "1rem" }}>
+              {post.categories.map((cat) => (
+                <Link key={cat.id} href={`/category/${cat.slug}`} style={{ fontSize: "0.6rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", padding: "3px 9px", background: "#2c7df7", color: "#fff", borderRadius: "3px", textDecoration: "none" }}>{cat.name}</Link>
+              ))}
             </div>
+          )}
+          {/* Title — clean, always readable */}
+          <h1 style={{ fontSize: "clamp(1.6rem, 4vw, 2.75rem)", fontWeight: 900, color: "#fff", lineHeight: 1.15, letterSpacing: "-0.02em", margin: "0 0 1.25rem", maxWidth: "820px" }}>
+            {post.title}
+          </h1>
+          {/* Meta row */}
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.75rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <div style={{ width: "28px", height: "28px", borderRadius: "50%", background: "#2c7df7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", fontWeight: 900, color: "#fff", flexShrink: 0 }}>X</div>
+              <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "rgba(255,255,255,0.85)" }}>XTZ News</span>
+            </div>
+            <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.75rem" }}>{formatDate(post.publishedAt)}</span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", fontSize: "0.68rem", fontWeight: 700, padding: "3px 9px", background: "rgba(255,255,255,0.08)", borderRadius: "20px", color: "rgba(255,255,255,0.7)" }}>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              {readMins} min read
+            </span>
+            {readProgress > 0 && (
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", fontSize: "0.68rem", fontWeight: 700, padding: "3px 9px", background: "rgba(44,125,247,0.2)", borderRadius: "20px", color: "#5a9fff" }}>
+                {readProgress}% read
+              </span>
+            )}
           </div>
         </div>
       </div>
