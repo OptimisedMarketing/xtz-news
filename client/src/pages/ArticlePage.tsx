@@ -543,7 +543,7 @@ export default function ArticlePage() {
             {/* Disclaimer */}
             <div style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", padding: "0.75rem 1rem", borderRadius: "6px", marginBottom: "1rem", background: "rgba(44,125,247,0.06)", border: "1px solid rgba(44,125,247,0.15)", fontSize: "0.78rem", color: "rgba(255,255,255,0.5)" }}>
               <span style={{ color: "#5a9fff", fontWeight: 900, flexShrink: 0 }}>ℹ</span>
-              <span>This article is for informational purposes only and does not constitute financial advice. Always do your own research.</span>
+              <span>This article is for informational purposes only and does not constitute financial advice. Always do your own research. <Link href="/disclaimer" style={{ color: "#5a9fff", fontWeight: 700 }}>Full Disclaimer →</Link></span>
             </div>
 
             {/* Donate banner — prominent, below disclaimer */}

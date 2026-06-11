@@ -19,6 +19,7 @@ import SubmitArticlePage from "./pages/SubmitArticlePage";
 import ContactPage from "./pages/ContactPage";
 import AdvertisePage from "./pages/AdvertisePage";
 import SupportPage from "./pages/SupportPage";
+import DisclaimerPage from "./pages/DisclaimerPage";
 import SearchPage from "./pages/SearchPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminPosts from "./pages/admin/AdminPosts";
@@ -81,6 +82,7 @@ function Router() {
       <Route path="/contact" component={ContactPage} />
       <Route path="/advertise" component={AdvertisePage} />
       <Route path="/support" component={SupportPage} />
+      <Route path="/disclaimer" component={DisclaimerPage} />
 
       {/* Admin routes (protected inside components) */}
       <Route path="/admin" component={AdminDashboard} />
