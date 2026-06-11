@@ -377,14 +377,21 @@
   .post-content blockquote::before {
     content: '\201C';
     position: absolute;
-    top: 0.5rem;
-    left: 0.75rem;
-    font-size: 4rem;
-    color: rgba(44,125,247,0.5);
+    top: -0.6rem;
+    left: 0.6rem;
+    font-size: 5rem;
+    color: rgba(44,125,247,0.18);
     font-style: normal;
     line-height: 1;
     font-family: Georgia, serif;
     pointer-events: none;
+    z-index: 0;
+  }
+  /* Ensure blockquote text sits above the decorative quote mark */
+  .post-content blockquote p,
+  .post-content blockquote cite {
+    position: relative;
+    z-index: 1;
   }
   .post-content blockquote p {
     margin: 0 0 0.75rem !important;
