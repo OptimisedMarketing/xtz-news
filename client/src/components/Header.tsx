@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { Search, X, ChevronDown, ExternalLink, Globe } from "lucide-react";
 import { SUPPORTED_LOCALES, LOCALE_FLAGS, LOCALE_NAMES, type SupportedLocale } from "@shared/locales";
+import DonateButton from "@/components/DonateButton";
 
 interface HeaderProps {
   onSearchOpen?: () => void;
@@ -187,8 +188,9 @@ export default function Header({ onSearchOpen }: HeaderProps) {
             ))}
           </nav>
 
-          {/* Desktop: search icon only */}
-          <div className="hidden lg:flex" style={{ alignItems: "center", gap: "0.4rem", marginLeft: "auto" }}>
+          {/* Desktop: donate + search */}
+          <div className="hidden lg:flex" style={{ alignItems: "center", gap: "0.5rem", marginLeft: "auto" }}>
+            <DonateButton variant="header" />
             <button onClick={onSearchOpen} className="dark-mode-toggle" aria-label="Search">
               <Search size={16} />
             </button>

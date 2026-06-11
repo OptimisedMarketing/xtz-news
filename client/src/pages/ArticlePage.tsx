@@ -8,6 +8,8 @@ import PostCard from "@/components/PostCard";
 import AudioPlayer from "@/components/AudioPlayer";
 import { toast } from "sonner";
 import ReadingProgressBar from "@/components/ReadingProgressBar";
+import ArticleContent from "@/components/ArticleContent";
+import DonateButton from "@/components/DonateButton";
 
 /** Injects / updates Open Graph + Twitter Card meta tags in <head> */
 function useOpenGraph(post: {
@@ -542,17 +544,18 @@ export default function ArticlePage() {
             {/* Audio Player */}
             <AudioPlayer src={(post as any).audioUrl || null} title={post.title} postId={post.id} featuredImageUrl={post.featuredImageUrl} slug={post.slug} />
 
-            {/* Disclaimer */}
+            {/* Disclaimer + Donate row */}
             <div style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", padding: "0.75rem 1rem", borderRadius: "6px", marginBottom: "1.75rem", background: "rgba(44,125,247,0.06)", border: "1px solid rgba(44,125,247,0.15)", fontSize: "0.78rem", color: "rgba(255,255,255,0.5)" }}>
               <span style={{ color: "#5a9fff", fontWeight: 900, flexShrink: 0 }}>ℹ</span>
-              <span>This article is for informational purposes only and does not constitute financial advice. Always do your own research.</span>
+              <span style={{ flex: 1 }}>This article is for informational purposes only and does not constitute financial advice. Always do your own research.</span>
+              <DonateButton variant="article" />
             </div>
 
             {/* Article body — reading mode + font size aware */}
-            <div
+            <ArticleContent
+              html={post.content || ""}
               className={`post-content${readingMode === "light" ? " reading-light" : ""}`}
               style={{ transition: "background 0.3s, color 0.3s, font-size 0.2s", fontSize: fontSizeMap[fontSize] }}
-              dangerouslySetInnerHTML={{ __html: post.content || "" }}
             />
 
             {/* Tags */}

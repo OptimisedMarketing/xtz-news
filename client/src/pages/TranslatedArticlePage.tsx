@@ -3,6 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { useSEO } from "@/hooks/useSEO";
 import { LOCALE_NAMES, LOCALE_ENGLISH_NAMES, LOCALE_FLAGS, RTL_LOCALES, SUPPORTED_LOCALES, isValidLocale, type SupportedLocale } from "@shared/locales";
 import { ArrowLeft, Globe, Calendar } from "lucide-react";
+import ArticleContent from "@/components/ArticleContent";
 
 export default function TranslatedArticlePage() {
   const params = useParams<{ locale: string; slug: string }>();
@@ -124,10 +125,10 @@ export default function TranslatedArticlePage() {
         </div>
 
         {/* Content */}
-        <div
+        <ArticleContent
+          html={translation.content}
           className="post-content"
           style={{ textAlign: isRTL ? "right" : "left" }}
-          dangerouslySetInnerHTML={{ __html: translation.content }}
         />
 
         {/* Footer */}
