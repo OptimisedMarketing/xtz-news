@@ -252,16 +252,7 @@
     color: rgba(255,255,255,0.92);
     line-height: 1.75;
   }
-  /* Drop cap on first letter of first paragraph */
-  .post-content p:first-child::first-letter {
-    float: left;
-    font-size: 4.2rem;
-    font-weight: 900;
-    line-height: 0.78;
-    margin: 0.08em 0.12em 0 0;
-    color: #2c7df7;
-    font-family: 'CeraPro', 'Barlow', sans-serif;
-  }
+  /* Drop caps removed */
   .post-content .pull-quote {
     border-left: 5px solid #2c7df7 !important;
     padding: 1.75rem 2rem !important;
