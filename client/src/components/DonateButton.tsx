@@ -162,41 +162,28 @@ export default function DonateButton({ variant = "header" }: DonateButtonProps) 
               </div>
             </div>
 
-            {/* Wallet links */}
-            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-              <a
-                href={`https://wallet.kukai.app/send?to=${WALLET_ADDRESS}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "0.4rem", padding: "0.65rem", background: "#2c7df7", borderRadius: "8px", color: "#fff", textDecoration: "none", fontSize: "0.78rem", fontWeight: 700, transition: "background 0.15s", whiteSpace: "nowrap", minWidth: "120px" }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "#1a6ae0")}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "#2c7df7")}
-              >
-                Send via Kukai
-              </a>
-              <a
-                href={`https://app.templewallet.com/send?to=${WALLET_ADDRESS}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "0.4rem", padding: "0.65rem", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px", color: "rgba(255,255,255,0.8)", textDecoration: "none", fontSize: "0.78rem", fontWeight: 700, transition: "all 0.15s", whiteSpace: "nowrap", minWidth: "120px" }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.12)"; (e.currentTarget as HTMLElement).style.color = "#fff"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)"; (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.8)"; }}
-              >
-                Send via Temple
-              </a>
-              <a
-                href={`https://tzkt.io/${WALLET_ADDRESS}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "0.65rem 0.875rem", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", color: "rgba(255,255,255,0.45)", textDecoration: "none", fontSize: "0.75rem", fontWeight: 700, transition: "all 0.15s", whiteSpace: "nowrap" }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.08)"; (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.8)"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.04)"; (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.45)"; }}
-              >
-                TzKT
-              </a>
-            </div>
+            {/* Actions */}
+            <button
+              onClick={copyAddress}
+              style={{ width: "100%", padding: "0.875rem", background: "#2c7df7", border: "none", borderRadius: "8px", color: "#fff", fontSize: "0.88rem", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", transition: "background 0.15s", fontFamily: "inherit", marginBottom: "0.5rem" }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "#1a6ae0")}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "#2c7df7")}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+              Copy Wallet Address
+            </button>
+            <a
+              href={`https://tzkt.io/${WALLET_ADDRESS}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", padding: "0.65rem", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", color: "rgba(255,255,255,0.5)", textDecoration: "none", fontSize: "0.75rem", fontWeight: 700, transition: "all 0.15s", boxSizing: "border-box" as const }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.08)"; (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.8)"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.04)"; (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.5)"; }}
+            >
+              View wallet on TzKT
+            </a>
             <p style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.3)", textAlign: "center", margin: "0.75rem 0 0", lineHeight: 1.5 }}>
-              Or scan the QR code with any Tezos mobile wallet (Temple, Kukai, Umami)
+              Copy the address above, then paste it into Temple, Kukai, or any Tezos wallet to send XTZ.
             </p>
 
             <style>{`
