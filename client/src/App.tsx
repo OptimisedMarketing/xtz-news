@@ -18,6 +18,7 @@ import WatchPage from "./pages/WatchPage";
 import SubmitArticlePage from "./pages/SubmitArticlePage";
 import ContactPage from "./pages/ContactPage";
 import AdvertisePage from "./pages/AdvertisePage";
+import SupportPage from "./pages/SupportPage";
 import SearchPage from "./pages/SearchPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminPosts from "./pages/admin/AdminPosts";
@@ -79,6 +80,7 @@ function Router() {
       <Route path="/submit-article" component={SubmitArticlePage} />
       <Route path="/contact" component={ContactPage} />
       <Route path="/advertise" component={AdvertisePage} />
+      <Route path="/support" component={SupportPage} />
 
       {/* Admin routes (protected inside components) */}
       <Route path="/admin" component={AdminDashboard} />

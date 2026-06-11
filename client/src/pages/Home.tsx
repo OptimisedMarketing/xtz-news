@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { ChevronLeft, ChevronRight, Share2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import TezosWidgetsStrip from "@/components/TezosWidgetsStrip";
+import RecentDonors from "@/components/RecentDonors";
 import PostCard from "@/components/PostCard";
 import HomepageFilters from "@/components/HomepageFilters";
 import { useSEO } from "@/hooks/useSEO";
@@ -556,6 +557,9 @@ export default function Home() {
       <MostPopularCarousel posts={mostRead} />
       <FeaturedNewsGrid posts={featured} />
       <NewsletterCTABanner />
+      <div className="container" style={{ padding: "0 1.25rem" }}>
+        <RecentDonors />
+      </div>
       <LatestNewsSection posts={latest.slice(0, 8)} weekPosts={(data as any)?.trending ?? mostRead} allTimePosts={mostRead} />
     </div>
   );

@@ -149,6 +149,7 @@ export default function Footer() {
                 { label: "Timeline", href: "/timeline" },
                 { label: "Contact", href: "/contact" },
                 { label: "Advertise", href: "/advertise" },
+                { label: "Support Us", href: "/support" },
                 { label: "Submit Article", href: "/submit-article" },
               ].map((item) => (
                 <Link
