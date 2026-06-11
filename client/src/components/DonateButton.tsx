@@ -1,8 +1,9 @@
 /**
- * DonateButton — XTZ donation button using Beacon SDK.
+ * DonateButton — XTZ donation button using Taquito + BeaconWallet.
  *
- * Connects to Temple, Kukai, AirGap, or any Beacon-compatible wallet
- * and triggers a real XTZ transfer transaction to the XTZ.News wallet.
+ * Uses @taquito/beacon-wallet which wraps the Beacon SDK and works
+ * reliably in Vite/React environments. Connects to Temple, Kukai,
+ * AirGap, or any Beacon-compatible Tezos wallet.
  */
 
 import { useState, useCallback } from "react";
@@ -10,24 +11,30 @@ import { toast } from "sonner";
 
 const WALLET_ADDRESS = "tz1VjHjMkdWdrqbWLswcd6QentEgqexSd27Q";
 const QR_URL = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${WALLET_ADDRESS}&bgcolor=ffffff&color=000000&margin=10`;
-
-// Preset donation amounts in XTZ
 const PRESET_AMOUNTS = [1, 5, 10, 25];
 
 interface DonateButtonProps {
   variant?: "header" | "article";
 }
 
-// Lazy-load Beacon SDK to avoid bundle bloat
-let beaconClientPromise: Promise<any> | null = null;
-async function getBeaconClient() {
-  if (!beaconClientPromise) {
-    beaconClientPromise = (async () => {
-      const { DAppClient } = await import("@airgap/beacon-sdk");
-      return new DAppClient({ name: "XTZ.News" });
-    })();
+// Singleton Taquito instance
+let taquitoInstance: any = null;
+let walletInstance: any = null;
+
+async function getTaquito() {
+  if (!taquitoInstance) {
+    const { TezosToolkit } = await import("@taquito/taquito");
+    const { BeaconWallet } = await import("@taquito/beacon-wallet");
+    const Tezos = new TezosToolkit("https://mainnet.api.tez.ie");
+    const wallet = new BeaconWallet({
+      name: "XTZ.News",
+      network: { type: "mainnet" as any },
+    });
+    Tezos.setWalletProvider(wallet);
+    taquitoInstance = Tezos;
+    walletInstance = wallet;
   }
-  return beaconClientPromise;
+  return { Tezos: taquitoInstance, wallet: walletInstance };
 }
 
 export default function DonateButton({ variant = "header" }: DonateButtonProps) {
@@ -55,38 +62,35 @@ export default function DonateButton({ variant = "header" }: DonateButtonProps) 
 
     try {
       setStatus("connecting");
-      const client = await getBeaconClient();
+      const { Tezos, wallet } = await getTaquito();
 
-      // Request permissions (connects wallet — shows Temple/Kukai picker)
-      const { TezosOperationType } = await import("@airgap/beacon-sdk");
-      
-      let activeAccount = await client.getActiveAccount();
+      // Check if already connected
+      const activeAccount = await wallet.client.getActiveAccount();
       if (!activeAccount) {
-        const permissions = await client.requestPermissions();
-        activeAccount = permissions;
+        // This opens the Beacon wallet picker (Temple, Kukai, etc.)
+        await wallet.requestPermissions({ network: { type: "mainnet" as any } });
       }
 
       setStatus("sending");
 
-      // Convert XTZ to mutez (1 XTZ = 1,000,000 mutez)
-      const mutez = Math.round(xtzAmount * 1_000_000).toString();
+      // Send the XTZ transfer
+      const op = await Tezos.wallet.transfer({
+        to: WALLET_ADDRESS,
+        amount: xtzAmount,
+      }).send();
 
-      const response = await client.requestOperation({
-        operationDetails: [
-          {
-            kind: TezosOperationType.TRANSACTION,
-            destination: WALLET_ADDRESS,
-            amount: mutez,
-          },
-        ],
-      });
-
-      setTxHash(response.transactionHash);
+      setTxHash(op.opHash);
       setStatus("success");
       toast.success("Thank you for your donation! 🎉");
     } catch (err: any) {
       console.error("Donation error:", err);
-      if (err?.message?.includes("cancel") || err?.message?.includes("dismiss") || err?.title?.includes("Aborted")) {
+      const msg = err?.message || err?.title || "";
+      if (
+        msg.toLowerCase().includes("cancel") ||
+        msg.toLowerCase().includes("dismiss") ||
+        msg.toLowerCase().includes("abort") ||
+        msg.toLowerCase().includes("user rejected")
+      ) {
         setStatus("idle");
       } else {
         setStatus("error");
@@ -97,8 +101,11 @@ export default function DonateButton({ variant = "header" }: DonateButtonProps) 
 
   const handleClose = () => {
     setOpen(false);
-    setStatus("idle");
-    setTxHash(null);
+    // Reset status after a short delay so animation completes
+    setTimeout(() => {
+      setStatus("idle");
+      setTxHash(null);
+    }, 300);
   };
 
   return (
@@ -142,7 +149,7 @@ export default function DonateButton({ variant = "header" }: DonateButtonProps) 
         Donate XTZ
       </button>
 
-      {/* Modal overlay */}
+      {/* Modal — rendered at document body level via portal-like fixed positioning */}
       {open && (
         <div
           onClick={handleClose}
@@ -151,7 +158,7 @@ export default function DonateButton({ variant = "header" }: DonateButtonProps) 
             inset: 0,
             background: "rgba(0,0,0,0.75)",
             backdropFilter: "blur(4px)",
-            zIndex: 9999,
+            zIndex: 99999,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -169,6 +176,8 @@ export default function DonateButton({ variant = "header" }: DonateButtonProps) 
               width: "100%",
               boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
               animation: "donatePopIn 0.25s cubic-bezier(0.23,1,0.32,1)",
+              position: "relative",
+              zIndex: 100000,
             }}
           >
             {/* Header */}
@@ -194,7 +203,6 @@ export default function DonateButton({ variant = "header" }: DonateButtonProps) 
             </div>
 
             {status === "success" ? (
-              /* Success state */
               <div style={{ textAlign: "center", padding: "1rem 0" }}>
                 <div style={{ fontSize: "3rem", marginBottom: "0.75rem" }}>🎉</div>
                 <h4 style={{ color: "#4ade80", fontSize: "1.1rem", fontWeight: 900, margin: "0 0 0.5rem" }}>Thank you!</h4>
@@ -264,7 +272,7 @@ export default function DonateButton({ variant = "header" }: DonateButtonProps) 
                   </div>
                 </div>
 
-                {/* Donate via wallet button */}
+                {/* Connect & Donate button */}
                 <button
                   onClick={handleDonate}
                   disabled={status === "connecting" || status === "sending"}
@@ -286,19 +294,24 @@ export default function DonateButton({ variant = "header" }: DonateButtonProps) 
                     fontFamily: "inherit",
                     marginBottom: "0.75rem",
                   }}
-                  onMouseEnter={(e) => { if (status === "idle") (e.currentTarget as HTMLElement).style.background = "#1a6ae0"; }}
-                  onMouseLeave={(e) => { if (status === "idle") (e.currentTarget as HTMLElement).style.background = "#2c7df7"; }}
+                  onMouseEnter={(e) => { if (status === "idle" || status === "error") (e.currentTarget as HTMLElement).style.background = "#1a6ae0"; }}
+                  onMouseLeave={(e) => { if (status === "idle" || status === "error") (e.currentTarget as HTMLElement).style.background = "#2c7df7"; }}
                 >
-                  {status === "connecting" && "Connecting wallet…"}
-                  {status === "sending" && "Confirm in wallet…"}
-                  {status === "idle" && <>
-                    <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor">
-                      <path d="M16 2L2 9.5v13L16 30l14-7.5v-13L16 2zm0 3.09l10.5 5.63v11.56L16 27.91 5.5 22.28V10.72L16 5.09z"/>
-                      <path d="M13 10v12h2v-5h4a3 3 0 000-6h-4V9h-2v1zm2 2h4a1 1 0 010 2h-4v-2z"/>
-                    </svg>
-                    Connect Wallet &amp; Donate {amount} XTZ
-                  </>}
-                  {status === "error" && "Try Again"}
+                  {status === "connecting" && (
+                    <><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ animation: "donateSpin 0.8s linear infinite" }}><circle cx="12" cy="12" r="10" strokeOpacity="0.3"/><path d="M12 2a10 10 0 0 1 10 10"/></svg> Connecting wallet…</>
+                  )}
+                  {status === "sending" && (
+                    <><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ animation: "donateSpin 0.8s linear infinite" }}><circle cx="12" cy="12" r="10" strokeOpacity="0.3"/><path d="M12 2a10 10 0 0 1 10 10"/></svg> Confirm in wallet…</>
+                  )}
+                  {(status === "idle" || status === "error") && (
+                    <>
+                      <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor">
+                        <path d="M16 2L2 9.5v13L16 30l14-7.5v-13L16 2zm0 3.09l10.5 5.63v11.56L16 27.91 5.5 22.28V10.72L16 5.09z"/>
+                        <path d="M13 10v12h2v-5h4a3 3 0 000-6h-4V9h-2v1zm2 2h4a1 1 0 010 2h-4v-2z"/>
+                      </svg>
+                      {status === "error" ? "Try Again" : `Connect Wallet & Donate ${amount} XTZ`}
+                    </>
+                  )}
                 </button>
 
                 {/* Divider */}
@@ -335,6 +348,9 @@ export default function DonateButton({ variant = "header" }: DonateButtonProps) 
               @keyframes donatePopIn {
                 from { transform: scale(0.92) translateY(8px); opacity: 0; }
                 to { transform: scale(1) translateY(0); opacity: 1; }
+              }
+              @keyframes donateSpin {
+                to { transform: rotate(360deg); }
               }
             `}</style>
           </div>

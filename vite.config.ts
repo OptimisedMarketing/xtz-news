@@ -164,9 +164,26 @@ export default defineConfig({
   envDir: path.resolve(import.meta.dirname),
   root: path.resolve(import.meta.dirname, "client"),
   publicDir: path.resolve(import.meta.dirname, "client", "public"),
+  optimizeDeps: {
+    include: ["@taquito/taquito", "@taquito/beacon-wallet"],
+    esbuildOptions: {
+      target: "es2020",
+    },
+  },
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      external: [
+        "@airgap/beacon-transport-walletconnect",
+        "@airgap/beacon-types",
+        "@airgap/beacon-utils",
+        "@airgap/beacon-wallet",
+        "@airgap/beacon-core",
+        "@airgap/beacon-transport-matrix",
+        "@airgap/beacon-transport-postmessage",
+      ],
+    },
   },
   server: {
     host: true,
