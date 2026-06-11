@@ -162,27 +162,42 @@ export default function DonateButton({ variant = "header" }: DonateButtonProps) 
               </div>
             </div>
 
-            {/* Open in wallet links */}
-            <div style={{ display: "flex", gap: "0.5rem" }}>
+            {/* Wallet links */}
+            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
               <a
-                href={`tezos:${WALLET_ADDRESS}`}
-                style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "0.35rem", padding: "0.65rem", background: "#2c7df7", borderRadius: "8px", color: "#fff", textDecoration: "none", fontSize: "0.78rem", fontWeight: 700, transition: "background 0.15s" }}
+                href={`https://wallet.kukai.app/send?to=${WALLET_ADDRESS}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "0.4rem", padding: "0.65rem", background: "#2c7df7", borderRadius: "8px", color: "#fff", textDecoration: "none", fontSize: "0.78rem", fontWeight: 700, transition: "background 0.15s", whiteSpace: "nowrap", minWidth: "120px" }}
                 onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "#1a6ae0")}
                 onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "#2c7df7")}
               >
-                Open in Wallet
+                Send via Kukai
+              </a>
+              <a
+                href={`https://app.templewallet.com/send?to=${WALLET_ADDRESS}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "0.4rem", padding: "0.65rem", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px", color: "rgba(255,255,255,0.8)", textDecoration: "none", fontSize: "0.78rem", fontWeight: 700, transition: "all 0.15s", whiteSpace: "nowrap", minWidth: "120px" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.12)"; (e.currentTarget as HTMLElement).style.color = "#fff"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)"; (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.8)"; }}
+              >
+                Send via Temple
               </a>
               <a
                 href={`https://tzkt.io/${WALLET_ADDRESS}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.35rem", padding: "0.65rem 1rem", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "8px", color: "rgba(255,255,255,0.6)", textDecoration: "none", fontSize: "0.78rem", fontWeight: 700, transition: "all 0.15s", whiteSpace: "nowrap" }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.1)"; (e.currentTarget as HTMLElement).style.color = "#fff"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.05)"; (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.6)"; }}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "0.65rem 0.875rem", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", color: "rgba(255,255,255,0.45)", textDecoration: "none", fontSize: "0.75rem", fontWeight: 700, transition: "all 0.15s", whiteSpace: "nowrap" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.08)"; (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.8)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.04)"; (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.45)"; }}
               >
-                View on TzKT
+                TzKT
               </a>
             </div>
+            <p style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.3)", textAlign: "center", margin: "0.75rem 0 0", lineHeight: 1.5 }}>
+              Or scan the QR code with any Tezos mobile wallet (Temple, Kukai, Umami)
+            </p>
 
             <style>{`
               @keyframes donatePopIn {
