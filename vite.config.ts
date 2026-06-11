@@ -5,6 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { defineConfig, type Plugin, type ViteDevServer } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
+import { nodePolyfills } from "vite-plugin-node-polyfills";
 
 // =============================================================================
 // Manus Debug Collector - Vite Plugin
@@ -150,7 +151,21 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
+const plugins = [
+  react(),
+  tailwindcss(),
+  jsxLocPlugin(),
+  vitePluginManusRuntime(),
+  vitePluginManusDebugCollector(),
+  nodePolyfills({
+    include: ["buffer", "crypto", "stream", "util", "process", "events", "string_decoder", "path"],
+    globals: {
+      Buffer: true,
+      global: true,
+      process: true,
+    },
+  }),
+];
 
 export default defineConfig({
   plugins,
@@ -173,17 +188,7 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
-    rollupOptions: {
-      external: [
-        "@airgap/beacon-transport-walletconnect",
-        "@airgap/beacon-types",
-        "@airgap/beacon-utils",
-        "@airgap/beacon-wallet",
-        "@airgap/beacon-core",
-        "@airgap/beacon-transport-matrix",
-        "@airgap/beacon-transport-postmessage",
-      ],
-    },
+
   },
   server: {
     host: true,

@@ -25,7 +25,8 @@ async function getTaquito() {
   if (!taquitoInstance) {
     const { TezosToolkit } = await import("@taquito/taquito");
     const { BeaconWallet } = await import("@taquito/beacon-wallet");
-    const Tezos = new TezosToolkit("https://mainnet.api.tez.ie");
+    // Use multiple reliable public Tezos mainnet RPC nodes
+    const Tezos = new TezosToolkit("https://rpc.tzbeta.net");
     const wallet = new BeaconWallet({
       name: "XTZ.News",
       network: { type: "mainnet" as any },
@@ -84,17 +85,25 @@ export default function DonateButton({ variant = "header" }: DonateButtonProps) 
       toast.success("Thank you for your donation! 🎉");
     } catch (err: any) {
       console.error("Donation error:", err);
-      const msg = err?.message || err?.title || "";
+      const msg = (err?.message || err?.title || err?.description || JSON.stringify(err) || "").toLowerCase();
       if (
-        msg.toLowerCase().includes("cancel") ||
-        msg.toLowerCase().includes("dismiss") ||
-        msg.toLowerCase().includes("abort") ||
-        msg.toLowerCase().includes("user rejected")
+        msg.includes("cancel") ||
+        msg.includes("dismiss") ||
+        msg.includes("abort") ||
+        msg.includes("user rejected") ||
+        msg.includes("not granted")
       ) {
+        // User cancelled — reset silently
         setStatus("idle");
+      } else if (msg.includes("not connected") || msg.includes("no active account")) {
+        setStatus("idle");
+        toast.error("Please connect your wallet first.");
       } else {
         setStatus("error");
-        toast.error("Transaction failed. Please try again.");
+        // Show the actual error for debugging
+        const displayMsg = err?.message || err?.title || "Unknown error";
+        toast.error(`Error: ${displayMsg.substring(0, 120)}`);
+        console.error("Full error:", JSON.stringify(err, null, 2));
       }
     }
   }, [amount]);
