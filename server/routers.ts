@@ -734,7 +734,7 @@ async function generateElevenLabsAudio(text: string, apiKey: string): Promise<Bu
     const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${GEORGE_VOICE_ID}`, {
       method: 'POST',
       headers: { 'xi-api-key': apiKey, 'Content-Type': 'application/json', 'Accept': 'audio/mpeg' },
-      body: JSON.stringify({ text: chunk, model_id: 'eleven_turbo_v2_5', voice_settings: { stability: 0.5, similarity_boost: 0.75, style: 0.3, use_speaker_boost: true } }),
+      body: JSON.stringify({ text: chunk, model_id: 'eleven_flash_v2_5', voice_settings: { stability: 0.5, similarity_boost: 0.75, style: 0.3, use_speaker_boost: true } }),
       signal: AbortSignal.timeout(60000),
     });
     if (!res.ok) throw new Error(`ElevenLabs error: ${res.status}`);
