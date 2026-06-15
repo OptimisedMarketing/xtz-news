@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Play, Pause, Volume2, VolumeX, Headphones, Download, Loader2, Video } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, Headphones, Download, Loader2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
@@ -18,7 +18,6 @@ function formatTime(seconds: number) {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
-const AUDIO_VIDEO_ENDPOINT = '/api/audio-to-video';
 
 export default function AudioPlayer({ src: initialSrc, title, postId, featuredImageUrl, slug }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -32,7 +31,6 @@ export default function AudioPlayer({ src: initialSrc, title, postId, featuredIm
   const [generating, setGenerating] = useState(false);
   const [audioSrc, setAudioSrc] = useState<string | null>(initialSrc || null);
   const [hasTriedGenerate, setHasTriedGenerate] = useState(false);
-  const [downloadingMp4, setDownloadingMp4] = useState(false);
 
   const generateAudio = trpc.audio.getOrGenerate.useMutation({
     onSuccess: (data) => {
@@ -144,42 +142,6 @@ export default function AudioPlayer({ src: initialSrc, title, postId, featuredIm
     toast.success("Downloading MP3...");
   };
 
-  const handleDownloadMp4 = async () => {
-    if (!audioSrc) {
-      toast.error("Generate the audio first by pressing play.");
-      return;
-    }
-    setDownloadingMp4(true);
-    toast.info("Converting to MP4 for X/Twitter... this may take 30-60 seconds.");
-    try {
-      const res = await fetch(AUDIO_VIDEO_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          audioUrl: audioSrc,
-          imageUrl: featuredImageUrl || null,
-          title: title || 'XTZ.News Article',
-          slug: slug || 'xtz-news-article',
-        }),
-      });
-      if (!res.ok) throw new Error(`Conversion failed: ${res.status}`);
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${(slug || 'xtz-news-article')}-george-elevenlabs.mp4`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      toast.success('MP4 downloaded! Ready to post on X/Twitter.');
-    } catch (err) {
-      toast.error('MP4 conversion failed. Try downloading the MP3 instead.');
-      console.error('MP4 error:', err);
-    } finally {
-      setDownloadingMp4(false);
-    }
-  };
 
   const isLoading = audioLoading || generating;
   const hasAudio = !!audioSrc;
@@ -221,17 +183,7 @@ export default function AudioPlayer({ src: initialSrc, title, postId, featuredIm
             <Download size={11} />
             <span>MP3</span>
           </button>
-          <button
-            onClick={handleDownloadMp4}
-            disabled={downloadingMp4}
-            title={hasAudio ? "Download MP4 for X/Twitter" : "Generate audio first"}
-            style={{ background: "none", border: "none", cursor: hasAudio && !downloadingMp4 ? "pointer" : "default", color: hasAudio ? "rgba(255,165,0,0.7)" : "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", gap: "0.25rem", padding: "2px 6px", borderRadius: "3px", fontSize: "0.62rem", fontWeight: 600, transition: "all 0.15s" }}
-            onMouseEnter={(e) => { if (hasAudio) (e.currentTarget as HTMLElement).style.color = "#ffa500"; }}
-            onMouseLeave={(e) => { if (hasAudio) (e.currentTarget as HTMLElement).style.color = "rgba(255,165,0,0.7)"; }}
-          >
-            {downloadingMp4 ? <Loader2 size={11} style={{ animation: "spin 0.8s linear infinite" }} /> : <Video size={11} />}
-            <span>{downloadingMp4 ? '...' : 'MP4 𝕏'}</span>
-          </button>
+
         </div>
       </div>
 
