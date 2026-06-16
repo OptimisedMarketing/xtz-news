@@ -326,9 +326,12 @@ ${items}
 
       const today = new Date().toISOString().split("T")[0];
 
+      const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+      const recentPosts = allPosts.filter(p => p.publishedAt && new Date(p.publishedAt) >= twoDaysAgo);
+
       const lines: string[] = [
         '<?xml version="1.0" encoding="UTF-8"?>',
-        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"\n        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">',
       ];
 
       // Static pages
@@ -352,11 +355,15 @@ ${items}
         );
       }
 
-      // Article pages
+      // Article pages — recent ones get Google News tags
       for (const post of allPosts) {
         const lastmod = formatDate(post.updatedAt || post.publishedAt);
+        const isRecent = post.publishedAt && new Date(post.publishedAt) >= twoDaysAgo;
+        const newsTag = isRecent
+          ? `\n    <news:news>\n      <news:publication>\n        <news:name>XTZ.News</news:name>\n        <news:language>en</news:language>\n      </news:publication>\n      <news:publication_date>${new Date(post.publishedAt!).toISOString()}</news:publication_date>\n    </news:news>`
+          : '';
         lines.push(
-          `  <url>\n    <loc>${baseUrl}/${post.slug}</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n    <lastmod>${lastmod}</lastmod>\n  </url>`
+          `  <url>\n    <loc>${baseUrl}/${post.slug}</loc>${newsTag}\n    <changefreq>monthly</changefreq>\n    <priority>${isRecent ? '0.9' : '0.8'}</priority>\n    <lastmod>${lastmod}</lastmod>\n  </url>`
         );
       }
 
@@ -445,6 +452,13 @@ ${items}
       "Disallow: /admin",
       "Disallow: /api/",
     ].join("\n"));
+  });
+
+  // ─── IndexNow key verification file ───────────────────────────────────────────
+  app.get("/xtz-news-indexnow-2026.txt", (req, res) => {
+    res.set("Content-Type", "text/plain");
+    res.set("Cache-Control", "public, max-age=86400");
+    res.send("xtz-news-indexnow-2026");
   });
 
   // ─── Weekly Newsletter Digest ──────────────────────────────────────────────────
