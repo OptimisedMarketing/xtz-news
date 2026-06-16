@@ -91,7 +91,7 @@ function useOpenGraph(post: {
     }
     canonical.setAttribute("href", url);
 
-    // Schema.org NewsArticle JSON-LD structured data
+    // Schema.org NewsArticle + BreadcrumbList JSON-LD structured data
     const schemaId = 'schema-newsarticle';
     let schemaEl = document.getElementById(schemaId) as HTMLScriptElement | null;
     if (!schemaEl) {
@@ -100,37 +100,47 @@ function useOpenGraph(post: {
       schemaEl.type = 'application/ld+json';
       document.head.appendChild(schemaEl);
     }
-    const schema = {
-      '@context': 'https://schema.org',
-      '@type': 'NewsArticle',
-      'headline': post.title,
-      'description': description,
-      'image': [image],
-      'url': url,
-      'datePublished': post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined,
-      'dateModified': post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined,
-      'author': [{
-        '@type': 'Organization',
-        'name': 'XTZ.News',
-        'url': 'https://xtz.news'
-      }],
-      'publisher': {
-        '@type': 'Organization',
-        'name': 'XTZ.News',
-        'url': 'https://xtz.news',
-        'logo': {
-          '@type': 'ImageObject',
-          'url': 'https://xtz.news/manus-storage/xtz-logo-square_c6689606.png'
-        }
+    const publishedIso = post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined;
+    const category = post.categories?.[0]?.name || 'Tezos News';
+    const catSlug = (post.categories?.[0] as any)?.slug || 'latest-news';
+    const keywords = post.categories?.map((c: { name: string }) => c.name).join(', ') || 'Tezos, XTZ, blockchain';
+    const schemas = [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'NewsArticle',
+        'headline': post.title,
+        'description': description,
+        'image': [{ '@type': 'ImageObject', 'url': image, 'width': 1200, 'height': 630 }],
+        'url': url,
+        'datePublished': publishedIso,
+        'dateModified': publishedIso,
+        'inLanguage': 'en-GB',
+        'isAccessibleForFree': true,
+        'keywords': keywords,
+        'author': [{ '@type': 'Organization', 'name': 'XTZ.News', 'url': 'https://xtz.news', 'sameAs': ['https://twitter.com/XTZNews'] }],
+        'publisher': {
+          '@type': 'Organization',
+          'name': 'XTZ.News',
+          'url': 'https://xtz.news',
+          'logo': { '@type': 'ImageObject', 'url': 'https://xtz.news/manus-storage/xtz-logo-square_c6689606.png', 'width': 512, 'height': 512 },
+          'sameAs': ['https://twitter.com/XTZNews', 'https://www.facebook.com/xtz.news', 'https://www.linkedin.com/company/xtz-news'],
+        },
+        'mainEntityOfPage': { '@type': 'WebPage', '@id': url },
+        'articleSection': category,
+        'thumbnailUrl': image,
+        'copyrightYear': publishedIso ? new Date(publishedIso).getFullYear() : new Date().getFullYear(),
       },
-      'mainEntityOfPage': {
-        '@type': 'WebPage',
-        '@id': url
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        'itemListElement': [
+          { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://xtz.news' },
+          { '@type': 'ListItem', 'position': 2, 'name': category, 'item': `https://xtz.news/category/${catSlug}` },
+          { '@type': 'ListItem', 'position': 3, 'name': post.title, 'item': url },
+        ],
       },
-      'articleSection': post.categories?.[0]?.name || 'Tezos News',
-      'keywords': post.categories?.map((c: { name: string }) => c.name).join(', ') || 'Tezos, XTZ, blockchain'
-    };
-    schemaEl.textContent = JSON.stringify(schema);
+    ];
+    schemaEl.textContent = JSON.stringify(schemas);
 
     // Reset title when leaving the page
     return () => {
