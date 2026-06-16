@@ -472,14 +472,14 @@ export default function ArticlePage() {
 
       {/* 1. Featured image — full-bleed, NO text overlay (avoids covering image content) */}
       {post.featuredImageUrl && (
-        <div ref={heroRef} style={{ position: "relative", width: "100%", maxHeight: "520px", overflow: "hidden", background: "#05152e" }}>
+        <div ref={heroRef} style={{ position: "relative", width: "100%", background: "#05152e", textAlign: "center" }}>
           <img
             src={post.featuredImageUrl}
             alt={post.featuredImageAlt || post.title}
             fetchPriority="high"
             loading="eager"
             decoding="async"
-            style={{ width: "100%", height: "auto", maxHeight: "520px", objectFit: "cover", display: "block", opacity: 0, transition: "opacity 0.4s ease" }}
+            style={{ width: "100%", maxWidth: "900px", height: "auto", display: "block", margin: "0 auto", opacity: 0, transition: "opacity 0.4s ease" }}
             onLoad={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = "1"; }}
             onError={(e) => { (e.currentTarget as HTMLElement).parentElement!.style.display = "none"; }}
           />
