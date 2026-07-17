@@ -294,14 +294,14 @@ ${items}
         { url: "/tools/defi", priority: "0.8", changefreq: "daily" },
       ];
 
-      let allPosts: { slug: string; publishedAt: Date | null; updatedAt: Date | null }[] = [];
+      let allPosts: { slug: string; title: string; publishedAt: Date | null; updatedAt: Date | null }[] = [];
       let allCats: { slug: string }[] = [];
       let allTagsList: { slug: string }[] = [];
       let allTranslations: { locale: string; slug: string; translatedAt: Date }[] = [];
 
       if (db) {
         allPosts = await db
-          .select({ slug: posts.slug, publishedAt: posts.publishedAt, updatedAt: posts.updatedAt })
+          .select({ slug: posts.slug, title: posts.title, publishedAt: posts.publishedAt, updatedAt: posts.updatedAt })
           .from(posts)
           .where(eq(posts.status, "publish"))
           .orderBy(desc(posts.publishedAt))
@@ -360,7 +360,7 @@ ${items}
         const lastmod = formatDate(post.updatedAt || post.publishedAt);
         const isRecent = post.publishedAt && new Date(post.publishedAt) >= twoDaysAgo;
         const newsTag = isRecent
-          ? `\n    <news:news>\n      <news:publication>\n        <news:name>XTZ.News</news:name>\n        <news:language>en</news:language>\n      </news:publication>\n      <news:publication_date>${new Date(post.publishedAt!).toISOString()}</news:publication_date>\n    </news:news>`
+          ? `\n    <news:news>\n      <news:publication>\n        <news:name>XTZ.News</news:name>\n        <news:language>en</news:language>\n      </news:publication>\n      <news:publication_date>${new Date(post.publishedAt!).toISOString()}</news:publication_date>\n      <news:title>${post.title.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')}</news:title>\n    </news:news>`
           : '';
         lines.push(
           `  <url>\n    <loc>${baseUrl}/${post.slug}</loc>${newsTag}\n    <changefreq>monthly</changefreq>\n    <priority>${isRecent ? '0.9' : '0.8'}</priority>\n    <lastmod>${lastmod}</lastmod>\n  </url>`
