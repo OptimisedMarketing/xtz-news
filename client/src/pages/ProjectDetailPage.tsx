@@ -189,7 +189,7 @@ function RelatedNews({ projectName }: { projectName: string }) {
               {post.featuredImageUrl && (
                 <img
                   src={post.featuredImageUrl}
-                  alt=""
+                  alt={post.title}
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
                 />

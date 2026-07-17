@@ -633,7 +633,7 @@ export default function ArticlePage() {
                     }}>
                     {p.featuredImageUrl && (
                       <div style={{ width: "52px", height: "52px", borderRadius: "4px", overflow: "hidden", flexShrink: 0, border: "2px solid transparent", transition: "border-color 0.2s" }}>
-                        <img src={p.featuredImageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.3s ease" }} onError={(e) => { (e.currentTarget as HTMLImageElement).parentElement!.style.display = "none"; }} />
+                        <img src={p.featuredImageUrl} alt={p.title} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.3s ease" }} onError={(e) => { (e.currentTarget as HTMLImageElement).parentElement!.style.display = "none"; }} />
                       </div>
                     )}
                     <div style={{ minWidth: 0 }}>
@@ -732,7 +732,7 @@ export default function ArticlePage() {
                       {p.featuredImageUrl && (
                         <img
                           src={p.featuredImageUrl}
-                          alt=""
+                          alt={p.title}
                           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
                           onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
                         />
