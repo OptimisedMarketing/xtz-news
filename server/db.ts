@@ -79,6 +79,23 @@ export async function getMostReadPosts(limit = 10) {
     .limit(limit);
 }
 
+export async function getTrendingPosts(limit = 8) {
+  const db = await getDb();
+  if (!db) return [];
+  const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
+  const results = await db
+    .select()
+    .from(posts)
+    .where(and(eq(posts.status, "publish"), sql`${posts.publishedAt} >= ${fortyEightHoursAgo}`))
+    .orderBy(desc(posts.publishedAt))
+    .limit(limit);
+  // Fall back to latest 8 posts if fewer than 3 in last 48h
+  if (results.length < 3) {
+    return getLatestPosts(limit);
+  }
+  return results;
+}
+
 export async function getMostReadThisWeek(limit = 10) {
   const db = await getDb();
   if (!db) return [];

@@ -10,6 +10,7 @@ import ReadingProgressBar from "@/components/ReadingProgressBar";
 import ArticleContent from "@/components/ArticleContent";
 import DonateButton from "@/components/DonateButton";
 import AudioPlayer from "@/components/AudioPlayer";
+import KeyTakeaways from "@/components/KeyTakeaways";
 
 /** Injects / updates Open Graph + Twitter Card meta tags in <head> */
 function useOpenGraph(post: {
@@ -551,6 +552,9 @@ export default function ArticlePage() {
             {(post as any).audioUrl && (
               <AudioPlayer src={(post as any).audioUrl} title={post.title} postId={post.id} featuredImageUrl={post.featuredImageUrl} slug={post.slug} />
             )}
+
+            {/* Key Takeaways — shown when available, improves readability & AI search */}
+            <KeyTakeaways takeaways={(post as any).keyTakeaways} />
 
             {/* Disclaimer */}
             <div style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", padding: "0.75rem 1rem", borderRadius: "6px", marginBottom: "1rem", background: "rgba(44,125,247,0.06)", border: "1px solid rgba(44,125,247,0.15)", fontSize: "0.78rem", color: "rgba(255,255,255,0.5)" }}>

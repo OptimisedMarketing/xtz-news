@@ -82,6 +82,7 @@ export const posts = mysqlTable(
     seoTitle: varchar("seoTitle", { length: 255 }),
   seoDescription: text("seoDescription"),
   audioUrl: varchar("audioUrl", { length: 500 }),
+  keyTakeaways: text("keyTakeaways"),
   },
   (t) => [
     uniqueIndex("posts_slug_idx").on(t.slug),

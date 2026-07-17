@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight, Share2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import TezosWidgetsStrip from "@/components/TezosWidgetsStrip";
 import RecentDonors from "@/components/RecentDonors";
+import TrendingNewsWidget from "@/components/TrendingNewsWidget";
 import PostCard from "@/components/PostCard";
 import HomepageFilters from "@/components/HomepageFilters";
 import { useSEO } from "@/hooks/useSEO";
@@ -558,7 +559,10 @@ export default function Home() {
       <FeaturedNewsGrid posts={featured} />
       <NewsletterCTABanner />
       <div className="container" style={{ padding: "0 1.25rem" }}>
-        <RecentDonors />
+        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1.5rem" }}>
+          <TrendingNewsWidget />
+          <RecentDonors />
+        </div>
       </div>
       <LatestNewsSection posts={latest.slice(0, 8)} weekPosts={(data as any)?.trending ?? mostRead} allTimePosts={mostRead} />
     </div>
