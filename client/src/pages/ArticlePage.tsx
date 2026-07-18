@@ -11,6 +11,7 @@ import ArticleContent from "@/components/ArticleContent";
 import DonateButton from "@/components/DonateButton";
 import AudioPlayer from "@/components/AudioPlayer";
 import KeyTakeaways from "@/components/KeyTakeaways";
+import { LOCALE_FLAGS, LOCALE_NAMES, type SupportedLocale } from "@shared/locales";
 
 /** Injects / updates Open Graph + Twitter Card meta tags in <head> */
 function useOpenGraph(post: {
@@ -589,6 +590,50 @@ export default function ArticlePage() {
                     #{tag.name}
                   </Link>
                 ))}
+              </div>
+            )}
+
+            {/* Translation options — shown when translations are available */}
+            {availableTranslations.length > 0 && (
+              <div style={{ marginTop: "2rem", padding: "1rem 1.25rem", background: "rgba(44,125,247,0.06)", border: "1px solid rgba(44,125,247,0.15)", borderRadius: "8px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.75rem" }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(44,125,247,0.8)" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                  <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Read this article in</span>
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+                  {availableTranslations.map((t: { locale: string; slug: string; title: string }) => (
+                    <Link
+                      key={t.locale}
+                      href={`/${t.locale}/${t.slug}`}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.3rem",
+                        fontSize: "0.72rem",
+                        fontWeight: 600,
+                        color: "rgba(255,255,255,0.6)",
+                        background: "rgba(255,255,255,0.06)",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        borderRadius: "20px",
+                        padding: "0.3rem 0.75rem",
+                        textDecoration: "none",
+                        transition: "all 0.15s",
+                      }}
+                      onMouseEnter={(e) => {
+                        (e.currentTarget as HTMLElement).style.color = "#fff";
+                        (e.currentTarget as HTMLElement).style.borderColor = "rgba(44,125,247,0.4)";
+                        (e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.12)";
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.6)";
+                        (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.1)";
+                        (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)";
+                      }}
+                    >
+                      {LOCALE_FLAGS[t.locale as SupportedLocale]} {LOCALE_NAMES[t.locale as SupportedLocale]}
+                    </Link>
+                  ))}
+                </div>
               </div>
             )}
 

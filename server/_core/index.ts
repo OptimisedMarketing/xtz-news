@@ -85,7 +85,10 @@ async function startServer() {
     'search', 'prices', 'manus-storage', '__manus__', 'img', 'sitemap.xml',
     'robots.txt', 'favicon.ico'
   ]);
-  const LANG_PREFIXES = new Set(['en', 'fr', 'de', 'es', 'it', 'ja', 'ko', 'zh', 'uk', 'hi']);
+  // TRANSLATION_LOCALES: these are valid i18n routes — do NOT redirect them
+  const TRANSLATION_LOCALES = new Set(['zh', 'ko', 'ja', 'de', 'es', 'fr', 'pt', 'ru', 'ar', 'tr']);
+  // LANG_PREFIXES: legacy language prefixes that should be stripped (not translation routes)
+  const LANG_PREFIXES = new Set(['en', 'it', 'uk', 'hi']);
 
   app.use(async (req, res, next) => {
     if (req.path.startsWith('/api/') || req.path.startsWith('/manus-storage/')) {
@@ -96,7 +99,13 @@ async function startServer() {
     let cleanPath = req.path.endsWith('/') && req.path !== '/' ? req.path.slice(0, -1) : req.path;
     const parts = cleanPath.split('/').filter(Boolean);
 
-    // Language prefix: /en/... → /... or /fr/... → /
+    // Skip translation locale routes — these are valid i18n pages
+    if (parts.length >= 1 && TRANSLATION_LOCALES.has(parts[0])) {
+      if (req.path !== cleanPath) return res.redirect(301, cleanPath);
+      return next();
+    }
+
+    // Language prefix: /en/... → /... (strip legacy lang prefixes)
     if (parts.length >= 1 && LANG_PREFIXES.has(parts[0])) {
       if (parts[0] === 'en' && parts.length >= 2) {
         return res.redirect(301, '/' + parts.slice(1).join('/'));
