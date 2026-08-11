@@ -2,9 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import { ChevronLeft, ChevronRight, Share2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-import TezosWidgetsStrip from "@/components/TezosWidgetsStrip";
-import RecentDonors from "@/components/RecentDonors";
-import TrendingNewsWidget from "@/components/TrendingNewsWidget";
 import PostCard from "@/components/PostCard";
 import HomepageFilters from "@/components/HomepageFilters";
 import { useSEO } from "@/hooks/useSEO";
@@ -551,20 +548,11 @@ export default function Home() {
         Tezos News — Latest XTZ Blockchain Updates, DeFi, NFTs &amp; Ecosystem
       </h1>
       {isLoading ? <HeroSkeleton /> : <HeroSection latestPosts={latest} mostReadPosts={mostRead} />}
-      <NewsTicker posts={latest.slice(0, 10)} />
-      <NftSalesTicker />
-      <TezosWidgetsStrip />
       <HomepageFilters />
-      <MostPopularCarousel posts={mostRead} />
-      <FeaturedNewsGrid posts={featured} />
-      <NewsletterCTABanner />
-      <div className="container" style={{ padding: "0 1.25rem" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1.5rem" }}>
-          <TrendingNewsWidget />
-          <RecentDonors />
-        </div>
-      </div>
       <LatestNewsSection posts={latest.slice(0, 8)} weekPosts={(data as any)?.trending ?? mostRead} allTimePosts={mostRead} />
+      <FeaturedNewsGrid posts={featured} />
+      <MostPopularCarousel posts={mostRead} />
+      <NewsletterCTABanner />
     </div>
   );
 }

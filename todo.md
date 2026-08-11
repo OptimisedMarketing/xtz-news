@@ -76,3 +76,14 @@
 
 ## Phase 12: Reader Usability Audit
 - [x] Assess key reader journeys and prioritise the ten highest-impact usability improvements
+
+## Phase 13: Reader Experience Improvements
+- [x] Repair translated article routes and translated page metadata
+- [x] Simplify homepage hierarchy so editorial content leads the experience
+- [x] Add prominent global search with keyboard access and instant results
+- [x] Simplify the mobile navigation menu and improve tap-target hierarchy
+- [x] Shorten Key Takeaways into scan-friendly reader summaries
+- [x] Consolidate article reading utilities into a calmer reading-controls surface
+- [x] Add focused Vitest coverage and validate desktop and mobile reader journeys
+- [x] Render correct project titles in global search and verify project-result matches
+- [x] Validate the simplified mobile navigation and mobile article/search journeys at a mobile viewport

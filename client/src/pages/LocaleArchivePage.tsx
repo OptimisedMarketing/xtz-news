@@ -1,12 +1,14 @@
-import { useParams, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useSEO } from "@/hooks/useSEO";
+import { getLocaleFromPath } from "@/lib/readerUtils";
 import { LOCALE_NAMES, LOCALE_ENGLISH_NAMES, LOCALE_FLAGS, SUPPORTED_LOCALES, isValidLocale, type SupportedLocale } from "@shared/locales";
 import { Globe } from "lucide-react";
+import { Link, useLocation } from "wouter";
 
 export default function LocaleArchivePage() {
-  const params = useParams<{ locale: string }>();
-  const locale = params.locale as SupportedLocale;
+  const [location] = useLocation();
+  // See TranslatedArticlePage: these routes use literal locale prefixes.
+  const locale = getLocaleFromPath(location) as SupportedLocale;
   const validLocale = isValidLocale(locale);
 
   const { data: articles, isLoading } = trpc.translations.latestByLocale.useQuery(

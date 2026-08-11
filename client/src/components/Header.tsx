@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Search, X, ChevronDown, ExternalLink, Globe } from "lucide-react";
 import { SUPPORTED_LOCALES, LOCALE_FLAGS, LOCALE_NAMES, type SupportedLocale } from "@shared/locales";
@@ -9,7 +9,6 @@ interface HeaderProps {
 }
 
 const NAV_ITEMS = [
-  { label: "HOME", href: "/" },
   { label: "LATEST NEWS", href: "/category/latest-news" },
   {
     label: "CATEGORIES",
@@ -21,36 +20,70 @@ const NAV_ITEMS = [
       { label: "MUSIC", href: "/category/music" },
       { label: "WALLETS", href: "/category/wallets" },
       { label: "STABLECOINS", href: "/category/stablecoins" },
-      { label: "DAOS", href: "/category/dao" },
-      { label: "MORE", href: "/categories" },
+      { label: "ALL CATEGORIES", href: "/categories" },
     ],
   },
-  { label: "TIMELINE", href: "/timeline" },
   { label: "PROJECTS", href: "/projects" },
+  { label: "TIMELINE", href: "/timeline" },
   {
-    label: "ART",
-    href: "/art",
+    label: "EXPLORE",
+    href: "/explorer",
     children: [
-      { label: "ART HUB", href: "/art" },
-      { label: "ART RECAP", href: "/category/art" },
-      { label: "EXHIBITION", href: "/category/exhibition" },
-      { label: "MUSIC", href: "/category/music" },
-      { label: "── TOOLS ──", href: "/tools" },
-      { label: "NFT GALLERY", href: "/tools/nft-gallery" },
-      { label: "LIVE AUCTIONS", href: "/tools/auctions" },
-      { label: "TOP COLLECTORS", href: "/tools/top-collectors" },
-      { label: "COLLECTION STATS", href: "/tools/collection-stats" },
-      { label: "TOKEN PRICES", href: "/tools/token-price" },
-      { label: "AIRDROP CHECK", href: "/tools/airdrop" },
+      { label: "EXPLORER", href: "/explorer" },
+      { label: "STAKING", href: "/staking" },
+      { label: "ART & CULTURE", href: "/art" },
+      { label: "TOOLS", href: "/tools" },
+      { label: "TOKEN PRICES", href: "/prices" },
     ],
   },
-  { label: "EXPLORER", href: "/explorer" },
-  { label: "STAKING", href: "/staking" },
-  { label: "TOOLS", href: "/tools" },
-  { label: "SUBMIT ARTICLE", href: "/submit-article" },
-  { label: "CONTACT", href: "/contact" },
-  { label: "SUPPORT US ❤️", href: "/support" },
+  { label: "SUPPORT", href: "/support" },
 ];
+
+const MOBILE_SECTIONS = [
+  {
+    label: "Read",
+    items: [
+      { label: "Latest News", href: "/category/latest-news" },
+      { label: "Categories", href: "/categories" },
+      { label: "Projects", href: "/projects" },
+      { label: "Timeline", href: "/timeline" },
+    ],
+  },
+  {
+    label: "Explore",
+    items: [
+      { label: "Explorer", href: "/explorer" },
+      { label: "Staking", href: "/staking" },
+      { label: "Art & Culture", href: "/art" },
+      { label: "Tools", href: "/tools" },
+      { label: "Token Prices", href: "/prices" },
+    ],
+  },
+  {
+    label: "Community",
+    items: [
+      { label: "Submit Article", href: "/submit-article" },
+      { label: "Support XTZ.News", href: "/support" },
+      { label: "Contact", href: "/contact" },
+    ],
+  },
+];
+
+const navButtonStyle: React.CSSProperties = {
+  fontSize: "0.76rem",
+  fontWeight: 700,
+  letterSpacing: "0.04em",
+  textTransform: "uppercase",
+  color: "rgba(255,255,255,0.82)",
+  background: "none",
+  border: "none",
+  padding: "0.5rem 0.55rem",
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  gap: "0.2rem",
+  whiteSpace: "nowrap",
+};
 
 export default function Header({ onSearchOpen }: HeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -58,7 +91,6 @@ export default function Header({ onSearchOpen }: HeaderProps) {
   const [location] = useLocation();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Always dark mode — remove light-mode class if it was previously set
   useEffect(() => {
     document.body.classList.remove("light-mode");
     localStorage.removeItem("xtz-dark-mode");
@@ -70,10 +102,8 @@ export default function Header({ onSearchOpen }: HeaderProps) {
   }, [location]);
 
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setOpenDropdown(null);
-      }
+    const handler = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) setOpenDropdown(null);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -81,227 +111,69 @@ export default function Header({ onSearchOpen }: HeaderProps) {
 
   return (
     <header ref={dropdownRef}>
-      {/* ── Desktop-only top bar ── */}
-      <div
-        className="hidden lg:flex"
-        style={{ background: "#123262", borderBottom: "1px solid rgba(255,255,255,0.1)", height: "36px", alignItems: "center" }}
-      >
+      <div className="hidden lg:flex" style={{ background: "#123262", borderBottom: "1px solid rgba(255,255,255,0.1)", height: "36px", alignItems: "center" }}>
         <div className="container" style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "1rem" }}>
           <DonateButton variant="header" />
-          <Link href="/" style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.8)", textDecoration: "none" }}>
-            XTZ.NEWS
-          </Link>
-          <Link href="/prices"
-            style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.8)", display: "flex", alignItems: "center", gap: "0.35rem", textDecoration: "none" }}>
-            <ExternalLink size={10} />
-            TEZOS TOKEN TRACKER
-          </Link>
-          {/* Language Switcher */}
-          <div style={{ position: "relative" }}
-            onMouseEnter={(e) => { const d = (e.currentTarget as HTMLElement).querySelector('.lang-dropdown') as HTMLElement; if (d) d.style.display = 'block'; }}
-            onMouseLeave={(e) => { const d = (e.currentTarget as HTMLElement).querySelector('.lang-dropdown') as HTMLElement; if (d) d.style.display = 'none'; }}
-          >
-            <button style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.2)", borderRadius: "4px", padding: "0.2rem 0.5rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem", color: "rgba(255,255,255,0.8)", fontSize: "0.65rem", fontWeight: 700 }}>
-              <Globe size={10} /> 🇬🇧 EN <ChevronDown size={9} />
-            </button>
-            <div className="lang-dropdown" style={{ display: "none", position: "absolute", right: 0, top: "100%", background: "#05152e", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "6px", padding: "0.4rem", zIndex: 1000, minWidth: "160px", boxShadow: "0 8px 24px rgba(0,0,0,0.5)" }}>
-              <Link href="/" style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.35rem 0.6rem", borderRadius: "4px", textDecoration: "none", fontSize: "0.72rem", color: "rgba(255,255,255,0.9)", fontWeight: 700 }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.15)")}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "transparent")}>
-                🇬🇧 English
-              </Link>
-              {SUPPORTED_LOCALES.map((l: SupportedLocale) => (
-                <Link key={l} href={`/${l}`} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.35rem 0.6rem", borderRadius: "4px", textDecoration: "none", fontSize: "0.72rem", color: "rgba(255,255,255,0.7)" }}
-                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.15)")}
-                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "transparent")}>
-                  {LOCALE_FLAGS[l]} {LOCALE_NAMES[l]}
-                </Link>
-              ))}
+          <Link href="/" style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.8)", textDecoration: "none" }}>XTZ.NEWS</Link>
+          <Link href="/prices" style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.8)", display: "flex", alignItems: "center", gap: "0.35rem", textDecoration: "none" }}><ExternalLink size={10} />TEZOS TOKEN TRACKER</Link>
+          <details style={{ position: "relative" }}>
+            <summary style={{ listStyle: "none", background: "transparent", border: "1px solid rgba(255,255,255,0.2)", borderRadius: "4px", padding: "0.2rem 0.5rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem", color: "rgba(255,255,255,0.8)", fontSize: "0.65rem", fontWeight: 700 }}><Globe size={10} /> 🇬🇧 EN <ChevronDown size={9} /></summary>
+            <div style={{ position: "absolute", right: 0, top: "calc(100% + 0.35rem)", background: "#05152e", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "6px", padding: "0.4rem", zIndex: 1000, minWidth: "164px", boxShadow: "0 8px 24px rgba(0,0,0,0.5)" }}>
+              <Link href="/" style={{ display: "block", padding: "0.35rem 0.6rem", textDecoration: "none", fontSize: "0.72rem", color: "rgba(255,255,255,0.9)", fontWeight: 700 }}>🇬🇧 English</Link>
+              {SUPPORTED_LOCALES.map((locale: SupportedLocale) => <Link key={locale} href={`/${locale}`} style={{ display: "block", padding: "0.35rem 0.6rem", textDecoration: "none", fontSize: "0.72rem", color: "rgba(255,255,255,0.7)" }}>{LOCALE_FLAGS[locale]} {LOCALE_NAMES[locale]}</Link>)}
             </div>
-          </div>
+          </details>
         </div>
       </div>
 
-      {/* ── Main header row ── */}
       <div style={{ background: "#05152e", borderBottom: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "stretch" }}>
         <div className="container" style={{ display: "flex", alignItems: "center", height: "72px", flex: 1 }}>
-          {/* Logo */}
-          <Link href="/" style={{ flexShrink: 0, marginRight: "1.5rem", display: "flex", alignItems: "center", position: "relative", zIndex: 10 }}>
-            <img
-              src="/manus-storage/xtz-logo-square_c6689606.png"
-              alt="XTZ.News"
-              style={{ height: "90px", width: "auto", marginTop: "-36px" }}
-              className="hidden lg:block"
-            />
-            {/* Mobile logo — smaller, no negative margin */}
-            <img
-              src="/manus-storage/xtz-logo-square_c6689606.png"
-              alt="XTZ.News"
-              style={{ height: "56px", width: "auto" }}
-              className="lg:hidden"
-            />
+          <Link href="/" style={{ flexShrink: 0, marginRight: "1.2rem", display: "flex", alignItems: "center", position: "relative", zIndex: 10 }}>
+            <img src="/manus-storage/xtz-logo-square_c6689606.png" alt="XTZ.News" style={{ height: "90px", width: "auto", marginTop: "-36px" }} className="hidden lg:block" />
+            <img src="/manus-storage/xtz-logo-square_c6689606.png" alt="XTZ.News" style={{ height: "56px", width: "auto" }} className="lg:hidden" />
           </Link>
 
-          {/* Desktop Nav */}
-          <nav className="hidden lg:flex" style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-            {NAV_ITEMS.map((item) => (
-              <div key={item.label} style={{ position: "relative" }}>
-                {item.children ? (
-                  <>
-                    <button
-                      onClick={() => setOpenDropdown(openDropdown === item.label ? null : item.label)}
-                      style={{ fontSize: "0.8rem", fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", background: "none", border: "none", padding: "0.5rem 0.65rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.2rem", transition: "color 0.2s", whiteSpace: "nowrap" }}
-                      onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#fff")}
-                      onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.85)")}
-                    >
-                      {item.label}
-                      <ChevronDown size={10} style={{ transform: openDropdown === item.label ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
-                    </button>
-                    {openDropdown === item.label && (
-                      <div style={{ position: "absolute", top: "100%", left: 0, minWidth: "160px", background: "#05152e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", boxShadow: "0 8px 32px rgba(0,0,0,0.6)", zIndex: 100, padding: "0.25rem 0" }}>
-                        {item.children.map((child) => (
-                          child.label.startsWith('\u2500\u2500') ? (
-                            <div key={child.label} style={{ padding: "0.35rem 1rem 0.2rem", fontSize: "0.58rem", fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "#2c7df7", borderTop: "1px solid rgba(255,255,255,0.07)", marginTop: "0.25rem" }}>
-                              TOOLS
-                            </div>
-                          ) : (
-                            <Link key={child.label} href={child.href}
-                              style={{ display: "block", padding: "0.5rem 1rem", fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", textDecoration: "none", transition: "all 0.2s" }}
-                              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#fff"; (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.05)"; }}
-                              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.7)"; (e.currentTarget as HTMLElement).style.background = "none"; }}
-                            >
-                              {child.label}
-                            </Link>
-                          )
-                        ))}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <Link href={item.href}
-                    style={{ display: "block", padding: "0.5rem 0.65rem", fontSize: "0.8rem", fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", textDecoration: "none", transition: "color 0.2s", whiteSpace: "nowrap" }}
-                    onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#fff")}
-                    onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.85)")}
-                  >
-                    {item.label}
-                  </Link>
-                )}
-              </div>
-            ))}
+          <nav className="hidden lg:flex" aria-label="Primary navigation" style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+            {NAV_ITEMS.map((item) => <div key={item.label} style={{ position: "relative" }}>
+              {item.children ? <>
+                <button onClick={() => setOpenDropdown(openDropdown === item.label ? null : item.label)} aria-expanded={openDropdown === item.label} style={navButtonStyle}>{item.label}<ChevronDown size={10} style={{ transform: openDropdown === item.label ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} /></button>
+                {openDropdown === item.label && <div style={{ position: "absolute", top: "100%", left: 0, minWidth: "175px", background: "#05152e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "5px", boxShadow: "0 8px 32px rgba(0,0,0,0.6)", zIndex: 100, padding: "0.3rem 0" }}>
+                  {item.children.map((child) => <Link key={child.label} href={child.href} style={{ display: "block", padding: "0.55rem 0.9rem", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", textDecoration: "none" }}>{child.label}</Link>)}
+                </div>}
+              </> : <Link href={item.href} style={{ ...navButtonStyle, display: "block", textDecoration: "none" }}>{item.label}</Link>}
+            </div>)}
           </nav>
 
-          {/* Desktop: search only (donate is in top bar) */}
-          <div className="hidden lg:flex" style={{ alignItems: "center", gap: "0.4rem", marginLeft: "auto" }}>
-            <button onClick={onSearchOpen} className="dark-mode-toggle" aria-label="Search">
-              <Search size={16} />
-            </button>
+          <div className="hidden lg:flex" style={{ alignItems: "center", marginLeft: "auto" }}>
+            <button onClick={onSearchOpen} aria-label="Search XTZ.News" aria-keyshortcuts="Control+K Meta+K /" style={{ display: "flex", alignItems: "center", gap: "0.45rem", padding: "0.45rem 0.65rem", color: "rgba(255,255,255,0.72)", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.13)", borderRadius: "5px", cursor: "pointer", fontSize: "0.7rem", fontWeight: 700 }}><Search size={16} /><span>Search</span><kbd style={{ fontSize: "0.58rem", color: "rgba(255,255,255,0.35)", borderLeft: "1px solid rgba(255,255,255,0.12)", paddingLeft: "0.45rem" }}>⌘K</kbd></button>
           </div>
-
-          {/* Mobile: spacer to push MENU button to right */}
           <div className="lg:hidden" style={{ marginLeft: "auto" }} />
         </div>
 
-        {/* MENU button — spans full header height on desktop, normal height on mobile */}
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label="Toggle menu"
-          style={{
-            background: "#2c7df7",
-            border: "none",
-            color: "#fff",
-            width: "80px",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "0.5rem",
-            cursor: "pointer",
-            flexShrink: 0,
-            fontSize: "0.65rem",
-            fontWeight: 900,
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
-            transition: "background 0.2s",
-          }}
-          onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "#1a6ae0")}
-          onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "#2c7df7")}
-        >
-          {mobileOpen ? (
-            <X size={22} />
-          ) : (
-            <svg width="24" height="18" viewBox="0 0 24 18" fill="none">
-              <rect width="24" height="3" rx="1.5" fill="white"/>
-              <rect y="7.5" width="24" height="3" rx="1.5" fill="white"/>
-              <rect y="15" width="24" height="3" rx="1.5" fill="white"/>
-            </svg>
-          )}
+        <button onClick={() => setMobileOpen((open) => !open)} aria-label="Toggle menu" aria-expanded={mobileOpen} className="mobile-menu-trigger" style={{ background: "#2c7df7", border: "none", color: "#fff", width: "72px", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0.35rem", cursor: "pointer", flexShrink: 0, fontSize: "0.62rem", fontWeight: 900, letterSpacing: "0.12em", textTransform: "uppercase" }}>
+          {mobileOpen ? <X size={22} /> : <svg width="24" height="18" viewBox="0 0 24 18" fill="none"><rect width="24" height="3" rx="1.5" fill="white"/><rect y="7.5" width="24" height="3" rx="1.5" fill="white"/><rect y="15" width="24" height="3" rx="1.5" fill="white"/></svg>}
           MENU
         </button>
       </div>
 
-      {/* ── Mobile search bar — shown below header on mobile only ── */}
-      <div
-        className="lg:hidden"
-        style={{ background: "#05152e", borderBottom: "1px solid rgba(255,255,255,0.1)", padding: "0.5rem 1rem" }}
-      >
-        <button
-          onClick={onSearchOpen}
-          style={{
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            gap: "0.75rem",
-            padding: "0.6rem 1rem",
-            background: "rgba(255,255,255,0.06)",
-            border: "1px solid rgba(255,255,255,0.12)",
-            borderRadius: "4px",
-            color: "rgba(255,255,255,0.5)",
-            fontSize: "0.9rem",
-            cursor: "pointer",
-            textAlign: "left",
-          }}
-        >
-          <Search size={16} style={{ flexShrink: 0 }} />
-          <span>Search</span>
-        </button>
+      <div className="lg:hidden" style={{ background: "#05152e", borderBottom: "1px solid rgba(255,255,255,0.1)", padding: "0.5rem 1rem" }}>
+        <button onClick={onSearchOpen} aria-label="Search XTZ.News" style={{ width: "100%", display: "flex", alignItems: "center", gap: "0.75rem", padding: "0.7rem 1rem", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "5px", color: "rgba(255,255,255,0.68)", fontSize: "0.86rem", cursor: "pointer", textAlign: "left" }}><Search size={16} /><span>Search XTZ.News</span></button>
       </div>
 
-      {/* Mobile Nav Drawer */}
-      {mobileOpen && (
-        <div style={{ background: "#05152e", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-          <nav className="container" style={{ padding: "0.75rem 0", display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-            {/* Mobile donate button */}
-            <div style={{ padding: "0.5rem 0.75rem 0.25rem" }}>
-              <DonateButton variant="article" />
-            </div>
-            {NAV_ITEMS.map((item) => (
-              <div key={item.label}>
-                <Link href={item.href}
-                  style={{ display: "block", padding: "0.7rem 0.75rem", fontSize: "0.8rem", fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", textDecoration: "none", borderRadius: "3px", transition: "background 0.2s" }}
-                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.05)")}
-                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "none")}
-                >
-                  {item.label}
-                </Link>
-                {item.children && (
-                  <div style={{ paddingLeft: "1rem" }}>
-                    {item.children.map((child) => (
-                      child.label.startsWith('──') ? (
-                        <div key={child.label} style={{ padding: "0.3rem 1.5rem 0.15rem", fontSize: "0.58rem", fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "#2c7df7", borderTop: "1px solid rgba(255,255,255,0.07)", marginTop: "0.2rem" }}>TOOLS</div>
-                      ) : (
-                      <Link key={child.label} href={child.href}
-                        style={{ display: "block", padding: "0.5rem 0.75rem", fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "rgba(255,255,255,0.5)", textDecoration: "none" }}>
-                        {child.label}
-                      </Link>
-                      )
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-          </nav>
-        </div>
-      )}
+      {mobileOpen && <div className="lg:hidden" style={{ background: "#05152e", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+        <nav className="container" aria-label="Mobile navigation" style={{ padding: "0.75rem 0" }}>
+          <div style={{ padding: "0.5rem 0.75rem 0.75rem" }}><DonateButton variant="article" /></div>
+          {MOBILE_SECTIONS.map((section) => <section key={section.label} style={{ padding: "0.75rem", borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+            <p style={{ margin: "0 0 0.4rem", color: "#5a9fff", fontSize: "0.6rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.13em" }}>{section.label}</p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "0.35rem" }}>{section.items.map((item) => <Link key={item.label} href={item.href} style={{ padding: "0.72rem", borderRadius: "5px", background: "rgba(255,255,255,0.045)", color: "rgba(255,255,255,0.85)", fontSize: "0.74rem", fontWeight: 700, textDecoration: "none" }}>{item.label}</Link>)}</div>
+          </section>)}
+          <details style={{ margin: "0.8rem 0.75rem", color: "rgba(255,255,255,0.7)" }}><summary style={{ cursor: "pointer", fontSize: "0.72rem", fontWeight: 700 }}>International editions</summary><div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", paddingTop: "0.75rem" }}><Link href="/" style={{ color: "rgba(255,255,255,0.8)", textDecoration: "none", fontSize: "0.7rem" }}>🇬🇧 English</Link>{SUPPORTED_LOCALES.map((locale: SupportedLocale) => <Link key={locale} href={`/${locale}`} style={{ color: "rgba(255,255,255,0.65)", textDecoration: "none", fontSize: "0.7rem" }}>{LOCALE_FLAGS[locale]} {LOCALE_NAMES[locale]}</Link>)}</div></details>
+        </nav>
+      </div>}
+      <style>{`
+        .mobile-menu-trigger { display: flex; }
+        @media (min-width: 1024px) { .mobile-menu-trigger { display: none !important; } }
+      `}</style>
     </header>
   );
 }

@@ -28,6 +28,30 @@ export default function Layout({ children }: LayoutProps) {
     return () => window.removeEventListener("scroll", handler);
   }, []);
 
+  // Keep global search discoverable from every reader journey without
+  // hijacking typing inside a form field or editor.
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      const isTyping = target?.tagName === "INPUT" || target?.tagName === "TEXTAREA" || target?.isContentEditable;
+
+      if (event.key === "Escape" && searchOpen) {
+        setSearchOpen(false);
+        return;
+      }
+
+      const isCommandSearch = (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k";
+      const isSlashSearch = event.key === "/" && !event.metaKey && !event.ctrlKey && !event.altKey;
+      if (!isTyping && (isCommandSearch || isSlashSearch)) {
+        event.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [searchOpen]);
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };

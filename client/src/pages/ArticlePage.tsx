@@ -1,6 +1,6 @@
 import { useParams, Link } from "wouter";
 import { useEffect, useState, useRef } from "react";
-import { Twitter, Facebook, Linkedin, Send, Copy, Home, ChevronRight } from "lucide-react";
+import { Twitter, Facebook, Linkedin, Send, Copy, Home, ChevronRight, Settings2, Share2 } from "lucide-react";
 import XtzPriceWidget from "@/components/XtzPriceWidget";
 import ArticleNewsletterSignup from "@/components/ArticleNewsletterSignup";
 import { trpc } from "@/lib/trpc";
@@ -177,6 +177,18 @@ function ShareButtons({ title, url, variant = "compact" }: ShareButtonsProps) {
     navigator.clipboard.writeText(url).then(() => toast.success("Link copied to clipboard!"));
   };
 
+  const shareOrCopy = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, url });
+        return;
+      } catch {
+        // A dismissed native share sheet is not an error state for readers.
+      }
+    }
+    copyLink();
+  };
+
   const buttons = [
     {
       label: "Twitter",
@@ -299,40 +311,16 @@ function ShareButtons({ title, url, variant = "compact" }: ShareButtonsProps) {
     );
   }
 
-  // Compact variant (top of article) — brand-coloured icons
+  // Compact variant for the sticky reader toolbar: keep attention on reading
+  // rather than presenting a row of individual social-network controls.
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flexWrap: "wrap" }}>
-      <span style={{ fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)", marginRight: "0.25rem" }}>Share:</span>
-      {buttons.map((btn) => (
-        <a
-          key={btn.label}
-          href={btn.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={`Share on ${btn.label}`}
-          style={{
-            display: "flex", alignItems: "center", justifyContent: "center",
-            width: "30px", height: "30px",
-            borderRadius: "4px",
-            background: btn.color,
-            color: "#fff",
-            textDecoration: "none",
-            transition: "opacity 0.2s, transform 0.1s",
-            flexShrink: 0,
-          }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.85"; (e.currentTarget as HTMLElement).style.transform = "scale(1.08)"; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; (e.currentTarget as HTMLElement).style.transform = "scale(1)"; }}
-        >
-          {btn.icon}
-        </a>
-      ))}
+      <button onClick={shareOrCopy} aria-label="Share article" style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", padding: "0.35rem 0.6rem", borderRadius: "20px", background: "rgba(44,125,247,0.16)", border: "1px solid rgba(44,125,247,0.3)", color: "#8cbcff", cursor: "pointer", fontSize: "0.68rem", fontWeight: 700 }}><Share2 size={13} /> Share</button>
       <button
         onClick={copyLink}
         aria-label="Copy link"
         style={{
-          display: "flex", alignItems: "center", justifyContent: "center",
-          width: "30px", height: "30px",
-          borderRadius: "4px",
+          display: "flex", alignItems: "center", justifyContent: "center", width: "30px", height: "30px", borderRadius: "20px",
           background: "rgba(255,255,255,0.12)",
           border: "none",
           color: "rgba(255,255,255,0.7)",
@@ -355,6 +343,7 @@ export default function ArticlePage() {
   const [showStickyShare, setShowStickyShare] = useState(false);
   const [readingMode, setReadingMode] = useState<"dark" | "light">("dark");
   const [fontSize, setFontSize] = useState<"sm" | "md" | "lg">("md");
+  const [readingControlsOpen, setReadingControlsOpen] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
 
   const fontSizeMap = { sm: "0.95rem", md: "1.125rem", lg: "1.3rem" };
@@ -460,23 +449,25 @@ export default function ArticlePage() {
           <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.5)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, minWidth: 0 }}>{post.title}</div>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexShrink: 0 }}>
             <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.35)", marginRight: "0.25rem" }}>{readProgress}% read</span>
-            {/* Font size controls */}
-            <div style={{ display: "flex", alignItems: "center", gap: "2px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "20px", padding: "2px 4px" }}>
-              {(["sm", "md", "lg"] as const).map((size, i) => (
-                <button key={size} onClick={() => setFontSize(size)}
-                  title={size === "sm" ? "Small text" : size === "md" ? "Medium text" : "Large text"}
-                  style={{ padding: "0.2rem 0.45rem", background: fontSize === size ? "rgba(44,125,247,0.3)" : "transparent", border: "none", borderRadius: "16px", color: fontSize === size ? "#5a9fff" : "rgba(255,255,255,0.4)", fontSize: ["0.6rem", "0.72rem", "0.85rem"][i], fontWeight: 700, cursor: "pointer", transition: "all 0.15s", lineHeight: 1 }}>
-                  A
-                </button>
-              ))}
+            <div style={{ position: "relative" }}>
+              <button onClick={() => setReadingControlsOpen((open) => !open)} aria-expanded={readingControlsOpen} aria-controls="article-reading-controls" style={{ display: "flex", alignItems: "center", gap: "0.35rem", padding: "0.35rem 0.6rem", background: readingControlsOpen ? "rgba(44,125,247,0.2)" : "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: "20px", color: "rgba(255,255,255,0.72)", fontSize: "0.68rem", fontWeight: 700, cursor: "pointer" }}>
+                <Settings2 size={13} /> Reading
+              </button>
+              {readingControlsOpen && (
+                <div id="article-reading-controls" role="dialog" aria-label="Reading controls" style={{ position: "absolute", bottom: "calc(100% + 0.65rem)", right: 0, width: "230px", padding: "0.85rem", background: "#071a35", border: "1px solid rgba(44,125,247,0.35)", boxShadow: "0 12px 32px rgba(0,0,0,0.45)", borderRadius: "8px" }}>
+                  <p style={{ margin: "0 0 0.65rem", fontSize: "0.62rem", color: "rgba(255,255,255,0.45)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em" }}>Reading controls</p>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.5rem" }}>
+                    <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.65)" }}>Text size</span>
+                    <div style={{ display: "flex", gap: "0.2rem" }}>
+                      {(["sm", "md", "lg"] as const).map((size, i) => <button key={size} onClick={() => { setFontSize(size); setReadingControlsOpen(false); }} aria-label={`${size} text`} style={{ padding: "0.28rem 0.48rem", background: fontSize === size ? "#2c7df7" : "rgba(255,255,255,0.08)", border: "none", borderRadius: "4px", color: "#fff", fontSize: ["0.6rem", "0.72rem", "0.85rem"][i], fontWeight: 800, cursor: "pointer" }}>A</button>)}
+                    </div>
+                  </div>
+                  <button onClick={() => { setReadingMode((mode) => mode === "dark" ? "light" : "dark"); setReadingControlsOpen(false); }} style={{ width: "100%", marginTop: "0.65rem", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.55rem 0.6rem", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "5px", background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.75)", fontSize: "0.72rem", fontWeight: 700, cursor: "pointer" }}>
+                    <span>{readingMode === "dark" ? "Light reading mode" : "Dark reading mode"}</span><span>{readingMode === "dark" ? "☀️" : "🌙"}</span>
+                  </button>
+                </div>
+              )}
             </div>
-            {/* Reading mode toggle */}
-            <button
-              onClick={() => setReadingMode(m => m === "dark" ? "light" : "dark")}
-              title={readingMode === "dark" ? "Switch to light reading mode" : "Switch to dark mode"}
-              style={{ display: "flex", alignItems: "center", gap: "0.3rem", padding: "0.3rem 0.65rem", background: readingMode === "light" ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "20px", color: readingMode === "light" ? "#fff" : "rgba(255,255,255,0.5)", fontSize: "0.68rem", fontWeight: 700, cursor: "pointer", transition: "all 0.2s" }}>
-              {readingMode === "dark" ? "☀️" : "🌙"} {readingMode === "dark" ? "Light" : "Dark"}
-            </button>
             <ShareButtons title={post.title} url={pageUrl} />
           </div>
         </div>
@@ -557,20 +548,13 @@ export default function ArticlePage() {
             {/* Key Takeaways — shown when available, improves readability & AI search */}
             <KeyTakeaways takeaways={(post as any).keyTakeaways} />
 
-            {/* Disclaimer */}
-            <div style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", padding: "0.75rem 1rem", borderRadius: "6px", marginBottom: "1rem", background: "rgba(44,125,247,0.06)", border: "1px solid rgba(44,125,247,0.15)", fontSize: "0.78rem", color: "rgba(255,255,255,0.5)" }}>
-              <span style={{ color: "#5a9fff", fontWeight: 900, flexShrink: 0 }}>ℹ</span>
-              <span>This article is for informational purposes only and does not constitute financial advice. Always do your own research. <Link href="/disclaimer" style={{ color: "#5a9fff", fontWeight: 700 }}>Full Disclaimer →</Link></span>
-            </div>
-
-            {/* Donate banner — prominent, below disclaimer */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.75rem", padding: "0.875rem 1.25rem", borderRadius: "8px", marginBottom: "1.75rem", background: "linear-gradient(135deg, rgba(44,125,247,0.12) 0%, rgba(26,106,224,0.08) 100%)", border: "1px solid rgba(44,125,247,0.25)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
-                <svg width="18" height="18" viewBox="0 0 32 32" fill="#2c7df7"><path d="M16 2L2 9.5v13L16 30l14-7.5v-13L16 2zm0 3.09l10.5 5.63v11.56L16 27.91 5.5 22.28V10.72L16 5.09z"/><path d="M13 10v12h2v-5h4a3 3 0 000-6h-4V9h-2v1zm2 2h4a1 1 0 010 2h-4v-2z"/></svg>
-                <span style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.75)", fontWeight: 600 }}>XTZ.News is independent &amp; community-funded. Support us with a XTZ donation.</span>
+            <details style={{ marginBottom: "1.75rem", padding: "0.8rem 1rem", borderRadius: "6px", background: "rgba(44,125,247,0.045)", border: "1px solid rgba(44,125,247,0.14)", color: "rgba(255,255,255,0.55)" }}>
+              <summary style={{ cursor: "pointer", color: "rgba(255,255,255,0.72)", fontSize: "0.76rem", fontWeight: 700 }}>Reader note &amp; support XTZ.News</summary>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.75rem", paddingTop: "0.75rem", fontSize: "0.76rem", lineHeight: 1.55 }}>
+                <span>This article is for informational purposes only and does not constitute financial advice. <Link href="/disclaimer" style={{ color: "#5a9fff", fontWeight: 700 }}>Full Disclaimer →</Link></span>
+                <DonateButton variant="article" />
               </div>
-              <DonateButton variant="article" />
-            </div>
+            </details>
 
             {/* Article body — reading mode + font size aware */}
             <ArticleContent

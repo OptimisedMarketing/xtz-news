@@ -48,7 +48,7 @@ export default function KeyTakeaways({ takeaways }: KeyTakeawaysProps) {
         Key Takeaways
       </h2>
       <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-        {bullets.map((bullet, i) => (
+        {bullets.slice(0, 4).map((bullet, i) => (
           <li
             key={i}
             style={{
@@ -70,10 +70,11 @@ export default function KeyTakeaways({ takeaways }: KeyTakeawaysProps) {
                 marginTop: "0.45rem",
               }}
             />
-            {bullet}
+            {compactTakeaway(bullet)}
           </li>
         ))}
       </ul>
     </div>
   );
 }
+import { compactTakeaway } from "@/lib/readerUtils";

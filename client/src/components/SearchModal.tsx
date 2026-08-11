@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
-import { Search, X, ArrowRight, Clock, TrendingUp, Loader2 } from "lucide-react";
+import { Search, X, ArrowRight, Clock, TrendingUp, Loader2, Boxes } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 interface SearchModalProps {
@@ -39,11 +39,12 @@ export default function SearchModal({ onClose }: SearchModalProps) {
     return () => clearTimeout(t);
   }, [query]);
 
-  const { data: raw, isLoading } = trpc.posts.search.useQuery(
-    { q: debounced, limit: 7 },
+  const { data: results, isLoading } = trpc.posts.searchAll.useQuery(
+    { q: debounced, limit: 8 },
     { enabled: debounced.length >= 2 }
   );
-  const posts = Array.isArray(raw) ? raw : (raw as any)?.posts ?? [];
+  const posts = results?.posts ?? [];
+  const projects = results?.projects ?? [];
 
   const go = (q: string) => {
     if (!q.trim()) return;
@@ -56,8 +57,8 @@ export default function SearchModal({ onClose }: SearchModalProps) {
   const fmt = (d: Date | string | null | undefined) =>
     d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "";
 
-  const hasResults = debounced.length >= 2 && !isLoading && posts.length > 0;
-  const noResults = debounced.length >= 2 && !isLoading && posts.length === 0;
+  const hasResults = debounced.length >= 2 && !isLoading && (posts.length > 0 || projects.length > 0);
+  const noResults = debounced.length >= 2 && !isLoading && posts.length === 0 && projects.length === 0;
 
   return (
     <>
@@ -116,7 +117,7 @@ export default function SearchModal({ onClose }: SearchModalProps) {
           {hasResults && (
             <div style={{ padding: "1rem 1.5rem" }}>
               <p style={{ fontSize: "0.62rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: "rgba(255,255,255,0.25)", margin: "0 0 0.75rem" }}>
-                {posts.length} result{posts.length !== 1 ? "s" : ""} for "{debounced}"
+                {posts.length + projects.length} result{posts.length + projects.length !== 1 ? "s" : ""} for "{debounced}"
               </p>
               {posts.map((post: any) => (
                 <Link key={post.id} href={`/${post.slug}`} onClick={() => { saveRecent(query); onClose(); }} style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "0.875rem", padding: "0.7rem 0.75rem", borderRadius: "6px", transition: "background 0.15s" }}
@@ -136,6 +137,23 @@ export default function SearchModal({ onClose }: SearchModalProps) {
                   <ArrowRight size={13} style={{ color: "rgba(255,255,255,0.2)", flexShrink: 0 }} />
                 </Link>
               ))}
+              {projects.length > 0 && (
+                <>
+                  <p style={{ fontSize: "0.62rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: "rgba(255,255,255,0.25)", margin: "1.1rem 0 0.55rem", display: "flex", alignItems: "center", gap: "0.35rem" }}><Boxes size={11} /> Tezos projects</p>
+                  {projects.map((project: any) => (
+                    <Link key={project.id} href={`/projects/${project.slug}`} onClick={() => { saveRecent(query); onClose(); }} style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "0.875rem", padding: "0.7rem 0.75rem", borderRadius: "6px", transition: "background 0.15s" }} onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.08)")} onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "transparent")}>
+                      <div style={{ width: "54px", height: "40px", borderRadius: "4px", overflow: "hidden", flexShrink: 0, background: "#0a1f3d", display: "flex", alignItems: "center", justifyContent: "center", color: "#5a9fff" }}>
+                        {project.logoUrl ? <img src={project.logoUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <Boxes size={18} />}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontSize: "0.88rem", fontWeight: 600, color: "#fff", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{project.title}</p>
+                        <span style={{ display: "inline-block", marginTop: "0.2rem", fontSize: "0.58rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#2c7df7", background: "rgba(44,125,247,0.1)", padding: "1px 5px", borderRadius: "2px" }}>Project</span>
+                      </div>
+                      <ArrowRight size={13} style={{ color: "rgba(255,255,255,0.2)", flexShrink: 0 }} />
+                    </Link>
+                  ))}
+                </>
+              )}
               <button onClick={() => go(query)} style={{ width: "100%", marginTop: "0.5rem", padding: "0.7rem", background: "rgba(44,125,247,0.07)", border: "1px solid rgba(44,125,247,0.18)", borderRadius: "6px", color: "#2c7df7", fontSize: "0.78rem", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.4rem", transition: "all 0.2s" }}
                 onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#2c7df7"; (e.currentTarget as HTMLElement).style.color = "#fff"; }}
                 onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.07)"; (e.currentTarget as HTMLElement).style.color = "#2c7df7"; }}

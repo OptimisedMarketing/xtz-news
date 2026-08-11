@@ -1,14 +1,17 @@
-import { useParams, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useSEO } from "@/hooks/useSEO";
+import { getLocaleFromPath, getTranslatedSlugFromPath } from "@/lib/readerUtils";
 import { LOCALE_NAMES, LOCALE_ENGLISH_NAMES, LOCALE_FLAGS, RTL_LOCALES, SUPPORTED_LOCALES, isValidLocale, type SupportedLocale } from "@shared/locales";
 import { ArrowLeft, Globe, Calendar } from "lucide-react";
 import ArticleContent from "@/components/ArticleContent";
+import { Link, useLocation } from "wouter";
 
 export default function TranslatedArticlePage() {
-  const params = useParams<{ locale: string; slug: string }>();
-  const locale = params.locale as SupportedLocale;
-  const slug = params.slug;
+  const [location] = useLocation();
+  // Locale routes are registered explicitly in App.tsx, so wouter has no
+  // `:locale` parameter to expose. Derive it from the path instead.
+  const locale = getLocaleFromPath(location) as SupportedLocale;
+  const slug = getTranslatedSlugFromPath(location);
 
   // Validate locale
   const validLocale = isValidLocale(locale);

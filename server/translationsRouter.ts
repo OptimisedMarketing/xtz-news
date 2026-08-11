@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, router } from "./_core/trpc";
 import { getDb } from "./db";
-import { postTranslations } from "../drizzle/schema";
+import { postTranslations, posts } from "../drizzle/schema";
 import { SUPPORTED_LOCALES, type SupportedLocale } from "../shared/locales";
 import { eq, and, desc } from "drizzle-orm";
 
@@ -14,17 +14,43 @@ export const translationsRouter = router({
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) return null;
+
+      // Preferred route: the locale-specific slug stored on the translation.
       const [row] = await db
         .select()
         .from(postTranslations)
         .where(
           and(
             eq(postTranslations.locale, input.locale),
-            eq(postTranslations.slug, input.slug)
+            eq(postTranslations.slug, input.slug),
+            eq(postTranslations.status, "published")
           )
         )
         .limit(1);
-      return row ?? null;
+      if (row) return row;
+
+      // Compatibility route: readers often arrive via a language prefix plus
+      // the canonical English slug. Resolve that source article first, then
+      // return its published translation for the requested locale.
+      const [sourcePost] = await db
+        .select({ id: posts.id })
+        .from(posts)
+        .where(eq(posts.slug, input.slug))
+        .limit(1);
+      if (!sourcePost) return null;
+
+      const [fallback] = await db
+        .select()
+        .from(postTranslations)
+        .where(
+          and(
+            eq(postTranslations.locale, input.locale),
+            eq(postTranslations.postId, sourcePost.id),
+            eq(postTranslations.status, "published")
+          )
+        )
+        .limit(1);
+      return fallback ?? null;
     }),
 
   // Get all translations for a given postId (for hreflang tags)
