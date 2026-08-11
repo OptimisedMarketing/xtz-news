@@ -72,4 +72,4 @@
 - [x] Remove any dark mode toggle from explorer pages (site is permanently dark)
 
 ## Phase 11: Source Backup
-- [ ] Create a separate private OptimisedMarketing GitHub repository for a complete XTZ.News project backup
+- [x] Create a separate private OptimisedMarketing GitHub repository for a complete XTZ.News project backup
