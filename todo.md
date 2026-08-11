@@ -70,3 +70,6 @@
 ## Phase 10: Explorer Enhancements
 - [x] Add "Delegate XTZ" CTA banner + per-row delegate button on baker leaderboard linking to delegation guide
 - [x] Remove any dark mode toggle from explorer pages (site is permanently dark)
+
+## Phase 11: Source Backup
+- [ ] Create a separate private OptimisedMarketing GitHub repository for a complete XTZ.News project backup
