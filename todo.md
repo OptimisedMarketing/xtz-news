@@ -73,3 +73,6 @@
 
 ## Phase 11: Source Backup
 - [x] Create a separate private OptimisedMarketing GitHub repository for a complete XTZ.News project backup
+
+## Phase 12: Reader Usability Audit
+- [x] Assess key reader journeys and prioritise the ten highest-impact usability improvements
