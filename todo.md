@@ -97,6 +97,13 @@
 - [ ] Validate signed-in category follow and unfollow persistence in the browser
 - [ ] Verify the signed-in For You feed and its no-matching-stories empty state
 
+## Phase 16: Custom Reader Authentication
+- [x] Add secure custom email-and-password registration and login for readers
+- [x] Provide email verification and password-reset flows without relying on Manus OAuth
+- [x] Add an account entry point and replace preference-login prompts with custom sign-in
+- [x] Connect custom reader sessions to followed categories and the For You feed
+- [ ] Add automated auth coverage and validate end-to-end reader sign-in journeys
+
 ## Phase 15: Community Spotlight — Teztree
 - [x] Research the official Teztree site and verify its on-chain profile features
 - [x] Write and publish a Teztree Community Spotlight article with bullet Key Takeaways, categories, tags, and source link

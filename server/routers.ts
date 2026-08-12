@@ -10,6 +10,7 @@ import { explorerRouter } from "./explorerRouter";
 import { toolsRouter } from "./toolsRouter";
 import { translationsRouter } from "./translationsRouter";
 import { preferencesRouter } from "./preferencesRouter";
+import { customAuthRouter } from "./customAuthRouter";
 
 // ─── Admin guard ──────────────────────────────────────────────────────────────
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -811,5 +812,6 @@ export const appRouter = router({
   audio: audioRouter,
   translations: translationsRouter,
   preferences: preferencesRouter,
+  customAuth: customAuthRouter,
 })
 export type AppRouter = typeof appRouter;

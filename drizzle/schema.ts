@@ -18,11 +18,14 @@ export const users = mysqlTable("users", {
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
+  passwordHash: varchar("passwordHash", { length: 255 }),
+  emailVerified: boolean("emailVerified").default(false).notNull(),
+  emailVerifyToken: varchar("emailVerifyToken", { length: 128 }),
   role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
-});
+}, (t) => [uniqueIndex("users_email_unique_idx").on(t.email)]);
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
@@ -63,6 +66,23 @@ export const userCategoryFollows = mysqlTable(
 );
 
 export type UserCategoryFollow = typeof userCategoryFollows.$inferSelect;
+
+// ─── Custom Reader Authentication ────────────────────────────────────────────
+export const passwordResetTokens = mysqlTable(
+  "password_reset_tokens",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    userId: int("userId").notNull(),
+    token: varchar("token", { length: 128 }).notNull(),
+    expiresAt: timestamp("expiresAt").notNull(),
+    used: boolean("used").default(false).notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("password_reset_tokens_token_unique_idx").on(t.token),
+    index("password_reset_tokens_user_idx").on(t.userId),
+  ]
+);
 
 // ─── Tags ─────────────────────────────────────────────────────────────────────
 export const tags = mysqlTable(

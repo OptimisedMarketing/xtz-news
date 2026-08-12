@@ -1,5 +1,5 @@
 import { Bell, Check, LogIn } from "lucide-react";
-import { getLoginUrl } from "@/const";
+import { goToReaderLogin } from "@/lib/readerAuth";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 
@@ -27,7 +27,7 @@ export default function CategoryFollowButton({ categoryId, categoryName, compact
 
   const handleClick = () => {
     if (!isAuthenticated) {
-      window.location.href = getLoginUrl();
+      goToReaderLogin();
       return;
     }
     toggle.mutate({ categoryId, following: !following });

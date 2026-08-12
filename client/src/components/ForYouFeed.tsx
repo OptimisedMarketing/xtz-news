@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Link } from "wouter";
 import { ArrowRight, Bell, Sparkles } from "lucide-react";
-import { getLoginUrl } from "@/const";
+import { goToReaderLogin } from "@/lib/readerAuth";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 
@@ -37,7 +37,7 @@ export default function ForYouFeed() {
 
   const chooseTopic = (categoryId: number, following: boolean) => {
     if (!isAuthenticated) {
-      window.location.href = getLoginUrl();
+      goToReaderLogin();
       return;
     }
     toggle.mutate({ categoryId, following });
@@ -62,7 +62,7 @@ export default function ForYouFeed() {
               </div>
             </div>
             {!isAuthenticated && !loading && (
-              <button type="button" onClick={() => { window.location.href = getLoginUrl(); }} style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", padding: "0.5rem 0.7rem", border: "1px solid rgba(44,125,247,0.6)", borderRadius: "6px", color: "#a7c9ff", background: "rgba(44,125,247,0.12)", fontSize: "0.7rem", fontWeight: 800, cursor: "pointer" }}><Bell size={13} /> Sign in to personalise</button>
+              <button type="button" onClick={() => { goToReaderLogin(); }} style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", padding: "0.5rem 0.7rem", border: "1px solid rgba(44,125,247,0.6)", borderRadius: "6px", color: "#a7c9ff", background: "rgba(44,125,247,0.12)", fontSize: "0.7rem", fontWeight: 800, cursor: "pointer" }}><Bell size={13} /> Sign in to personalise</button>
             )}
           </div>
 

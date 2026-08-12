@@ -62,6 +62,11 @@ import TopCollectorsPage from "./pages/tools/TopCollectorsPage";
 import CollectionStatsPage from "./pages/tools/CollectionStatsPage";
 import TranslatedArticlePage from "./pages/TranslatedArticlePage";
 import LocaleArchivePage from "./pages/LocaleArchivePage";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import VerifyEmail from "./pages/VerifyEmail";
 
 function Router() {
   return (
@@ -69,6 +74,11 @@ function Router() {
       {/* Public routes */}
       <Route path="/" component={Home} />
       <Route path="/search" component={SearchPage} />
+      <Route path="/login" component={Login} />
+      <Route path="/register" component={Register} />
+      <Route path="/forgot-password" component={ForgotPassword} />
+      <Route path="/reset-password" component={ResetPassword} />
+      <Route path="/verify-email" component={VerifyEmail} />
       <Route path="/categories" component={CategoriesPage} />
       <Route path="/category/:slug" component={CategoryPage} />
       <Route path="/tag/:slug" component={TagPage} />

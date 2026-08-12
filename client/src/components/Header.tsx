@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Search, X, ChevronDown, ExternalLink, Globe } from "lucide-react";
+import { Search, X, ChevronDown, ExternalLink, Globe, LogIn, LogOut, UserRound } from "lucide-react";
 import { SUPPORTED_LOCALES, LOCALE_FLAGS, LOCALE_NAMES, type SupportedLocale } from "@shared/locales";
 import DonateButton from "@/components/DonateButton";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { getReaderLoginUrl } from "@/lib/readerAuth";
 
 interface HeaderProps {
   onSearchOpen?: () => void;
@@ -90,6 +92,8 @@ export default function Header({ onSearchOpen }: HeaderProps) {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [location] = useLocation();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { user, isAuthenticated, loading, logout } = useAuth();
+  const loginHref = getReaderLoginUrl(location.startsWith("/login") || location.startsWith("/register") ? "/" : location);
 
   useEffect(() => {
     document.body.classList.remove("light-mode");
@@ -116,6 +120,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
           <DonateButton variant="header" />
           <Link href="/" style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.8)", textDecoration: "none" }}>XTZ.NEWS</Link>
           <Link href="/prices" style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.8)", display: "flex", alignItems: "center", gap: "0.35rem", textDecoration: "none" }}><ExternalLink size={10} />TEZOS TOKEN TRACKER</Link>
+          {!loading && (isAuthenticated ? <button onClick={() => logout()} style={accountButtonStyle}><LogOut size={11} /> Sign out</button> : <Link href={loginHref} style={accountButtonStyle}><LogIn size={11} /> Sign in</Link>)}
           <details style={{ position: "relative" }}>
             <summary style={{ listStyle: "none", background: "transparent", border: "1px solid rgba(255,255,255,0.2)", borderRadius: "4px", padding: "0.2rem 0.5rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem", color: "rgba(255,255,255,0.8)", fontSize: "0.65rem", fontWeight: 700 }}><Globe size={10} /> 🇬🇧 EN <ChevronDown size={9} /></summary>
             <div style={{ position: "absolute", right: 0, top: "calc(100% + 0.35rem)", background: "#05152e", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "6px", padding: "0.4rem", zIndex: 1000, minWidth: "164px", boxShadow: "0 8px 24px rgba(0,0,0,0.5)" }}>
@@ -162,6 +167,9 @@ export default function Header({ onSearchOpen }: HeaderProps) {
 
       {mobileOpen && <div className="lg:hidden" style={{ background: "#05152e", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
         <nav className="container" aria-label="Mobile navigation" style={{ padding: "0.75rem 0" }}>
+          <div style={{ display: "flex", gap: "0.5rem", padding: "0.35rem 0.75rem 0.8rem" }}>
+            {!loading && (isAuthenticated ? <button onClick={() => logout()} style={{ ...mobileAccountStyle, flex: 1 }}><UserRound size={14} /> {user?.name || "Signed in"}<span style={{ marginLeft: "auto", color: "rgba(255,255,255,0.55)" }}>Sign out</span></button> : <><Link href={loginHref} style={{ ...mobileAccountStyle, flex: 1 }}><LogIn size={14} /> Sign in</Link><Link href={`/register?returnTo=${encodeURIComponent(location)}`} style={{ ...mobileAccountStyle, flex: 1, background: "#2c7df7", borderColor: "#2c7df7", color: "#fff" }}>Create account</Link></>)}
+          </div>
           <div style={{ padding: "0.5rem 0.75rem 0.75rem" }}><DonateButton variant="article" /></div>
           {MOBILE_SECTIONS.map((section) => <section key={section.label} style={{ padding: "0.75rem", borderTop: "1px solid rgba(255,255,255,0.07)" }}>
             <p style={{ margin: "0 0 0.4rem", color: "#5a9fff", fontSize: "0.6rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.13em" }}>{section.label}</p>
@@ -177,3 +185,6 @@ export default function Header({ onSearchOpen }: HeaderProps) {
     </header>
   );
 }
+
+const accountButtonStyle: React.CSSProperties = { display: "inline-flex", alignItems: "center", gap: "0.3rem", fontSize: "0.68rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#a7c9ff", background: "transparent", border: "none", padding: 0, cursor: "pointer", textDecoration: "none" };
+const mobileAccountStyle: React.CSSProperties = { display: "inline-flex", alignItems: "center", gap: "0.4rem", justifyContent: "center", padding: "0.68rem", borderRadius: "6px", border: "1px solid rgba(44,125,247,0.55)", color: "#a7c9ff", background: "rgba(44,125,247,0.1)", textDecoration: "none", fontSize: "0.72rem", fontWeight: 800, cursor: "pointer" };
