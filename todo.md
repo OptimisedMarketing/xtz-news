@@ -104,6 +104,17 @@
 - [x] Connect custom reader sessions to followed categories and the For You feed
 - [ ] Add automated auth coverage and validate end-to-end reader sign-in journeys
 
+## Phase 17: Expanded Reader Topics
+- [x] Verify the current signed-in reader's Etherlink preference and personalised For You feed
+- [x] Add additional crypto-relevant topic categories to the followable catalogue
+- [x] Surface followed and suggested topics clearly in the reader-facing personalisation flow
+- [ ] Add coverage and validate the expanded topic-selection and For You feed journeys
+- [ ] Browser-verify authenticated follow and unfollow persistence across refresh
+- [ ] Browser-verify the authenticated Etherlink For You feed and no-matching-stories state
+- [ ] Add focused automated coverage for expanded topic choices and personalised feed selection
+- [ ] Browser-validate expanded signed-in topic selection, including selecting and deselecting an added category
+- [ ] Add automated coverage for personalised feed results across followed categories
+
 ## Phase 15: Community Spotlight — Teztree
 - [x] Research the official Teztree site and verify its on-chain profile features
 - [x] Write and publish a Teztree Community Spotlight article with bullet Key Takeaways, categories, tags, and source link

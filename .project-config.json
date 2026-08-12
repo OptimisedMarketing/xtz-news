@@ -15,10 +15,10 @@
   ],
   "git_remote": {
     "repo_url": "s3://vida-prod-gitrepo/webdev-git/310519663300283832/b4WZurEggWt4nzJXT2vL9d",
-    "access_key_id": "ASIAZV3A2ECZEKHN2RNJ",
-    "secret_access_key": "OQw5Vw4CjJi6IoMXsGApyGgGwPTZm7wZwKK9+ZkM",
-    "session_token": "IQoJb3JpZ2luX2VjECwaCXVzLWVhc3QtMSJIMEYCIQCAu+wEpsZ78iWGNJ7EhYog6nNrQ/2OwgL2egUf4GjjNgIhAM+Tq4n0O4JOtz17aGDGYbnBy5sz0tO2e4twRafUKxMZKv8DCPX//////////wEQBBoMNjY1Mzg2MDk4ODY2Igx+2crF9Sz9Yi6wPrAq0wNMCpMb+FFsny0j/1xpvawyI/mem7BN9uoUh7ljRpwnfnWnOKHD3sKm5w1QvqJiyQLX0q9oOfxef4qpKs193tx+vqXlQp+DuY0sKcUq71F8H3VHpuTeW92/UmW33pOTGsVwqM2aSum+3A4Dzk1X9x8UqSs0b5aXLW5dkt3ejzM8fOJvkYK+JPHIAKYokgxmBRoYA5VUXun0gnURWxrBqBFdNpGmAHej2vvyuDoKodphXYaGNuuTUjW2+P7eoqZZDbwOQauHqp2grTVUCgYOYxDtte/LGqLGmxHZHJ9kw7xPcz7SHv4ipO8o2PdInQ6DHyu3d4YiATXrydXpFlL1LrW9iIOWxAq5z1E6+ydMf6/gOuSWGZPxgIdAJaZY2TDtAasfqxUd6quxKH0IT29dSAaZXvqdPJ14JX4Sxm4RJeCnzIRHlozWpsomhM+i0UxZ+H0tvGjuVuD1I4+5vpcnny4/w6Dz/LmFUTFyGDivXQoHVrDPYhej2dBg3Z99AvxZbuXOUYNBlwR94k9G3o7jQk+Pngw7jJNpojFoQ+iZ5yOqCaZgit3uh3L1M89tOEG0VL/R30nQAffdIQFBtqdmT+SB9ZMMdmR+Dadzt0e9w6Vye0YaCTCK9MHTBjqcAdJ7KFSL2Ht7vFdqoc2bVr+XOst9mwRzCNLvXApvdwQpJ9VzabLKQk/TUEvdCokurUccBKsfM+m32D0uxxLMaUnOQSS/UogYczZz+L/bK9ghIQnN5U/BHGfLu7a2jtdfRvt8rdLBNlwj8hFCWudvnBasSxcKNa+BG+0KfgRzfySHljFgQqWccyXlkFU5bjS3FN8F6pdQvteIvLGWNw==",
-    "expiration": "2026-08-03T23:22:50.000Z",
+    "access_key_id": "ASIAZV3A2ECZGP5VJ3MI",
+    "secret_access_key": "+bnIF6+qmAv5oH3QPutrRrj4FQoOPKjmgqvjIKwy",
+    "session_token": "IQoJb3JpZ2luX2VjEA4aCXVzLWVhc3QtMSJIMEYCIQDby2FsN0jQ85Nic8RfBBoxIYYFs2EK1uuMji5fp2oklwIhALtPcBi82flujeaIMFT9b9wOs9EXsMcwt0mzSYDPIRt/Kv8DCNf//////////wEQBBoMNjY1Mzg2MDk4ODY2IgwbOw82pLFIRgwPXWEq0wPfFDdL2/R2TQlyXDO5lS/5HCn1YhxS+eMn6MX38ek1VU7No2iyGwJtCNbehHsDXkAxANR1qsF9kybW9PqzmvkqWLwiVpd0VYk3ELe0bPkqqkYcAzojqsVPvW8TMS/qyaNcao799tf4OWmKAe0nBkWJqf5tDBfzkftYHKNwo5uFLs8WzTaOr/QpjJoXamxxzHfY7+WO9vmUak2PLoXyHRfED2H/uo4gUa9xPkesQ6K1/ueb8hp+RnhQU2kdvHeNRv/og+H1RS02WVzTmHsldbGua9/IDmgF46rhF0C9wo1v/FFZ7azQyTGnvmfig7snO+oEKyl9Acv8HNEzQrOoF+Ig4XUy9pGG+05G0HdJjWwrO2WNb6i3ylnXyNv8/UT+73PTjPhJrz9E6+CkbpBryBQjMI/MM03w254FfVQl73gHRTiSNyRdzoLkTY6Db6nVmtZKYgynHIUccCeVaDBsnupC2zy/RYWCjBp8UnDgYTwG2BGGkIdBtWMFRQEWMBwmm/Q5NZg/tbVeJC0JJ0YabTpw/7pSaHLLU0eT1iC8uEXsDEh20+jTGkW5kcMyFdvl7LizTslrEjOEtIH9nrpunzXflTU+dT6PB8jgCCKRzWFwSbCmtzCi0/PTBjqcAc93VGASf43lfpnhYm86GXtwIqFsLbt+3drzxjBX/+ZjI91xiDVqDgF6383J6gW2N1l1Xu4hUHc7kE7kbL71MPEdSF6jF+SVLLjB6jAOVbwV4E+2zj5Wv6W+vxDCh/DZlyOecuWSA7U4GovwUkVfM1EtQsN9uSObqcsR1IDSmoKy7LdVrLBWCnWqqTynWGZ69bgZq9Zki2bIo2rv8Q==",
+    "expiration": "2026-08-13T09:46:10.000Z",
     "backend": "GIT_BACKEND_S3"
   },
   "name": "xtz-news",
