@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Home, ChevronRight, ChevronDown, Loader2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import PostCard from "@/components/PostCard";
+import CategoryFollowButton from "@/components/CategoryFollowButton";
 import { useSEO } from "@/hooks/useSEO";
 import RelatedArticles from "@/components/RelatedArticles";
 
@@ -73,9 +74,12 @@ export default function CategoryPage() {
             <span style={{ color: "rgba(255,255,255,0.85)" }}>{category?.name || slug?.replace(/-/g, " ")}</span>
           </nav>
 
-          <h1 style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 900, color: "#fff", textTransform: "uppercase", letterSpacing: "0.02em", margin: 0 }}>
-            {category?.name || slug?.replace(/-/g, " ")}
-          </h1>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
+            <h1 style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 900, color: "#fff", textTransform: "uppercase", letterSpacing: "0.02em", margin: 0 }}>
+              {category?.name || slug?.replace(/-/g, " ")}
+            </h1>
+            {category && <CategoryFollowButton categoryId={category.id} categoryName={category.name} />}
+          </div>
           {total > 0 && (
             <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.4)", marginTop: "0.5rem" }}>
               {total} articles

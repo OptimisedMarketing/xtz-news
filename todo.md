@@ -87,3 +87,17 @@
 - [x] Add focused Vitest coverage and validate desktop and mobile reader journeys
 - [x] Render correct project titles in global search and verify project-result matches
 - [x] Validate the simplified mobile navigation and mobile article/search journeys at a mobile viewport
+
+## Phase 14: Reader Personalisation
+- [x] Add a persistent category-following preference model for signed-in readers
+- [x] Add reader controls to follow and unfollow categories from category pages
+- [x] Build a compact personalised For You feed from followed categories
+- [x] Provide a clear visitor state and a safe empty state for readers without preferences
+- [x] Add Vitest coverage and validate the personalised reader journeys
+- [ ] Validate signed-in category follow and unfollow persistence in the browser
+- [ ] Verify the signed-in For You feed and its no-matching-stories empty state
+
+## Phase 15: Community Spotlight — Teztree
+- [x] Research the official Teztree site and verify its on-chain profile features
+- [x] Write and publish a Teztree Community Spotlight article with bullet Key Takeaways, categories, tags, and source link
+- [x] Verify the published Teztree article and its metadata

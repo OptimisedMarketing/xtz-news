@@ -4,6 +4,7 @@ import {
   users, InsertUser,
   posts, Post, InsertPost,
   categories, Category,
+  userCategoryFollows,
   tags, Tag,
   postCategories, postTags,
   projects, Project,
@@ -309,6 +310,59 @@ export async function getCategoryBySlug(slug: string) {
   if (!db) return undefined;
   const result = await db.select().from(categories).where(eq(categories.slug, slug)).limit(1);
   return result[0];
+}
+
+export async function getCategoryById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(categories).where(eq(categories.id, id)).limit(1);
+  return result[0];
+}
+
+// ─── Reader Category Follows ──────────────────────────────────────────────────
+export async function getFollowedCategories(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db
+    .select({ category: categories })
+    .from(userCategoryFollows)
+    .innerJoin(categories, eq(userCategoryFollows.categoryId, categories.id))
+    .where(eq(userCategoryFollows.userId, userId))
+    .orderBy(desc(userCategoryFollows.createdAt));
+  return rows.map((row) => row.category);
+}
+
+export async function followCategory(userId: number, categoryId: number) {
+  const db = await getDb();
+  if (!db) return;
+  await db
+    .insert(userCategoryFollows)
+    .values({ userId, categoryId })
+    .onDuplicateKeyUpdate({ set: { categoryId } });
+}
+
+export async function unfollowCategory(userId: number, categoryId: number) {
+  const db = await getDb();
+  if (!db) return;
+  await db
+    .delete(userCategoryFollows)
+    .where(and(eq(userCategoryFollows.userId, userId), eq(userCategoryFollows.categoryId, categoryId)));
+}
+
+export async function getForYouPosts(userId: number, limit = 6) {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db
+    .select({ post: posts })
+    .from(userCategoryFollows)
+    .innerJoin(postCategories, eq(userCategoryFollows.categoryId, postCategories.categoryId))
+    .innerJoin(posts, eq(postCategories.postId, posts.id))
+    .where(and(eq(userCategoryFollows.userId, userId), eq(posts.status, "publish")))
+    .orderBy(desc(posts.publishedAt))
+    .limit(limit * 4);
+
+  const uniquePosts = Array.from(new Map(rows.map((row) => [row.post.id, row.post])).values());
+  return uniquePosts.slice(0, limit);
 }
 
 // ─── Tags ─────────────────────────────────────────────────────────────────────

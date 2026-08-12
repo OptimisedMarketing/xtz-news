@@ -45,6 +45,25 @@ export const categories = mysqlTable(
 
 export type Category = typeof categories.$inferSelect;
 
+// ─── Reader Category Follows ──────────────────────────────────────────────────
+// A reader can follow multiple editorial categories. This is intentionally a
+// small, explicit preference store rather than inferred behavioural tracking.
+export const userCategoryFollows = mysqlTable(
+  "user_category_follows",
+  {
+    userId: int("userId").notNull(),
+    categoryId: int("categoryId").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("ucf_user_category_idx").on(t.userId, t.categoryId),
+    index("ucf_user_idx").on(t.userId),
+    index("ucf_category_idx").on(t.categoryId),
+  ]
+);
+
+export type UserCategoryFollow = typeof userCategoryFollows.$inferSelect;
+
 // ─── Tags ─────────────────────────────────────────────────────────────────────
 export const tags = mysqlTable(
   "tags",

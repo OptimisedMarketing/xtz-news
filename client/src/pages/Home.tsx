@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { ChevronLeft, ChevronRight, Share2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import PostCard from "@/components/PostCard";
+import ForYouFeed from "@/components/ForYouFeed";
 import HomepageFilters from "@/components/HomepageFilters";
 import { useSEO } from "@/hooks/useSEO";
 
@@ -550,6 +551,7 @@ export default function Home() {
       {isLoading ? <HeroSkeleton /> : <HeroSection latestPosts={latest} mostReadPosts={mostRead} />}
       <HomepageFilters />
       <LatestNewsSection posts={latest.slice(0, 8)} weekPosts={(data as any)?.trending ?? mostRead} allTimePosts={mostRead} />
+      <ForYouFeed />
       <FeaturedNewsGrid posts={featured} />
       <MostPopularCarousel posts={mostRead} />
       <NewsletterCTABanner />

@@ -9,6 +9,7 @@ import * as db from "./db";
 import { explorerRouter } from "./explorerRouter";
 import { toolsRouter } from "./toolsRouter";
 import { translationsRouter } from "./translationsRouter";
+import { preferencesRouter } from "./preferencesRouter";
 
 // ─── Admin guard ──────────────────────────────────────────────────────────────
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -809,6 +810,6 @@ export const appRouter = router({
   settings: settingsRouter,
   audio: audioRouter,
   translations: translationsRouter,
+  preferences: preferencesRouter,
 })
 export type AppRouter = typeof appRouter;
-
