@@ -5,6 +5,7 @@ import { goToReaderLogin } from "@/lib/readerAuth";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { getFollowableTopics } from "@/lib/topicCatalog";
+import { getMediaUrl } from "@/lib/mediaUrl";
 
 function getRelativeDate(value: Date | string | null) {
   if (!value) return "Recently";
@@ -85,7 +86,7 @@ export default function ForYouFeed() {
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(205px, 1fr))", gap: "0.55rem" }}>
                 {posts.map((post) => (
                   <Link key={post.id} href={`/${post.slug}`} style={{ display: "flex", gap: "0.6rem", minWidth: 0, padding: "0.55rem", borderRadius: "6px", textDecoration: "none", background: "rgba(255,255,255,0.035)", border: "1px solid rgba(255,255,255,0.07)" }}>
-                    {post.featuredImageUrl ? <img src={post.featuredImageUrl} alt="" style={{ width: "50px", height: "50px", borderRadius: "4px", objectFit: "cover", flexShrink: 0 }} /> : <div style={{ width: "50px", height: "50px", borderRadius: "4px", background: "#0b2548", flexShrink: 0 }} />}
+                    {post.featuredImageUrl ? <img src={getMediaUrl(post.featuredImageUrl)} alt="" style={{ width: "50px", height: "50px", borderRadius: "4px", objectFit: "cover", flexShrink: 0 }} /> : <div style={{ width: "50px", height: "50px", borderRadius: "4px", background: "#0b2548", flexShrink: 0 }} />}
                     <div style={{ minWidth: 0 }}>
                       <p style={{ margin: 0, color: "#fff", fontSize: "0.74rem", lineHeight: 1.32, fontWeight: 800, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{post.title}</p>
                       <span style={{ display: "block", marginTop: "0.3rem", color: "rgba(255,255,255,0.42)", fontSize: "0.62rem" }}>{post.categories[0]?.name ?? "Tezos News"} · {getRelativeDate(post.publishedAt)}</span>

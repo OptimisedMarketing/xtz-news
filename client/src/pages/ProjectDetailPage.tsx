@@ -2,6 +2,7 @@ import { useParams, Link } from "wouter";
 import { ExternalLink, Globe, ChevronRight, Home, ArrowLeft } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useSEO, buildWebPageSchema } from "@/hooks/useSEO";
+import { getMediaUrl } from "@/lib/mediaUrl";
 
 export default function ProjectDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -46,7 +47,7 @@ export default function ProjectDetailPage() {
       {/* Hero */}
       <div style={{
         background: project.featuredImageUrl
-          ? `linear-gradient(to bottom, rgba(0,0,0,0.65) 0%, rgba(5,21,46,0.97) 100%), url('${project.featuredImageUrl}') center/cover no-repeat`
+          ? `linear-gradient(to bottom, rgba(0,0,0,0.65) 0%, rgba(5,21,46,0.97) 100%), url('${getMediaUrl(project.featuredImageUrl)}') center/cover no-repeat`
           : "linear-gradient(135deg, #05152e 0%, #0d2a5e 100%)",
         borderBottom: "1px solid rgba(44,125,247,0.2)",
         padding: "3rem 0 2.5rem",
@@ -65,7 +66,7 @@ export default function ProjectDetailPage() {
             {/* Logo */}
             <div style={{ width: "80px", height: "80px", borderRadius: "12px", overflow: "hidden", flexShrink: 0, background: "#05152e", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
               {project.featuredImageUrl ? (
-                <img src={project.featuredImageUrl} alt={project.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <img src={getMediaUrl(project.featuredImageUrl)} alt={project.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               ) : (
                 <Globe size={32} style={{ color: "rgba(44,125,247,0.5)" }} />
               )}
@@ -188,7 +189,7 @@ function RelatedNews({ projectName }: { projectName: string }) {
             <div style={{ width: "60px", height: "45px", borderRadius: "4px", flexShrink: 0, overflow: "hidden", background: "#05152e" }}>
               {post.featuredImageUrl && (
                 <img
-                  src={post.featuredImageUrl}
+                  src={getMediaUrl(post.featuredImageUrl)}
                   alt={post.title}
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}

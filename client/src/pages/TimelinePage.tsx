@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { ChevronLeft, ChevronRight, Share2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useSEO } from "@/hooks/useSEO";
+import { getMediaUrl } from "@/lib/mediaUrl";
 
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
@@ -247,7 +248,7 @@ export default function TimelinePage() {
                         {/* Featured image */}
                         {post.featuredImageUrl ? (
                           <div style={{ height: "200px", overflow: "hidden" }}>
-                            <img src={post.featuredImageUrl} alt={post.title} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease" }}
+                            <img src={getMediaUrl(post.featuredImageUrl)} alt={post.title} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease" }}
                               onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.transform = "scale(1.05)")}
                               onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.transform = "scale(1)")} />
                           </div>

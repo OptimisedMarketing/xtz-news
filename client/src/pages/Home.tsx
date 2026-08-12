@@ -6,6 +6,7 @@ import PostCard from "@/components/PostCard";
 import ForYouFeed from "@/components/ForYouFeed";
 import HomepageFilters from "@/components/HomepageFilters";
 import { useSEO } from "@/hooks/useSEO";
+import { getMediaUrl } from "@/lib/mediaUrl";
 
 function formatDate(date: Date | string | null | undefined) {
   if (!date) return "";
@@ -95,7 +96,7 @@ function HeroSection({ latestPosts, mostReadPosts }: { latestPosts: any[]; mostR
           {/* Background */}
           <div style={{ position: "absolute", inset: 0 }}>
             {post.featuredImageUrl ? (
-              <img key={post.id} src={post.featuredImageUrl} alt={post.title}
+              <img key={post.id} src={getMediaUrl(post.featuredImageUrl)} alt={post.title}
                 style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             ) : (
               <div style={{ width: "100%", height: "100%", background: "#05152e" }} />

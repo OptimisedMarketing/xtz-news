@@ -115,6 +115,15 @@
 - [ ] Browser-validate expanded signed-in topic selection, including selecting and deselecting an added category
 - [ ] Add automated coverage for personalised feed results across followed categories
 
+## Phase 18: Media Delivery Repair
+- [x] Identify the common failure across missing homepage and article image URLs
+- [x] Repair broken image URL handling and replace unavailable media references
+- [x] Verify representative hero, article-card, and article-page images load on the development preview
+- [ ] Verify representative hero, article-card, and article-page images load on the live custom domain after release
+- [x] Remove duplicate related-article keys so article-page media validation is free of client warnings
+- [x] Record post-fix browser-console verification of the media and related-article journey
+- [x] Save visual evidence that a homepage card image and article hero image render through the media relay
+
 ## Phase 15: Community Spotlight — Teztree
 - [x] Research the official Teztree site and verify its on-chain profile features
 - [x] Write and publish a Teztree Community Spotlight article with bullet Key Takeaways, categories, tags, and source link

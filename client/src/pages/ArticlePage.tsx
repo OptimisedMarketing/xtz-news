@@ -12,6 +12,7 @@ import DonateButton from "@/components/DonateButton";
 import AudioPlayer from "@/components/AudioPlayer";
 import KeyTakeaways from "@/components/KeyTakeaways";
 import { LOCALE_FLAGS, LOCALE_NAMES, type SupportedLocale } from "@shared/locales";
+import { getMediaUrl } from "@/lib/mediaUrl";
 
 /** Injects / updates Open Graph + Twitter Card meta tags in <head> */
 function useOpenGraph(post: {
@@ -376,6 +377,9 @@ export default function ArticlePage() {
     },
     { enabled: !!post }
   );
+  const uniqueRelated = related.filter(
+    (item, index, items) => items.findIndex((candidate) => candidate.id === item.id) === index,
+  );
 
   // Fetch available translations for hreflang tags
   const { data: availableTranslations = [] } = trpc.translations.byPostId.useQuery(
@@ -475,15 +479,14 @@ export default function ArticlePage() {
 
       {/* 1. Featured image — full-bleed, NO text overlay (avoids covering image content) */}
       {post.featuredImageUrl && (
-        <div ref={heroRef} style={{ position: "relative", width: "100%", background: "#05152e", textAlign: "center" }}>
+        <div ref={heroRef} style={{ position: "relative", width: "100%", background: `#05152e url("${getMediaUrl(post.featuredImageUrl)}") center / contain no-repeat`, textAlign: "center" }}>
           <img
-            src={post.featuredImageUrl}
+            src={getMediaUrl(post.featuredImageUrl)}
             alt={post.featuredImageAlt || post.title}
             fetchPriority="high"
             loading="eager"
             decoding="async"
-            style={{ width: "100%", maxWidth: "900px", height: "auto", display: "block", margin: "0 auto", opacity: 0, transition: "opacity 0.4s ease" }}
-            onLoad={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = "1"; }}
+            style={{ width: "100%", maxWidth: "900px", height: "auto", display: "block", margin: "0 auto", opacity: 1 }}
             onError={(e) => { (e.currentTarget as HTMLElement).parentElement!.style.display = "none"; }}
           />
           {/* Skeleton shimmer while image loads */}
@@ -646,13 +649,13 @@ export default function ArticlePage() {
             <XtzPriceWidget />
 
             {/* Related articles in sidebar */}
-            {related.length > 0 && (
+            {uniqueRelated.length > 0 && (
               <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", overflow: "hidden" }}>
                 <div style={{ padding: "0.875rem 1rem", borderBottom: "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
                   <div style={{ width: "3px", height: "16px", background: "#2c7df7", borderRadius: "2px" }} />
                   <span style={{ fontSize: "0.7rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.6)" }}>Related</span>
                 </div>
-                {related.slice(0, 5).map((p, i) => (
+                {uniqueRelated.slice(0, 5).map((p, i) => (
                   <Link key={p.id} href={`/${p.slug}`} style={{ display: "flex", gap: "0.75rem", padding: "0.875rem 1rem", borderBottom: i < 4 ? "1px solid rgba(255,255,255,0.05)" : "none", textDecoration: "none", transition: "background 0.15s" }}
                     onMouseEnter={(e) => {
                       (e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.05)";
@@ -666,7 +669,7 @@ export default function ArticlePage() {
                     }}>
                     {p.featuredImageUrl && (
                       <div style={{ width: "52px", height: "52px", borderRadius: "4px", overflow: "hidden", flexShrink: 0, border: "2px solid transparent", transition: "border-color 0.2s" }}>
-                        <img src={p.featuredImageUrl} alt={p.title} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.3s ease" }} onError={(e) => { (e.currentTarget as HTMLImageElement).parentElement!.style.display = "none"; }} />
+                        <img src={getMediaUrl(p.featuredImageUrl)} alt={p.title} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.3s ease" }} onError={(e) => { (e.currentTarget as HTMLImageElement).parentElement!.style.display = "none"; }} />
                       </div>
                     )}
                     <div style={{ minWidth: 0 }}>
@@ -687,7 +690,7 @@ export default function ArticlePage() {
         </div>
 
         {/* Related Posts — full grid below */}
-        {related.length > 0 && (
+        {uniqueRelated.length > 0 && (
           <section style={{ marginTop: "4rem" }}>
             {/* Section header */}
             <div style={{
@@ -736,7 +739,7 @@ export default function ArticlePage() {
               gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
               gap: "1.25rem",
             }}>
-              {related.map((p) => (
+              {uniqueRelated.map((p) => (
                 <Link key={p.id} href={`/${p.slug}`} style={{ textDecoration: "none", display: "block" }}>
                   <div
                     style={{
@@ -764,7 +767,7 @@ export default function ArticlePage() {
                     <div style={{ position: "relative", paddingTop: "56.25%", background: "#0d2a5e", overflow: "hidden" }}>
                       {p.featuredImageUrl && (
                         <img
-                          src={p.featuredImageUrl}
+                          src={getMediaUrl(p.featuredImageUrl)}
                           alt={p.title}
                           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
                           onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}

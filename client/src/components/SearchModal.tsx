@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { Search, X, ArrowRight, Clock, TrendingUp, Loader2, Boxes } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { getMediaUrl } from "@/lib/mediaUrl";
 
 interface SearchModalProps {
   onClose: () => void;
@@ -125,7 +126,7 @@ export default function SearchModal({ onClose }: SearchModalProps) {
                   onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "transparent")}
                 >
                   <div style={{ width: "54px", height: "40px", borderRadius: "4px", overflow: "hidden", flexShrink: 0, background: "#0a1f3d" }}>
-                    {post.featuredImageUrl && <img src={post.featuredImageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")} />}
+                    {post.featuredImageUrl && <img src={getMediaUrl(post.featuredImageUrl)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")} />}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{ fontSize: "0.88rem", fontWeight: 600, color: "#fff", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.title}</p>

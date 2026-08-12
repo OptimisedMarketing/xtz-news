@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Flame, Clock } from "lucide-react";
+import { getMediaUrl } from "@/lib/mediaUrl";
 
 function timeAgo(date: Date | string | null | undefined): string {
   if (!date) return "";
@@ -85,7 +86,7 @@ export default function TrendingNewsWidget() {
               {post.featuredImageUrl ? (
                 <div style={{ width: "60px", height: "44px", borderRadius: "4px", overflow: "hidden", flexShrink: 0, background: "#0d2a5e" }}>
                   <img
-                    src={post.featuredImageUrl}
+                    src={getMediaUrl(post.featuredImageUrl)}
                     alt={post.title}
                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
                     onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}

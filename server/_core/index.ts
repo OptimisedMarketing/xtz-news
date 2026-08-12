@@ -66,6 +66,31 @@ async function startServer() {
   });
   // ─────────────────────────────────────────────────────────────────────────
 
+  // Custom domains reserve /manus-storage and may return signed redirects that
+  // fail in image elements. This relay streams storage bytes from same-origin.
+  app.get("/media/*", async (req, res) => {
+    const key = (req.params as Record<string, string>)[0];
+    if (!key) return res.status(400).send("Missing media key");
+    try {
+      const { ENV } = await import("./env");
+      if (!ENV.forgeApiUrl || !ENV.forgeApiKey) return res.status(500).send("Media storage is not configured");
+      const forgeUrl = new URL("v1/storage/presign/get", ENV.forgeApiUrl.replace(/\/+$/, "") + "/");
+      forgeUrl.searchParams.set("path", key);
+      const signed = await fetch(forgeUrl, { headers: { Authorization: `Bearer ${ENV.forgeApiKey}` } });
+      if (!signed.ok) return res.status(502).send("Media storage error");
+      const { url } = await signed.json() as { url?: string };
+      if (!url) return res.status(502).send("Media URL unavailable");
+      const media = await fetch(url, { signal: AbortSignal.timeout(20_000) });
+      if (!media.ok) return res.status(502).send("Media file unavailable");
+      res.set("Content-Type", media.headers.get("content-type") || "application/octet-stream");
+      res.set("Cache-Control", "public, max-age=31536000, immutable");
+      res.set("Access-Control-Allow-Origin", "*");
+      return res.send(Buffer.from(await media.arrayBuffer()));
+    } catch {
+      return res.status(502).send("Media relay error");
+    }
+  });
+
   registerStorageProxy(app);
   registerOAuthRoutes(app);
   app.use(uploadRouter);

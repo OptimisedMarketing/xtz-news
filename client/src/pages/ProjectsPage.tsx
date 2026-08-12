@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { ExternalLink, Search, Globe } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useSEO } from "@/hooks/useSEO";
+import { getMediaUrl } from "@/lib/mediaUrl";
 
 export default function ProjectsPage() {
   useSEO({
@@ -162,7 +163,7 @@ function ProjectCard({ project }: { project: any }) {
       >
         <div style={{ height: "140px", position: "relative", overflow: "hidden", flexShrink: 0 }}>
           {project.featuredImageUrl ? (
-            <img src={project.featuredImageUrl} alt={project.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <img src={getMediaUrl(project.featuredImageUrl)} alt={project.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           ) : (
             <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg, #05152e 0%, #123262 100%)", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <Globe size={32} style={{ color: "rgba(44,125,247,0.4)" }} />

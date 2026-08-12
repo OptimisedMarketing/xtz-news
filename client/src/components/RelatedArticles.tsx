@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { getMediaUrl } from "@/lib/mediaUrl";
 
 interface RelatedArticlesProps {
   /** Current article's post ID — used to exclude it from results */
@@ -142,7 +143,7 @@ export default function RelatedArticles({
               {p.featuredImageUrl ? (
                 <div style={{ aspectRatio: "16/9", overflow: "hidden", flexShrink: 0 }}>
                   <img
-                    src={p.featuredImageUrl}
+                    src={getMediaUrl(p.featuredImageUrl)}
                     alt={p.title}
                     loading="lazy"
                     style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.3s" }}

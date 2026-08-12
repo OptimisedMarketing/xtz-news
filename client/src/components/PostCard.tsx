@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { Tag } from "lucide-react";
+import { getMediaUrl } from "@/lib/mediaUrl";
 
 export interface PostCardData {
   id: number;
@@ -35,7 +36,8 @@ function PostImage({ src, alt, className, style }: { src: string; alt: string; c
   const [failed, setFailed] = useState(false);
   // Don't show fallback for manus-storage URLs — they use 307 redirects which can
   // trigger onError in some browsers even when the image loads successfully
-  const isManus = src.startsWith('/manus-storage/');
+  const imageSrc = getMediaUrl(src);
+  const isManus = imageSrc.startsWith('/media/');
   if (failed && !isManus) {
     return (
       <div className={className} style={{ background: "linear-gradient(135deg, #05152e 0%, #0d2a5e 100%)", display: "flex", alignItems: "center", justifyContent: "center", ...style }}>
@@ -48,7 +50,7 @@ function PostImage({ src, alt, className, style }: { src: string; alt: string; c
   }
   return (
     <img
-      src={src}
+      src={imageSrc}
       alt={alt}
       className={className}
       style={style}
