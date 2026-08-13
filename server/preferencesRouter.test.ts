@@ -46,4 +46,29 @@ describe("preferencesRouter", () => {
     expect(db.followCategory).toHaveBeenCalledWith(21, 9);
     expect(db.unfollowCategory).toHaveBeenCalledWith(21, 9);
   });
+
+  it("returns a stable empty For You state when a reader has not followed any topics", async () => {
+    vi.mocked(db.getFollowedCategories).mockResolvedValueOnce([]);
+    vi.mocked(db.getForYouPosts).mockResolvedValueOnce([]);
+
+    const caller = preferencesRouter.createCaller(makeUserContext());
+    const result = await caller.forYou({ limit: 6 });
+
+    expect(result).toEqual({ followedCategories: [], posts: [] });
+    expect(db.getForYouPosts).toHaveBeenCalledWith(21, 6);
+  });
+
+  it("preserves article categories when a reader follows multiple topics", async () => {
+    const tokenization = { ...fixtures.category, id: 10, name: "Tokenization", slug: "tokenization" };
+    const tokenizedPost = { ...fixtures.post, id: 89, title: "Tokenization update", slug: "tokenization-update" };
+    vi.mocked(db.getFollowedCategories).mockResolvedValueOnce([fixtures.category, tokenization]);
+    vi.mocked(db.getForYouPosts).mockResolvedValueOnce([fixtures.post, tokenizedPost]);
+    vi.mocked(db.getPostCategories).mockImplementationOnce(async () => [fixtures.category]).mockImplementationOnce(async () => [tokenization]);
+
+    const caller = preferencesRouter.createCaller(makeUserContext());
+    const result = await caller.forYou({ limit: 6 });
+
+    expect(result.followedCategories.map((category) => category.slug)).toEqual(["etherlink", "tokenization"]);
+    expect(result.posts.map((post) => post.categories[0]?.slug)).toEqual(["etherlink", "tokenization"]);
+  });
 });

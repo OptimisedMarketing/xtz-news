@@ -113,16 +113,29 @@
 - [ ] Browser-verify the authenticated Etherlink For You feed and no-matching-stories state
 - [ ] Add focused automated coverage for expanded topic choices and personalised feed selection
 - [ ] Browser-validate expanded signed-in topic selection, including selecting and deselecting an added category
-- [ ] Add automated coverage for personalised feed results across followed categories
+- [x] Add automated coverage for personalised feed results across followed categories
+- [ ] Add reader-facing topic selection coverage for selecting and deselecting expanded topics
 
 ## Phase 18: Media Delivery Repair
 - [x] Identify the common failure across missing homepage and article image URLs
 - [x] Repair broken image URL handling and replace unavailable media references
 - [x] Verify representative hero, article-card, and article-page images load on the development preview
-- [ ] Verify representative hero, article-card, and article-page images load on the live custom domain after release
+- [x] Verify representative hero, article-card, and article-page images load on the live custom domain after release
 - [x] Remove duplicate related-article keys so article-page media validation is free of client warnings
 - [x] Record post-fix browser-console verification of the media and related-article journey
 - [x] Save visual evidence that a homepage card image and article hero image render through the media relay
+
+## Phase 19: Live Custom-Domain Media Follow-up
+- [x] Trace the post-deployment image failures on xtz.news and www.xtz.news
+- [x] Repair any production route, deployment, or cache behaviour still bypassing the media relay
+- [x] Verify restored homepage card and article hero images on the live custom domain
+- [x] Save explicit live visual proof for homepage cards and article hero on both custom domains
+- [x] Check live-domain console and cache headers after the image relay deployment
+
+## Phase 20: SEO Opportunity Roadmap
+- [x] Audit crawlability, structured data, sitemap, canonical, and hreflang signals
+- [x] Assess search-intent coverage, content discovery, internal linking, and performance opportunities
+- [x] Produce and prioritise ten SEO improvements with implementation and measurement guidance
 
 ## Phase 15: Community Spotlight — Teztree
 - [x] Research the official Teztree site and verify its on-chain profile features
