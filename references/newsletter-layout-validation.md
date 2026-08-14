@@ -25,3 +25,11 @@ These tiles continue the mobile card stack through Etherlink, art, and community
 ## Mobile evidence, tiles 7–8
 
 The final captured 4,200-pixel mobile range continues through the remaining article cards without a duplicate signup. Because the full mobile feed extends beyond this capture, a focused bottom-of-page mobile capture is still required to document the retained **“Stay ahead of Tezos”** signup and its direct transition into the footer.
+
+## Published live verification
+
+After release of checkpoint `264eaaa3`, the live homepage was opened in the signed-in browser on `https://xtz.news/`. The extracted rendered content contains one newsletter block: **“FREE NEWSLETTER — Stay ahead of Tezos — Join 1,018+ readers. Weekly digest every Monday. Subscribe Free.”** The prior footer copy **“Stay up to date with Tezos”** is absent from the rendered page content. The page keeps the expected post-newsletter transition into footer content.
+
+### Mobile bottom-of-page proof
+
+The published mobile homepage was captured at 390 × 844 after scrolling to the page bottom: `/tmp/xtz-live-mobile-footer-proof.png`. It visibly shows one **“FREE NEWSLETTER — Stay ahead of Tezos”** form, followed directly by **More Tezos News**, the XTZ.News footer navigation/social region, and the legal row. There is no second signup block or excess gap.

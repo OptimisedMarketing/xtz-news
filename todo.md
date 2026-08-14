@@ -154,5 +154,6 @@
 ## Phase 22: Homepage Newsletter Consolidation
 - [x] Retain the primary “Stay ahead of Tezos” newsletter signup
 - [x] Remove the duplicate “Stay up to date with Tezos” newsletter block from the homepage
-- [ ] Verify the homepage-to-footer transition remains clean on desktop and mobile
-- [ ] Record desktop and mobile visual evidence that only the primary newsletter signup remains
+- [x] Verify the homepage-to-footer transition remains clean on desktop and mobile
+- [x] Record desktop and mobile visual evidence that only the primary newsletter signup remains
+- [x] Capture published mobile bottom-of-page evidence showing the retained newsletter and direct footer transition
