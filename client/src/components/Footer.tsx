@@ -1,104 +1,10 @@
-import { useState } from "react";
 import { Link } from "wouter";
-import { trpc } from "@/lib/trpc";
-import { toast } from "sonner";
-import { Send } from "lucide-react";
 
 export default function Footer() {
   const year = new Date().getFullYear();
-  const [email, setEmail] = useState("");
-  const [subscribed, setSubscribed] = useState(false);
-
-  const subscribeMutation = trpc.newsletter.subscribe.useMutation({
-    onSuccess: () => {
-      setSubscribed(true);
-      setEmail("");
-      toast.success("You're subscribed! Welcome to XTZ.News.");
-    },
-    onError: (err) => {
-      toast.error(err.message || "Subscription failed. Please try again.");
-    },
-  });
-
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email.trim()) return;
-    subscribeMutation.mutate({ email: email.trim() });
-  };
 
   return (
     <footer>
-      {/* ── Newsletter signup bar ── */}
-      <div style={{ background: "#123262", borderTop: "1px solid rgba(255,255,255,0.1)", padding: "2rem 0" }}>
-        <div className="container">
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "1.5rem" }}>
-            <div>
-              <h3 style={{ fontSize: "1.1rem", fontWeight: 900, color: "#fff", margin: "0 0 0.3rem", textTransform: "uppercase", letterSpacing: "0.03em" }}>
-                Stay up to date with Tezos
-              </h3>
-              <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.6)", margin: 0 }}>
-                Get the latest news, projects and updates delivered to your inbox.
-              </p>
-            </div>
-            {subscribed ? (
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.75rem 1.25rem", background: "rgba(44,125,247,0.15)", border: "1px solid rgba(44,125,247,0.3)", borderRadius: "3px" }}>
-                <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#2c7df7" }}>✓ You're subscribed!</span>
-              </div>
-            ) : (
-              <form onSubmit={handleSubscribe} style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email address"
-                  required
-                  style={{
-                    padding: "0.65rem 1rem",
-                    background: "rgba(255,255,255,0.08)",
-                    border: "1px solid rgba(255,255,255,0.2)",
-                    borderRadius: "3px",
-                    color: "#fff",
-                    fontSize: "0.85rem",
-                    outline: "none",
-                    width: "260px",
-                    fontFamily: "inherit",
-                    transition: "border-color 0.2s",
-                  }}
-                  onFocus={(e) => ((e.currentTarget as HTMLElement).style.borderColor = "#2c7df7")}
-                  onBlur={(e) => ((e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.2)")}
-                />
-                <button
-                  type="submit"
-                  disabled={subscribeMutation.isPending}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.4rem",
-                    padding: "0.65rem 1.25rem",
-                    background: "#2c7df7",
-                    border: "none",
-                    borderRadius: "3px",
-                    color: "#fff",
-                    fontSize: "0.75rem",
-                    fontWeight: 700,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.08em",
-                    cursor: "pointer",
-                    transition: "background 0.2s",
-                    whiteSpace: "nowrap",
-                  }}
-                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "#1a6ae0")}
-                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "#2c7df7")}
-                >
-                  <Send size={13} />
-                  {subscribeMutation.isPending ? "Subscribing..." : "Subscribe"}
-                </button>
-              </form>
-            )}
-          </div>
-        </div>
-      </div>
-
       {/* ── More Tezos News: internal links for SEO ── */}
       <div style={{ background: "#030e1f", borderTop: "1px solid rgba(255,255,255,0.06)", padding: "2rem 0" }}>
         <div className="container">

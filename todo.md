@@ -150,3 +150,9 @@
 - [x] Verify the repaired logo on desktop and mobile preview headers
 - [ ] Verify the repaired logo on live custom-domain headers after release
 - [x] Record explicit desktop and mobile preview evidence of the visible header logo
+
+## Phase 22: Homepage Newsletter Consolidation
+- [x] Retain the primary “Stay ahead of Tezos” newsletter signup
+- [x] Remove the duplicate “Stay up to date with Tezos” newsletter block from the homepage
+- [ ] Verify the homepage-to-footer transition remains clean on desktop and mobile
+- [ ] Record desktop and mobile visual evidence that only the primary newsletter signup remains
