@@ -5,6 +5,7 @@ import { SUPPORTED_LOCALES, LOCALE_FLAGS, LOCALE_NAMES, type SupportedLocale } f
 import DonateButton from "@/components/DonateButton";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getReaderLoginUrl } from "@/lib/readerAuth";
+import { getMediaUrl } from "@/lib/mediaUrl";
 
 interface HeaderProps {
   onSearchOpen?: () => void;
@@ -40,6 +41,8 @@ const NAV_ITEMS = [
   },
   { label: "SUPPORT", href: "/support" },
 ];
+
+const HEADER_LOGO_URL = getMediaUrl("/manus-storage/xtz-logo-square_c6689606.png");
 
 const MOBILE_SECTIONS = [
   {
@@ -134,8 +137,8 @@ export default function Header({ onSearchOpen }: HeaderProps) {
       <div style={{ background: "#05152e", borderBottom: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "stretch" }}>
         <div className="container" style={{ display: "flex", alignItems: "center", height: "72px", flex: 1 }}>
           <Link href="/" style={{ flexShrink: 0, marginRight: "1.2rem", display: "flex", alignItems: "center", position: "relative", zIndex: 10 }}>
-            <img src="/manus-storage/xtz-logo-square_c6689606.png" alt="XTZ.News" style={{ height: "90px", width: "auto", marginTop: "-36px" }} className="hidden lg:block" />
-            <img src="/manus-storage/xtz-logo-square_c6689606.png" alt="XTZ.News" style={{ height: "56px", width: "auto" }} className="lg:hidden" />
+            <img src={HEADER_LOGO_URL} alt="XTZ.News" style={{ height: "90px", width: "auto", marginTop: "-36px" }} className="hidden lg:block" />
+            <img src={HEADER_LOGO_URL} alt="XTZ.News" style={{ height: "56px", width: "auto" }} className="lg:hidden" />
           </Link>
 
           <nav className="hidden lg:flex" aria-label="Primary navigation" style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>

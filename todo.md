@@ -102,7 +102,7 @@
 - [x] Provide email verification and password-reset flows without relying on Manus OAuth
 - [x] Add an account entry point and replace preference-login prompts with custom sign-in
 - [x] Connect custom reader sessions to followed categories and the For You feed
-- [ ] Add automated auth coverage and validate end-to-end reader sign-in journeys
+- [x] Add automated auth coverage and validate end-to-end reader sign-in journeys
 
 ## Phase 17: Expanded Reader Topics
 - [x] Verify the current signed-in reader's Etherlink preference and personalised For You feed
@@ -111,10 +111,12 @@
 - [ ] Add coverage and validate the expanded topic-selection and For You feed journeys
 - [ ] Browser-verify authenticated follow and unfollow persistence across refresh
 - [ ] Browser-verify the authenticated Etherlink For You feed and no-matching-stories state
-- [ ] Add focused automated coverage for expanded topic choices and personalised feed selection
+- [x] Add focused automated coverage for expanded topic choices and personalised feed selection
 - [ ] Browser-validate expanded signed-in topic selection, including selecting and deselecting an added category
 - [x] Add automated coverage for personalised feed results across followed categories
 - [ ] Add reader-facing topic selection coverage for selecting and deselecting expanded topics
+- [ ] Browser-test signed-in follow, unfollow, refresh, and persistence without retaining unwanted preference changes
+- [ ] Add focused UI coverage for the signed-in For You no-matching-stories state
 
 ## Phase 18: Media Delivery Repair
 - [x] Identify the common failure across missing homepage and article image URLs
@@ -141,3 +143,10 @@
 - [x] Research the official Teztree site and verify its on-chain profile features
 - [x] Write and publish a Teztree Community Spotlight article with bullet Key Takeaways, categories, tags, and source link
 - [x] Verify the published Teztree article and its metadata
+
+## Phase 21: Header Logo Repair
+- [x] Identify the failing XTZ.News header logo source and its reliable replacement
+- [x] Replace the header logo with a stable responsive asset path
+- [x] Verify the repaired logo on desktop and mobile preview headers
+- [ ] Verify the repaired logo on live custom-domain headers after release
+- [x] Record explicit desktop and mobile preview evidence of the visible header logo
