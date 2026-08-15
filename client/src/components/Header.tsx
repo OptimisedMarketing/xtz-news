@@ -117,7 +117,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
   }, []);
 
   return (
-    <header ref={dropdownRef}>
+    <header ref={dropdownRef} aria-label="Site header">
       <div className="hidden lg:flex" style={{ background: "#123262", borderBottom: "1px solid rgba(255,255,255,0.1)", height: "36px", alignItems: "center" }}>
         <div className="container" style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "1rem" }}>
           <DonateButton variant="header" />
@@ -144,9 +144,9 @@ export default function Header({ onSearchOpen }: HeaderProps) {
           <nav className="hidden lg:flex" aria-label="Primary navigation" style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
             {NAV_ITEMS.map((item) => <div key={item.label} style={{ position: "relative" }}>
               {item.children ? <>
-                <button onClick={() => setOpenDropdown(openDropdown === item.label ? null : item.label)} aria-expanded={openDropdown === item.label} style={navButtonStyle}>{item.label}<ChevronDown size={10} style={{ transform: openDropdown === item.label ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} /></button>
-                {openDropdown === item.label && <div style={{ position: "absolute", top: "100%", left: 0, minWidth: "175px", background: "#05152e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "5px", boxShadow: "0 8px 32px rgba(0,0,0,0.6)", zIndex: 100, padding: "0.3rem 0" }}>
-                  {item.children.map((child) => <Link key={child.label} href={child.href} style={{ display: "block", padding: "0.55rem 0.9rem", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", textDecoration: "none" }}>{child.label}</Link>)}
+                <button onClick={() => setOpenDropdown(openDropdown === item.label ? null : item.label)} aria-expanded={openDropdown === item.label} aria-haspopup="menu" aria-controls={`desktop-menu-${item.label.toLowerCase()}`} style={navButtonStyle}>{item.label}<ChevronDown size={10} style={{ transform: openDropdown === item.label ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} /></button>
+                {openDropdown === item.label && <div id={`desktop-menu-${item.label.toLowerCase()}`} role="menu" style={{ position: "absolute", top: "100%", left: 0, minWidth: "175px", background: "#05152e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "5px", boxShadow: "0 8px 32px rgba(0,0,0,0.6)", zIndex: 100, padding: "0.3rem 0" }}>
+                  {item.children.map((child) => <Link role="menuitem" key={child.label} href={child.href} style={{ display: "block", padding: "0.55rem 0.9rem", fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", textDecoration: "none" }}>{child.label}</Link>)}
                 </div>}
               </> : <Link href={item.href} style={{ ...navButtonStyle, display: "block", textDecoration: "none" }}>{item.label}</Link>}
             </div>)}
@@ -158,7 +158,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
           <div className="lg:hidden" style={{ marginLeft: "auto" }} />
         </div>
 
-        <button onClick={() => setMobileOpen((open) => !open)} aria-label="Toggle menu" aria-expanded={mobileOpen} className="mobile-menu-trigger" style={{ background: "#2c7df7", border: "none", color: "#fff", width: "72px", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0.35rem", cursor: "pointer", flexShrink: 0, fontSize: "0.62rem", fontWeight: 900, letterSpacing: "0.12em", textTransform: "uppercase" }}>
+        <button onClick={() => setMobileOpen((open) => !open)} aria-label={mobileOpen ? "Close main menu" : "Open main menu"} aria-expanded={mobileOpen} aria-controls="mobile-navigation" className="mobile-menu-trigger" style={{ background: "#2c7df7", border: "none", color: "#fff", width: "72px", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0.35rem", cursor: "pointer", flexShrink: 0, fontSize: "0.62rem", fontWeight: 900, letterSpacing: "0.12em", textTransform: "uppercase" }}>
           {mobileOpen ? <X size={22} /> : <svg width="24" height="18" viewBox="0 0 24 18" fill="none"><rect width="24" height="3" rx="1.5" fill="white"/><rect y="7.5" width="24" height="3" rx="1.5" fill="white"/><rect y="15" width="24" height="3" rx="1.5" fill="white"/></svg>}
           MENU
         </button>
@@ -169,7 +169,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
       </div>
 
       {mobileOpen && <div className="lg:hidden" style={{ background: "#05152e", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-        <nav className="container" aria-label="Mobile navigation" style={{ padding: "0.75rem 0" }}>
+        <nav id="mobile-navigation" className="container" aria-label="Mobile navigation" style={{ padding: "0.75rem 0" }}>
           <div style={{ display: "flex", gap: "0.5rem", padding: "0.35rem 0.75rem 0.8rem" }}>
             {!loading && (isAuthenticated ? <button onClick={() => logout()} style={{ ...mobileAccountStyle, flex: 1 }}><UserRound size={14} /> {user?.name || "Signed in"}<span style={{ marginLeft: "auto", color: "rgba(255,255,255,0.55)" }}>Sign out</span></button> : <><Link href={loginHref} style={{ ...mobileAccountStyle, flex: 1 }}><LogIn size={14} /> Sign in</Link><Link href={`/register?returnTo=${encodeURIComponent(location)}`} style={{ ...mobileAccountStyle, flex: 1, background: "#2c7df7", borderColor: "#2c7df7", color: "#fff" }}>Create account</Link></>)}
           </div>

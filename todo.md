@@ -149,6 +149,8 @@
 - [x] Replace the header logo with a stable responsive asset path
 - [x] Verify the repaired logo on desktop and mobile preview headers
 - [ ] Verify the repaired logo on live custom-domain headers after release
+- [ ] Capture explicit live desktop and mobile header screenshots showing the logo image on xtz.news
+- [ ] Verify the logo media relay resolves on both xtz.news and www.xtz.news
 - [x] Record explicit desktop and mobile preview evidence of the visible header logo
 
 ## Phase 22: Homepage Newsletter Consolidation
@@ -157,3 +159,21 @@
 - [x] Verify the homepage-to-footer transition remains clean on desktop and mobile
 - [x] Record desktop and mobile visual evidence that only the primary newsletter signup remains
 - [x] Capture published mobile bottom-of-page evidence showing the retained newsletter and direct footer transition
+
+## Phase 23: Usability and Accessibility Enhancements
+- [x] Audit semantic landmarks, heading structure, keyboard paths, focus indicators, and media alternatives
+- [x] Add a skip link, predictable focus treatments, and semantic main-content landmarks
+- [x] Improve accessible names, descriptions, and status feedback for reader controls
+- [x] Improve article image alternatives and semantic content structure for assistive technology
+- [x] Add accessibility-focused tests and validate keyboard and mobile reader journeys
+- [x] Add explicit accessibility labels, relationships, and status feedback for article reading and sharing controls
+- [x] Strengthen article-page landmarks, labelled sections, and documented image alternative fallbacks
+- [x] Add labelled article body, related-content, and supporting-content regions with regression coverage
+- [x] Add an accessible global scroll-to-top control across all reader pages
+- [x] Add regression coverage and keyboard/mobile validation for the scroll-to-top control
+- [x] Browser-test visible scroll-to-top focus and activation on desktop
+- [x] Browser-test visible scroll-to-top focus and activation on mobile
+- [x] Capture explicit desktop evidence of the revealed scroll-to-top control
+- [x] Capture explicit mobile evidence of the revealed scroll-to-top control
+- [x] Capture mobile before-and-after evidence that activating the revealed control returns the page to the top
+- [x] Capture explicit keyboard Enter or Space activation evidence for the revealed scroll-to-top control

@@ -173,9 +173,17 @@ interface ShareButtonsProps {
 function ShareButtons({ title, url, variant = "compact" }: ShareButtonsProps) {
   const encoded = encodeURIComponent(url);
   const encodedTitle = encodeURIComponent(title);
+  const [shareStatus, setShareStatus] = useState("");
 
-  const copyLink = () => {
-    navigator.clipboard.writeText(url).then(() => toast.success("Link copied to clipboard!"));
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setShareStatus("Article link copied to clipboard.");
+      toast.success("Link copied to clipboard!");
+    } catch {
+      setShareStatus("Article link could not be copied. Please copy the page address manually.");
+      toast.error("Unable to copy the link.");
+    }
   };
 
   const shareOrCopy = async () => {
@@ -240,6 +248,7 @@ function ShareButtons({ title, url, variant = "compact" }: ShareButtonsProps) {
   if (variant === "full") {
     return (
       <div style={{ padding: "1.5rem", background: "rgba(44,125,247,0.05)", border: "1px solid rgba(44,125,247,0.15)", borderRadius: "4px" }}>
+        <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">{shareStatus}</p>
         <p style={{ fontSize: "0.75rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.12em", color: "rgba(255,255,255,0.5)", marginBottom: "1rem" }}>
           Share this article
         </p>
@@ -316,10 +325,11 @@ function ShareButtons({ title, url, variant = "compact" }: ShareButtonsProps) {
   // rather than presenting a row of individual social-network controls.
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flexWrap: "wrap" }}>
-      <button onClick={shareOrCopy} aria-label="Share article" style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", padding: "0.35rem 0.6rem", borderRadius: "20px", background: "rgba(44,125,247,0.16)", border: "1px solid rgba(44,125,247,0.3)", color: "#8cbcff", cursor: "pointer", fontSize: "0.68rem", fontWeight: 700 }}><Share2 size={13} /> Share</button>
+      <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">{shareStatus}</p>
+      <button onClick={shareOrCopy} aria-label="Share this article" style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", padding: "0.35rem 0.6rem", borderRadius: "20px", background: "rgba(44,125,247,0.16)", border: "1px solid rgba(44,125,247,0.3)", color: "#8cbcff", cursor: "pointer", fontSize: "0.68rem", fontWeight: 700 }}><Share2 size={13} /> Share</button>
       <button
         onClick={copyLink}
-        aria-label="Copy link"
+        aria-label="Copy article link"
         style={{
           display: "flex", alignItems: "center", justifyContent: "center", width: "30px", height: "30px", borderRadius: "20px",
           background: "rgba(255,255,255,0.12)",
@@ -443,30 +453,30 @@ export default function ArticlePage() {
   const readMins = Math.max(1, Math.round(wordCount / 200));
 
   return (
-    <article>
+    <article aria-labelledby="article-title">
       {/* 1. Reading progress bar */}
       <div style={{ position: "fixed", top: 0, left: 0, width: `${readProgress}%`, height: "3px", background: "linear-gradient(to right, #2c7df7, #5a9fff)", zIndex: 9999, transition: "width 0.1s linear", pointerEvents: "none" }} />
 
       {/* 8. Sticky share bar — appears after scrolling past hero */}
-      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 200, transform: showStickyShare ? "translateY(0)" : "translateY(100%)", transition: "transform 0.3s cubic-bezier(0.23,1,0.32,1)", background: "rgba(5,21,46,0.97)", borderTop: "1px solid rgba(44,125,247,0.2)", backdropFilter: "blur(12px)", padding: "0.6rem 1rem" }}>
+      <div aria-label="Article reading tools" style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 200, transform: showStickyShare ? "translateY(0)" : "translateY(100%)", transition: "transform 0.3s cubic-bezier(0.23,1,0.32,1)", background: "rgba(5,21,46,0.97)", borderTop: "1px solid rgba(44,125,247,0.2)", backdropFilter: "blur(12px)", padding: "0.6rem 1rem" }}>
         <div className="container" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem" }}>
           <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.5)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, minWidth: 0 }}>{post.title}</div>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexShrink: 0 }}>
             <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.35)", marginRight: "0.25rem" }}>{readProgress}% read</span>
             <div style={{ position: "relative" }}>
-              <button onClick={() => setReadingControlsOpen((open) => !open)} aria-expanded={readingControlsOpen} aria-controls="article-reading-controls" style={{ display: "flex", alignItems: "center", gap: "0.35rem", padding: "0.35rem 0.6rem", background: readingControlsOpen ? "rgba(44,125,247,0.2)" : "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: "20px", color: "rgba(255,255,255,0.72)", fontSize: "0.68rem", fontWeight: 700, cursor: "pointer" }}>
+              <button onClick={() => setReadingControlsOpen((open) => !open)} aria-label={readingControlsOpen ? "Close reading controls" : "Open reading controls"} aria-expanded={readingControlsOpen} aria-controls="article-reading-controls" style={{ display: "flex", alignItems: "center", gap: "0.35rem", padding: "0.35rem 0.6rem", background: readingControlsOpen ? "rgba(44,125,247,0.2)" : "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: "20px", color: "rgba(255,255,255,0.72)", fontSize: "0.68rem", fontWeight: 700, cursor: "pointer" }}>
                 <Settings2 size={13} /> Reading
               </button>
               {readingControlsOpen && (
-                <div id="article-reading-controls" role="dialog" aria-label="Reading controls" style={{ position: "absolute", bottom: "calc(100% + 0.65rem)", right: 0, width: "230px", padding: "0.85rem", background: "#071a35", border: "1px solid rgba(44,125,247,0.35)", boxShadow: "0 12px 32px rgba(0,0,0,0.45)", borderRadius: "8px" }}>
-                  <p style={{ margin: "0 0 0.65rem", fontSize: "0.62rem", color: "rgba(255,255,255,0.45)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em" }}>Reading controls</p>
+                <div id="article-reading-controls" role="region" aria-labelledby="reading-controls-title" style={{ position: "absolute", bottom: "calc(100% + 0.65rem)", right: 0, width: "230px", padding: "0.85rem", background: "#071a35", border: "1px solid rgba(44,125,247,0.35)", boxShadow: "0 12px 32px rgba(0,0,0,0.45)", borderRadius: "8px" }}>
+                  <p id="reading-controls-title" style={{ margin: "0 0 0.65rem", fontSize: "0.62rem", color: "rgba(255,255,255,0.45)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em" }}>Reading controls</p>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.5rem" }}>
                     <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.65)" }}>Text size</span>
                     <div style={{ display: "flex", gap: "0.2rem" }}>
-                      {(["sm", "md", "lg"] as const).map((size, i) => <button key={size} onClick={() => { setFontSize(size); setReadingControlsOpen(false); }} aria-label={`${size} text`} style={{ padding: "0.28rem 0.48rem", background: fontSize === size ? "#2c7df7" : "rgba(255,255,255,0.08)", border: "none", borderRadius: "4px", color: "#fff", fontSize: ["0.6rem", "0.72rem", "0.85rem"][i], fontWeight: 800, cursor: "pointer" }}>A</button>)}
+                      {(["sm", "md", "lg"] as const).map((size, i) => <button key={size} onClick={() => { setFontSize(size); setReadingControlsOpen(false); }} aria-label={`Use ${size === "sm" ? "small" : size === "md" ? "medium" : "large"} text`} aria-pressed={fontSize === size} style={{ padding: "0.28rem 0.48rem", background: fontSize === size ? "#2c7df7" : "rgba(255,255,255,0.08)", border: "none", borderRadius: "4px", color: "#fff", fontSize: ["0.6rem", "0.72rem", "0.85rem"][i], fontWeight: 800, cursor: "pointer" }}>A</button>)}
                     </div>
                   </div>
-                  <button onClick={() => { setReadingMode((mode) => mode === "dark" ? "light" : "dark"); setReadingControlsOpen(false); }} style={{ width: "100%", marginTop: "0.65rem", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.55rem 0.6rem", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "5px", background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.75)", fontSize: "0.72rem", fontWeight: 700, cursor: "pointer" }}>
+                  <button onClick={() => { setReadingMode((mode) => mode === "dark" ? "light" : "dark"); setReadingControlsOpen(false); }} aria-label={readingMode === "dark" ? "Switch to light reading mode" : "Switch to dark reading mode"} aria-pressed={readingMode === "light"} style={{ width: "100%", marginTop: "0.65rem", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.55rem 0.6rem", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "5px", background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.75)", fontSize: "0.72rem", fontWeight: 700, cursor: "pointer" }}>
                     <span>{readingMode === "dark" ? "Light reading mode" : "Dark reading mode"}</span><span>{readingMode === "dark" ? "☀️" : "🌙"}</span>
                   </button>
                 </div>
@@ -479,10 +489,10 @@ export default function ArticlePage() {
 
       {/* 1. Featured image — full-bleed, NO text overlay (avoids covering image content) */}
       {post.featuredImageUrl && (
-        <div ref={heroRef} style={{ position: "relative", width: "100%", background: `#05152e url("${getMediaUrl(post.featuredImageUrl)}") center / contain no-repeat`, textAlign: "center" }}>
+        <figure ref={heroRef} aria-labelledby="article-title" style={{ position: "relative", width: "100%", margin: 0, background: `#05152e url("${getMediaUrl(post.featuredImageUrl)}") center / contain no-repeat`, textAlign: "center" }}>
           <img
             src={getMediaUrl(post.featuredImageUrl)}
-            alt={post.featuredImageAlt || post.title}
+            alt={post.featuredImageAlt?.trim() || `Featured image for ${post.title}`}
             fetchPriority="high"
             loading="eager"
             decoding="async"
@@ -491,7 +501,7 @@ export default function ArticlePage() {
           />
           {/* Skeleton shimmer while image loads */}
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, #05152e 25%, #0d2a5e 50%, #05152e 75%)", backgroundSize: "200% 100%", animation: "shimmer 1.5s infinite", zIndex: -1 }} />
-        </div>
+        </figure>
       )}
 
       {/* 1b. Title block — always below image, never overlaid */}
@@ -514,7 +524,7 @@ export default function ArticlePage() {
             </div>
           )}
           {/* Title — clean, always readable */}
-          <h1 style={{ fontSize: "clamp(1.6rem, 4vw, 2.75rem)", fontWeight: 900, color: "#fff", lineHeight: 1.15, letterSpacing: "-0.02em", margin: "0 0 1.25rem", maxWidth: "820px" }}>
+          <h1 id="article-title" style={{ fontSize: "clamp(1.6rem, 4vw, 2.75rem)", fontWeight: 900, color: "#fff", lineHeight: 1.15, letterSpacing: "-0.02em", margin: "0 0 1.25rem", maxWidth: "820px" }}>
             {post.title}
           </h1>
           {/* Meta row */}
@@ -542,7 +552,7 @@ export default function ArticlePage() {
         <div className="article-layout">
 
           {/* ── Main article column ── */}
-          <div>
+          <section aria-label="Article body">
             {/* Audio Player — only shown when pre-generated audio exists (generated by cloud cron, no Manus credits) */}
             {(post as any).audioUrl && (
               <AudioPlayer src={(post as any).audioUrl} title={post.title} postId={post.id} featuredImageUrl={post.featuredImageUrl} slug={post.slug} />
@@ -641,10 +651,10 @@ export default function ArticlePage() {
 
             {/* Newsletter Signup */}
             <ArticleNewsletterSignup />
-          </div>
+          </section>
 
           {/* ── Sticky sidebar ── */}
-          <div className="article-sidebar">
+          <aside className="article-sidebar" aria-label="Article supporting content">
             {/* XTZ Price Widget */}
             <XtzPriceWidget />
 
@@ -686,12 +696,12 @@ export default function ArticlePage() {
               <div style={{ fontSize: "0.65rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.4)", marginBottom: "0.75rem" }}>Share this article</div>
               <ShareButtons title={post.title} url={pageUrl} />
             </div>
-          </div>
+          </aside>
         </div>
 
         {/* Related Posts — full grid below */}
         {uniqueRelated.length > 0 && (
-          <section style={{ marginTop: "4rem" }}>
+          <section aria-labelledby="related-articles-title" style={{ marginTop: "4rem" }}>
             {/* Section header */}
             <div style={{
               display: "flex",
@@ -705,7 +715,7 @@ export default function ArticlePage() {
                 <div style={{ width: "4px", height: "28px", background: "#2c7df7", borderRadius: "2px", flexShrink: 0 }} />
                 <div>
                   <p style={{ margin: 0, fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: "#2c7df7", marginBottom: "2px" }}>You might also like</p>
-                  <h2 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#fff", letterSpacing: "-0.01em" }}>Related Articles</h2>
+                  <h2 id="related-articles-title" style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#fff", letterSpacing: "-0.01em" }}>Related Articles</h2>
                 </div>
               </div>
               {post.categories?.[0] && (

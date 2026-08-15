@@ -58,13 +58,14 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <div className="flex flex-col min-h-screen" style={{ background: "var(--body-bg)" }}>
+      <a className="skip-link" href="#main-content">Skip to main content</a>
       <BreakingNewsBanner />
       <div className="sticky top-0 z-50">
         <PriceTicker />
         <Header onSearchOpen={() => setSearchOpen(true)} />
       </div>
 
-      <main className="flex-1">{children}</main>
+      <main id="main-content" tabIndex={-1} className="flex-1">{children}</main>
 
       <Footer />
 

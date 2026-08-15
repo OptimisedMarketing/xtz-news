@@ -60,14 +60,23 @@ export default function SearchModal({ onClose }: SearchModalProps) {
 
   const hasResults = debounced.length >= 2 && !isLoading && (posts.length > 0 || projects.length > 0);
   const noResults = debounced.length >= 2 && !isLoading && posts.length === 0 && projects.length === 0;
+  const searchStatus = isLoading && debounced.length >= 2
+    ? "Searching XTZ.News"
+    : hasResults
+      ? `${posts.length + projects.length} results found for ${debounced}`
+      : noResults
+        ? `No results found for ${debounced}`
+        : "";
 
   return (
     <>
       {/* Backdrop */}
-      <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 9998, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", animation: "srFadeIn 0.15s ease" }} />
+      <div aria-hidden="true" onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 9998, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", animation: "srFadeIn 0.15s ease" }} />
 
       {/* Panel */}
-      <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 9999, background: "#05152e", borderBottom: "1px solid rgba(44,125,247,0.3)", boxShadow: "0 24px 64px rgba(0,0,0,0.7)", animation: "srSlideDown 0.2s cubic-bezier(0.23,1,0.32,1)", maxHeight: "85vh", display: "flex", flexDirection: "column" }}>
+      <div role="dialog" aria-modal="true" aria-labelledby="site-search-title" style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 9999, background: "#05152e", borderBottom: "1px solid rgba(44,125,247,0.3)", boxShadow: "0 24px 64px rgba(0,0,0,0.7)", animation: "srSlideDown 0.2s cubic-bezier(0.23,1,0.32,1)", maxHeight: "85vh", display: "flex", flexDirection: "column" }}>
+        <h2 id="site-search-title" className="sr-only">Search XTZ.News</h2>
+        <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">{searchStatus}</p>
 
         {/* Input row */}
         <div style={{ display: "flex", alignItems: "center", gap: "1rem", padding: "1.25rem 1.5rem", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
@@ -81,15 +90,16 @@ export default function SearchModal({ onClose }: SearchModalProps) {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && go(query)}
             placeholder="Search articles, projects, categories..."
+            aria-label="Search articles, projects, and categories"
             style={{ flex: 1, background: "none", border: "none", outline: "none", color: "#fff", fontSize: "1.15rem", fontFamily: "inherit", fontWeight: 500 }}
           />
           {query && (
-            <button onClick={() => setQuery("")} style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: "50%", width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "rgba(255,255,255,0.5)", flexShrink: 0, transition: "all 0.15s" }}
+            <button onClick={() => setQuery("")} aria-label="Clear search query" style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: "50%", width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "rgba(255,255,255,0.5)", flexShrink: 0, transition: "all 0.15s" }}
               onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.15)"; (e.currentTarget as HTMLElement).style.color = "#fff"; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.08)"; (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.5)"; }}
             ><X size={14} /></button>
           )}
-          <button onClick={onClose} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", color: "rgba(255,255,255,0.4)", cursor: "pointer", padding: "0.3rem 0.6rem", fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.06em", display: "flex", alignItems: "center", gap: "0.3rem", flexShrink: 0, transition: "all 0.15s" }}
+          <button onClick={onClose} aria-label="Close search" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", color: "rgba(255,255,255,0.4)", cursor: "pointer", padding: "0.3rem 0.6rem", fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.06em", display: "flex", alignItems: "center", gap: "0.3rem", flexShrink: 0, transition: "all 0.15s" }}
             onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.12)"; (e.currentTarget as HTMLElement).style.color = "#fff"; }}
             onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)"; (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.4)"; }}
           ><X size={11} /> ESC</button>
