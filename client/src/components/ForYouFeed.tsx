@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import React from "react";
 import { Link } from "wouter";
 import { ArrowRight, Bell, Sparkles } from "lucide-react";
 import { goToReaderLogin } from "@/lib/readerAuth";
@@ -6,6 +7,8 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { getFollowableTopics } from "@/lib/topicCatalog";
 import { getMediaUrl } from "@/lib/mediaUrl";
+import { getForYouPresentationState } from "@/lib/forYouPresentation";
+import { ForYouEmptyState, TopicSelectionChip } from "@/components/ForYouControls";
 
 function getRelativeDate(value: Date | string | null) {
   if (!value) return "Recently";
@@ -27,6 +30,13 @@ export default function ForYouFeed() {
   );
   const followedCategories = preferenceData?.followedCategories ?? [];
   const posts = preferenceData?.posts ?? [];
+  const presentationState = getForYouPresentationState({
+    isAuthenticated,
+    loading,
+    feedLoading,
+    followedCount: followedCategories.length,
+    postCount: posts.length,
+  });
   const followedIds = useMemo(() => new Set(followedCategories.map((category) => category.id)), [followedCategories]);
   const toggle = trpc.preferences.toggleCategory.useMutation({
     onSuccess: async () => {
@@ -70,20 +80,20 @@ export default function ForYouFeed() {
             )}
           </div>
 
-          {!isAuthenticated && !loading ? null : feedLoading ? (
+          {presentationState === "guest" ? null : presentationState === "loading" ? (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "0.6rem", marginTop: "0.9rem" }}>
               {Array.from({ length: 4 }).map((_, index) => <div key={index} className="skeleton" style={{ height: "68px", borderRadius: "6px" }} />)}
             </div>
-          ) : followedCategories.length === 0 ? (
+          ) : presentationState === "chooseTopics" ? (
             <div style={{ marginTop: "0.9rem" }}>
               <p style={{ margin: "0 0 0.55rem", color: "rgba(255,255,255,0.42)", fontSize: "0.68rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em" }}>Choose your crypto & ecosystem topics</p>
               <div style={{ display: "flex", gap: "0.45rem", flexWrap: "wrap" }}>
-                {topicChoices.map((category) => <button key={category.id} type="button" onClick={() => chooseTopic(category.id, true)} disabled={toggle.isPending} style={{ padding: "0.42rem 0.6rem", border: "1px solid rgba(255,255,255,0.13)", background: "rgba(255,255,255,0.045)", color: "rgba(255,255,255,0.78)", borderRadius: "999px", cursor: "pointer", fontSize: "0.7rem", fontWeight: 700 }}>{category.name}</button>)}
+                {topicChoices.map((category) => <TopicSelectionChip key={category.id} name={category.name} following={false} onToggle={() => chooseTopic(category.id, true)} disabled={toggle.isPending} />)}
               </div>
             </div>
           ) : (
             <>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(205px, 1fr))", gap: "0.55rem" }}>
+              {presentationState === "emptyFeed" ? <ForYouEmptyState /> : <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(205px, 1fr))", gap: "0.55rem" }}>
                 {posts.map((post) => (
                   <Link key={post.id} href={`/${post.slug}`} style={{ display: "flex", gap: "0.6rem", minWidth: 0, padding: "0.55rem", borderRadius: "6px", textDecoration: "none", background: "rgba(255,255,255,0.035)", border: "1px solid rgba(255,255,255,0.07)" }}>
                     {post.featuredImageUrl ? <img src={getMediaUrl(post.featuredImageUrl)} alt="" style={{ width: "50px", height: "50px", borderRadius: "4px", objectFit: "cover", flexShrink: 0 }} /> : <div style={{ width: "50px", height: "50px", borderRadius: "4px", background: "#0b2548", flexShrink: 0 }} />}
@@ -93,14 +103,13 @@ export default function ForYouFeed() {
                     </div>
                   </Link>
                 ))}
-              </div>
-              {posts.length === 0 && <p style={{ margin: "0.6rem 0 0", color: "rgba(255,255,255,0.55)", fontSize: "0.76rem" }}>New stories from your topics will appear here as they are published.</p>}
+              </div>}
               <details style={{ marginTop: "0.75rem" }}>
                 <summary style={{ cursor: "pointer", color: "#93bfff", fontSize: "0.7rem", fontWeight: 800, listStyle: "none", display: "inline-flex", alignItems: "center", gap: "0.3rem" }}>Manage crypto topics ({allTopicChoices.length}) <ArrowRight size={12} /></summary>
                 <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginTop: "0.65rem" }}>
                   {topicChoices.map((category) => {
                     const following = followedIds.has(category.id);
-                    return <button key={category.id} type="button" onClick={() => chooseTopic(category.id, !following)} disabled={toggle.isPending} aria-pressed={following} style={{ padding: "0.4rem 0.58rem", border: `1px solid ${following ? "rgba(54,211,153,0.6)" : "rgba(255,255,255,0.14)"}`, background: following ? "rgba(54,211,153,0.12)" : "rgba(255,255,255,0.04)", color: following ? "#5fe4b1" : "rgba(255,255,255,0.7)", borderRadius: "999px", cursor: "pointer", fontSize: "0.68rem", fontWeight: 700 }}>{following ? "✓ " : "+ "}{category.name}</button>;
+                    return <TopicSelectionChip key={category.id} name={category.name} following={following} onToggle={() => chooseTopic(category.id, !following)} disabled={toggle.isPending} compact />;
                   })}
                 </div>
                 {additionalTopicChoices.length > 0 && (
@@ -109,7 +118,7 @@ export default function ForYouFeed() {
                     <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginTop: "0.55rem" }}>
                       {additionalTopicChoices.map((category) => {
                         const following = followedIds.has(category.id);
-                        return <button key={category.id} type="button" onClick={() => chooseTopic(category.id, !following)} disabled={toggle.isPending} aria-pressed={following} style={{ padding: "0.4rem 0.58rem", border: `1px solid ${following ? "rgba(54,211,153,0.6)" : "rgba(255,255,255,0.14)"}`, background: following ? "rgba(54,211,153,0.12)" : "rgba(255,255,255,0.04)", color: following ? "#5fe4b1" : "rgba(255,255,255,0.7)", borderRadius: "999px", cursor: "pointer", fontSize: "0.68rem", fontWeight: 700 }}>{following ? "✓ " : "+ "}{category.name}</button>;
+                        return <TopicSelectionChip key={category.id} name={category.name} following={following} onToggle={() => chooseTopic(category.id, !following)} disabled={toggle.isPending} compact />;
                       })}
                     </div>
                   </details>
