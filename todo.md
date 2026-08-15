@@ -120,7 +120,7 @@
 - [ ] Browser-verify signed-in no-matching-stories state and restore the reader’s chosen topics
 - [x] Add focused UI coverage for selecting and deselecting topics in the reader-facing manager
 - [x] Add rendered ForYouFeed tests for signed-in empty and expanded topic-manager states
-- [ ] Add rendered-component tests for signed-in empty feed and topic-manager selection state
+- [x] Add rendered-component tests for signed-in empty feed and topic-manager selection state
 
 ## Phase 18: Media Delivery Repair
 - [x] Identify the common failure across missing homepage and article image URLs
@@ -152,9 +152,10 @@
 - [x] Identify the failing XTZ.News header logo source and its reliable replacement
 - [x] Replace the header logo with a stable responsive asset path
 - [x] Verify the repaired logo on desktop and mobile preview headers
-- [ ] Verify the repaired logo on live custom-domain headers after release
-- [ ] Capture explicit live desktop and mobile header screenshots showing the logo image on xtz.news
-- [ ] Verify the logo media relay resolves on both xtz.news and www.xtz.news
+- [x] Verify the repaired logo on live custom-domain headers after release
+- [x] Capture explicit live desktop and mobile header screenshots showing the logo image on xtz.news
+- [x] Verify the logo media relay resolves on both xtz.news and www.xtz.news
+- [x] Capture and record an explicit live mobile header screenshot showing the repaired logo
 - [x] Record explicit desktop and mobile preview evidence of the visible header logo
 
 ## Phase 22: Homepage Newsletter Consolidation
