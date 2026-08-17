@@ -95,7 +95,7 @@
 - [x] Provide a clear visitor state and a safe empty state for readers without preferences
 - [x] Add Vitest coverage and validate the personalised reader journeys
 - [x] Validate signed-in category follow and unfollow persistence in the browser
-- [ ] Verify the signed-in For You feed and its no-matching-stories empty state
+- [x] Verify the signed-in For You feed and its no-matching-stories empty state
 
 ## Phase 16: Custom Reader Authentication
 - [x] Add secure custom email-and-password registration and login for readers
@@ -108,16 +108,16 @@
 - [x] Verify the current signed-in reader's Etherlink preference and personalised For You feed
 - [x] Add additional crypto-relevant topic categories to the followable catalogue
 - [x] Surface followed and suggested topics clearly in the reader-facing personalisation flow
-- [ ] Add coverage and validate the expanded topic-selection and For You feed journeys
+- [x] Add coverage and validate the expanded topic-selection and For You feed journeys
 - [x] Browser-verify authenticated follow and unfollow persistence across refresh
-- [ ] Browser-verify the authenticated Etherlink For You feed and no-matching-stories state
+- [x] Browser-verify the authenticated Etherlink For You feed and no-matching-stories state
 - [x] Add focused automated coverage for expanded topic choices and personalised feed selection
 - [x] Browser-validate expanded signed-in topic selection, including selecting and deselecting an added category
 - [x] Add automated coverage for personalised feed results across followed categories
 - [x] Add reader-facing topic selection coverage for selecting and deselecting expanded topics
 - [x] Browser-test signed-in follow, unfollow, refresh, and persistence without retaining unwanted preference changes
 - [x] Add focused UI coverage for the signed-in For You no-matching-stories state
-- [ ] Browser-verify signed-in no-matching-stories state and restore the reader’s chosen topics
+- [x] Browser-verify signed-in no-matching-stories state and restore the reader’s chosen topics
 - [x] Add focused UI coverage for selecting and deselecting topics in the reader-facing manager
 - [x] Add rendered ForYouFeed tests for signed-in empty and expanded topic-manager states
 - [x] Add rendered-component tests for signed-in empty feed and topic-manager selection state
