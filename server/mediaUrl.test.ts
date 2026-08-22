@@ -5,6 +5,7 @@ describe("getMediaUrl", () => {
   it("routes manuscript-storage paths through the same-origin media relay", () => {
     expect(getMediaUrl("/manus-storage/article/cover.webp")).toBe("/media/article/cover.webp");
     expect(getMediaUrl("https://xtz.news/manus-storage/article/cover.webp")).toBe("/media/article/cover.webp");
+    expect(getMediaUrl("/manus-storage/xtz-logo-square_c6689606.png")).toBe("/media/xtz-logo-square_c6689606.png");
   });
 
   it("preserves external media and returns a safe empty source for missing media", () => {

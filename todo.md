@@ -251,3 +251,8 @@
 - [x] Inspect the Ganesha article’s stored Tezos source-card markup to identify duplicate content
 - [x] Remove the redundant Tezos text/card content and correct the source-card layout
 - [x] Test and visually validate the repaired Tezos source card on desktop and mobile
+
+## Phase 31: Footer Logo Repair
+- [x] Inspect the footer logo component and media reference that produces the broken-image display
+- [x] Route the footer logo through the reliable XTZ.News media treatment and responsive dimensions
+- [x] Run regression checks and visually validate the footer logo on desktop and mobile

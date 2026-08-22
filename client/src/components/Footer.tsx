@@ -1,4 +1,7 @@
 import { Link } from "wouter";
+import { getMediaUrl } from "@/lib/mediaUrl";
+
+const FOOTER_LOGO_URL = getMediaUrl("/manus-storage/xtz-logo-square_c6689606.png");
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -41,9 +44,9 @@ export default function Footer() {
             {/* Footer logo */}
             <Link href="/" style={{ flexShrink: 0, display: "flex", alignItems: "center" }}>
               <img
-                src="/manus-storage/footer-logo_bbfa516b.svg"
+                src={FOOTER_LOGO_URL}
                 alt="XTZ.News"
-                style={{ height: "80px", width: "auto" }}
+                style={{ display: "block", width: "64px", height: "64px", objectFit: "contain" }}
               />
             </Link>
 
