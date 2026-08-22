@@ -189,3 +189,14 @@
 - [x] Create a publication-ready Etherlink-logo-led featured image
 - [x] Publish the story with relevant categories, tags, source links, and the featured image
 - [x] Run the existing regression suite and verify the published article experience
+
+## Phase 25: Ganesha Story Discovery and Gateway Explainer
+- [x] Review the current article page, related-post matching, and sharing components
+- [x] Add a Ganesha-specific related-articles section prioritising Etherlink and Tezos coverage
+- [x] Add accessible X and LinkedIn sharing controls for the Ganesha story
+- [x] Build an accessible interactive explainer for the EVM and Michelson gateway flow
+- [x] Add focused tests and validate the enhanced article on desktop and mobile
+- [x] Verify and standardise the Ganesha X share endpoint, then validate the X and LinkedIn links
+- [x] Ensure the Ganesha related-story ordering test runs under the configured Vitest include pattern
+- [x] Add responsive interaction coverage for the gateway controls and record the mobile validation basis
+- [x] Browser-test the Ganesha X and LinkedIn share links after endpoint standardisation

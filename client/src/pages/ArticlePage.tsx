@@ -13,6 +13,9 @@ import AudioPlayer from "@/components/AudioPlayer";
 import KeyTakeaways from "@/components/KeyTakeaways";
 import { LOCALE_FLAGS, LOCALE_NAMES, type SupportedLocale } from "@shared/locales";
 import { getMediaUrl } from "@/lib/mediaUrl";
+import GaneshaSharePanel from "@/components/GaneshaSharePanel";
+import GatewayExplainer from "@/components/GatewayExplainer";
+import { isGaneshaStory, prioritiseGaneshaRelatedStories } from "@/lib/ganeshaStory";
 
 /** Injects / updates Open Graph + Twitter Card meta tags in <head> */
 function useOpenGraph(post: {
@@ -449,6 +452,8 @@ export default function ArticlePage() {
   }
 
   const pageUrl = typeof window !== "undefined" ? window.location.href : `https://xtz.news/${slug}`;
+  const isGaneshaArticle = isGaneshaStory(post.slug);
+  const displayedRelated = isGaneshaArticle ? prioritiseGaneshaRelatedStories(uniqueRelated) : uniqueRelated;
   const wordCount = post.content ? post.content.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length : 0;
   const readMins = Math.max(1, Math.round(wordCount / 200));
 
@@ -561,6 +566,8 @@ export default function ArticlePage() {
             {/* Key Takeaways — shown when available, improves readability & AI search */}
             <KeyTakeaways takeaways={(post as any).keyTakeaways} />
 
+            {isGaneshaArticle && <GatewayExplainer />}
+
             <details style={{ marginBottom: "1.75rem", padding: "0.8rem 1rem", borderRadius: "6px", background: "rgba(44,125,247,0.045)", border: "1px solid rgba(44,125,247,0.14)", color: "rgba(255,255,255,0.55)" }}>
               <summary style={{ cursor: "pointer", color: "rgba(255,255,255,0.72)", fontSize: "0.76rem", fontWeight: 700 }}>Reader note &amp; support XTZ.News</summary>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.75rem", paddingTop: "0.75rem", fontSize: "0.76rem", lineHeight: 1.55 }}>
@@ -635,6 +642,7 @@ export default function ArticlePage() {
             )}
 
             {/* Share at bottom */}
+            {isGaneshaArticle && <GaneshaSharePanel title={post.title} url={pageUrl} />}
             <div style={{ marginTop: "2rem" }}>
               <ShareButtons title={post.title} url={pageUrl} variant="full" />
             </div>
@@ -659,13 +667,13 @@ export default function ArticlePage() {
             <XtzPriceWidget />
 
             {/* Related articles in sidebar */}
-            {uniqueRelated.length > 0 && (
+            {displayedRelated.length > 0 && (
               <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px", overflow: "hidden" }}>
                 <div style={{ padding: "0.875rem 1rem", borderBottom: "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
                   <div style={{ width: "3px", height: "16px", background: "#2c7df7", borderRadius: "2px" }} />
                   <span style={{ fontSize: "0.7rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.6)" }}>Related</span>
                 </div>
-                {uniqueRelated.slice(0, 5).map((p, i) => (
+                {displayedRelated.slice(0, 5).map((p, i) => (
                   <Link key={p.id} href={`/${p.slug}`} style={{ display: "flex", gap: "0.75rem", padding: "0.875rem 1rem", borderBottom: i < 4 ? "1px solid rgba(255,255,255,0.05)" : "none", textDecoration: "none", transition: "background 0.15s" }}
                     onMouseEnter={(e) => {
                       (e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.05)";
@@ -700,7 +708,7 @@ export default function ArticlePage() {
         </div>
 
         {/* Related Posts — full grid below */}
-        {uniqueRelated.length > 0 && (
+        {displayedRelated.length > 0 && (
           <section aria-labelledby="related-articles-title" style={{ marginTop: "4rem" }}>
             {/* Section header */}
             <div style={{
@@ -714,8 +722,8 @@ export default function ArticlePage() {
               <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                 <div style={{ width: "4px", height: "28px", background: "#2c7df7", borderRadius: "2px", flexShrink: 0 }} />
                 <div>
-                  <p style={{ margin: 0, fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: "#2c7df7", marginBottom: "2px" }}>You might also like</p>
-                  <h2 id="related-articles-title" style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#fff", letterSpacing: "-0.01em" }}>Related Articles</h2>
+                  <p style={{ margin: 0, fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: isGaneshaArticle ? "#63f7b1" : "#2c7df7", marginBottom: "2px" }}>{isGaneshaArticle ? "Continue exploring Etherlink & Tezos" : "You might also like"}</p>
+                  <h2 id="related-articles-title" style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#fff", letterSpacing: "-0.01em" }}>{isGaneshaArticle ? "More Etherlink and Tezos News" : "Related Articles"}</h2>
                 </div>
               </div>
               {post.categories?.[0] && (
@@ -749,7 +757,7 @@ export default function ArticlePage() {
               gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
               gap: "1.25rem",
             }}>
-              {uniqueRelated.map((p) => (
+              {displayedRelated.map((p) => (
                 <Link key={p.id} href={`/${p.slug}`} style={{ textDecoration: "none", display: "block" }}>
                   <div
                     style={{
