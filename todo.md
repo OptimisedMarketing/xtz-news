@@ -182,3 +182,10 @@
 - [x] Capture explicit mobile evidence of the revealed scroll-to-top control
 - [x] Capture mobile before-and-after evidence that activating the revealed control returns the page to the top
 - [x] Capture explicit keyboard Enter or Space activation evidence for the revealed scroll-to-top control
+
+## Phase 24: Etherlink Ganesha and Native Atomic Composability Story
+- [x] Verify the supplied Etherlink, Tezos, transaction, and announcement sources
+- [x] Write a source-grounded Ganesha article with concise bullet Key Takeaways and SEO metadata
+- [x] Create a publication-ready Etherlink-logo-led featured image
+- [x] Publish the story with relevant categories, tags, source links, and the featured image
+- [x] Run the existing regression suite and verify the published article experience
