@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from "react";
+import React from "react";
 import { Link } from "wouter";
-import { ChevronLeft, ChevronRight, Share2 } from "lucide-react";
+import { CheckCircle, ChevronLeft, ChevronRight, Share2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import PostCard from "@/components/PostCard";
 import ForYouFeed from "@/components/ForYouFeed";
 import HomepageFilters from "@/components/HomepageFilters";
 import { useSEO } from "@/hooks/useSEO";
 import { getMediaUrl } from "@/lib/mediaUrl";
+import { getNewsletterConfirmationCopy } from "@/lib/newsletterConfirmation";
 
 function formatDate(date: Date | string | null | undefined) {
   if (!date) return "";
@@ -398,11 +400,13 @@ function TrendingNowWidget({ weekPosts, allTimePosts }: { weekPosts: any[]; allT
   );
 }
 
-function NewsletterCTABanner() {
+export function NewsletterCTABanner() {
   const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const previewSuccess = typeof window !== "undefined" && import.meta.env.DEV && new URLSearchParams(window.location.search).get("newsletterPreview") === "success";
+  const [submitted, setSubmitted] = useState(previewSuccess);
+  const [welcomeEmailRequested, setWelcomeEmailRequested] = useState(previewSuccess);
   const subscribeMutation = trpc.newsletter.subscribe.useMutation({
-    onSuccess: () => setSubmitted(true),
+    onSuccess: (result) => { setWelcomeEmailRequested(result.welcomeEmailRequested); setSubmitted(true); setEmail(""); },
   });
   const { data: countData } = trpc.newsletter.subscriberCount.useQuery(undefined, { staleTime: 5 * 60_000 });
   const count = typeof countData === "number" ? countData : 1026;
@@ -422,8 +426,14 @@ function NewsletterCTABanner() {
           </div>
           <div style={{ flex: "1 1 360px" }}>
             {submitted ? (
-              <div style={{ background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.3)", borderRadius: "6px", padding: "1rem 1.5rem", textAlign: "center" }}>
-                <p style={{ margin: 0, color: "#22c55e", fontWeight: 700 }}>✓ You're subscribed! Check your inbox.</p>
+              <div className="newsletter-success-card" role="status" aria-live="polite" style={{ position: "relative", overflow: "hidden", background: "linear-gradient(135deg, rgba(44,125,247,0.24), rgba(99,247,177,0.16))", border: "1px solid rgba(99,247,177,0.42)", borderRadius: "7px", padding: "1rem 1.25rem", textAlign: "center" }}>
+                <span className="newsletter-success-card__glow" aria-hidden="true" />
+                <div style={{ position: "relative" }}>
+                  <CheckCircle className="newsletter-success-card__icon" size={25} color="#63f7b1" aria-hidden="true" />
+                  <p style={{ margin: "0.25rem 0", color: "#fff", fontWeight: 800 }}>{getNewsletterConfirmationCopy(welcomeEmailRequested).headline}</p>
+                  <p style={{ margin: 0, color: "rgba(255,255,255,0.74)", fontSize: "0.76rem", lineHeight: 1.5 }}>{getNewsletterConfirmationCopy(welcomeEmailRequested).description}</p>
+                  <p style={{ margin: "0.4rem 0 0", color: "rgba(255,255,255,0.5)", fontSize: "0.68rem", lineHeight: 1.4 }}>{getNewsletterConfirmationCopy(welcomeEmailRequested).preferenceNote}</p>
+                </div>
               </div>
             ) : (
               <form onSubmit={handleSubmit} style={{ display: "flex", gap: "0.5rem" }}>

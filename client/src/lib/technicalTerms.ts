@@ -16,6 +16,14 @@ const terms = {
     label: "NAC",
     definition: "Native Atomic Composability: cross-interface actions succeed together or revert together.",
   },
+  EIP1271: {
+    label: "EIP-1271",
+    definition: "An Ethereum standard that lets a smart-contract account validate signatures.",
+  },
+  KT1: {
+    label: "KT1 address",
+    definition: "The address prefix used by originated Tezos smart contracts.",
+  },
 } satisfies Record<string, TechnicalTerm>;
 
 function tooltip(term: TechnicalTerm) {
@@ -29,7 +37,9 @@ export function annotateGaneshaTechnicalTerms(html: string) {
     .replace("Native Atomic Composability, or NAC,", `Native Atomic Composability, or ${tooltip(terms.NAC)},`)
     .replace("NAC is Etherlink’s name", `${tooltip(terms.NAC)} is Etherlink’s name`)
     .replace("Tezos’ EVM-compatible execution layer", `Tezos’ ${tooltip(terms.EVM)}-compatible execution layer`)
-    .replace("adds a Michelson interface", `adds a ${tooltip(terms.Michelson)} interface`);
+    .replace("adds a Michelson interface", `adds a ${tooltip(terms.Michelson)} interface`)
+    .replace("assigned a KT1 address", `assigned a ${tooltip(terms.KT1)}`)
+    .replace("account implementing EIP-1271", `account implementing ${tooltip(terms.EIP1271)}`);
 }
 
 export { terms as technicalTerms };

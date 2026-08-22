@@ -240,3 +240,14 @@
 - [x] Make reading progress track the article body rather than overall document scroll and cover the calculation
 - [x] Add a safe development-only newsletter success preview for browser validation without submitting email
 - [x] Browser-validate near-complete article progress and the Resend-aware success state on desktop and mobile
+
+## Phase 29: Homepage Newsletter Confirmation and Extended Technical Terms
+- [x] Inspect the homepage newsletter form and the Ganesha article passages containing EIP-1271 and KT1 references
+- [x] Add accessible hover-and-focus explanations for EIP-1271 and KT1 addresses in the Ganesha article
+- [x] Apply the Resend-aware animated newsletter success confirmation to the homepage form
+- [x] Add focused tests and validate the new homepage confirmation and tooltips on desktop and mobile
+
+## Phase 30: Tezos Source Card De-duplication
+- [x] Inspect the Ganesha article’s stored Tezos source-card markup to identify duplicate content
+- [x] Remove the redundant Tezos text/card content and correct the source-card layout
+- [x] Test and visually validate the repaired Tezos source card on desktop and mobile
