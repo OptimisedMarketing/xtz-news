@@ -200,3 +200,13 @@
 - [x] Ensure the Ganesha related-story ordering test runs under the configured Vitest include pattern
 - [x] Add responsive interaction coverage for the gateway controls and record the mobile validation basis
 - [x] Browser-test the Ganesha X and LinkedIn share links after endpoint standardisation
+
+## Phase 26: Arthur Breitman Tweet Visual
+- [x] Store the supplied cross-runtime-transaction tweet screenshot through project media storage
+- [x] Insert the visual tweet card and original-post link into the Ganesha article
+- [x] Validate the visual card and link rendering on desktop and mobile
+- [x] Route the Arthur Breitman tweet screenshot through the same-origin media relay
+- [x] Browser-confirm the visible tweet card on desktop and mobile
+- [x] Browser-test the in-article Arthur Breitman original-post link without submitting content
+- [x] Inspect the relayed tweet visual in the desktop and mobile article renders and record visible-load evidence
+- [x] Inspect the rendered in-article Arthur Breitman anchor href and record its destination
