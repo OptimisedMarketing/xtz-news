@@ -9,6 +9,7 @@
 
 import { useMemo } from "react";
 import TweetEmbed from "./TweetEmbed";
+import MidArticleNewsletter from "./MidArticleNewsletter";
 
 interface ArticleContentProps {
   html: string;
@@ -19,22 +20,27 @@ interface ArticleContentProps {
 // Split HTML into segments: either plain HTML strings or tweet URLs
 type Segment =
   | { type: "html"; content: string }
-  | { type: "tweet"; url: string };
+  | { type: "tweet"; url: string }
+  | { type: "newsletter" };
 
-function parseSegments(html: string): Segment[] {
+export function parseSegments(html: string): Segment[] {
   const segments: Segment[] = [];
-  // Match <div class="tweet-embed" data-tweet-url="..."></div>
-  // Also handles single quotes and extra attributes
-  const TWEET_RE = /<div[^>]+class=["']tweet-embed["'][^>]*data-tweet-url=["']([^"']+)["'][^>]*>[\s\S]*?<\/div>|<div[^>]+data-tweet-url=["']([^"']+)["'][^>]*class=["']tweet-embed["'][^>]*>[\s\S]*?<\/div>/gi;
+  const EMBED_RE = /<div[^>]+class=["']tweet-embed["'][^>]*data-tweet-url=["']([^"']+)["'][^>]*>[\s\S]*?<\/div>|<div[^>]+data-tweet-url=["']([^"']+)["'][^>]*class=["']tweet-embed["'][^>]*>[\s\S]*?<\/div>|<div[^>]+(?:class=["'][^"']*newsletter-cta[^"']*["']|data-article-newsletter=["'][^"']+["'])[^>]*>\s*<\/div>/gi;
 
   let lastIndex = 0;
   let match: RegExpExecArray | null;
 
-  while ((match = TWEET_RE.exec(html)) !== null) {
+  while ((match = EMBED_RE.exec(html)) !== null) {
     // Add HTML before this match
     if (match.index > lastIndex) {
       segments.push({ type: "html", content: html.slice(lastIndex, match.index) });
     }
+    if (/newsletter-cta|data-article-newsletter/i.test(match[0])) {
+      segments.push({ type: "newsletter" });
+      lastIndex = match.index + match[0].length;
+      continue;
+    }
+
     // Add tweet segment (first or second capture group)
     const url = match[1] || match[2];
     if (url) {
@@ -55,8 +61,8 @@ export default function ArticleContent({ html, className, style }: ArticleConten
   const segments = useMemo(() => parseSegments(html), [html]);
 
   // If no tweets found, render as plain HTML (fast path)
-  const hasTweets = segments.some((s) => s.type === "tweet");
-  if (!hasTweets) {
+  const hasEmbeds = segments.some((s) => s.type === "tweet" || s.type === "newsletter");
+  if (!hasEmbeds) {
     return (
       <div
         className={className}
@@ -71,6 +77,9 @@ export default function ArticleContent({ html, className, style }: ArticleConten
       {segments.map((seg, i) => {
         if (seg.type === "tweet") {
           return <TweetEmbed key={`tweet-${i}`} url={seg.url} />;
+        }
+        if (seg.type === "newsletter") {
+          return <MidArticleNewsletter key={`newsletter-${i}`} />;
         }
         if (!seg.content.trim()) return null;
         return (

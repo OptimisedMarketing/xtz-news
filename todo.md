@@ -210,3 +210,19 @@
 - [x] Browser-test the in-article Arthur Breitman original-post link without submitting content
 - [x] Inspect the relayed tweet visual in the desktop and mobile article renders and record visible-load evidence
 - [x] Inspect the rendered in-article Arthur Breitman anchor href and record its destination
+
+## Phase 27: Ganesha Technical Navigation and Reader Conversion
+- [x] Inspect the article layout and verify the official Tezos post content for a second visual card
+- [x] Add a sticky, accessible technical table of contents to the Ganesha article sidebar
+- [x] Add a branded XTZ.News newsletter CTA in the middle of the Ganesha article
+- [x] Add an official Tezos visual source card with a durable linked source
+- [x] Add focused tests and validate the enhanced experience on desktop and mobile
+- [x] Create a media-backed official Tezos visual source card and route it through the same-origin relay
+- [x] Browser-verify the rendered Tezos visual source card on desktop and mobile
+- [x] Explicitly inspect the Tezos visual source-card image in desktop and mobile article renders
+- [x] Explicitly inspect and record the Tezos source-card image in the desktop article render
+- [x] Explicitly inspect and record the Tezos source-card image in the 390px mobile article render
+- [x] Perform a final screenshot-assisted desktop and mobile inspection of the Tezos source-card image
+- [x] Verify the article DOM references the Tezos source-card media asset and the relay serves it successfully
+- [x] Inspect the final desktop and mobile captures alongside the relayed Tezos visual asset, then record the completed evidence
+- [x] Obtain an independent desktop and mobile visual review of the Tezos source-card render

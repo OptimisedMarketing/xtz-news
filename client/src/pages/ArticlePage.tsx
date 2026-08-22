@@ -15,6 +15,7 @@ import { LOCALE_FLAGS, LOCALE_NAMES, type SupportedLocale } from "@shared/locale
 import { getMediaUrl } from "@/lib/mediaUrl";
 import GaneshaSharePanel from "@/components/GaneshaSharePanel";
 import GatewayExplainer from "@/components/GatewayExplainer";
+import GaneshaTechnicalToc from "@/components/GaneshaTechnicalToc";
 import { isGaneshaStory, prioritiseGaneshaRelatedStories } from "@/lib/ganeshaStory";
 
 /** Injects / updates Open Graph + Twitter Card meta tags in <head> */
@@ -663,6 +664,7 @@ export default function ArticlePage() {
 
           {/* ── Sticky sidebar ── */}
           <aside className="article-sidebar" aria-label="Article supporting content">
+            {isGaneshaArticle && <GaneshaTechnicalToc />}
             {/* XTZ Price Widget */}
             <XtzPriceWidget />
 

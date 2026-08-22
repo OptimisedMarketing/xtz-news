@@ -1,0 +1,37 @@
+{
+  "data": [
+    {
+      "author_id": "745758443324080128",
+      "created_at": "2026-08-18T16:47:39.000Z",
+      "edit_history_tweet_ids": [
+        "2089756121598775496"
+      ],
+      "id": "2089756121598775496",
+      "public_metrics": {
+        "bookmark_count": 0,
+        "impression_count": 194,
+        "like_count": 2,
+        "quote_count": 0,
+        "reply_count": 0,
+        "retweet_count": 1
+      },
+      "text": "@etherlink 🤝"
+    }
+  ],
+  "includes": {
+    "users": [
+      {
+        "id": "745758443324080128",
+        "name": "Tezos",
+        "profile_image_url": "https://pbs.twimg.com/profile_images/1984562534620278784/cRXlDZNX_normal.jpg",
+        "username": "tezos",
+        "verified": true
+      }
+    ]
+  },
+  "meta": {
+    "newest_id": "2089756121598775496",
+    "oldest_id": "2089756121598775496",
+    "result_count": 1
+  }
+}
