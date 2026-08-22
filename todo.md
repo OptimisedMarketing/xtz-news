@@ -256,3 +256,10 @@
 - [x] Inspect the footer logo component and media reference that produces the broken-image display
 - [x] Route the footer logo through the reliable XTZ.News media treatment and responsive dimensions
 - [x] Run regression checks and visually validate the footer logo on desktop and mobile
+
+## Phase 32: Media Relay and Footer Navigation
+- [x] Audit all client and server source for legacy first-party `/manus-storage/` media references
+- [x] Migrate remaining eligible media paths to the same-origin relay without changing external-source URLs
+- [x] Add a reduced-motion-safe hover treatment to the footer logo
+- [x] Add an accessible smooth-scrolling back-to-top control beside the footer logo
+- [x] Add focused tests and validate media, footer interaction, and responsive behavior

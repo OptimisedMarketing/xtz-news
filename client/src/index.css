@@ -654,6 +654,24 @@
   .scroll-top-btn.visible { opacity: 1; visibility: visible; transform: translateY(0); }
   .scroll-top-btn:hover { background: #1a6ae0; transform: translateY(-2px); }
 
+  /* ── Footer logo and local back-to-top control ── */
+  .footer-logo-link { display: flex; align-items: center; border-radius: 8px; }
+  .footer-logo-image { transition: transform 180ms cubic-bezier(0.23, 1, 0.32, 1), filter 180ms cubic-bezier(0.23, 1, 0.32, 1); }
+  .footer-scroll-top {
+    display: inline-flex; align-items: center; gap: 0.38rem;
+    min-height: 34px; padding: 0 0.65rem;
+    border: 1px solid rgba(99,247,177,0.38); border-radius: 4px;
+    background: rgba(99,247,177,0.07); color: #b8ffe0;
+    font: inherit; font-size: 0.66rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    cursor: pointer; transition: color 180ms ease, background 180ms ease, border-color 180ms ease, transform 180ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .footer-logo-link:hover .footer-logo-image { transform: translateY(-3px) scale(1.045); filter: drop-shadow(0 7px 12px rgba(44,125,247,0.38)); }
+    .footer-scroll-top:hover { transform: translateY(-2px); background: rgba(99,247,177,0.16); border-color: #63f7b1; color: #fff; }
+  }
+  .footer-scroll-top:active { transform: scale(0.97); }
+
   /* ── Pagination ── */
   .pagination { display: flex; align-items: center; justify-content: center; gap: 0.35rem; flex-wrap: wrap; }
   .page-btn {
@@ -748,5 +766,6 @@
     .container { padding-left: 1rem; padding-right: 1rem; }
     .section-title { font-size: 0.9rem; }
     .scroll-top-btn { bottom: 1rem; right: 1rem; }
+    .footer-scroll-top { padding: 0 0.55rem; }
   }
 }

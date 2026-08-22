@@ -1,3 +1,4 @@
+import React from "react";
 import { Link } from "wouter";
 import { getMediaUrl } from "@/lib/mediaUrl";
 
@@ -5,6 +6,7 @@ const FOOTER_LOGO_URL = getMediaUrl("/manus-storage/xtz-logo-square_c6689606.png
 
 export default function Footer() {
   const year = new Date().getFullYear();
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   return (
     <footer>
@@ -42,13 +44,20 @@ export default function Footer() {
         <div className="container">
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "1.5rem" }}>
             {/* Footer logo */}
-            <Link href="/" style={{ flexShrink: 0, display: "flex", alignItems: "center" }}>
-              <img
-                src={FOOTER_LOGO_URL}
-                alt="XTZ.News"
-                style={{ display: "block", width: "64px", height: "64px", objectFit: "contain" }}
-              />
-            </Link>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.7rem", flexShrink: 0 }}>
+              <Link href="/" className="footer-logo-link" aria-label="XTZ.News home">
+                <img
+                  src={FOOTER_LOGO_URL}
+                  alt="XTZ.News"
+                  className="footer-logo-image"
+                  style={{ display: "block", width: "64px", height: "64px", objectFit: "contain" }}
+                />
+              </Link>
+              <button type="button" className="footer-scroll-top" onClick={scrollToTop} aria-label="Back to the top of the page">
+                <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/><path d="M12 9v11"/></svg>
+                <span>Back to top</span>
+              </button>
+            </div>
 
             {/* Nav links */}
             <nav style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem 1.5rem", alignItems: "center" }}>

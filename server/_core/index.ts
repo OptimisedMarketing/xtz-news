@@ -241,7 +241,7 @@ async function startServer() {
         const pubDate = p.publishedAt ? new Date(p.publishedAt).toUTCString() : new Date().toUTCString();
         const description = (p.excerpt || '').replace(/<[^>]+>/g, '').slice(0, 300);
         const audioUrl = p.audioUrl!.startsWith('http') ? p.audioUrl! : baseUrl + p.audioUrl!;
-        const imageUrl = p.featuredImageUrl ? (p.featuredImageUrl.startsWith('http') ? p.featuredImageUrl : baseUrl + p.featuredImageUrl) : `${baseUrl}/manus-storage/xtz-logo-square_c6689606.png`;
+        const imageUrl = p.featuredImageUrl ? (p.featuredImageUrl.startsWith('http') ? p.featuredImageUrl : baseUrl + p.featuredImageUrl.replace(/^\/manus-storage\//, '/media/')) : `${baseUrl}/media/xtz-logo-square_c6689606.png`;
         return `    <item>
       <title>${esc(p.title)}</title>
       <link>${baseUrl}/${p.slug}</link>
@@ -267,11 +267,11 @@ async function startServer() {
     <atom:link href="${baseUrl}/podcast.rss" rel="self" type="application/rss+xml" />
     <itunes:author>XTZ.News</itunes:author>
     <itunes:owner><itunes:name>XTZ.News</itunes:name><itunes:email>hello@xtz.news</itunes:email></itunes:owner>
-    <itunes:image href="${baseUrl}/manus-storage/xtz-logo-square_c6689606.png" />
+    <itunes:image href="${baseUrl}/media/xtz-logo-square_c6689606.png" />
     <itunes:category text="Technology" />
     <itunes:category text="News" />
     <itunes:explicit>no</itunes:explicit>
-    <image><url>${baseUrl}/manus-storage/xtz-logo-square_c6689606.png</url><title>XTZ.News Podcast</title><link>${baseUrl}</link></image>
+    <image><url>${baseUrl}/media/xtz-logo-square_c6689606.png</url><title>XTZ.News Podcast</title><link>${baseUrl}</link></image>
 ${items}
   </channel>
 </rss>`;
@@ -539,14 +539,14 @@ ${items}
       const baseUrl = "https://xtz.news";
       const articlesHtml = topPosts.map(p => {
         const excerpt = (p.excerpt || "").replace(/<[^>]*>/g, "").slice(0, 120);
-        const img = p.featuredImageUrl ? `<img src="${p.featuredImageUrl.startsWith('/') ? baseUrl + p.featuredImageUrl : p.featuredImageUrl}" style="width:100%;max-height:200px;object-fit:cover;border-radius:6px;margin-bottom:12px" />` : "";
+        const img = p.featuredImageUrl ? `<img src="${p.featuredImageUrl.startsWith('/') ? baseUrl + p.featuredImageUrl.replace(/^\/manus-storage\//, '/media/') : p.featuredImageUrl}" style="width:100%;max-height:200px;object-fit:cover;border-radius:6px;margin-bottom:12px" />` : "";
         return `<div style="margin-bottom:28px;padding-bottom:28px;border-bottom:1px solid rgba(255,255,255,0.08)">${img}<h3 style="margin:0 0 8px;font-size:17px;font-weight:700;color:#fff"><a href="${baseUrl}/${p.slug}" style="color:#fff;text-decoration:none">${p.title}</a></h3><p style="margin:0 0 12px;font-size:14px;color:rgba(255,255,255,0.6);line-height:1.6">${excerpt}...</p><a href="${baseUrl}/${p.slug}" style="display:inline-block;padding:8px 18px;background:#2c7df7;color:#fff;text-decoration:none;border-radius:4px;font-size:13px;font-weight:600">Read More</a></div>`;
       }).join("");
 
       const buildDigestHtml = (token: string | null) => {
         const manageUrl = token ? `${baseUrl}/manage-subscriptions?token=${token}` : `${baseUrl}`;
         const unsubUrl = token ? `${baseUrl}/unsubscribe?token=${token}` : `${baseUrl}`;
-        return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:0;background:#000;font-family:Arial,sans-serif"><div style="max-width:600px;margin:0 auto;padding:20px"><div style="text-align:center;padding:24px 0;border-bottom:2px solid #2c7df7;margin-bottom:28px"><img src="${baseUrl}/manus-storage/xtz-logo-square_c6689606.png" alt="XTZ.News" style="height:60px" /><h1 style="color:#fff;font-size:22px;margin:12px 0 4px">XTZ.News Weekly Digest</h1><p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0">Your weekly roundup of Tezos news</p></div>${articlesHtml}<div style="text-align:center;padding:20px 0;border-top:1px solid rgba(255,255,255,0.08);margin-top:8px"><p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0 0 8px">You're receiving this because you subscribed to XTZ.News. <a href="${baseUrl}" style="color:#2c7df7">Visit XTZ.News</a></p><p style="color:rgba(255,255,255,0.2);font-size:11px;margin:0"><a href="${manageUrl}" style="color:#2c7df7;text-decoration:none">Manage preferences</a> &nbsp;·&nbsp; <a href="${unsubUrl}" style="color:rgba(255,255,255,0.3);text-decoration:none">Unsubscribe</a></p></div></div></body></html>`;
+        return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:0;background:#000;font-family:Arial,sans-serif"><div style="max-width:600px;margin:0 auto;padding:20px"><div style="text-align:center;padding:24px 0;border-bottom:2px solid #2c7df7;margin-bottom:28px"><img src="${baseUrl}/media/xtz-logo-square_c6689606.png" alt="XTZ.News" style="height:60px" /><h1 style="color:#fff;font-size:22px;margin:12px 0 4px">XTZ.News Weekly Digest</h1><p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0">Your weekly roundup of Tezos news</p></div>${articlesHtml}<div style="text-align:center;padding:20px 0;border-top:1px solid rgba(255,255,255,0.08);margin-top:8px"><p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0 0 8px">You're receiving this because you subscribed to XTZ.News. <a href="${baseUrl}" style="color:#2c7df7">Visit XTZ.News</a></p><p style="color:rgba(255,255,255,0.2);font-size:11px;margin:0"><a href="${manageUrl}" style="color:#2c7df7;text-decoration:none">Manage preferences</a> &nbsp;·&nbsp; <a href="${unsubUrl}" style="color:rgba(255,255,255,0.3);text-decoration:none">Unsubscribe</a></p></div></div></body></html>`;
       }
 
       // Send via Resend if available, otherwise notify owner
@@ -634,7 +634,7 @@ ${items}
       const buildGovHtml = (token: string | null) => {
         const manageUrl = token ? `${baseUrl}/manage-subscriptions?token=${token}` : baseUrl;
         const unsubUrl = token ? `${baseUrl}/unsubscribe?token=${token}` : baseUrl;
-        return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:0;background:#000;font-family:Arial,sans-serif"><div style="max-width:600px;margin:0 auto;padding:20px"><div style="text-align:center;padding:24px 0;border-bottom:2px solid #2c7df7;margin-bottom:28px"><img src="${baseUrl}/manus-storage/xtz-logo-square_c6689606.png" alt="XTZ.News" style="height:60px" /><h1 style="color:#fff;font-size:22px;margin:12px 0 4px">Tezos Governance Alert</h1><p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0">A new proposal is in the ${periodLabel} phase</p></div><div style="background:#05152e;border:1px solid rgba(44,125,247,0.3);border-radius:8px;padding:24px;margin-bottom:24px"><h2 style="color:#2c7df7;font-size:18px;margin:0 0 12px">Epoch #${epoch.index} — ${periodLabel} Phase</h2><p style="color:rgba(255,255,255,0.7);font-size:14px;margin:0 0 16px">A Tezos protocol upgrade proposal is currently in the <strong style="color:#fff">${periodLabel}</strong> voting period. Bakers are casting their votes now.</p><div style="background:rgba(255,255,255,0.05);border-radius:6px;padding:16px;margin-bottom:16px"><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Proposal Hash</div><div style="font-family:monospace;font-size:13px;color:#2c7df7;word-break:break-all">${proposal.hash}</div></div><a href="${explorerUrl}" style="display:inline-block;padding:12px 24px;background:#2c7df7;color:#fff;text-decoration:none;border-radius:6px;font-size:14px;font-weight:700">View Governance Details →</a></div><div style="text-align:center;padding:20px 0;border-top:1px solid rgba(255,255,255,0.08)"><p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0 0 8px">You're receiving this because you opted in to XTZ.News governance alerts. <a href="${baseUrl}" style="color:#2c7df7">Visit XTZ.News</a></p><p style="color:rgba(255,255,255,0.2);font-size:11px;margin:0"><a href="${manageUrl}" style="color:#2c7df7;text-decoration:none">Manage preferences</a> &nbsp;·&nbsp; <a href="${unsubUrl}" style="color:rgba(255,255,255,0.3);text-decoration:none">Unsubscribe</a></p></div></div></body></html>`;
+        return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:0;background:#000;font-family:Arial,sans-serif"><div style="max-width:600px;margin:0 auto;padding:20px"><div style="text-align:center;padding:24px 0;border-bottom:2px solid #2c7df7;margin-bottom:28px"><img src="${baseUrl}/media/xtz-logo-square_c6689606.png" alt="XTZ.News" style="height:60px" /><h1 style="color:#fff;font-size:22px;margin:12px 0 4px">Tezos Governance Alert</h1><p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0">A new proposal is in the ${periodLabel} phase</p></div><div style="background:#05152e;border:1px solid rgba(44,125,247,0.3);border-radius:8px;padding:24px;margin-bottom:24px"><h2 style="color:#2c7df7;font-size:18px;margin:0 0 12px">Epoch #${epoch.index} — ${periodLabel} Phase</h2><p style="color:rgba(255,255,255,0.7);font-size:14px;margin:0 0 16px">A Tezos protocol upgrade proposal is currently in the <strong style="color:#fff">${periodLabel}</strong> voting period. Bakers are casting their votes now.</p><div style="background:rgba(255,255,255,0.05);border-radius:6px;padding:16px;margin-bottom:16px"><div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Proposal Hash</div><div style="font-family:monospace;font-size:13px;color:#2c7df7;word-break:break-all">${proposal.hash}</div></div><a href="${explorerUrl}" style="display:inline-block;padding:12px 24px;background:#2c7df7;color:#fff;text-decoration:none;border-radius:6px;font-size:14px;font-weight:700">View Governance Details →</a></div><div style="text-align:center;padding:20px 0;border-top:1px solid rgba(255,255,255,0.08)"><p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0 0 8px">You're receiving this because you opted in to XTZ.News governance alerts. <a href="${baseUrl}" style="color:#2c7df7">Visit XTZ.News</a></p><p style="color:rgba(255,255,255,0.2);font-size:11px;margin:0"><a href="${manageUrl}" style="color:#2c7df7;text-decoration:none">Manage preferences</a> &nbsp;·&nbsp; <a href="${unsubUrl}" style="color:rgba(255,255,255,0.3);text-decoration:none">Unsubscribe</a></p></div></div></body></html>`;
       };
 
       // Send via Resend if available, otherwise notify owner
@@ -692,7 +692,7 @@ ${items}
       const baseUrl = 'https://xtz.news';
       let title = 'XTZ.News — Tezos Blockchain News & Tools';
       let description = 'The leading source for Tezos blockchain news, analysis, tools, and ecosystem updates.';
-      let image = `${baseUrl}/manus-storage/xtz-logo-square_c6689606.png`;
+      let image = `${baseUrl}/media/xtz-logo-square_c6689606.png`;
       let imageWidth = '1200';
       let imageHeight = '630';
       let type = 'website';
@@ -722,7 +722,7 @@ ${items}
               description = (post.excerpt || '').replace(/<[^>]*>/g, '').slice(0, 200) || description;
               if (post.featuredImageUrl) {
                 image = post.featuredImageUrl.startsWith('http') ? post.featuredImageUrl
-                  : post.featuredImageUrl.startsWith('/') ? baseUrl + post.featuredImageUrl
+                  : post.featuredImageUrl.startsWith('/') ? baseUrl + post.featuredImageUrl.replace(/^\/manus-storage\//, '/media/')
                   : post.featuredImageUrl;
               } else {
                 image = `${baseUrl}/api/og?type=article&title=${encodeURIComponent(title.slice(0, 80))}`;
