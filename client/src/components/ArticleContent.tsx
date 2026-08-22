@@ -15,6 +15,7 @@ interface ArticleContentProps {
   html: string;
   className?: string;
   style?: React.CSSProperties;
+  newsletterPreviewSuccess?: boolean;
 }
 
 // Split HTML into segments: either plain HTML strings or tweet URLs
@@ -57,7 +58,7 @@ export function parseSegments(html: string): Segment[] {
   return segments;
 }
 
-export default function ArticleContent({ html, className, style }: ArticleContentProps) {
+export default function ArticleContent({ html, className, style, newsletterPreviewSuccess = false }: ArticleContentProps) {
   const segments = useMemo(() => parseSegments(html), [html]);
 
   // If no tweets found, render as plain HTML (fast path)
@@ -79,7 +80,7 @@ export default function ArticleContent({ html, className, style }: ArticleConten
           return <TweetEmbed key={`tweet-${i}`} url={seg.url} />;
         }
         if (seg.type === "newsletter") {
-          return <MidArticleNewsletter key={`newsletter-${i}`} />;
+          return <MidArticleNewsletter key={`newsletter-${i}`} previewSuccess={newsletterPreviewSuccess} />;
         }
         if (!seg.content.trim()) return null;
         return (

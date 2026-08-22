@@ -431,12 +431,13 @@ const newsletterRouter = router({
 
         // Send welcome email via Resend
         const RESEND_API_KEY = process.env.RESEND_API_KEY;
+        let welcomeEmailRequested = false;
         if (RESEND_API_KEY) {
           const baseUrl = 'https://xtz.news';
           const unsubUrl = `${baseUrl}/unsubscribe?token=${finalToken}`;
           const manageUrl = `${baseUrl}/manage-subscriptions?token=${finalToken}`;
           const welcomeHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:0;background:#000;font-family:Arial,sans-serif"><div style="max-width:600px;margin:0 auto;padding:20px"><div style="text-align:center;padding:24px 0;border-bottom:2px solid #2c7df7;margin-bottom:28px"><img src="${baseUrl}/manus-storage/xtz-logo-square_c6689606.png" alt="XTZ.News" style="height:60px" /><h1 style="color:#fff;font-size:22px;margin:12px 0 4px">Welcome to XTZ.News!</h1><p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0">You're now part of the Tezos community newsletter</p></div><div style="background:#05152e;border:1px solid rgba(44,125,247,0.3);border-radius:8px;padding:24px;margin-bottom:24px"><h2 style="color:#fff;font-size:18px;margin:0 0 12px">You're subscribed! 🎉</h2><p style="color:rgba(255,255,255,0.7);font-size:14px;margin:0 0 16px;line-height:1.6">Every Monday you'll receive the top Tezos stories of the week, delivered straight to your inbox from <strong style="color:#2c7df7">newsletter@xtz.news</strong>.</p>${input.govAlerts ? `<div style="background:rgba(44,125,247,0.1);border:1px solid rgba(44,125,247,0.3);border-radius:6px;padding:14px;margin-bottom:16px"><p style="color:#2c7df7;font-size:13px;margin:0;font-weight:700">🗳️ Governance Alerts enabled</p><p style="color:rgba(255,255,255,0.6);font-size:13px;margin:4px 0 0">You'll also be notified when a new Tezos protocol upgrade proposal enters the voting phase.</p></div>` : ''}<a href="${baseUrl}" style="display:inline-block;padding:12px 24px;background:#2c7df7;color:#fff;text-decoration:none;border-radius:6px;font-size:14px;font-weight:700">Visit XTZ.News →</a></div><div style="text-align:center;padding:20px 0;border-top:1px solid rgba(255,255,255,0.08)"><p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0 0 8px">You can <a href="${manageUrl}" style="color:#2c7df7">manage your preferences</a> or <a href="${unsubUrl}" style="color:rgba(255,255,255,0.4)">unsubscribe</a> at any time.</p></div></div></body></html>`;
-          await fetch('https://api.resend.com/emails', {
+          const resendResponse = await fetch('https://api.resend.com/emails', {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -445,14 +446,15 @@ const newsletterRouter = router({
               subject: '👋 Welcome to XTZ.News — Your Tezos Newsletter',
               html: welcomeHtml,
             }),
-          }).catch(() => {}); // Don't fail subscription if email fails
+          }).catch(() => null); // Don't fail subscription if email fails
+          welcomeEmailRequested = Boolean(resendResponse?.ok);
         }
 
         await notifyOwner({
           title: 'New Newsletter Subscriber',
           content: `${input.name ? input.name + ' (' + input.email + ')' : input.email} subscribed to the XTZ.News newsletter.${input.govAlerts ? ' (Governance Alerts: ON)' : ''}`,
         }).catch(() => {});
-        return { success: true };
+        return { success: true, welcomeEmailRequested };
       } catch {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid email address' });
       }

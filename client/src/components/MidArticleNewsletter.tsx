@@ -2,13 +2,15 @@ import React, { useState } from "react";
 import { CheckCircle, Mail, Send, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
+import { getNewsletterConfirmationCopy } from "@/lib/newsletterConfirmation";
 
-export default function MidArticleNewsletter() {
+export default function MidArticleNewsletter({ previewSuccess = false }: { previewSuccess?: boolean }) {
   const [email, setEmail] = useState("");
-  const [subscribed, setSubscribed] = useState(false);
+  const [subscribed, setSubscribed] = useState(previewSuccess);
+  const [welcomeEmailRequested, setWelcomeEmailRequested] = useState(previewSuccess);
   const { data: subscriberCount = 1026 } = trpc.newsletter.subscriberCount.useQuery(undefined, { staleTime: 5 * 60_000 });
   const subscribeMutation = trpc.newsletter.subscribe.useMutation({
-    onSuccess: () => { setSubscribed(true); setEmail(""); },
+    onSuccess: (result) => { setWelcomeEmailRequested(result.welcomeEmailRequested); setSubscribed(true); setEmail(""); },
     onError: (error) => toast.error(error.message || "Subscription failed. Please try again."),
   });
 
@@ -18,7 +20,8 @@ export default function MidArticleNewsletter() {
   };
 
   if (subscribed) {
-    return <section aria-label="XTZ.News newsletter signup" style={{ margin: "2rem 0", padding: "1.4rem", borderRadius: "10px", textAlign: "center", background: "linear-gradient(135deg, rgba(44,125,247,0.2), rgba(99,247,177,0.12))", border: "1px solid rgba(99,247,177,0.32)" }}><CheckCircle size={26} color="#63f7b1" aria-hidden="true" /><h2 style={{ color: "#fff", margin: "0.45rem 0 0.25rem", fontSize: "1rem" }}>You’re on the XTZ.News list.</h2><p style={{ margin: 0, color: "rgba(255,255,255,0.65)", fontSize: "0.78rem" }}>The next Tezos briefing will land in your inbox.</p></section>;
+    const confirmation = getNewsletterConfirmationCopy(welcomeEmailRequested);
+    return <section className="newsletter-success-card" aria-live="polite" aria-label="XTZ.News newsletter subscription confirmed" style={{ margin: "2rem 0", padding: "1.4rem", borderRadius: "10px", textAlign: "center", position: "relative", overflow: "hidden", background: "linear-gradient(135deg, rgba(44,125,247,0.24), rgba(99,247,177,0.16))", border: "1px solid rgba(99,247,177,0.42)" }}><span className="newsletter-success-card__glow" aria-hidden="true" /><div style={{ position: "relative" }}><CheckCircle className="newsletter-success-card__icon" size={30} color="#63f7b1" aria-hidden="true" /><p style={{ margin: "0.55rem 0 0.15rem", color: "#8dbbff", fontSize: "0.62rem", fontWeight: 900, letterSpacing: "0.1em", textTransform: "uppercase" }}>XTZ.News Weekly Brief</p><h2 style={{ color: "#fff", margin: "0.25rem 0", fontSize: "1.08rem" }}>{confirmation.headline}</h2><p style={{ maxWidth: "480px", margin: "0 auto", color: "rgba(255,255,255,0.75)", fontSize: "0.8rem", lineHeight: 1.55 }}>{confirmation.description}</p><p style={{ maxWidth: "480px", margin: "0.55rem auto 0", color: "rgba(255,255,255,0.52)", fontSize: "0.7rem", lineHeight: 1.45 }}>{confirmation.preferenceNote}</p></div></section>;
   }
 
   return (

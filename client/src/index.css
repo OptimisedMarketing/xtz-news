@@ -557,6 +557,63 @@
     }
   }
 
+  /* ── Accessible technical-term definitions ── */
+  .technical-term {
+    position: relative;
+    display: inline;
+    color: #8dbbff;
+    font-weight: 800;
+    border-bottom: 1px dashed rgba(99, 247, 177, 0.8);
+    cursor: help;
+    outline: none;
+  }
+  .technical-term:focus-visible {
+    border-radius: 2px;
+    outline: 2px solid #63f7b1;
+    outline-offset: 2px;
+  }
+  .technical-term__tooltip {
+    position: absolute;
+    z-index: 20;
+    left: 50%;
+    bottom: calc(100% + 0.55rem);
+    width: min(250px, 75vw);
+    transform: translateX(-50%) translateY(3px);
+    padding: 0.6rem 0.7rem;
+    border: 1px solid rgba(99,247,177,0.45);
+    border-radius: 6px;
+    background: #071a35;
+    box-shadow: 0 10px 22px rgba(0,0,0,0.38);
+    color: rgba(255,255,255,0.88);
+    font-size: 0.72em;
+    font-weight: 500;
+    line-height: 1.45;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 150ms cubic-bezier(0.23, 1, 0.32, 1), transform 150ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .technical-term:hover .technical-term__tooltip,
+  .technical-term:focus .technical-term__tooltip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  @media (max-width: 640px) {
+    .technical-term__tooltip { left: 0; transform: translateX(0) translateY(3px); width: min(260px, 82vw); }
+    .technical-term:hover .technical-term__tooltip,
+    .technical-term:focus .technical-term__tooltip { transform: translateX(0) translateY(0); }
+  }
+
+  /* ── Newsletter confirmation ── */
+  .newsletter-success-card { animation: newsletter-confirm-in 360ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+  .newsletter-success-card__icon { animation: newsletter-confirm-pop 420ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+  .newsletter-success-card__glow { position: absolute; width: 210px; height: 210px; top: -115px; left: calc(50% - 105px); border-radius: 50%; background: radial-gradient(circle, rgba(99,247,177,0.34), transparent 68%); animation: newsletter-confirm-glow 700ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+  @keyframes newsletter-confirm-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes newsletter-confirm-pop { from { opacity: 0; transform: scale(0.88); } to { opacity: 1; transform: scale(1); } }
+  @keyframes newsletter-confirm-glow { from { opacity: 0; transform: scale(0.75); } to { opacity: 1; transform: scale(1); } }
+  @media (prefers-reduced-motion: reduce) {
+    .newsletter-success-card, .newsletter-success-card__icon, .newsletter-success-card__glow { animation: none; }
+  }
+
   /* ── Breaking news ticker — slow (90s) —— */
   .ticker-wrap { overflow: hidden; white-space: nowrap; }
   .ticker-content {

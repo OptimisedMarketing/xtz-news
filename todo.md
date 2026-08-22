@@ -226,3 +226,17 @@
 - [x] Verify the article DOM references the Tezos source-card media asset and the relay serves it successfully
 - [x] Inspect the final desktop and mobile captures alongside the relayed Tezos visual asset, then record the completed evidence
 - [x] Obtain an independent desktop and mobile visual review of the Tezos source-card render
+
+## Phase 28: Ganesha Reader Guidance and Newsletter Confirmation
+- [x] Inspect the current progress indicator, article-term rendering, and Resend newsletter subscription flow
+- [x] Add accessible hover-and-focus explanations for EVM, Michelson, and NAC in the Ganesha article
+- [x] Refine and verify the technical-reading progress feedback at the top of the article page
+- [x] Add an animated newsletter success state that confirms the Resend-backed subscription outcome
+- [x] Add focused regression coverage and validate the enhanced experience on desktop and mobile
+- [x] Browser-verify that NAC receives the same accessible tooltip treatment as EVM and Michelson
+- [x] Exercise the reading-progress indicator across a real article scroll journey and verify meaningful advancement
+- [x] Add rendered coverage for the Resend-aware newsletter success state without sending a live email
+- [x] Validate the new tooltips, progress indicator, and newsletter confirmation on desktop and mobile
+- [x] Make reading progress track the article body rather than overall document scroll and cover the calculation
+- [x] Add a safe development-only newsletter success preview for browser validation without submitting email
+- [x] Browser-validate near-complete article progress and the Resend-aware success state on desktop and mobile
