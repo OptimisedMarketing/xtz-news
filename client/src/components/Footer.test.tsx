@@ -22,7 +22,8 @@ describe("Footer", () => {
   it("acknowledges Optimised Marketing with a standard followable external link", () => {
     render(<Footer />);
 
-    const credit = screen.getAllByRole("link", { name: "Built by Optimised Marketing" }).at(-1)!;
+    expect(screen.getAllByText("Built by", { exact: false }).at(-1)?.textContent).toBe("Built by Optimised Marketing");
+    const credit = screen.getAllByRole("link", { name: "Optimised Marketing" }).at(-1)!;
     expect(credit.getAttribute("href")).toBe("https://optimised.marketing");
     expect(credit.getAttribute("rel")).toBeNull();
   });

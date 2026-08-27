@@ -124,13 +124,16 @@ export default function Footer() {
             © {year} XTZ.News. All rights reserved.
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
-            <a
-              href="https://optimised.marketing"
-              className="footer-credit-link"
-              style={{ fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(255,255,255,0.52)", textDecoration: "none", transition: "color 0.2s" }}
-            >
-              Built by Optimised Marketing
-            </a>
+            <p style={{ fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(255,255,255,0.52)", margin: 0 }}>
+              Built by{" "}
+              <a
+                href="https://optimised.marketing"
+                className="footer-credit-link"
+                style={{ color: "inherit", textDecoration: "none", transition: "color 0.2s" }}
+              >
+                Optimised Marketing
+              </a>
+            </p>
             {[
               { label: "Privacy Policy", href: "/privacy-policy" },
               { label: "Disclaimer", href: "/disclaimer" },

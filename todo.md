@@ -274,3 +274,8 @@
 - [x] Inspect the footer layout and existing external-link conventions
 - [x] Add the do-follow “Built by Optimised Marketing” link to https://optimised.marketing
 - [x] Test and validate the footer credit on desktop and mobile
+
+## Phase 36: Optimised Marketing Partial-Link Refinement
+- [x] Inspect the current footer credit markup and its regression test
+- [x] Keep “Built by” as plain text and link only “Optimised Marketing” to https://optimised.marketing
+- [x] Run regression checks and visually validate the refined footer credit
