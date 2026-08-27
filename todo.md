@@ -266,9 +266,15 @@
 
 ## Phase 34: GitHub-Triggered Deployment Sync
 - [x] Verify GitHub push-webhook capabilities and inspect available project deployment controls
-- [ ] Compare secure automation approaches and confirm the chosen deployment model
-- [ ] Configure the approved push-triggered deployment workflow with verification and replay protection
-- [ ] Document the supported release flow and test the deployment trigger safely
+- [x] Compare secure automation approaches and confirm the chosen deployment model
+- [x] Defer the approved push-triggered deployment workflow at the user’s request; retain manual GitHub backup releases
+- [x] Document the supported release-flow assessment and defer trigger testing pending a future request
+
+## Phase 37: Approved GitHub Release Bridge
+- [x] Define the signed webhook payload, delivery-deduplication, and release-approval data model
+- [x] Defer credentials and release-bridge build at the user’s request; manual GitHub backup remains the chosen workflow
+- [x] Defer the verified GitHub push receiver and reviewer-controlled publish action pending a future request
+- [x] Defer webhook configuration and signed-delivery validation pending a future request
 
 ## Phase 35: Optimised Marketing Footer Credit
 - [x] Inspect the footer layout and existing external-link conventions
@@ -279,3 +285,8 @@
 - [x] Inspect the current footer credit markup and its regression test
 - [x] Keep “Built by” as plain text and link only “Optimised Marketing” to https://optimised.marketing
 - [x] Run regression checks and visually validate the refined footer credit
+
+## Phase 38: Translation-Focused Reader Experience Assessment
+- [x] Inspect the current translation routes, language selector, and translated-article state
+- [x] Assess the broader reader journey for the ten highest-value usability improvements
+- [x] Document a prioritised translation-first improvement roadmap
