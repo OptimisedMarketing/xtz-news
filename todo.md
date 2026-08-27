@@ -263,3 +263,14 @@
 - [x] Add a reduced-motion-safe hover treatment to the footer logo
 - [x] Add an accessible smooth-scrolling back-to-top control beside the footer logo
 - [x] Add focused tests and validate media, footer interaction, and responsive behavior
+
+## Phase 34: GitHub-Triggered Deployment Sync
+- [x] Verify GitHub push-webhook capabilities and inspect available project deployment controls
+- [ ] Compare secure automation approaches and confirm the chosen deployment model
+- [ ] Configure the approved push-triggered deployment workflow with verification and replay protection
+- [ ] Document the supported release flow and test the deployment trigger safely
+
+## Phase 35: Optimised Marketing Footer Credit
+- [x] Inspect the footer layout and existing external-link conventions
+- [x] Add the do-follow “Built by Optimised Marketing” link to https://optimised.marketing
+- [x] Test and validate the footer credit on desktop and mobile

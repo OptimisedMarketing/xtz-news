@@ -18,4 +18,12 @@ describe("Footer", () => {
     expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: "smooth" });
     scrollTo.mockRestore();
   });
+
+  it("acknowledges Optimised Marketing with a standard followable external link", () => {
+    render(<Footer />);
+
+    const credit = screen.getAllByRole("link", { name: "Built by Optimised Marketing" }).at(-1)!;
+    expect(credit.getAttribute("href")).toBe("https://optimised.marketing");
+    expect(credit.getAttribute("rel")).toBeNull();
+  });
 });
