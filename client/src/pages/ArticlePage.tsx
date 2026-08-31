@@ -21,6 +21,8 @@ import { annotateGaneshaTechnicalTerms } from "@/lib/technicalTerms";
 import { getArticleReadingProgress } from "@/lib/articleProgress";
 import { isGaneshaStory, prioritiseGaneshaRelatedStories } from "@/lib/ganeshaStory";
 import { isTezOracleStory, prioritiseTezOracleRelatedStories } from "@/lib/tezoracleStory";
+import TezOracleProjectLink from "@/components/TezOracleProjectLink";
+import TezOracleSharePanel from "@/components/TezOracleSharePanel";
 
 /** Injects / updates Open Graph + Twitter Card meta tags in <head> */
 function useOpenGraph(post: {
@@ -621,6 +623,8 @@ export default function ArticlePage() {
 
             {/* Share at bottom */}
             {isGaneshaArticle && <GaneshaSharePanel title={post.title} url={pageUrl} />}
+            {isTezOracleArticle && <TezOracleProjectLink />}
+            {isTezOracleArticle && <TezOracleSharePanel contentType="article" title={post.title} url={`https://xtz.news/${post.slug}`} />}
             <div style={{ marginTop: "2rem" }}>
               <ShareButtons title={post.title} url={pageUrl} variant="full" />
             </div>

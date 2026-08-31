@@ -13,6 +13,9 @@ import { createTranslationImportRouter } from "../translationImportRouter";
 import { importTranslationBatch, getUntranslatedTranslationJobs } from "../db";
 import { XTZ_TRANSLATION_IMPORT_PUBLIC_KEY } from "../translationImportPublicKey";
 import { createTranslationJobRouter } from "../translationJobRouter";
+import { createTezOracleStatusImportRouter } from "../tezoracleStatusImportRouter";
+import { TEZORACLE_STATUS_IMPORT_PUBLIC_KEY } from "../tezoracleStatusImportPublicKey";
+import { importTezOracleStatus } from "../db";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -50,6 +53,11 @@ async function startServer() {
       importBatch: importTranslationBatch,
     }));
   }
+
+  app.use("/api/internal/tezoracle/status", createTezOracleStatusImportRouter({
+    publicKey: TEZORACLE_STATUS_IMPORT_PUBLIC_KEY,
+    importStatus: importTezOracleStatus,
+  }));
 
   // ─── Custom Image Proxy (overrides framework storageProxy for wp-media) ────
   // The framework storageProxy does a 307 redirect which some browsers don't

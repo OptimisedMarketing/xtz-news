@@ -184,6 +184,41 @@ export const projects = mysqlTable(
 
 export type Project = typeof projects.$inferSelect;
 
+// ─── TezOracle official status monitor ────────────────────────────────────────
+// Stores source-derived project milestones and the contract addresses explicitly
+// published by TezOracle. The cloud monitor is the only writer.
+export const tezoracleStatusSnapshots = mysqlTable(
+  "tezoracle_status_snapshots",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    sourceUrl: varchar("sourceUrl", { length: 500 }).notNull(),
+    sourceHash: varchar("sourceHash", { length: 64 }).notNull(),
+    architectureStatus: varchar("architectureStatus", { length: 64 }).notNull(),
+    implementationStatus: varchar("implementationStatus", { length: 64 }).notNull(),
+    testnetStatus: varchar("testnetStatus", { length: 64 }).notNull(),
+    productionStatus: varchar("productionStatus", { length: 64 }).notNull(),
+    contractAddresses: longtext("contractAddresses").notNull(),
+    sourceCheckedAt: timestamp("sourceCheckedAt").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  (t) => [index("tss_checked_idx").on(t.sourceCheckedAt), index("tss_hash_idx").on(t.sourceHash)]
+);
+
+export const tezoracleStatusImportDeliveries = mysqlTable(
+  "tezoracle_status_import_deliveries",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    deliveryId: varchar("deliveryId", { length: 128 }).notNull(),
+    payloadHash: varchar("payloadHash", { length: 64 }).notNull(),
+    changed: boolean("changed").notNull(),
+    receivedAt: timestamp("receivedAt").defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("tsid_delivery_idx").on(t.deliveryId)]
+);
+
+export type TezOracleStatusSnapshot = typeof tezoracleStatusSnapshots.$inferSelect;
+
 // ─── Events ───────────────────────────────────────────────────────────────────
 export const events = mysqlTable(
   "events",

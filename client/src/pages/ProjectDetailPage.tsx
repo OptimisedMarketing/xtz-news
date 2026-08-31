@@ -3,6 +3,8 @@ import { ExternalLink, Globe, ChevronRight, Home, ArrowLeft } from "lucide-react
 import { trpc } from "@/lib/trpc";
 import { useSEO, buildWebPageSchema } from "@/hooks/useSEO";
 import { getMediaUrl } from "@/lib/mediaUrl";
+import TezOracleSharePanel from "@/components/TezOracleSharePanel";
+import TezOracleStatusPanel from "@/components/TezOracleStatusPanel";
 
 export default function ProjectDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -10,6 +12,11 @@ export default function ProjectDetailPage() {
     { slug: slug || "" },
     { enabled: !!slug }
   );
+  const isTezOracleProject = slug === "tezoracle";
+  const { data: tezoracleStatus } = trpc.projects.tezoracleStatus.useQuery(undefined, {
+    enabled: isTezOracleProject,
+    staleTime: 60_000,
+  });
   useSEO({
     title: project ? `${project.title} — Tezos Project | XTZ.News` : "Tezos Project | XTZ.News",
     description: project?.excerpt?.replace(/<[^>]*>/g, "").slice(0, 155) || "Explore Tezos ecosystem projects on XTZ.News.",
@@ -107,6 +114,7 @@ export default function ProjectDetailPage() {
                   </a>
                 )}
               </div>
+              {isTezOracleProject && <TezOracleSharePanel contentType="project" title="TezOracle — Tezos-native oracle infrastructure" url="https://xtz.news/projects/tezoracle" />}
             </div>
           </div>
         </div>
@@ -130,7 +138,7 @@ export default function ProjectDetailPage() {
           {/* Info grid */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
             <InfoCard label="Category" value={project.category || "—"} />
-            <InfoCard label="Status" value="✅ Live & Verified" />
+            <InfoCard label="Status" value={isTezOracleProject ? "In development" : "✅ Live & Verified"} />
             {project.websiteUrl && (
               <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "8px", padding: "1.25rem" }}>
                 <p style={{ fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(255,255,255,0.35)", margin: "0 0 0.5rem" }}>Website</p>
@@ -141,6 +149,8 @@ export default function ProjectDetailPage() {
               </div>
             )}
           </div>
+
+          {isTezOracleProject && <TezOracleStatusPanel status={tezoracleStatus} />}
 
           {/* GitHub activity */}
           {(project as any).github && <GitHubActivity githubUrl={(project as any).github} projectTitle={project.title} />}

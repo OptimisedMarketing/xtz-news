@@ -302,6 +302,8 @@ const projectsRouter = router({
       return project;
     }),
 
+  tezoracleStatus: publicProcedure.query(() => db.getLatestTezOracleStatus()),
+
   adminList: adminProcedure.query(() => db.getAllProjectsAdmin()),
 
   // Fetch latest GitHub commits for a project by its GitHub repo URL

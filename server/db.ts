@@ -15,10 +15,13 @@ import {
   siteSettings,
   postTranslations,
   translationImportDeliveries,
+  tezoracleStatusSnapshots,
+  tezoracleStatusImportDeliveries,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import type { TranslationImportPayload, TranslationImportResult } from "./translationImportRouter";
 import type { TranslationJob } from "./translationJobRouter";
+import type { TezOracleStatusImportPayload, TezOracleStatusImportResult } from "./tezoracleStatusImportRouter";
 import { SUPPORTED_LOCALES } from "../shared/locales";
 
 let _db: MySql2Database | null = null;
@@ -521,6 +524,61 @@ export async function getProjectBySlug(slug: string) {
   if (!db) return undefined;
   const result = await db.select().from(projects).where(eq(projects.slug, slug)).limit(1);
   return result[0];
+}
+
+export class TezOracleStatusImportConflictError extends Error {}
+
+export async function getLatestTezOracleStatus() {
+  const db = await getDb();
+  if (!db) return undefined;
+  const snapshot = await db.select().from(tezoracleStatusSnapshots).orderBy(desc(tezoracleStatusSnapshots.sourceCheckedAt)).limit(1);
+  if (!snapshot[0]) return undefined;
+  try {
+    return { ...snapshot[0], contractAddresses: JSON.parse(snapshot[0].contractAddresses) as Array<{ network: string; address: string; label?: string }> };
+  } catch {
+    return { ...snapshot[0], contractAddresses: [] as Array<{ network: string; address: string; label?: string }> };
+  }
+}
+
+export async function importTezOracleStatus(
+  payload: TezOracleStatusImportPayload,
+  payloadHash: string,
+): Promise<TezOracleStatusImportResult> {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+
+  return db.transaction(async (tx) => {
+    const existingDelivery = await tx.select({ payloadHash: tezoracleStatusImportDeliveries.payloadHash, changed: tezoracleStatusImportDeliveries.changed })
+      .from(tezoracleStatusImportDeliveries)
+      .where(eq(tezoracleStatusImportDeliveries.deliveryId, payload.deliveryId))
+      .limit(1);
+    if (existingDelivery[0]) {
+      if (existingDelivery[0].payloadHash !== payloadHash) throw new TezOracleStatusImportConflictError("Delivery ID has already been used with different content");
+      return { changed: existingDelivery[0].changed, duplicate: true };
+    }
+
+    const sourceCheckedAt = new Date(payload.sourceCheckedAt);
+    const latest = await tx.select().from(tezoracleStatusSnapshots).orderBy(desc(tezoracleStatusSnapshots.sourceCheckedAt)).limit(1);
+    const hasChanged = latest[0]?.sourceHash !== payload.sourceHash;
+    const values = {
+      sourceUrl: payload.sourceUrl,
+      sourceHash: payload.sourceHash,
+      architectureStatus: payload.milestones.architecture,
+      implementationStatus: payload.milestones.implementation,
+      testnetStatus: payload.milestones.testnet,
+      productionStatus: payload.milestones.production,
+      contractAddresses: JSON.stringify(payload.contractAddresses),
+      sourceCheckedAt,
+    };
+
+    if (hasChanged || !latest[0]) {
+      await tx.insert(tezoracleStatusSnapshots).values(values);
+    } else {
+      await tx.update(tezoracleStatusSnapshots).set({ sourceCheckedAt }).where(eq(tezoracleStatusSnapshots.id, latest[0].id));
+    }
+    await tx.insert(tezoracleStatusImportDeliveries).values({ deliveryId: payload.deliveryId, payloadHash, changed: hasChanged || !latest[0] });
+    return { changed: hasChanged || !latest[0] };
+  });
 }
 
 export async function getAllProjectsAdmin() {
