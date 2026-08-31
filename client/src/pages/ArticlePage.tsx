@@ -20,6 +20,7 @@ import ArticleLanguageChooser from "@/components/ArticleLanguageChooser";
 import { annotateGaneshaTechnicalTerms } from "@/lib/technicalTerms";
 import { getArticleReadingProgress } from "@/lib/articleProgress";
 import { isGaneshaStory, prioritiseGaneshaRelatedStories } from "@/lib/ganeshaStory";
+import { isTezOracleStory, prioritiseTezOracleRelatedStories } from "@/lib/tezoracleStory";
 
 /** Injects / updates Open Graph + Twitter Card meta tags in <head> */
 function useOpenGraph(post: {
@@ -464,8 +465,13 @@ export default function ArticlePage() {
 
   const pageUrl = typeof window !== "undefined" ? window.location.href : `https://xtz.news/${slug}`;
   const isGaneshaArticle = isGaneshaStory(post.slug);
+  const isTezOracleArticle = isTezOracleStory(post.slug);
   const newsletterPreviewSuccess = typeof window !== "undefined" && import.meta.env.DEV && new URLSearchParams(window.location.search).get("newsletterPreview") === "success";
-  const displayedRelated = isGaneshaArticle ? prioritiseGaneshaRelatedStories(uniqueRelated) : uniqueRelated;
+  const displayedRelated = isGaneshaArticle
+    ? prioritiseGaneshaRelatedStories(uniqueRelated)
+    : isTezOracleArticle
+      ? prioritiseTezOracleRelatedStories(uniqueRelated)
+      : uniqueRelated;
   const wordCount = post.content ? post.content.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length : 0;
   const readMins = Math.max(1, Math.round(wordCount / 200));
 
@@ -695,8 +701,8 @@ export default function ArticlePage() {
               <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                 <div style={{ width: "4px", height: "28px", background: "#2c7df7", borderRadius: "2px", flexShrink: 0 }} />
                 <div>
-                  <p style={{ margin: 0, fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: isGaneshaArticle ? "#63f7b1" : "#2c7df7", marginBottom: "2px" }}>{isGaneshaArticle ? "Continue exploring Etherlink & Tezos" : "You might also like"}</p>
-                  <h2 id="related-articles-title" style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#fff", letterSpacing: "-0.01em" }}>{isGaneshaArticle ? "More Etherlink and Tezos News" : "Related Articles"}</h2>
+                  <p style={{ margin: 0, fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: isGaneshaArticle ? "#63f7b1" : "#2c7df7", marginBottom: "2px" }}>{isGaneshaArticle ? "Continue exploring Etherlink & Tezos" : isTezOracleArticle ? "Continue exploring Tezos infrastructure" : "You might also like"}</p>
+                  <h2 id="related-articles-title" style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#fff", letterSpacing: "-0.01em" }}>{isGaneshaArticle ? "More Etherlink and Tezos News" : isTezOracleArticle ? "More Tezos Infrastructure and DeFi" : "Related Articles"}</h2>
                 </div>
               </div>
               {post.categories?.[0] && (

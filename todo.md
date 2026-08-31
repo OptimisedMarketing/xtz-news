@@ -336,3 +336,9 @@
 - [x] Store the supplied TezOracle graphic through project media storage and relay it reliably
 - [x] Publish the article with appropriate taxonomy and source links
 - [x] Run regression checks and validate the published TezOracle story
+
+## Phase 46: TezOracle Directory and Related Reading
+- [x] Verify the TezOracle directory profile fields and inspect current TezOracle related-story matching
+- [x] Add TezOracle to the project directory with its official website and supplied visual
+- [x] Prioritise relevant Tezos infrastructure and DeFi stories in the TezOracle related-article section
+- [x] Add focused tests and validate the directory profile and related-reading experience
