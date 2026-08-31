@@ -276,6 +276,24 @@
 - [x] Defer the verified GitHub push receiver and reviewer-controlled publish action pending a future request
 - [x] Defer webhook configuration and signed-delivery validation pending a future request
 
+## Phase 40: Cloud Translation Import Pipeline
+- [x] Define the signed cloud-to-site payload, authentication, replay-protection, and idempotent import contract
+- [x] Replace the unavailable shared-secret transfer with a cloud-held asymmetric signing key and site-held public key
+- [x] Build the server-side signed import endpoint and translated Key Takeaways persistence
+- [x] Update the cloud worker to generate direct-provider translated Key Takeaways and import signed batches
+- [ ] Run and verify the first bounded production-target batch before continuing the backlog
+
+## Phase 41: Cloud-Held Translation Signing Key
+- [x] Generate an owner-only cloud signing key and register the non-secret public key with XTZ.News
+- [x] Replace HMAC verification with signature verification against the registered cloud public key
+
+## Phase 42: Cloud Translation Job Retrieval
+- [x] Add a signed endpoint that returns bounded live untranslated article jobs to the cloud worker
+- [x] Update the cloud worker to fetch only signed live jobs rather than its isolated recovery database
+
+## Phase 43: Direct Translation Cost Estimate
+- [x] Measure the remaining translation workload and estimate direct-provider input/output token cost
+
 ## Phase 35: Optimised Marketing Footer Credit
 - [x] Inspect the footer layout and existing external-link conventions
 - [x] Add the do-follow “Built by Optimised Marketing” link to https://optimised.marketing
@@ -290,3 +308,17 @@
 - [x] Inspect the current translation routes, language selector, and translated-article state
 - [x] Assess the broader reader journey for the ten highest-value usability improvements
 - [x] Document a prioritised translation-first improvement roadmap
+
+## Phase 39: Tezos Systems Research and Translation Improvements
+- [x] Review Tezos Systems and identify reputable homepage information or linking opportunities
+- [x] Add an above-fold, availability-aware language chooser to English article pages
+- [x] Ensure article translation links only lead to published translations and add a useful unavailable-translation recovery state
+- [ ] Run the cloud translation backlog and generate translated Key Takeaways for completed articles; blocked until cloud direct-provider capacity is restored
+- [x] Reconnect the persistent cloud translation workspace so the requested backlog run can begin
+- [x] Perform the bounded signed cloud job validation; the first live provider call was blocked before import by insufficient direct-provider balance
+- [x] Verify the cloud translation runner targets the current XTZ.News production dataset before it writes translations
+- [x] Choose and establish a secure cloud-to-production translation sync path
+- [x] Add a reader-controlled remembered language preference without forced redirects
+- [ ] Add focused tests and validate the enhanced translation experience on desktop and mobile
+- [x] Repair the restored preview’s database client initialization so published article lookups work during translation validation
+- [ ] Resolve the remaining preview article-rendering gap that prevents live language-preference validation

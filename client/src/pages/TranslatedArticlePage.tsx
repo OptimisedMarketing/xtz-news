@@ -4,7 +4,12 @@ import { getLocaleFromPath, getTranslatedSlugFromPath } from "@/lib/readerUtils"
 import { LOCALE_NAMES, LOCALE_ENGLISH_NAMES, LOCALE_FLAGS, RTL_LOCALES, SUPPORTED_LOCALES, isValidLocale, type SupportedLocale } from "@shared/locales";
 import { ArrowLeft, Globe, Calendar } from "lucide-react";
 import ArticleContent from "@/components/ArticleContent";
+import ArticleLanguageChooser from "@/components/ArticleLanguageChooser";
+import TranslationRecovery from "@/components/TranslationRecovery";
+import KeyTakeaways from "@/components/KeyTakeaways";
 import { Link, useLocation } from "wouter";
+import { useEffect } from "react";
+import { savePreferredLocale } from "@/lib/languagePreference";
 
 export default function TranslatedArticlePage() {
   const [location] = useLocation();
@@ -20,10 +25,18 @@ export default function TranslatedArticlePage() {
     { locale: locale as SupportedLocale, slug },
     { enabled: validLocale }
   );
+  const { data: translationContext } = trpc.translations.contextBySlug.useQuery(
+    { slug },
+    { enabled: validLocale && !!slug },
+  );
 
   const isRTL = RTL_LOCALES.includes(locale as SupportedLocale);
   const localeName = LOCALE_NAMES[locale as SupportedLocale] ?? locale;
   const localeEnglishName = LOCALE_ENGLISH_NAMES[locale as SupportedLocale] ?? locale;
+
+  useEffect(() => {
+    if (translation && validLocale) savePreferredLocale(locale as SupportedLocale);
+  }, [locale, translation, validLocale]);
 
   useSEO({
     title: translation?.metaTitle ?? translation?.title ?? `${localeEnglishName} — XTZ.News`,
@@ -55,6 +68,10 @@ export default function TranslatedArticlePage() {
         </div>
       </div>
     );
+  }
+
+  if (!translation && translationContext) {
+    return <TranslationRecovery locale={locale as SupportedLocale} source={translationContext.source} translations={translationContext.translations} />;
   }
 
   if (!translation) {
@@ -128,6 +145,7 @@ export default function TranslatedArticlePage() {
         </div>
 
         {/* Content */}
+        <KeyTakeaways takeaways={translation.keyTakeaways} />
         <ArticleContent
           html={translation.content}
           className="post-content"
@@ -149,19 +167,7 @@ export default function TranslatedArticlePage() {
             🤖 This article was automatically translated by AI. For the original English version, please{" "}
             <Link href={`/${slug}`} style={{ color: "#2c7df7", textDecoration: "none" }}>click here</Link>.
           </div>
-          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-            {SUPPORTED_LOCALES.filter((l: SupportedLocale) => l !== locale).slice(0, 5).map((l: SupportedLocale) => (
-              <Link
-                key={l}
-                href={`/${l}/${slug}`}
-                style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.35)", textDecoration: "none", padding: "0.2rem 0.5rem", background: "rgba(255,255,255,0.05)", borderRadius: "3px", transition: "all 0.15s" }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#fff")}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.35)")}
-              >
-                {LOCALE_FLAGS[l]} {LOCALE_NAMES[l]}
-              </Link>
-            ))}
-          </div>
+          <ArticleLanguageChooser currentLocale={locale as SupportedLocale} translations={translationContext?.translations ?? []} label="Also available in" />
         </div>
       </div>
     </div>

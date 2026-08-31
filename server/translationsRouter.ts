@@ -8,6 +8,42 @@ import { eq, and, desc } from "drizzle-orm";
 const localeSchema = z.enum(SUPPORTED_LOCALES);
 
 export const translationsRouter = router({
+  // Resolve a source article from either its English slug or any published
+  // translation slug. This powers recovery when a requested locale is absent.
+  contextBySlug: publicProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return null;
+
+      let [source] = await db
+        .select({ id: posts.id, title: posts.title, slug: posts.slug, status: posts.status })
+        .from(posts)
+        .where(eq(posts.slug, input.slug))
+        .limit(1);
+
+      if (!source) {
+        const [matchedTranslation] = await db
+          .select({ postId: postTranslations.postId })
+          .from(postTranslations)
+          .where(and(eq(postTranslations.slug, input.slug), eq(postTranslations.status, "published")))
+          .limit(1);
+        if (!matchedTranslation) return null;
+        [source] = await db
+          .select({ id: posts.id, title: posts.title, slug: posts.slug, status: posts.status })
+          .from(posts)
+          .where(eq(posts.id, matchedTranslation.postId))
+          .limit(1);
+      }
+
+      if (!source || source.status !== "publish") return null;
+      const translations = await db
+        .select({ locale: postTranslations.locale, slug: postTranslations.slug, title: postTranslations.title })
+        .from(postTranslations)
+        .where(and(eq(postTranslations.postId, source.id), eq(postTranslations.status, "published")));
+      return { source: { id: source.id, title: source.title, slug: source.slug }, translations };
+    }),
+
   // Get a single translated article by locale + slug
   byLocaleSlug: publicProcedure
     .input(z.object({ locale: localeSchema, slug: z.string() }))

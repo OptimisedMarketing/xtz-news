@@ -1,5 +1,6 @@
 import { eq, desc, asc, like, or, sql, and, inArray, ne } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/mysql2";
+import mysql from "mysql2/promise";
+import { drizzle, type MySql2Database } from "drizzle-orm/mysql2";
 import {
   users, InsertUser,
   posts, Post, InsertPost,
@@ -12,18 +13,26 @@ import {
   pages, Page,
   articleSubmissions, ArticleSubmission,
   siteSettings,
+  postTranslations,
+  translationImportDeliveries,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
+import type { TranslationImportPayload, TranslationImportResult } from "./translationImportRouter";
+import type { TranslationJob } from "./translationJobRouter";
+import { SUPPORTED_LOCALES } from "../shared/locales";
 
-let _db: ReturnType<typeof drizzle> | null = null;
+let _db: MySql2Database | null = null;
+let _pool: mysql.Pool | null = null;
 
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      _pool = mysql.createPool(process.env.DATABASE_URL);
+      _db = drizzle(_pool);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
+      _pool = null;
     }
   }
   return _db;
@@ -141,6 +150,104 @@ export async function getPostById(id: number) {
   if (!db) return undefined;
   const result = await db.select().from(posts).where(eq(posts.id, id)).limit(1);
   return result[0];
+}
+
+export class TranslationImportConflictError extends Error {}
+
+export async function importTranslationBatch(
+  payload: TranslationImportPayload,
+  payloadHash: string,
+): Promise<TranslationImportResult> {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+
+  const localeSet = new Set(SUPPORTED_LOCALES);
+  const sourceIds = Array.from(new Set(payload.translations.map((translation) => translation.postId)));
+  const recordKeys = new Set<string>();
+  for (const translation of payload.translations) {
+    const recordKey = `${translation.postId}:${translation.locale}`;
+    if (!Number.isInteger(translation.postId) || translation.postId <= 0 || !localeSet.has(translation.locale as typeof SUPPORTED_LOCALES[number]) || !translation.content.trim() || !translation.keyTakeaways.trim() || recordKeys.has(recordKey)) {
+      throw new TranslationImportConflictError("Translation payload contains an invalid or duplicate record");
+    }
+    recordKeys.add(recordKey);
+  }
+
+  return db.transaction(async (tx) => {
+    const existing = await tx
+      .select({ payloadHash: translationImportDeliveries.payloadHash, importedCount: translationImportDeliveries.importedCount })
+      .from(translationImportDeliveries)
+      .where(eq(translationImportDeliveries.deliveryId, payload.deliveryId))
+      .limit(1);
+    if (existing[0]) {
+      if (existing[0].payloadHash !== payloadHash) {
+        throw new TranslationImportConflictError("Delivery ID has already been used with different content");
+      }
+      return { imported: existing[0].importedCount, duplicate: true };
+    }
+
+    const sources = await tx
+      .select({ id: posts.id })
+      .from(posts)
+      .where(and(inArray(posts.id, sourceIds), eq(posts.status, "publish")));
+    if (sources.length !== sourceIds.length) {
+      throw new TranslationImportConflictError("One or more source posts are unavailable for translation import");
+    }
+
+    for (const translation of payload.translations) {
+      await tx
+        .insert(postTranslations)
+        .values({ ...translation, status: "published" })
+        .onDuplicateKeyUpdate({
+          set: {
+            title: translation.title,
+            slug: translation.slug,
+            excerpt: translation.excerpt,
+            content: translation.content,
+            metaTitle: translation.metaTitle,
+            metaDescription: translation.metaDescription,
+            keyTakeaways: translation.keyTakeaways,
+            status: "published",
+            translatedAt: new Date(),
+          },
+        });
+    }
+
+    await tx.insert(translationImportDeliveries).values({
+      deliveryId: payload.deliveryId,
+      payloadHash,
+      importedCount: payload.translations.length,
+    });
+    return { imported: payload.translations.length };
+  });
+}
+
+export async function getUntranslatedTranslationJobs(locale: string, limit: number, slug?: string): Promise<TranslationJob[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  const conditions = [
+    eq(posts.status, "publish"),
+    sql`${posts.content} IS NOT NULL`,
+    sql`${postTranslations.id} IS NULL`,
+  ];
+  if (slug) conditions.push(eq(posts.slug, slug));
+
+  const rows = await db
+    .select({
+      id: posts.id,
+      title: posts.title,
+      slug: posts.slug,
+      excerpt: posts.excerpt,
+      content: posts.content,
+      keyTakeaways: posts.keyTakeaways,
+    })
+    .from(posts)
+    .leftJoin(postTranslations, and(eq(postTranslations.postId, posts.id), eq(postTranslations.locale, locale)))
+    .where(and(...conditions))
+    .orderBy(desc(posts.publishedAt))
+    .limit(limit);
+
+  return rows.filter((row): row is TranslationJob => Boolean(row.content));
 }
 
 export async function getTotalPostCount(status = "publish") {

@@ -7,18 +7,19 @@
   ],
   "dev_command": "pnpm run dev",
   "env_vars": {
-    "DATABASE_URL": "mysql://vXV87UtSuYyrLBc.98738ed3ff5c:Or68FYSwqUw9sj27KC1K@gateway03.us-east-1.prod.aws.tidbcloud.com:4000/b4WZurEggWt4nzJXT2vL9d?ssl={\"rejectUnauthorized\":true}",
-    "DRIZZLE_DATABASE_URL": "mysql://vXV87UtSuYyrLBc.98738ed3ff5c:Or68FYSwqUw9sj27KC1K@gateway03.us-east-1.prod.aws.tidbcloud.com:4000/b4WZurEggWt4nzJXT2vL9d?ssl={\"rejectUnauthorized\":true}"
+    "DATABASE_URL": "mysql://3WJm2mhmb9aq3m5.a01aebe9795e:4lDBB3ih7j89qlmSfdK4@gateway03.us-east-1.prod.aws.tidbcloud.com:4000/b4WZurEggWt4nzJXT2vL9d?ssl={\"rejectUnauthorized\":true}",
+    "DRIZZLE_DATABASE_URL": "mysql://3WJm2mhmb9aq3m5.a01aebe9795e:4lDBB3ih7j89qlmSfdK4@gateway03.us-east-1.prod.aws.tidbcloud.com:4000/b4WZurEggWt4nzJXT2vL9d?ssl={\"rejectUnauthorized\":true}",
+    "MANUS_WEBDEV_PROJECT_ID": "b4WZurEggWt4nzJXT2vL9d"
   },
   "experiments": [
     "no_db_push"
   ],
   "git_remote": {
     "repo_url": "s3://vida-prod-gitrepo/webdev-git/310519663300283832/b4WZurEggWt4nzJXT2vL9d",
-    "access_key_id": "ASIAZV3A2ECZAKTRCODX",
-    "secret_access_key": "OoaX/ZRS0Bxvy0nkHJSbtW79t7MKKDr87s1ZlJUj",
-    "session_token": "IQoJb3JpZ2luX2VjEDoaCXVzLWVhc3QtMSJIMEYCIQCs7+TYtz8J4aHGkz6M+A+XJgPDoHxBlkcAik5kSoDVUgIhALBatakOycr+04B+USBOGYBHYvHq+Ye+07u8+OKIVkcmKvYDCAMQBBoMNjY1Mzg2MDk4ODY2IgxzTQZtzgXOT+FXe1Aq0wPajGbIk8N22iZ+dMjBhQj8KKstKojVlAaZ7K9q7xhDD6HT5leXnI+xOqMxZyIhJ8A1+IkJ9tc1WYkVrim6pRBW06IA9hS3uPcSqnESSPs5fStseq6/Ir6L4vjRDUBI/HiIdOwO1gZwgkj5jJn1g638RYnJyCCwtZdQFvJK+AIWgqdDERkKLTvta0YHmFhJRAlf4g6/WsTS8D5rHOC4bKoM+R2Jm5OxlU3pD4cm+Gk70gavn6GlNM3ocM7ARaA/tjk1Uv1XtczXEWdtjqdjI2GbJEyjCNIhpTZxcBCcUhGlrYdZPQLwZwZWBTYbGC3l8eXmeElSH3JV29nTdKkXPnXIspZIrx0GVKhawQDL++szrf0WnBh72kGrRfDU3EGIUlYjkg8zgnULv4Zrwbcl05GGlWCHIS5YwIKGcFjUI8MnXbAO2ZVFmuU6ZE1kVAlUYCKFZhg1NmeJ4BhBGr+DME8DJeWIhxcnSNZX2rsMuEufp7zl71vtDfCHpxKnF270QOetCvKqoYI7PEMnYnkv65c2yCm7Ef+NgM5rLZANp/aKDn18ecFHHSIkSGkuzBs+s4rG5+uWP4MTm4KlhcVe9pq0Yu68/ejn24H1Q2t3wrlf5aOe/jDwy7XUBjqcAa7XlExOjRXnwb6vwtJb9oG6s/CoqjEezXyY+Zbq/bf5y1G0tSGWO0jdChv3tjhuxzC57lC+/dCwCV0ktMmWpHcyMn7nk/PdTDpLFj10ZUmI0TFDSSmOuhLFfX8ig1gUmR9gkddoNbLR8p0tGoClTTsov8lf6OwjvzhZj0W54JgvgzJ4KwWZQUANqWQbfFhxwkUTp+EHqmI4e1E1Kw==",
-    "expiration": "2026-08-25T21:52:48.000Z",
+    "access_key_id": "ASIAZV3A2ECZJ22EVMPM",
+    "secret_access_key": "U8s5FDhKWWHoKIUVDaPdCOacRbt/IYj+Vj2K8/lp",
+    "session_token": "IQoJb3JpZ2luX2VjEM7//////////wEaCXVzLWVhc3QtMSJHMEUCIBsSPXe6rvWG9wfq4sHZkEyWycT1LbctWDI83W1R4IDiAiEAnhFanjtIYOSKTcBce/892a3mJ+Gwu0B61CozIZYYAN4q/wMIl///////////ARAEGgw2NjUzODYwOTg4NjYiDGJHX0RnkBOxz2w/firTA0e1FGXGUnT1b4Hh+bCy2gwq/BkyR5MacpOzWZn8Dwe/gddJk6yxHVnSsCESlxlgL8STXGR8NIYRySbOJz4HhTQCa/Fxhtd6tsgwSBn0Y6aV47BFdOGXtJnv+RI/0UriolFRrb9Ic/70p8KknkflxucFl0o2s/9NPknJg2kgIYgM0bs5X7fshpzFFIGnlb59Fs6qMudHni3XPt3oRF9hQ5ulJtlDfBEaDMx/Yg9rF1BMQF81Wph1x0dRrFYtNaA1pKmbFd1HzBMsvds5Uqz+syLA5pSUYSlc2FUuZUhNnIGecyTQLFGL3z762Ztow5IB9ci2izXa7CFW2iMQAYiRkgKRsvguI2hP9ruX2FhxGRzYjCZdwRilpcreVCDlloaYS3Zt9SeOpFbFoA+YLeS/JJ6BlOeQKVxKCgKJacI/ih/BAPMeYDqiZPToiCOysoTjlqZBuo5ABQcEKU5OVfU1ZVvcWjirzJZgYmY3o/a3RlHieLSq6SapSUns/iVz0Mdu61X2GCLUrQ0nXMwC2SoJMn5/Q1ur0VefPDj6uh5Lfj+f4ZScbrhC2q1CgKKDPH0FjuTmGQNW/YkLfH+2ZlOTrFdPghqJGps2uH7mg2mi58N1Vy1dMJ2R1tQGOp0BXZpcqgG2pT6/3UF8R7La5MG4LdDdKl3TpuFOpsxXinZhC9csNlMwP9mcLuGfr2yOrVnqWQkkdvyoj1YkGh+kzl8aGDE5JJlqUbUcidQlvc9nVaqlIBlovVkeaBTMrtBOQPmkaLBrH3QdyfSghIcNeFBKMWWB13IC14AXb70tZeotuaWn9ttlSsZryZ2IGC9p7qGcN31yIo9LiVjJkA==",
+    "expiration": "2026-09-01T01:58:53.000Z",
     "backend": "GIT_BACKEND_S3"
   },
   "name": "xtz-news",
@@ -41,7 +42,8 @@
     "VITE_APP_TITLE": "XTZ.News — Tezos News",
     "VITE_FRONTEND_FORGE_API_KEY": "ZnKgpBZN7hNTpR7yv6yWxz",
     "VITE_FRONTEND_FORGE_API_URL": "https://forge.manus.ai",
-    "VITE_OAUTH_PORTAL_URL": "https://manus.im"
+    "VITE_OAUTH_PORTAL_URL": "https://manus.im",
+    "XTZ_TRANSLATION_INGEST_SECRET": "fjsajh!!!KGDFSG12kkfhkk!!@@@nksdT66Tyr"
   },
   "template_id": "web-db-user",
   "test_command": "pnpm test"

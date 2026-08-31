@@ -286,6 +286,7 @@ export const postTranslations = mysqlTable(
     metaTitle: varchar("metaTitle", { length: 255 }),
     metaDescription: text("metaDescription"),
     audioUrl: text("audioUrl"),
+    keyTakeaways: text("keyTakeaways"),
     status: mysqlEnum("status", ["draft", "published"]).default("published").notNull(),
     translatedAt: timestamp("translatedAt").defaultNow().notNull(),
   },
@@ -297,6 +298,21 @@ export const postTranslations = mysqlTable(
 );
 export type PostTranslation = typeof postTranslations.$inferSelect;
 export type InsertPostTranslation = typeof postTranslations.$inferInsert;
+
+// ─── Translation Import Deliveries ───────────────────────────────────────────
+// Stores accepted cloud-to-site delivery IDs so signed imports are replay-safe.
+export const translationImportDeliveries = mysqlTable(
+  "translation_import_deliveries",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    deliveryId: varchar("deliveryId", { length: 128 }).notNull(),
+    payloadHash: varchar("payloadHash", { length: 64 }).notNull(),
+    importedCount: int("importedCount").notNull(),
+    receivedAt: timestamp("receivedAt").defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("tid_delivery_idx").on(t.deliveryId)]
+);
+export type TranslationImportDelivery = typeof translationImportDeliveries.$inferSelect;
 
 // Supported locales for the translation system
 export const SUPPORTED_LOCALES = ["zh", "ko", "ja", "de", "es", "fr", "pt", "ru", "ar", "tr"] as const;

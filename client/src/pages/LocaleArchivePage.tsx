@@ -4,6 +4,8 @@ import { getLocaleFromPath } from "@/lib/readerUtils";
 import { LOCALE_NAMES, LOCALE_ENGLISH_NAMES, LOCALE_FLAGS, SUPPORTED_LOCALES, isValidLocale, type SupportedLocale } from "@shared/locales";
 import { Globe } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import { useEffect } from "react";
+import { savePreferredLocale } from "@/lib/languagePreference";
 
 export default function LocaleArchivePage() {
   const [location] = useLocation();
@@ -19,6 +21,10 @@ export default function LocaleArchivePage() {
   const localeName = LOCALE_NAMES[locale as SupportedLocale] ?? locale;
   const localeEnglishName = LOCALE_ENGLISH_NAMES[locale as SupportedLocale] ?? locale;
   const flag = LOCALE_FLAGS[locale as SupportedLocale] ?? "🌐";
+
+  useEffect(() => {
+    if (validLocale) savePreferredLocale(locale as SupportedLocale);
+  }, [locale, validLocale]);
 
   useSEO({
     title: `${flag} Tezos News in ${localeEnglishName} (${localeName}) — XTZ.News`,
