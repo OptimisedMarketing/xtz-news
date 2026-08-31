@@ -329,3 +329,10 @@
 - [x] Determine the precise homepage module placement and interaction design
 - [x] Build the attributed Tezos Systems Network Pulse module with durable outbound links
 - [x] Add focused tests and validate the module on desktop and mobile
+
+## Phase 45: TezOracle Story
+- [x] Verify the supplied TezOracle website and announcement-source claims
+- [x] Prepare a source-grounded TezOracle article with SEO fields and bullet Key Takeaways
+- [x] Store the supplied TezOracle graphic through project media storage and relay it reliably
+- [x] Publish the article with appropriate taxonomy and source links
+- [x] Run regression checks and validate the published TezOracle story
