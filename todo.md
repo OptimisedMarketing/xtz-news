@@ -281,7 +281,7 @@
 - [x] Replace the unavailable shared-secret transfer with a cloud-held asymmetric signing key and site-held public key
 - [x] Build the server-side signed import endpoint and translated Key Takeaways persistence
 - [x] Update the cloud worker to generate direct-provider translated Key Takeaways and import signed batches
-- [ ] Run and verify the first bounded production-target batch before continuing the backlog
+- [x] Defer the first live production-target batch and remaining backlog at the user’s request; no provider capacity was restored and no live results were imported
 
 ## Phase 41: Cloud-Held Translation Signing Key
 - [x] Generate an owner-only cloud signing key and register the non-secret public key with XTZ.News
@@ -313,12 +313,19 @@
 - [x] Review Tezos Systems and identify reputable homepage information or linking opportunities
 - [x] Add an above-fold, availability-aware language chooser to English article pages
 - [x] Ensure article translation links only lead to published translations and add a useful unavailable-translation recovery state
-- [ ] Run the cloud translation backlog and generate translated Key Takeaways for completed articles; blocked until cloud direct-provider capacity is restored
+- [x] Defer the cloud translation backlog and translated Key Takeaways run at the user’s request; retain the completed zero-Manus-credit pipeline for a future restart
 - [x] Reconnect the persistent cloud translation workspace so the requested backlog run can begin
 - [x] Perform the bounded signed cloud job validation; the first live provider call was blocked before import by insufficient direct-provider balance
 - [x] Verify the cloud translation runner targets the current XTZ.News production dataset before it writes translations
 - [x] Choose and establish a secure cloud-to-production translation sync path
 - [x] Add a reader-controlled remembered language preference without forced redirects
-- [ ] Add focused tests and validate the enhanced translation experience on desktop and mobile
+- [x] Add focused tests and validate the enhanced translation experience on desktop and mobile
 - [x] Repair the restored preview’s database client initialization so published article lookups work during translation validation
-- [ ] Resolve the remaining preview article-rendering gap that prevents live language-preference validation
+
+## Phase 44: Tezos Systems Homepage Integration
+- [x] Research Tezos Systems and define homepage integration options
+- [x] Select the Tezos Systems Network Pulse homepage module before implementation
+- [x] Resolve the remaining preview article-rendering gap that prevents live language-preference validation
+- [x] Determine the precise homepage module placement and interaction design
+- [x] Build the attributed Tezos Systems Network Pulse module with durable outbound links
+- [x] Add focused tests and validate the module on desktop and mobile

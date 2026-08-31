@@ -23,6 +23,10 @@ This audit reviewed the English article language controls, the translated-articl
 
 After the translation updates, the local `posts.bySlug` tRPC endpoint returned the full published Art on Tezos article payload for the sample slug. The persistent browser preview retained an older article-loading shell despite the successful API response and a clean server restart. This is a preview-client state issue rather than a failed article lookup; final release validation should use a fresh published preview after checkpointing.
 
+## Final reader validation
+
+The Chinese version of the fully translated Art on Tezos article renders successfully, correctly labels the page as AI translated, provides an English-original action, and lists only the nine other published translations. Returning to the unchanged English URL preserves the English article while the above-fold chooser identifies **Your language: 中文**. This verifies a reader-controlled stored preference without a forced redirect and resolves the stale preview-rendering observation.
+
 ## Source locations
 
 - `client/src/pages/ArticlePage.tsx`

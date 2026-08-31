@@ -6,6 +6,7 @@ import { trpc } from "@/lib/trpc";
 import PostCard from "@/components/PostCard";
 import ForYouFeed from "@/components/ForYouFeed";
 import HomepageFilters from "@/components/HomepageFilters";
+import TezosSystemsNetworkPulse from "@/components/TezosSystemsNetworkPulse";
 import { useSEO } from "@/hooks/useSEO";
 import { getMediaUrl } from "@/lib/mediaUrl";
 import { getNewsletterConfirmationCopy } from "@/lib/newsletterConfirmation";
@@ -561,6 +562,7 @@ export default function Home() {
       </h1>
       {isLoading ? <HeroSkeleton /> : <HeroSection latestPosts={latest} mostReadPosts={mostRead} />}
       <HomepageFilters />
+      <TezosSystemsNetworkPulse />
       <LatestNewsSection posts={latest.slice(0, 8)} weekPosts={(data as any)?.trending ?? mostRead} allTimePosts={mostRead} />
       <ForYouFeed />
       <FeaturedNewsGrid posts={featured} />

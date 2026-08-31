@@ -19,6 +19,16 @@ The headline homepage candidate is a compact **Network pulse** card that shows o
 | Governance stories | “Follow live Tezos governance” |
 | Ecosystem adoption reporting | “Explore ecosystem activity” |
 
+## Homepage integration options
+
+| Option | Placement | Reader value | Scope |
+| --- | --- | --- | --- |
+| **A. Network pulse card** | Between the token tracker and latest-news modules | Gives readers a concise route to Tezos Systems’ live network, capital, governance, and baker views without copying volatile statistics. | A new attributed, static-link module. |
+| **B. Protocol context card** | In the homepage hero’s supporting rail when a protocol/governance story is featured | Makes the live-status destination contextual to the story a reader is already considering. | Requires dynamic category-aware presentation. |
+| **C. Contextual article links** | Protocol, governance, staking, and adoption articles | Provides the most relevant journey but does not improve homepage discovery directly. | Adds reusable editorial modules. |
+
+The clearest first addition is Option A. It complements rather than duplicates the existing XTZ.News token tracker, introduces Tezos Systems by attribution, and avoids presenting third-party real-time figures that could become stale.
+
 ## Reference
 
 [1] [Tezos Systems — live Tezos dashboard](https://tezos.systems/)
