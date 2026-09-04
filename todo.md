@@ -347,7 +347,12 @@
 - [x] Confirm a source-safe approach for TezOracle development status and future address updates
 - [x] Add an accessible direct link from the TezOracle article to its project-directory profile
 - [x] Add labelled TezOracle sharing controls on the article and project-profile experiences
-- [ ] Build the agreed source-aware status and address-updates presentation without inventing testnet or contract data
+- [x] Build the agreed source-aware status and address-updates presentation without inventing testnet or contract data
 - [x] Create an isolated cloud-held signing identity and production verification configuration for TezOracle status imports
-- [ ] Configure a daily cloud monitor with idempotent official-source checks, no inbound ports, and durable execution records
-- [ ] Add focused test coverage and validate the new TezOracle journeys on desktop and mobile
+- [x] Configure a daily cloud monitor with idempotent official-source checks, no inbound ports, and durable execution records
+- [x] Add focused test coverage and validate the new TezOracle journeys on desktop and mobile
+
+## Phase 48: Vite Preview WebSocket Repair
+- [x] Diagnose the reported development-preview WebSocket connection failure
+- [x] Correct the Vite HMR configuration without affecting production traffic
+- [x] Validate a clean preview reconnection and record the resolution
