@@ -10,11 +10,10 @@
 | Article-to-guide journey | Passed. The new post includes a dedicated, labelled reader-guide panel linking directly to `/guides/tz5-wallet`. The guide reciprocally links to the news report. |
 | Responsive presentation | Passed. Full-page desktop and 390px mobile captures show the article topic filter, related section, guide link, and guide layout without clipping or overlap. |
 | Automated checks | Passed. `pnpm test` completed 80 tests across 34 files and `pnpm check` completed without TypeScript errors. |
-| Supplied replacement visual | Pending. No new image asset was available in the current upload area, so the article continues to use its existing original cover until the intended image is uploaded again or identified. |
+| Supplied replacement visual | Passed. The user-provided square geometric visual is stored through project media and now renders as the post-quantum article’s cover in desktop and 390px mobile views. |
 
 ## Sources used for the guide
 
 1. [Octez documentation — Accounts and addresses](https://octez.tezos.com/docs/active/accounts.html)
 2. [Tezos Spotlight — Ushuaia is Live](https://spotlight.tezos.com/ushuaia-is-live/)
 3. [Tezos Docs — Installing and funding a wallet](https://docs.tezos.com/developing/wallet-setup)
-

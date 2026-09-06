@@ -364,7 +364,7 @@
 - [x] Run regression checks and validate the published story on desktop and mobile
 
 ## Phase 50: Post-Quantum Discovery and tz5 Guide
-- [ ] Locate and validate the supplied replacement visual for the post-quantum article
+- [x] Locate and validate the supplied replacement visual for the post-quantum article
 - [x] Add a dedicated post-quantum topic filter to sidebar discovery controls
 - [x] Add post-quantum-focused related reading to the bottom of the new article
 - [x] Publish a plain-English tz5 wallet guide with clear testnet-stage framing and official source links

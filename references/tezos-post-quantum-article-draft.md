@@ -11,8 +11,8 @@
 | Tags | Tezos; Post-Quantum; Cryptography; Quantum Computing; Data Availability Layer; Ushuaia; tz5; ML-DSA-44; Previewnet |
 | Meta title | Tezos Prepares Experimental Post-Quantum Previewnet | XTZ.News |
 | Meta description | Arthur Breitman explains why Tezos contributors are preparing an experimental post-quantum previewnet, building on the Ushuaia upgrade’s testnet-only tz5 account support. |
-| Featured image | `/manus-storage/tezos-post-quantum-previewnet-cover_d542dd0b.png` |
-| Image alt text | Abstract blue and violet cryptographic shield transitioning into a geometric quantum lattice for Tezos post-quantum research |
+| Featured image | `/manus-storage/tezos-post-quantum-user-supplied-cover_067f9211.png` |
+| Image alt text | Abstract geometric structure of blue and gold tessellated forms connected by fine coloured strands, illustrating post-quantum Tezos research |
 
 ## Key Takeaways
 
