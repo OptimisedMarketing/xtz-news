@@ -356,3 +356,9 @@
 - [x] Diagnose the reported development-preview WebSocket connection failure
 - [x] Correct the Vite HMR configuration without affecting production traffic
 - [x] Validate a clean preview reconnection and record the resolution
+
+## Phase 49: Tezos Post-Quantum Story
+- [x] Verify the Arthur Breitman announcement and the supplied post-quantum source material
+- [x] Draft a source-grounded Tezos post-quantum article with SEO metadata and bullet Key Takeaways
+- [x] Publish the story with accurate taxonomy, tags, source links, and a durable featured visual
+- [x] Run regression checks and validate the published story on desktop and mobile
