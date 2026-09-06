@@ -21,6 +21,9 @@ describe("post-quantum reader discovery", () => {
     render(<Tz5WalletGuidePage />);
     expect(screen.getByText(/testing work, not an ordinary Mainnet wallet feature/i)).toBeTruthy();
     expect(screen.getByText(/Do not move real funds/i)).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /The short version/i })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /A safer way to approach future testing/i })).toBeTruthy();
+    expect(screen.getByText(/It is an address type/i)).toBeTruthy();
     expect(screen.getByRole("link", { name: /Accounts and addresses/i }).getAttribute("href")).toBe("https://octez.tezos.com/docs/active/accounts.html");
   });
 });

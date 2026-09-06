@@ -846,4 +846,120 @@
     .network-pulse-link:focus-visible,
     .network-pulse-link:active { transform: none; }
   }
+
+  /* ── tz5 guide: focused editorial learning layout ── */
+  .tz5-guide { min-height: 100vh; background: #000; color: #fff; }
+  .tz5-guide-shell { max-width: 1120px; }
+  .tz5-guide-hero { position: relative; overflow: hidden; padding: 2.7rem 0 3.35rem; border-bottom: 1px solid rgba(86, 125, 255, 0.25); background: radial-gradient(circle at 84% 16%, rgba(91, 74, 216, 0.36), transparent 23rem), radial-gradient(circle at 60% 105%, rgba(31, 124, 247, 0.18), transparent 31rem), linear-gradient(128deg, #06142c 0%, #0c1f45 58%, #070e23 100%); }
+  .tz5-guide-hero::after { content: ''; position: absolute; right: 8%; bottom: -6.5rem; width: 19rem; height: 19rem; border: 1px solid rgba(161, 140, 255, 0.18); border-radius: 50%; box-shadow: 0 0 0 2.8rem rgba(161, 140, 255, 0.04), 0 0 0 6.4rem rgba(100, 160, 255, 0.025); pointer-events: none; }
+  .tz5-guide-breadcrumb { display: flex; align-items: center; gap: 0.35rem; margin-bottom: 2.1rem; color: rgba(255, 255, 255, 0.58); font-size: 0.72rem; letter-spacing: 0.035em; }
+  .tz5-guide-breadcrumb a { display: inline-flex; color: #b7d2ff; }
+  .tz5-guide-breadcrumb span:last-child { color: #d5ccff; }
+  .tz5-guide-hero-grid { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1fr) 15.2rem; gap: 2.5rem; align-items: end; }
+  .tz5-guide-eyebrow, .tz5-guide-kicker { display: flex; align-items: center; gap: 0.4rem; margin: 0 0 0.75rem; color: #c3b5ff; font-size: 0.7rem; font-weight: 900; letter-spacing: 0.13em; text-transform: uppercase; }
+  .tz5-guide h1 { max-width: 720px; margin: 0; color: #fff; font-size: clamp(2.35rem, 5.4vw, 4.25rem); line-height: 0.98; letter-spacing: -0.052em; }
+  .tz5-guide h1 code { color: #b9a8ff; font-family: 'Cera Pro', 'CeraPro', 'Circe', sans-serif; }
+  .tz5-guide-lede { max-width: 650px; margin: 1.15rem 0 0; color: rgba(236, 242, 255, 0.76); font-size: 1.06rem; line-height: 1.65; }
+  .tz5-guide-hero-link { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1.45rem; color: #d6e8ff; font-size: 0.8rem; font-weight: 900; letter-spacing: 0.045em; text-decoration: none; }
+  .tz5-guide-hero-link:hover, .tz5-guide-hero-link:focus-visible { color: #fff; text-decoration: underline; text-underline-offset: 0.32rem; }
+  .tz5-guide-hero-signal { display: grid; gap: 0.45rem; padding: 1.2rem; border: 1px solid rgba(183, 168, 255, 0.38); border-radius: 0.75rem; background: linear-gradient(140deg, rgba(21, 35, 81, 0.88), rgba(14, 26, 59, 0.72)); box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.16); }
+  .tz5-guide-signal-label { color: #b8abff; font-size: 0.64rem; font-weight: 900; letter-spacing: 0.13em; text-transform: uppercase; }
+  .tz5-guide-hero-signal strong { color: #fff; font-size: 1.15rem; }
+  .tz5-guide-hero-signal > span:last-child { color: rgba(255, 255, 255, 0.66); font-size: 0.78rem; line-height: 1.4; }
+  .tz5-guide-content { padding-top: 2.3rem; padding-bottom: 5.2rem; }
+  .tz5-guide-status { display: flex; align-items: flex-start; gap: 0.85rem; max-width: 100%; padding: 1rem 1.2rem; border: 1px solid rgba(251, 191, 36, 0.42); border-radius: 0.75rem; background: linear-gradient(100deg, rgba(130, 79, 5, 0.2), rgba(72, 45, 5, 0.1)); color: #fcd34d; }
+  .tz5-guide-status strong { display: block; color: #fff; font-size: 0.93rem; }
+  .tz5-guide-status p { margin: 0.25rem 0 0; color: rgba(255, 244, 215, 0.82); font-size: 0.87rem; line-height: 1.55; }
+  .tz5-guide code { padding: 0.06em 0.28em; border-radius: 0.25rem; background: rgba(156, 163, 255, 0.12); color: #d9d1ff; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 0.89em; }
+  .tz5-guide-glance-section { margin-top: 3.8rem; }
+  .tz5-guide-section-intro { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 1.05rem; }
+  .tz5-guide-section-intro .tz5-guide-kicker { margin: 0; }
+  .tz5-guide h2 { margin: 0; color: #fff; font-size: clamp(1.45rem, 2.6vw, 2.05rem); line-height: 1.1; letter-spacing: -0.032em; }
+  .tz5-guide-glance-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.85rem; }
+  .tz5-guide-glance-card { min-height: 11.2rem; padding: 1.2rem; border: 1px solid rgba(133, 163, 255, 0.18); border-radius: 0.75rem; background: linear-gradient(145deg, rgba(12, 32, 70, 0.82), rgba(5, 17, 39, 0.92)); }
+  .tz5-guide-icon { display: inline-flex; align-items: center; justify-content: center; width: 2.2rem; height: 2.2rem; margin-bottom: 1.15rem; border-radius: 0.55rem; }
+  .tz5-guide-icon--blue { color: #7bb6ff; background: rgba(44, 125, 247, 0.14); }
+  .tz5-guide-icon--violet { color: #c8bbff; background: rgba(149, 117, 255, 0.14); }
+  .tz5-guide-icon--gold { color: #fdd46c; background: rgba(245, 158, 11, 0.13); }
+  .tz5-guide h3 { margin: 0; color: #fff; font-size: 0.96rem; line-height: 1.25; }
+  .tz5-guide-glance-card p { margin: 0.52rem 0 0; color: rgba(255, 255, 255, 0.68); font-size: 0.82rem; line-height: 1.55; }
+  .tz5-guide-layout { display: grid; grid-template-columns: minmax(0, 1fr) 17.8rem; gap: clamp(2rem, 5vw, 4.8rem); align-items: start; margin-top: 4.5rem; }
+  .tz5-guide-article { min-width: 0; }
+  .tz5-guide-article section { padding-bottom: 3.55rem; margin-bottom: 3.55rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+  .tz5-guide-article section:last-child { margin-bottom: 0; border-bottom: 0; }
+  .tz5-guide-article .tz5-guide-kicker { margin-bottom: 0.85rem; color: #8dbbff; }
+  .tz5-guide-article h2 { max-width: 680px; font-size: clamp(1.7rem, 3.3vw, 2.55rem); }
+  .tz5-guide-article p { max-width: 720px; margin: 1rem 0 0; color: rgba(255, 255, 255, 0.79); font-size: 1rem; line-height: 1.76; }
+  .tz5-guide-article p.tz5-guide-lead-copy { color: rgba(255, 255, 255, 0.93); font-size: 1.15rem; line-height: 1.62; }
+  .tz5-guide-prefix-grid { display: grid; grid-template-columns: minmax(0, 1fr) 2.2rem minmax(0, 1fr); gap: 0.6rem; align-items: stretch; margin-top: 1.65rem; }
+  .tz5-guide-prefix-card { padding: 1.2rem; border: 1px solid rgba(148, 163, 184, 0.25); border-radius: 0.7rem; background: rgba(11, 23, 46, 0.8); }
+  .tz5-guide-prefix-card span { display: block; color: rgba(255,255,255,0.53); font-size: 0.67rem; font-weight: 800; letter-spacing: 0.075em; text-transform: uppercase; }
+  .tz5-guide-prefix-card strong { display: block; margin-top: 0.58rem; font-size: 1.8rem; }
+  .tz5-guide-prefix-card strong code { padding: 0; background: none; color: #cbd8ff; font-size: inherit; }
+  .tz5-guide-prefix-card p { margin-top: 0.5rem; color: rgba(255,255,255,0.66); font-size: 0.8rem; line-height: 1.45; }
+  .tz5-guide-prefix-card--featured { border-color: rgba(167, 139, 250, 0.52); background: linear-gradient(140deg, rgba(71, 47, 140, 0.35), rgba(18, 31, 74, 0.88)); }
+  .tz5-guide-prefix-card--featured strong code { color: #d9cdff; }
+  .tz5-guide-prefix-arrow { display: flex; align-items: center; justify-content: center; color: #93c5fd; }
+  .tz5-guide-do-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.85rem; margin-top: 1.5rem; }
+  .tz5-guide-do-card { display: flex; align-items: flex-start; gap: 0.85rem; padding: 1.15rem; border: 1px solid; border-radius: 0.7rem; }
+  .tz5-guide-do-card--yes { border-color: rgba(82, 205, 155, 0.28); background: rgba(15, 90, 67, 0.12); color: #76e3b1; }
+  .tz5-guide-do-card--no { border-color: rgba(251, 191, 36, 0.29); background: rgba(120, 75, 4, 0.12); color: #fbd36a; }
+  .tz5-guide-do-card h3 { font-size: 0.88rem; }
+  .tz5-guide-do-card p { margin: 0.3rem 0 0; color: rgba(255,255,255,0.75); font-size: 0.85rem; line-height: 1.55; }
+  .tz5-guide-steps { display: grid; gap: 0.75rem; padding: 0; margin: 1.55rem 0 0; list-style: none; }
+  .tz5-guide-steps li { display: grid; grid-template-columns: 2rem minmax(0, 1fr); gap: 0.85rem; padding: 1rem 0; border-top: 1px solid rgba(255,255,255,0.1); }
+  .tz5-guide-steps li:first-child { border-top-color: rgba(141, 187, 255, 0.35); }
+  .tz5-guide-steps li > span { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border: 1px solid rgba(141, 187, 255, 0.4); border-radius: 50%; color: #a9ceff; font-size: 0.72rem; font-weight: 900; }
+  .tz5-guide-steps h3 { margin-top: 0.15rem; }
+  .tz5-guide-steps p { margin-top: 0.28rem; color: rgba(255,255,255,0.67); font-size: 0.88rem; line-height: 1.55; }
+  .tz5-guide-answers { display: grid; gap: 0.65rem; margin-top: 1.5rem; }
+  .tz5-guide-answers details { border: 1px solid rgba(137, 166, 225, 0.2); border-radius: 0.65rem; background: rgba(8, 25, 55, 0.58); }
+  .tz5-guide-answers summary { position: relative; padding: 1rem 3rem 1rem 1rem; color: #fff; cursor: pointer; font-size: 0.91rem; font-weight: 800; line-height: 1.45; }
+  .tz5-guide-answers summary::after { content: '+'; position: absolute; right: 1.05rem; top: 0.79rem; color: #99c6ff; font-size: 1.25rem; font-weight: 400; }
+  .tz5-guide-answers details[open] summary::after { content: '−'; }
+  .tz5-guide-answers details p { margin: 0; padding: 0 1rem 1rem; color: rgba(255,255,255,0.7); font-size: 0.9rem; line-height: 1.6; }
+  .tz5-guide-aside { position: sticky; top: 1.25rem; display: grid; gap: 0.8rem; }
+  .tz5-guide-aside-card { padding: 1.05rem; border: 1px solid rgba(126, 165, 241, 0.19); border-radius: 0.72rem; background: linear-gradient(145deg, rgba(9, 29, 64, 0.91), rgba(5, 17, 39, 0.95)); }
+  .tz5-guide-aside-label { margin: 0 0 0.6rem; color: rgba(255,255,255,0.48); font-size: 0.65rem; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; }
+  .tz5-guide-aside-card > a { display: block; padding: 0.62rem 0; border-top: 1px solid rgba(255,255,255,0.09); color: #b6d4ff; font-size: 0.79rem; font-weight: 700; line-height: 1.35; text-decoration: none; }
+  .tz5-guide-aside-card > a:hover, .tz5-guide-aside-card > a:focus-visible { color: #fff; text-decoration: underline; text-underline-offset: 0.25rem; }
+  .tz5-guide-aside-card--secure { border-color: rgba(186, 162, 255, 0.25); background: linear-gradient(140deg, rgba(58, 39, 122, 0.32), rgba(7, 22, 54, 0.93)); color: #cdbfff; }
+  .tz5-guide-aside-card--secure h2 { margin: 0.55rem 0 0; font-size: 1rem; }
+  .tz5-guide-aside-card--secure p { margin: 0.45rem 0 0; color: rgba(255,255,255,0.68); font-size: 0.81rem; line-height: 1.55; }
+  .tz5-guide-sources-title { display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.42rem; color: #9dc6ff; }
+  .tz5-guide-sources h2 { font-size: 0.86rem; }
+  .tz5-guide-sources > a { display: flex; gap: 0.45rem; align-items: flex-start; }
+  .tz5-guide-sources > a svg { flex-shrink: 0; margin-top: 0.08rem; }
+  @media (max-width: 840px) {
+    .tz5-guide-hero-grid, .tz5-guide-layout { grid-template-columns: 1fr; }
+    .tz5-guide-hero-signal { max-width: 22rem; }
+    .tz5-guide-aside { position: static; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .tz5-guide-aside-card:first-child { grid-row: span 2; }
+  }
+  @media (max-width: 640px) {
+    .tz5-guide-hero { padding: 1.65rem 0 2.2rem; }
+    .tz5-guide-hero::after { right: -8rem; bottom: -9rem; }
+    .tz5-guide-breadcrumb { margin-bottom: 1.4rem; }
+    .tz5-guide h1 { font-size: clamp(2.15rem, 11vw, 3.15rem); }
+    .tz5-guide-lede { font-size: 0.95rem; }
+    .tz5-guide-content { padding-top: 1.35rem; padding-bottom: 3.5rem; }
+    .tz5-guide-status { padding: 0.9rem; }
+    .tz5-guide-status strong { font-size: 0.86rem; }
+    .tz5-guide-status p { font-size: 0.8rem; }
+    .tz5-guide-glance-section { margin-top: 2.75rem; }
+    .tz5-guide-section-intro { display: block; }
+    .tz5-guide-section-intro .tz5-guide-kicker { margin-bottom: 0.45rem; }
+    .tz5-guide-glance-grid, .tz5-guide-do-grid, .tz5-guide-aside { grid-template-columns: 1fr; }
+    .tz5-guide-glance-card { min-height: auto; }
+    .tz5-guide-layout { gap: 2.8rem; margin-top: 3rem; }
+    .tz5-guide-article section { padding-bottom: 2.65rem; margin-bottom: 2.65rem; }
+    .tz5-guide-article p { font-size: 0.95rem; }
+    .tz5-guide-article p.tz5-guide-lead-copy { font-size: 1.03rem; }
+    .tz5-guide-prefix-grid { grid-template-columns: 1fr; }
+    .tz5-guide-prefix-arrow { min-height: 1rem; transform: rotate(90deg); }
+    .tz5-guide-aside-card:first-child { grid-row: auto; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tz5-guide-hero-link, .tz5-guide-aside-card > a { transition: none; }
+  }
 }

@@ -370,3 +370,14 @@
 - [x] Publish a plain-English tz5 wallet guide with clear testnet-stage framing and official source links
 - [x] Add a direct contextual link from the post-quantum article to the tz5 guide
 - [x] Run focused and full regression checks and validate the new discovery and guide journeys on desktop and mobile
+
+## Phase 51: Renewed Vite Preview WebSocket Repair
+- [x] Inspect the active preview HMR configuration and the reported closed-before-open connection failure
+- [x] Apply a proxy-compatible repair without changing published-site traffic
+- [x] Verify clean preview reconnection and record the resolution
+
+## Phase 52: tz5 Guide Editorial Redesign
+- [x] Restructure the guide into a clearer reader journey with concise visual sections
+- [x] Replace dense prose with scan-friendly cards, steps, and explicit decision guidance
+- [x] Improve typographic hierarchy, spacing, and responsive visual formatting
+- [x] Add focused regression coverage and validate the redesigned guide on desktop and mobile

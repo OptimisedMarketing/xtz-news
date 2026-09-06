@@ -139,7 +139,11 @@ async function startServer() {
   const LANG_PREFIXES = new Set(['en', 'it', 'uk', 'hi']);
 
   app.use(async (req, res, next) => {
-    if (req.path.startsWith('/api/') || req.path.startsWith('/manus-storage/')) {
+    if (
+      req.path.startsWith('/api/') ||
+      req.path.startsWith('/manus-storage/') ||
+      req.path.startsWith('/__vite_hmr')
+    ) {
       return next();
     }
 

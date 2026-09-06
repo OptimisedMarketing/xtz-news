@@ -1,6 +1,20 @@
 import React from "react";
 import { Link } from "wouter";
-import { ArrowRight, ChevronRight, ExternalLink, FlaskConical, Home, KeyRound, ShieldCheck } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpen,
+  CheckCircle2,
+  ChevronRight,
+  CircleAlert,
+  ExternalLink,
+  FlaskConical,
+  Home,
+  KeyRound,
+  LockKeyhole,
+  ShieldCheck,
+  Sparkles,
+  TestTube2,
+} from "lucide-react";
 import { buildFAQSchema, useSEO } from "@/hooks/useSEO";
 
 const sourceLinks = [
@@ -8,6 +22,13 @@ const sourceLinks = [
   { label: "Tezos Spotlight — Ushuaia is Live", href: "https://spotlight.tezos.com/ushuaia-is-live/" },
   { label: "Tezos Docs — Installing and funding a wallet", href: "https://docs.tezos.com/developing/wallet-setup" },
 ];
+
+const futureSteps = [
+  ["1", "Wait for the official network name", "Use an announcement from Tezos rather than a link shared in a private message or an unfamiliar chat."],
+  ["2", "Check the wallet’s own release notes", "A wallet should explicitly state that it supports tz5 on that exact testing network."],
+  ["3", "Start with a clean test account", "Use only test tez from the named faucet. It has no Mainnet value."],
+  ["4", "Keep your keys where they belong", "Never enter a recovery phrase or private key into a tool just because it mentions tz5 or post-quantum security."],
+] as const;
 
 export default function Tz5WalletGuidePage() {
   useSEO({
@@ -23,41 +44,129 @@ export default function Tz5WalletGuidePage() {
   });
 
   return (
-    <main style={{ minHeight: "100vh", background: "#000", color: "#fff" }}>
-      <section style={{ background: "radial-gradient(circle at 75% 12%, rgba(102,82,220,0.28), transparent 34%), linear-gradient(135deg, #05152e, #071a35)", borderBottom: "1px solid rgba(44,125,247,0.22)", padding: "2.6rem 0 2.2rem" }}>
-        <div className="container" style={{ maxWidth: "1000px" }}>
-          <nav aria-label="Breadcrumb" style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginBottom: "1.25rem", fontSize: "0.75rem" }}>
-            <Link href="/" aria-label="XTZ.News home" style={{ color: "rgba(255,255,255,0.58)", display: "inline-flex" }}><Home size={13} /></Link>
-            <ChevronRight size={12} aria-hidden="true" style={{ color: "rgba(255,255,255,0.35)" }} />
-            <span style={{ color: "rgba(255,255,255,0.58)" }}>Guides</span>
-            <ChevronRight size={12} aria-hidden="true" style={{ color: "rgba(255,255,255,0.35)" }} />
-            <span aria-current="page" style={{ color: "#c4b5fd" }}>tz5 wallet guide</span>
+    <main className="tz5-guide" id="main-content">
+      <section className="tz5-guide-hero">
+        <div className="container tz5-guide-shell">
+          <nav aria-label="Breadcrumb" className="tz5-guide-breadcrumb">
+            <Link href="/" aria-label="XTZ.News home"><Home size={13} /></Link>
+            <ChevronRight size={13} aria-hidden="true" />
+            <span>Guides</span>
+            <ChevronRight size={13} aria-hidden="true" />
+            <span aria-current="page">tz5 wallet guide</span>
           </nav>
-          <div style={{ maxWidth: "720px" }}>
-            <p style={{ margin: "0 0 0.65rem", color: "#b7a9ff", fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase" }}>Plain-English guide</p>
-            <h1 style={{ fontSize: "clamp(2rem, 5vw, 3.6rem)", lineHeight: 1.07, letterSpacing: "-0.04em", margin: "0 0 0.85rem", maxWidth: "680px" }}>tz5 wallet guide: what Tezos’ post-quantum account type means</h1>
-            <p style={{ margin: 0, color: "rgba(255,255,255,0.72)", maxWidth: "650px", fontSize: "1.03rem", lineHeight: 1.65 }}>A calm, practical explanation of what `tz5` is, what you can do today, and why it is important not to confuse early testnet work with a new Mainnet wallet product.</p>
+          <div className="tz5-guide-hero-grid">
+            <div>
+              <p className="tz5-guide-eyebrow"><Sparkles size={13} aria-hidden="true" /> Plain-English guide</p>
+              <h1>Understand <code>tz5</code> in five minutes.</h1>
+              <p className="tz5-guide-lede">A practical guide to Tezos’ post-quantum account research—what the address prefix means, what has not changed, and how to approach any future testing safely.</p>
+              <Link href="/tezos-post-quantum-previewnet-why-now" className="tz5-guide-hero-link">Read the post-quantum report <ArrowRight size={16} aria-hidden="true" /></Link>
+            </div>
+            <div className="tz5-guide-hero-signal" aria-label="tz5 at a glance">
+              <span className="tz5-guide-signal-label">Current focus</span>
+              <strong>Testnet research</strong>
+              <span>Not a new Mainnet wallet product</span>
+            </div>
           </div>
         </div>
       </section>
 
-      <div className="container" style={{ maxWidth: "1000px", paddingTop: "2rem", paddingBottom: "4rem" }}>
-        <section aria-label="Important tz5 status" style={{ display: "flex", gap: "0.85rem", padding: "1rem 1.1rem", border: "1px solid rgba(245,158,11,0.38)", background: "rgba(245,158,11,0.09)", borderRadius: "9px", marginBottom: "2rem" }}>
-          <FlaskConical aria-hidden="true" size={20} style={{ color: "#fbbf24", flexShrink: 0, marginTop: "0.1rem" }} />
-          <div><strong style={{ display: "block", marginBottom: "0.2rem", color: "#fff" }}>Current status: testing work, not an ordinary Mainnet wallet feature.</strong><span style={{ color: "rgba(255,255,255,0.75)", fontSize: "0.9rem", lineHeight: 1.55 }}>The `tz5` account feature is disabled by default on Tezos Mainnet. Do not move real funds in expectation of using `tz5` today.</span></div>
+      <div className="container tz5-guide-shell tz5-guide-content">
+        <section aria-label="Important tz5 status" className="tz5-guide-status">
+          <FlaskConical aria-hidden="true" size={22} />
+          <div>
+            <strong>Current status: testing work, not an ordinary Mainnet wallet feature.</strong>
+            <p>The <code>tz5</code> account feature is disabled by default on Tezos Mainnet. Do not move real funds in expectation of using <code>tz5</code> today.</p>
+          </div>
         </section>
 
-        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(245px, 0.38fr)", gap: "2rem", alignItems: "start" }} className="tz5-guide-grid">
-          <article style={{ minWidth: 0 }}>
-            <section aria-labelledby="tz5-meaning"><h2 id="tz5-meaning">What `tz5` means</h2><p>A Tezos account address normally begins with a prefix such as `tz1`. A `tz5` address identifies a different account family that uses ML-DSA-44 signatures. In plain English, it is one part of Tezos research into account security designed for a future where quantum computers may become far more capable.</p><p>It does not mean that today’s Tezos accounts are broken, or that every holder needs a replacement wallet. The work exists so wallets, custodians and protocol tooling can be tested well before any broader change would be needed.</p></section>
-            <section aria-labelledby="tz5-today"><h2 id="tz5-today">What you should do today</h2><p>For most readers, the right action is simply to stay informed. Continue using your existing wallet as you normally would, and do not send real funds to an address or network solely because it refers to `tz5`.</p><p>If Tezos publishes a public test network and your wallet separately documents `tz5` support for that exact test network, use test funds only. Test tez has no Mainnet value. Follow the wallet’s own network instructions instead of importing recovery phrases into unfamiliar tools.</p></section>
-            <section aria-labelledby="tz5-later"><h2 id="tz5-later">How to approach future testing</h2><ol><li>Check the official Tezos announcement for the named public test network.</li><li>Confirm that your chosen wallet explicitly supports `tz5` on that same network.</li><li>Create a separate test account and fund it only with test tez from the relevant faucet.</li><li>Keep recovery phrases, private keys and signing material private. No legitimate helper needs them.</li><li>Expect experimental features to change or fail; use testing feedback channels published by the project.</li></ol></section>
-            <section aria-labelledby="tz5-article"><h2 id="tz5-article">Why this guide exists</h2><p>The first XTZ.News post-quantum report covers the planned previewnet and the wider protocol work around it. This guide is its practical companion: a short explanation of the account prefix without turning a developing technical feature into a promise of immediate wallet availability.</p><Link href="/tezos-post-quantum-previewnet-why-now" style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", marginTop: "0.2rem", color: "#86b8ff", fontWeight: 800, textDecoration: "none" }}>Read the post-quantum previewnet report <ArrowRight size={15} aria-hidden="true" /></Link></section>
+        <section aria-labelledby="tz5-at-a-glance" className="tz5-guide-glance-section">
+          <div className="tz5-guide-section-intro">
+            <p className="tz5-guide-kicker">Start here</p>
+            <h2 id="tz5-at-a-glance">The short version</h2>
+          </div>
+          <div className="tz5-guide-glance-grid">
+            <article className="tz5-guide-glance-card">
+              <span className="tz5-guide-icon tz5-guide-icon--blue"><KeyRound size={19} aria-hidden="true" /></span>
+              <h3>It is an address type</h3>
+              <p><code>tz5</code> identifies a Tezos account family using ML-DSA-44 signatures. It is not an app or a replacement wallet download.</p>
+            </article>
+            <article className="tz5-guide-glance-card">
+              <span className="tz5-guide-icon tz5-guide-icon--violet"><TestTube2 size={19} aria-hidden="true" /></span>
+              <h3>It is being tested</h3>
+              <p>The work lets wallets and technical tooling be evaluated ahead of any wider protocol decision.</p>
+            </article>
+            <article className="tz5-guide-glance-card">
+              <span className="tz5-guide-icon tz5-guide-icon--gold"><ShieldCheck size={19} aria-hidden="true" /></span>
+              <h3>You do not need to act</h3>
+              <p>Continue using your existing Tezos wallet normally. No migration is expected from ordinary Mainnet holders today.</p>
+            </article>
+          </div>
+        </section>
+
+        <div className="tz5-guide-layout">
+          <article className="tz5-guide-article">
+            <section id="what-is-tz5" aria-labelledby="tz5-meaning">
+              <p className="tz5-guide-kicker">01 — Decode the prefix</p>
+              <h2 id="tz5-meaning">What does <code>tz5</code> actually mean?</h2>
+              <p className="tz5-guide-lead-copy">Think of <code>tz5</code> as a label for a different kind of Tezos account—not as a new wallet you should install. It is part of research that explores how accounts could remain secure in a future with more capable quantum computers.</p>
+              <div className="tz5-guide-prefix-grid" aria-label="Address prefix comparison">
+                <div className="tz5-guide-prefix-card"><span>Familiar account prefix</span><strong><code>tz1</code></strong><p>The account style many Tezos users already recognise.</p></div>
+                <div className="tz5-guide-prefix-arrow" aria-hidden="true"><ArrowRight size={20} /></div>
+                <div className="tz5-guide-prefix-card tz5-guide-prefix-card--featured"><span>Post-quantum test account prefix</span><strong><code>tz5</code></strong><p>An ML-DSA-44 account type being evaluated through testnet work.</p></div>
+              </div>
+              <p>It does not mean today’s Tezos accounts are broken. The point of early testing is to give wallets, custodians and infrastructure teams time to learn before any broader change is needed.</p>
+            </section>
+
+            <section id="what-to-do" aria-labelledby="tz5-today">
+              <p className="tz5-guide-kicker">02 — What this means today</p>
+              <h2 id="tz5-today">One clear action: stay with your normal wallet.</h2>
+              <div className="tz5-guide-do-grid">
+                <section className="tz5-guide-do-card tz5-guide-do-card--yes" aria-label="What to do">
+                  <CheckCircle2 size={20} aria-hidden="true" /><div><h3>Do</h3><p>Keep using your existing wallet and follow confirmed Tezos announcements for future public testing details.</p></div>
+                </section>
+                <section className="tz5-guide-do-card tz5-guide-do-card--no" aria-label="What not to do">
+                  <CircleAlert size={20} aria-hidden="true" /><div><h3>Do not</h3><p>Send real funds to an address or network merely because it mentions <code>tz5</code>, quantum security, or a new wallet tool.</p></div>
+                </section>
+              </div>
+            </section>
+
+            <section id="future-testing" aria-labelledby="tz5-later">
+              <p className="tz5-guide-kicker">03 — When testing is announced</p>
+              <h2 id="tz5-later">A safer way to approach future testing</h2>
+              <p className="tz5-guide-lead-copy">If Tezos publishes a public test network and a wallet separately documents support for that exact network, use this simple checklist.</p>
+              <ol className="tz5-guide-steps">
+                {futureSteps.map(([number, title, description]) => <li key={number}><span>{number}</span><div><h3>{title}</h3><p>{description}</p></div></li>)}
+              </ol>
+            </section>
+
+            <section id="quick-answers" aria-labelledby="tz5-answers">
+              <p className="tz5-guide-kicker">04 — Quick answers</p>
+              <h2 id="tz5-answers">Common questions</h2>
+              <div className="tz5-guide-answers">
+                <details open><summary>Do I need to create a <code>tz5</code> wallet now?</summary><p>No. There is no ordinary Mainnet migration for holders to complete today. Wait for a named public testing network and an explicit wallet-support announcement.</p></details>
+                <details><summary>Does <code>tz5</code> mean existing Tezos wallets are unsafe?</summary><p>No. The research is preparation for a long-term cryptographic transition, not a warning that today’s accounts have been compromised.</p></details>
+                <details><summary>What should I do if someone sends me a <code>tz5</code> link?</summary><p>Do not enter recovery words or private keys. Check the information against official Tezos and your wallet’s own published resources first.</p></details>
+              </div>
+            </section>
           </article>
-          <aside aria-label="tz5 guide supporting information" style={{ display: "grid", gap: "1rem" }}>
-            <section style={{ padding: "1rem", background: "#05152e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px" }}><ShieldCheck aria-hidden="true" size={19} style={{ color: "#66a9ff", marginBottom: "0.55rem" }} /><h2 style={{ margin: "0 0 0.45rem", fontSize: "0.9rem" }}>The short version</h2><p style={{ margin: 0, color: "rgba(255,255,255,0.68)", fontSize: "0.8rem", lineHeight: 1.55 }}>`tz5` is a testnet-stage Tezos account type for post-quantum research. It is not a new wallet requirement for Mainnet holders.</p></section>
-            <section style={{ padding: "1rem", background: "#05152e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px" }}><KeyRound aria-hidden="true" size={19} style={{ color: "#c4b5fd", marginBottom: "0.55rem" }} /><h2 style={{ margin: "0 0 0.45rem", fontSize: "0.9rem" }}>Keep control</h2><p style={{ margin: 0, color: "rgba(255,255,255,0.68)", fontSize: "0.8rem", lineHeight: 1.55 }}>Never share a recovery phrase or private key. When testing eventually opens, start with a separate test account and valueless test tez.</p></section>
-            <section aria-labelledby="tz5-sources" style={{ padding: "1rem", background: "#05152e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px" }}><h2 id="tz5-sources" style={{ margin: "0 0 0.65rem", fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.48)" }}>Official reading</h2>{sourceLinks.map((source) => <a key={source.href} href={source.href} target="_blank" rel="noopener noreferrer" style={{ display: "flex", gap: "0.4rem", alignItems: "flex-start", color: "#8bbaff", textDecoration: "none", fontSize: "0.75rem", lineHeight: 1.45, marginBottom: "0.6rem" }}><ExternalLink size={12} aria-hidden="true" style={{ flexShrink: 0, marginTop: "0.12rem" }} />{source.label}</a>)}</section>
+
+          <aside aria-label="tz5 guide navigation and sources" className="tz5-guide-aside">
+            <section className="tz5-guide-aside-card">
+              <p className="tz5-guide-aside-label">In this guide</p>
+              <a href="#what-is-tz5">What <code>tz5</code> means</a>
+              <a href="#what-to-do">What to do today</a>
+              <a href="#future-testing">Future testing checklist</a>
+              <a href="#quick-answers">Quick answers</a>
+            </section>
+            <section className="tz5-guide-aside-card tz5-guide-aside-card--secure">
+              <LockKeyhole aria-hidden="true" size={20} />
+              <h2>Keep control</h2>
+              <p>A recovery phrase and a private key should stay private. A legitimate guide or helper does not need either one.</p>
+            </section>
+            <section aria-labelledby="tz5-sources" className="tz5-guide-aside-card tz5-guide-sources">
+              <div className="tz5-guide-sources-title"><BookOpen aria-hidden="true" size={17} /><h2 id="tz5-sources">Official reading</h2></div>
+              {sourceLinks.map((source) => <a key={source.href} href={source.href} target="_blank" rel="noopener noreferrer"><ExternalLink size={13} aria-hidden="true" />{source.label}</a>)}
+            </section>
           </aside>
         </div>
       </div>

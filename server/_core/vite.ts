@@ -9,13 +9,15 @@ import viteConfig from "../../vite.config";
 export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
     middlewareMode: true,
-    // The development preview is reached through an HTTPS proxy. Without an
-    // explicit browser-facing port, Vite advertises its middleware default
-    // (5173), which is not reachable from the preview domain.
+    // Browsers may access the dev app either through the HTTPS preview proxy
+    // or directly over local HTTP. Let Vite derive ws/wss and the port from
+    // the loaded client URL so neither path is forced onto the wrong scheme.
     hmr: {
       server,
-      protocol: "wss" as const,
-      clientPort: 443,
+      // Keep upgrades off the document root. The managed HTTPS preview proxy
+      // forwards a dedicated path more reliably during browser reconnects.
+      path: "/__vite_hmr",
+      timeout: 30000,
     },
     allowedHosts: true as const,
   };
