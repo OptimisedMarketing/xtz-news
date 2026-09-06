@@ -1,3 +1,4 @@
+import React from "react";
 import { Link } from "wouter";
 import { Home, ChevronRight } from "lucide-react";
 

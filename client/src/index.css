@@ -883,6 +883,27 @@
   .tz5-guide-icon--gold { color: #fdd46c; background: rgba(245, 158, 11, 0.13); }
   .tz5-guide h3 { margin: 0; color: #fff; font-size: 0.96rem; line-height: 1.25; }
   .tz5-guide-glance-card p { margin: 0.52rem 0 0; color: rgba(255, 255, 255, 0.68); font-size: 0.82rem; line-height: 1.55; }
+  .tz5-guide-timeline-section { position: relative; margin-top: 4.5rem; padding: 1.65rem; overflow: hidden; border: 1px solid rgba(135, 153, 255, 0.2); border-radius: 0.9rem; background: radial-gradient(circle at 91% 12%, rgba(127, 91, 226, 0.22), transparent 17rem), linear-gradient(140deg, rgba(8, 28, 61, 0.94), rgba(5, 16, 38, 0.96)); }
+  .tz5-guide-timeline-heading { display: grid; grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.65fr); gap: 2.4rem; align-items: end; }
+  .tz5-guide-timeline-heading .tz5-guide-kicker { margin-bottom: 0.7rem; color: #a9bfff; }
+  .tz5-guide-timeline-heading h2 { font-size: clamp(1.55rem, 3vw, 2.25rem); }
+  .tz5-guide-timeline-heading > p { margin: 0; color: rgba(255,255,255,0.68); font-size: 0.86rem; line-height: 1.62; }
+  .tz5-guide-timeline { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.65rem; padding: 0; margin: 2.25rem 0 0; list-style: none; }
+  .tz5-guide-timeline-item { position: relative; }
+  .tz5-guide-timeline-line { position: absolute; z-index: 0; top: 1rem; left: 50%; width: calc(100% + 0.65rem); height: 1px; background: linear-gradient(90deg, rgba(99, 147, 255, 0.7), rgba(163, 140, 255, 0.34)); }
+  .tz5-guide-timeline-item:last-child .tz5-guide-timeline-line { display: none; }
+  .tz5-guide-timeline-dot { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-bottom: 0.9rem; border: 1px solid rgba(121, 171, 255, 0.64); border-radius: 50%; background: #0a2149; color: #bcd9ff; font-size: 0.7rem; font-weight: 900; }
+  .tz5-guide-timeline-item article { min-height: 9.5rem; padding: 0.95rem; border: 1px solid rgba(142, 166, 233, 0.18); border-radius: 0.65rem; background: rgba(5, 18, 42, 0.68); }
+  .tz5-guide-timeline-card-header { display: flex; align-items: center; justify-content: space-between; gap: 0.25rem; }
+  .tz5-guide-timeline-card-header code { color: #b8d4ff; font-size: 0.98rem; font-weight: 900; }
+  .tz5-guide-timeline-card-header span { padding: 0.17rem 0.35rem; border: 1px solid rgba(207, 189, 255, 0.42); border-radius: 99px; color: #d8ccff; font-size: 0.54rem; font-weight: 900; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
+  .tz5-guide-timeline-item h3 { margin-top: 0.72rem; color: #fff; font-size: 0.82rem; }
+  .tz5-guide-timeline-item p { margin: 0.36rem 0 0; color: rgba(255,255,255,0.61); font-size: 0.72rem; line-height: 1.48; }
+  .tz5-guide-timeline-item--research .tz5-guide-timeline-dot { border-color: rgba(205, 181, 255, 0.8); background: #3e287e; color: #fff; box-shadow: 0 0 0 0.32rem rgba(135, 100, 237, 0.1); }
+  .tz5-guide-timeline-item--research article { border-color: rgba(178, 148, 255, 0.45); background: linear-gradient(145deg, rgba(67, 42, 137, 0.43), rgba(15, 27, 68, 0.9)); }
+  .tz5-guide-timeline-note { display: flex; align-items: flex-start; gap: 0.48rem; margin: 1.2rem 0 0; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.75); font-size: 0.79rem; line-height: 1.55; }
+  .tz5-guide-timeline-note svg { flex-shrink: 0; margin-top: 0.14rem; color: #a998ff; }
+  .tz5-guide-timeline-note strong { color: #fff; }
   .tz5-guide-layout { display: grid; grid-template-columns: minmax(0, 1fr) 17.8rem; gap: clamp(2rem, 5vw, 4.8rem); align-items: start; margin-top: 4.5rem; }
   .tz5-guide-article { min-width: 0; }
   .tz5-guide-article section { padding-bottom: 3.55rem; margin-bottom: 3.55rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
@@ -935,6 +956,10 @@
     .tz5-guide-hero-signal { max-width: 22rem; }
     .tz5-guide-aside { position: static; grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .tz5-guide-aside-card:first-child { grid-row: span 2; }
+    .tz5-guide-timeline { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .tz5-guide-timeline-item:nth-child(3) .tz5-guide-timeline-line { display: none; }
+    .tz5-guide-timeline-item:nth-child(4) .tz5-guide-timeline-line { display: block; }
+    .tz5-guide-timeline-heading { grid-template-columns: 1fr; gap: 0.65rem; }
   }
   @media (max-width: 640px) {
     .tz5-guide-hero { padding: 1.65rem 0 2.2rem; }
@@ -950,6 +975,8 @@
     .tz5-guide-section-intro { display: block; }
     .tz5-guide-section-intro .tz5-guide-kicker { margin-bottom: 0.45rem; }
     .tz5-guide-glance-grid, .tz5-guide-do-grid, .tz5-guide-aside { grid-template-columns: 1fr; }
+    .tz5-tools-feature { grid-template-columns: auto minmax(0, 1fr) !important; }
+    .tz5-tools-feature > a { grid-column: 1 / -1; justify-content: center; }
     .tz5-guide-glance-card { min-height: auto; }
     .tz5-guide-layout { gap: 2.8rem; margin-top: 3rem; }
     .tz5-guide-article section { padding-bottom: 2.65rem; margin-bottom: 2.65rem; }
@@ -957,6 +984,15 @@
     .tz5-guide-article p.tz5-guide-lead-copy { font-size: 1.03rem; }
     .tz5-guide-prefix-grid { grid-template-columns: 1fr; }
     .tz5-guide-prefix-arrow { min-height: 1rem; transform: rotate(90deg); }
+    .tz5-guide-timeline-section { margin-top: 3rem; padding: 1rem; }
+    .tz5-guide-timeline { grid-template-columns: 1fr; gap: 0; margin-top: 1.5rem; }
+    .tz5-guide-timeline-item { display: grid; grid-template-columns: 2rem minmax(0, 1fr); gap: 0.75rem; padding-bottom: 0.75rem; }
+    .tz5-guide-timeline-line { top: 2rem; left: 1rem; width: 1px; height: calc(100% - 1.2rem); background: linear-gradient(180deg, rgba(99, 147, 255, 0.7), rgba(163, 140, 255, 0.28)); }
+    .tz5-guide-timeline-item:nth-child(3) .tz5-guide-timeline-line, .tz5-guide-timeline-item:nth-child(4) .tz5-guide-timeline-line { display: block; }
+    .tz5-guide-timeline-item:last-child .tz5-guide-timeline-line { display: none; }
+    .tz5-guide-timeline-dot { margin-bottom: 0; }
+    .tz5-guide-timeline-item article { min-height: 0; }
+    .tz5-guide-timeline-item h3 { margin-top: 0.55rem; }
     .tz5-guide-aside-card:first-child { grid-row: auto; }
   }
   @media (prefers-reduced-motion: reduce) {

@@ -11,7 +11,8 @@ interface HeaderProps {
   onSearchOpen?: () => void;
 }
 
-const NAV_ITEMS = [
+export const NAV_ITEMS = [
+  { label: "HOME", href: "/" },
   { label: "LATEST NEWS", href: "/category/latest-news" },
   {
     label: "CATEGORIES",
@@ -36,6 +37,7 @@ const NAV_ITEMS = [
       { label: "STAKING", href: "/staking" },
       { label: "ART & CULTURE", href: "/art" },
       { label: "TOOLS", href: "/tools" },
+      { label: "TZ5 WALLET GUIDE", href: "/guides/tz5-wallet" },
       { label: "TOKEN PRICES", href: "/prices" },
     ],
   },
@@ -44,10 +46,11 @@ const NAV_ITEMS = [
 
 const HEADER_LOGO_URL = getMediaUrl("/manus-storage/xtz-logo-square_c6689606.png");
 
-const MOBILE_SECTIONS = [
+export const MOBILE_SECTIONS = [
   {
     label: "Read",
     items: [
+      { label: "Home", href: "/" },
       { label: "Latest News", href: "/category/latest-news" },
       { label: "Categories", href: "/categories" },
       { label: "Projects", href: "/projects" },
@@ -61,6 +64,7 @@ const MOBILE_SECTIONS = [
       { label: "Staking", href: "/staking" },
       { label: "Art & Culture", href: "/art" },
       { label: "Tools", href: "/tools" },
+      { label: "tz5 Wallet Guide", href: "/guides/tz5-wallet" },
       { label: "Token Prices", href: "/prices" },
     ],
   },

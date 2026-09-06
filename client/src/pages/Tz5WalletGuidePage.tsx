@@ -30,6 +30,14 @@ const futureSteps = [
   ["4", "Keep your keys where they belong", "Never enter a recovery phrase or private key into a tool just because it mentions tz5 or post-quantum security."],
 ] as const;
 
+const addressFamilies = [
+  { prefix: "tz1", scheme: "Ed25519", detail: "The familiar default account family in Tezos tooling.", research: false },
+  { prefix: "tz2", scheme: "Secp256k1", detail: "An alternative user-account signing scheme.", research: false },
+  { prefix: "tz3", scheme: "P-256", detail: "An alternative user-account signing scheme.", research: false },
+  { prefix: "tz4", scheme: "BLS12-381", detail: "An aggregatable-signature account type for specialised use.", research: false },
+  { prefix: "tz5", scheme: "ML-DSA-44", detail: "The post-quantum account type being evaluated on enabled test networks.", research: true },
+] as const;
+
 export default function Tz5WalletGuidePage() {
   useSEO({
     title: "tz5 Wallet Guide: Tezos Post-Quantum Accounts Explained | XTZ.News",
@@ -101,6 +109,28 @@ export default function Tz5WalletGuidePage() {
               <p>Continue using your existing Tezos wallet normally. No migration is expected from ordinary Mainnet holders today.</p>
             </article>
           </div>
+        </section>
+
+        <section id="address-family-map" aria-labelledby="tz5-family-map-title" className="tz5-guide-timeline-section">
+          <div className="tz5-guide-timeline-heading">
+            <div>
+              <p className="tz5-guide-kicker">Address-family map</p>
+              <h2 id="tz5-family-map-title">From <code>tz1</code> to <code>tz5</code>, at a glance</h2>
+            </div>
+            <p>The prefixes identify different cryptographic account families, not wallet versions that users upgrade through. <code>tz5</code> is shown last because it is the newer post-quantum research addition.</p>
+          </div>
+          <ol className="tz5-guide-timeline" aria-label="Tezos user account prefix comparison">
+            {addressFamilies.map((family, index) => <li key={family.prefix} className={family.research ? "tz5-guide-timeline-item tz5-guide-timeline-item--research" : "tz5-guide-timeline-item"}>
+              <span className="tz5-guide-timeline-line" aria-hidden="true" />
+              <div className="tz5-guide-timeline-dot" aria-hidden="true">{index + 1}</div>
+              <article>
+                <div className="tz5-guide-timeline-card-header"><code>{family.prefix}</code>{family.research && <span>Testnet stage</span>}</div>
+                <h3>{family.scheme}</h3>
+                <p>{family.detail}</p>
+              </article>
+            </li>)}
+          </ol>
+          <p className="tz5-guide-timeline-note"><ShieldCheck size={15} aria-hidden="true" /> <strong>What has not changed:</strong> ordinary Mainnet holders do not need to create or move to a <code>tz5</code> account today.</p>
         </section>
 
         <div className="tz5-guide-layout">

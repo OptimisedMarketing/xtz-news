@@ -1,5 +1,6 @@
 import { Link } from "wouter";
-import { Search, Eye, Image, TrendingUp, ChevronRight, Home, ExternalLink } from "lucide-react";
+import React from "react";
+import { Search, Eye, Image, TrendingUp, ChevronRight, Home, ExternalLink, ArrowRight, ShieldCheck, FlaskConical } from "lucide-react";
 import ToolBreadcrumb from "@/components/ToolBreadcrumb";
 import { useSEO, buildToolSchema } from "@/hooks/useSEO";
 
@@ -185,6 +186,15 @@ export default function ToolsPage() {
 
       {/* Tool grid */}
       <div className="container" style={{ padding: "2.5rem 1.25rem 4rem" }}>
+        <section aria-labelledby="tz5-guide-feature-title" style={{ display: "grid", gridTemplateColumns: "auto minmax(0, 1fr) auto", alignItems: "center", gap: "1.15rem", padding: "1.25rem", marginBottom: "1.4rem", border: "1px solid rgba(167,139,250,0.42)", borderRadius: "12px", background: "radial-gradient(circle at 88% 14%, rgba(139,92,246,0.24), transparent 34%), linear-gradient(110deg, rgba(24,34,83,0.9), rgba(7,23,53,0.94))" }} className="tz5-tools-feature">
+          <span aria-hidden="true" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "48px", height: "48px", borderRadius: "12px", background: "rgba(167,139,250,0.16)", border: "1px solid rgba(196,181,253,0.24)", color: "#d8caff" }}><ShieldCheck size={23} /></span>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.42rem", marginBottom: "0.38rem", color: "#c4b5fd", fontSize: "0.65rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase" }}><FlaskConical size={13} aria-hidden="true" /> New reader guide</div>
+            <h2 id="tz5-guide-feature-title" style={{ margin: 0, color: "#fff", fontSize: "1.12rem", fontWeight: 900, letterSpacing: "-0.015em" }}>tz5 wallet guide</h2>
+            <p style={{ margin: "0.35rem 0 0", color: "rgba(255,255,255,0.68)", fontSize: "0.84rem", lineHeight: 1.55 }}>Understand Tezos’ testnet-stage post-quantum account type, what it means today, and how to approach future testing safely.</p>
+          </div>
+          <Link href="/guides/tz5-wallet" aria-label="Read the tz5 wallet guide" style={{ display: "inline-flex", alignItems: "center", gap: "0.45rem", whiteSpace: "nowrap", color: "#fff", background: "#6654d9", padding: "0.7rem 0.9rem", borderRadius: "6px", textDecoration: "none", fontSize: "0.73rem", fontWeight: 800, letterSpacing: "0.04em", textTransform: "uppercase" }}>Read guide <ArrowRight size={15} aria-hidden="true" /></Link>
+        </section>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1.5rem" }}>
           {TOOLS.map((tool) => (
             <Link key={tool.href} href={tool.href} style={{ textDecoration: "none", display: "block" }}>

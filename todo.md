@@ -381,3 +381,13 @@
 - [x] Replace dense prose with scan-friendly cards, steps, and explicit decision guidance
 - [x] Improve typographic hierarchy, spacing, and responsive visual formatting
 - [x] Add focused regression coverage and validate the redesigned guide on desktop and mobile
+
+## Phase 53: tz5 Guide Navigation and Timeline
+- [x] Verify the main Tools menu implementation and source-grounded address-prefix milestones
+- [x] Add a prominent accessible tz5 wallet guide entry in the main Tools menu
+- [x] Add an accessible visual tz1-to-tz5 address-evolution timeline to the guide
+- [x] Add focused regression coverage and validate the enhanced guide and navigation on desktop and mobile
+
+## Phase 54: Main Navigation Home Entry
+- [x] Add a clearly labelled Home entry to the desktop and mobile primary navigation
+- [x] Validate the Home navigation entry without introducing a duplicate header or menu bar
