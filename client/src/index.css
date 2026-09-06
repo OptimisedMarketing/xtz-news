@@ -555,6 +555,9 @@
     .article-sidebar {
       grid-template-columns: 1fr;
     }
+    .tz5-guide-grid {
+      grid-template-columns: minmax(0, 1fr) !important;
+    }
   }
 
   /* ── Accessible technical-term definitions ── */

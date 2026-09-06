@@ -67,6 +67,7 @@ import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import VerifyEmail from "./pages/VerifyEmail";
+import Tz5WalletGuidePage from "./pages/Tz5WalletGuidePage";
 
 function Router() {
   return (
@@ -108,6 +109,7 @@ function Router() {
       <Route path="/submit-project" component={SubmitProjectPage} />
       <Route path="/unsubscribe" component={UnsubscribePage} />
       <Route path="/manage-subscriptions" component={ManageSubscriptionsPage} />
+      <Route path="/guides/tz5-wallet" component={Tz5WalletGuidePage} />
 
       {/* Explorer routes */}
       <Route path="/explorer" component={ExplorerPage} />

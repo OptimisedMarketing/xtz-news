@@ -23,6 +23,9 @@ import { isGaneshaStory, prioritiseGaneshaRelatedStories } from "@/lib/ganeshaSt
 import { isTezOracleStory, prioritiseTezOracleRelatedStories } from "@/lib/tezoracleStory";
 import TezOracleProjectLink from "@/components/TezOracleProjectLink";
 import TezOracleSharePanel from "@/components/TezOracleSharePanel";
+import PostQuantumTopicFilter from "@/components/PostQuantumTopicFilter";
+import Tz5WalletGuideLink from "@/components/Tz5WalletGuideLink";
+import { isPostQuantumStory, prioritisePostQuantumRelatedStories } from "@/lib/postQuantumStory";
 
 /** Injects / updates Open Graph + Twitter Card meta tags in <head> */
 function useOpenGraph(post: {
@@ -468,12 +471,15 @@ export default function ArticlePage() {
   const pageUrl = typeof window !== "undefined" ? window.location.href : `https://xtz.news/${slug}`;
   const isGaneshaArticle = isGaneshaStory(post.slug);
   const isTezOracleArticle = isTezOracleStory(post.slug);
+  const isPostQuantumArticle = isPostQuantumStory(post.slug);
   const newsletterPreviewSuccess = typeof window !== "undefined" && import.meta.env.DEV && new URLSearchParams(window.location.search).get("newsletterPreview") === "success";
   const displayedRelated = isGaneshaArticle
     ? prioritiseGaneshaRelatedStories(uniqueRelated)
     : isTezOracleArticle
       ? prioritiseTezOracleRelatedStories(uniqueRelated)
-      : uniqueRelated;
+      : isPostQuantumArticle
+        ? prioritisePostQuantumRelatedStories(uniqueRelated)
+        : uniqueRelated;
   const wordCount = post.content ? post.content.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length : 0;
   const readMins = Math.max(1, Math.round(wordCount / 200));
 
@@ -606,6 +612,7 @@ export default function ArticlePage() {
               style={{ transition: "background 0.3s, color 0.3s, font-size 0.2s", fontSize: fontSizeMap[fontSize] }}
               newsletterPreviewSuccess={newsletterPreviewSuccess}
             />
+            {isPostQuantumArticle && <Tz5WalletGuideLink />}
 
             {/* Tags */}
             {post.tags && post.tags.length > 0 && (
@@ -648,6 +655,7 @@ export default function ArticlePage() {
             {isGaneshaArticle && <GaneshaTechnicalToc />}
             {/* XTZ Price Widget */}
             <XtzPriceWidget />
+            <PostQuantumTopicFilter />
 
             {/* Related articles in sidebar */}
             {displayedRelated.length > 0 && (
@@ -705,8 +713,8 @@ export default function ArticlePage() {
               <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                 <div style={{ width: "4px", height: "28px", background: "#2c7df7", borderRadius: "2px", flexShrink: 0 }} />
                 <div>
-                  <p style={{ margin: 0, fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: isGaneshaArticle ? "#63f7b1" : "#2c7df7", marginBottom: "2px" }}>{isGaneshaArticle ? "Continue exploring Etherlink & Tezos" : isTezOracleArticle ? "Continue exploring Tezos infrastructure" : "You might also like"}</p>
-                  <h2 id="related-articles-title" style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#fff", letterSpacing: "-0.01em" }}>{isGaneshaArticle ? "More Etherlink and Tezos News" : isTezOracleArticle ? "More Tezos Infrastructure and DeFi" : "Related Articles"}</h2>
+                  <p style={{ margin: 0, fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: isGaneshaArticle ? "#63f7b1" : isPostQuantumArticle ? "#c4b5fd" : "#2c7df7", marginBottom: "2px" }}>{isGaneshaArticle ? "Continue exploring Etherlink & Tezos" : isTezOracleArticle ? "Continue exploring Tezos infrastructure" : isPostQuantumArticle ? "Continue exploring Tezos cryptography" : "You might also like"}</p>
+                  <h2 id="related-articles-title" style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#fff", letterSpacing: "-0.01em" }}>{isGaneshaArticle ? "More Etherlink and Tezos News" : isTezOracleArticle ? "More Tezos Infrastructure and DeFi" : isPostQuantumArticle ? "Related Post-Quantum & Tezos Reading" : "Related Articles"}</h2>
                 </div>
               </div>
               {post.categories?.[0] && (

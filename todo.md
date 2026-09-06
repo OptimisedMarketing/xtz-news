@@ -362,3 +362,11 @@
 - [x] Draft a source-grounded Tezos post-quantum article with SEO metadata and bullet Key Takeaways
 - [x] Publish the story with accurate taxonomy, tags, source links, and a durable featured visual
 - [x] Run regression checks and validate the published story on desktop and mobile
+
+## Phase 50: Post-Quantum Discovery and tz5 Guide
+- [ ] Locate and validate the supplied replacement visual for the post-quantum article
+- [x] Add a dedicated post-quantum topic filter to sidebar discovery controls
+- [x] Add post-quantum-focused related reading to the bottom of the new article
+- [x] Publish a plain-English tz5 wallet guide with clear testnet-stage framing and official source links
+- [x] Add a direct contextual link from the post-quantum article to the tz5 guide
+- [x] Run focused and full regression checks and validate the new discovery and guide journeys on desktop and mobile
