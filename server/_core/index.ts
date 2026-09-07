@@ -17,6 +17,8 @@ import { createTezOracleStatusImportRouter } from "../tezoracleStatusImportRoute
 import { TEZORACLE_STATUS_IMPORT_PUBLIC_KEY } from "../tezoracleStatusImportPublicKey";
 import { importTezOracleStatus } from "../db";
 import { CRAWLER_ROUTE_PREFIXES, SEO_STATIC_PAGES, renderCrawlerHtml } from "../crawlerSeo";
+import { createMonthlyDigestRouter } from "../monthlyDigestRouter";
+import { MONTHLY_DIGEST_SCHEDULER_PUBLIC_KEY } from "../monthlyDigestSchedulerPublicKey";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -59,6 +61,7 @@ async function startServer() {
     publicKey: TEZORACLE_STATUS_IMPORT_PUBLIC_KEY,
     importStatus: importTezOracleStatus,
   }));
+  app.use("/api/internal/monthly-digest", createMonthlyDigestRouter(MONTHLY_DIGEST_SCHEDULER_PUBLIC_KEY));
 
   // ─── Custom Image Proxy (overrides framework storageProxy for wp-media) ────
   // The framework storageProxy does a 307 redirect which some browsers don't
@@ -525,7 +528,7 @@ ${items}
   });
 
   // ─── Monthly Newsletter Digest ─────────────────────────────────────────────────
-  app.post("/api/internal/newsletter/monthly-digest", async (req, res) => {
+  app.post("/api/internal/monthly-digest/run", async (req, res) => {
     try {
       // Legacy CRON_SECRET_KEY callers remain valid during the transition, but
       // the dedicated cloud scheduler now uses a fresh signed request instead.
