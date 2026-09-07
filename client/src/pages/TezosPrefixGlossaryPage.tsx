@@ -41,7 +41,7 @@ export default function TezosPrefixGlossaryPage() {
 
           <section aria-labelledby="prefix-results-title">
             <div className="pq-section-title"><div><p>Reference entries</p><h2 id="prefix-results-title">Find the prefix. Understand the context.</h2></div><span>{entries.length} shown</span></div>
-            {entries.length ? <div className="pq-glossary-grid">{entries.map((entry) => <article key={entry.prefix} className={entry.status === "Testnet stage" ? "pq-prefix-card pq-prefix-card--research" : "pq-prefix-card"}>
+            {entries.length ? <div className="pq-glossary-grid">{entries.map((entry) => <article key={entry.prefix} id={entry.prefix.toLowerCase()} className={entry.status === "Testnet stage" ? "pq-prefix-card pq-prefix-card--research" : "pq-prefix-card"}>
               <div className="pq-prefix-card__head"><code>{entry.prefix}</code><span>{entry.status}</span></div>
               <p className="pq-prefix-card__type">{entry.kind}</p>
               <h3>{entry.title}</h3>

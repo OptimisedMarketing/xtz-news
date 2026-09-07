@@ -419,3 +419,10 @@
 - [x] Create a comprehensive Tezos wallet starter hub with safe new-user guides and clear discovery paths
 - [x] Add SEO metadata, structured data, internal navigation, and sitemap coverage for both evergreen hubs
 - [x] Run regression, crawler, desktop, and mobile validation and document the new guide journeys
+
+## Phase 59: Wallet Options, Staking Starter, and Article Glossary Links
+- [x] Verify current official Tezos wallet options, staking guidance, and safe automatic glossary-linking rules
+- [x] Add clearly labelled official Tezos wallet options to the wallet starter hub without ranking or endorsing providers
+- [x] Create a beginner-friendly Tezos staking starter hub with delegation context and clear non-advisory guidance
+- [x] Implement accessible automatic glossary definitions for supported terms across article content
+- [x] Add crawler metadata, internal discovery paths, focused tests, and desktop/mobile validation

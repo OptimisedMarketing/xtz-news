@@ -7,9 +7,10 @@
  * All other HTML is rendered as-is via dangerouslySetInnerHTML.
  */
 
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import TweetEmbed from "./TweetEmbed";
 import MidArticleNewsletter from "./MidArticleNewsletter";
+import { linkArticleGlossaryTerms } from "@/lib/articleGlossary";
 
 interface ArticleContentProps {
   html: string;
@@ -59,7 +60,8 @@ export function parseSegments(html: string): Segment[] {
 }
 
 export default function ArticleContent({ html, className, style, newsletterPreviewSuccess = false }: ArticleContentProps) {
-  const segments = useMemo(() => parseSegments(html), [html]);
+  const articleHtml = useMemo(() => linkArticleGlossaryTerms(html), [html]);
+  const segments = useMemo(() => parseSegments(articleHtml), [articleHtml]);
 
   // If no tweets found, render as plain HTML (fast path)
   const hasEmbeds = segments.some((s) => s.type === "tweet" || s.type === "newsletter");
@@ -68,7 +70,7 @@ export default function ArticleContent({ html, className, style, newsletterPrevi
       <div
         className={className}
         style={style}
-        dangerouslySetInnerHTML={{ __html: html }}
+        dangerouslySetInnerHTML={{ __html: articleHtml }}
       />
     );
   }

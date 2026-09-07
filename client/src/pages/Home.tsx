@@ -9,6 +9,7 @@ import HomepageFilters from "@/components/HomepageFilters";
 import TezosSystemsNetworkPulse from "@/components/TezosSystemsNetworkPulse";
 import PostQuantumHomepageFeature from "@/components/PostQuantumHomepageFeature";
 import WalletStarterHomepageFeature from "@/components/WalletStarterHomepageFeature";
+import StakingStarterHomepageFeature from "@/components/StakingStarterHomepageFeature";
 import { useSEO } from "@/hooks/useSEO";
 import { getMediaUrl } from "@/lib/mediaUrl";
 import { getNewsletterConfirmationCopy } from "@/lib/newsletterConfirmation";
@@ -565,6 +566,7 @@ export default function Home() {
       {isLoading ? <HeroSkeleton /> : <HeroSection latestPosts={latest} mostReadPosts={mostRead} />}
       <HomepageFilters />
       <WalletStarterHomepageFeature />
+      <StakingStarterHomepageFeature />
       <PostQuantumHomepageFeature />
       <TezosSystemsNetworkPulse />
       <LatestNewsSection posts={latest.slice(0, 8)} weekPosts={(data as any)?.trending ?? mostRead} allTimePosts={mostRead} />

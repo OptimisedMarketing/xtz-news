@@ -73,6 +73,7 @@ import PostQuantumPage from "./pages/PostQuantumPage";
 import EtherlinkHubPage from "./pages/EtherlinkHubPage";
 import EtherlinkBridgeGuidePage from "./pages/EtherlinkBridgeGuidePage";
 import TezosWalletStarterPage from "./pages/TezosWalletStarterPage";
+import TezosStakingStarterPage from "./pages/TezosStakingStarterPage";
 
 function Router() {
   return (
@@ -120,6 +121,7 @@ function Router() {
       <Route path="/etherlink/bridge" component={EtherlinkBridgeGuidePage} />
       <Route path="/etherlink" component={EtherlinkHubPage} />
       <Route path="/wallets" component={TezosWalletStarterPage} />
+      <Route path="/staking/start" component={TezosStakingStarterPage} />
 
       {/* Explorer routes */}
       <Route path="/explorer" component={ExplorerPage} />

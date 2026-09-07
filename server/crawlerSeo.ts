@@ -31,6 +31,7 @@ export const SEO_STATIC_PAGES = [
   { url: "/etherlink", priority: "0.8", changefreq: "weekly" },
   { url: "/etherlink/bridge", priority: "0.8", changefreq: "monthly" },
   { url: "/wallets", priority: "0.8", changefreq: "monthly" },
+  { url: "/staking/start", priority: "0.8", changefreq: "monthly" },
 ];
 
 type StaticMeta = { title: string; description: string };
@@ -89,6 +90,10 @@ const STATIC_META: Record<string, StaticMeta> = {
     title: "Tezos Wallet Starter Guide: First Steps for New Users | XTZ.News",
     description: "A clear Tezos wallet starter hub for new users: official wallet setup guidance, address prefixes, read-only tools, staking context, and safe next steps.",
   },
+  "/staking/start": {
+    title: "Tezos Staking Starter Guide: Delegation Explained | XTZ.News",
+    description: "A beginner-friendly Tezos staking starter hub explaining delegation, staking, bakers, liquidity, and the official route to check before you act.",
+  },
 };
 
 const STATIC_FAQS: Record<string, FaqItem[]> = {
@@ -130,6 +135,11 @@ const STATIC_FAQS: Record<string, FaqItem[]> = {
     { question: "What is a Tezos wallet?", answer: "A Tezos wallet is an application that maintains your account and signs Tezos transactions on your behalf. Wallets allow dApp interaction without exposing the account private key." },
     { question: "Which Tezos wallet should I use?", answer: "Wallet choice depends on your needs and preferred form factor. Consult the current official Tezos wallet documentation and each wallet provider’s own information before installing or using a wallet." },
     { question: "What is the difference between tz1 and KT1?", answer: "Tezos user accounts can use prefixes such as tz1, tz2, tz3, or tz4. KT1 identifies a smart contract. Use the XTZ.News prefix glossary for a plain-English reference." },
+  ],
+  "/staking/start": [
+    { question: "What is the difference between Tezos delegation and staking?", answer: "Delegation keeps your tez liquid and lets a baker use its associated baking power. Staking locks tez with a baker, increases the baker’s baking power more fully, and brings slashing exposure. Review the current official staking information before acting." },
+    { question: "Do I have to run a baker to delegate or stake?", answer: "No. The official Tezos documentation describes delegation and staking with a baker as options for people who do not want to run a baking node themselves." },
+    { question: "How do I start staking tez?", answer: "The official Tezos staking application provides the current workflow. If you are not already delegated, the official guidance says you first delegate to a baker that accepts external stakers and then choose the staking action." },
   ],
 };
 

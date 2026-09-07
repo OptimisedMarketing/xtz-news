@@ -24,6 +24,16 @@ const NEXT_GUIDES = [
   { title: "tz5 wallet guide", copy: "Learn about the separate testnet-stage post-quantum account research without treating it as a Mainnet migration.", href: "/guides/tz5-wallet", icon: KeyRound },
 ];
 
+const WALLET_OPTIONS = [
+  { name: "Temple", type: "Browser extension and mobile app", note: "A Tezos wallet option listed in the official setup guide.", href: "https://templewallet.com/" },
+  { name: "Umami", type: "Desktop application", note: "A Windows, macOS, and Linux option listed in the official setup guide.", href: "https://umamiwallet.com/" },
+  { name: "Kukai", type: "Identity-linked application", note: "An account option that can use linked identity methods, listed in official Tezos documentation.", href: "https://wallet.kukai.app/" },
+  { name: "Trust Wallet", type: "Mobile app and browser extension", note: "A Tezos-compatible option listed in the official setup guide.", href: "https://trustwallet.com/tezos-wallet" },
+  { name: "AirGap", type: "Standalone and mobile apps", note: "A Tezos wallet option listed in the official setup guide.", href: "https://airgap.it/" },
+  { name: "Ledger", type: "Hardware wallet", note: "A hardware-wallet option listed in the official setup guide.", href: "https://www.ledger.com/" },
+  { name: "MetaMask", type: "Browser extension on Mainnet", note: "Official documentation describes Tezos support through the MetaMask browser extension and Tezos Snap flow on Mainnet.", href: "https://metamask.tezos.com/" },
+];
+
 export default function TezosWalletStarterPage() {
   useSEO({
     title: "Tezos Wallet Starter Guide: First Steps for New Users | XTZ.News",
@@ -64,6 +74,15 @@ export default function TezosWalletStarterPage() {
           <h2 id="wallet-starter-steps-title" style={{ margin: "0.4rem 0 1.15rem", fontSize: "clamp(1.45rem, 3vw, 2.1rem)", letterSpacing: "-0.035em" }}>Four useful steps, in the right order.</h2>
           <div className="wallet-starter-steps-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "0.75rem" }}>
             {STARTER_STEPS.map(({ number, title, body, icon: Icon, href, external }) => <article key={number} style={{ padding: "1rem", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.11)", background: "#061a39" }}><div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}><span style={{ color: "#86efac", fontSize: "0.7rem", fontWeight: 900, letterSpacing: "0.1em" }}>{number}</span><Icon size={18} color="#86efac" aria-hidden="true" /></div><h3 style={{ margin: "0.75rem 0 0.4rem", fontSize: "0.98rem", lineHeight: 1.25 }}>{title}</h3><p style={{ margin: 0, color: "rgba(255,255,255,0.61)", fontSize: "0.8rem", lineHeight: 1.55 }}>{body}</p>{external ? <a href={href} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", marginTop: "0.8rem", color: "#86efac", textDecoration: "none", fontSize: "0.75rem", fontWeight: 850 }}>Official guide <ExternalLink size={13} aria-hidden="true" /></a> : <Link href={href} style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", marginTop: "0.8rem", color: "#86efac", textDecoration: "none", fontSize: "0.75rem", fontWeight: 850 }}>Explore <ArrowRight size={13} aria-hidden="true" /></Link>}</article>)}
+          </div>
+        </section>
+
+        <section aria-labelledby="wallet-options-title" style={{ marginTop: "3.5rem" }}>
+          <p style={{ margin: 0, color: "#86efac", fontSize: "0.68rem", fontWeight: 900, letterSpacing: "0.13em", textTransform: "uppercase" }}>Officially listed options</p>
+          <h2 id="wallet-options-title" style={{ margin: "0.4rem 0 0.55rem", fontSize: "clamp(1.45rem, 3vw, 2.1rem)", letterSpacing: "-0.035em" }}>Choose the wallet shape that fits your starting point.</h2>
+          <p style={{ margin: "0 0 1.15rem", maxWidth: "72ch", color: "rgba(255,255,255,0.66)", lineHeight: 1.65, fontSize: "0.9rem" }}>These providers are listed in the current official Tezos wallet-setup documentation. XTZ.News does not rank or endorse them; check the provider’s current information and the official setup guide before installing or connecting any wallet.</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "0.75rem" }}>
+            {WALLET_OPTIONS.map((wallet) => <article key={wallet.name} style={{ padding: "1rem", borderRadius: "12px", border: "1px solid rgba(134,239,172,0.18)", background: "linear-gradient(135deg, rgba(6,37,50,0.86), rgba(6,26,57,0.95))" }}><WalletCards size={19} color="#86efac" aria-hidden="true" /><h3 style={{ margin: "0.72rem 0 0.24rem", fontSize: "1rem" }}>{wallet.name}</h3><p style={{ margin: 0, color: "#b7f7c9", fontSize: "0.72rem", fontWeight: 800 }}>{wallet.type}</p><p style={{ margin: "0.55rem 0 0", color: "rgba(255,255,255,0.6)", fontSize: "0.8rem", lineHeight: 1.5 }}>{wallet.note}</p><a href={wallet.href} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", color: "#86efac", textDecoration: "none", fontSize: "0.75rem", fontWeight: 850, marginTop: "0.8rem" }}>Visit provider <ExternalLink size={13} aria-hidden="true" /></a></article>)}
           </div>
         </section>
 
