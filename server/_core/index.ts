@@ -16,6 +16,7 @@ import { createTranslationJobRouter } from "../translationJobRouter";
 import { createTezOracleStatusImportRouter } from "../tezoracleStatusImportRouter";
 import { TEZORACLE_STATUS_IMPORT_PUBLIC_KEY } from "../tezoracleStatusImportPublicKey";
 import { importTezOracleStatus } from "../db";
+import { CRAWLER_ROUTE_PREFIXES, SEO_STATIC_PAGES, renderCrawlerHtml } from "../crawlerSeo";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -130,7 +131,7 @@ async function startServer() {
   const KNOWN_ROUTES = new Set([
     'api', 'admin', 'category', 'tag', 'projects', 'timeline', 'watch',
     'contact', 'advertise', 'submit-article', 'submit-project', 'categories',
-    'search', 'prices', 'manus-storage', '__manus__', 'img', 'sitemap.xml',
+    'search', 'prices', 'tools', 'guides', 'glossary', 'post-quantum', 'manus-storage', '__manus__', 'img', 'sitemap.xml',
     'robots.txt', 'favicon.ico'
   ]);
   // TRANSLATION_LOCALES: these are valid i18n routes — do NOT redirect them
@@ -353,6 +354,7 @@ ${items}
         { url: "/tools/live-ops", priority: "0.7", changefreq: "monthly" },
         { url: "/tools/contract", priority: "0.7", changefreq: "monthly" },
         { url: "/tools/defi", priority: "0.8", changefreq: "daily" },
+        ...SEO_STATIC_PAGES,
       ];
 
       let allPosts: { slug: string; title: string; publishedAt: Date | null; updatedAt: Date | null }[] = [];
@@ -717,45 +719,51 @@ ${items}
 
     try {
       const baseUrl = 'https://xtz.news';
-      let title = 'XTZ.News — Tezos Blockchain News & Tools';
-      let description = 'The leading source for Tezos blockchain news, analysis, tools, and ecosystem updates.';
-      let image = `${baseUrl}/media/xtz-logo-square_c6689606.png`;
-      let imageWidth = '1200';
-      let imageHeight = '630';
-      let type = 'website';
-      let publishedTime = '';
-      let author = 'XTZ.News';
+      let article: import("../crawlerSeo").CrawlerArticle | undefined;
+      let translation: import("../crawlerSeo").CrawlerTranslation | undefined;
+      let translationLocales: string[] = [];
 
-      // Try to match article slug (not a known route prefix)
-      const knownPrefixes = new Set(['category', 'tag', 'projects', 'timeline', 'contact', 'admin', 'explorer', 'staking', 'tools', 'art', 'prices', 'search', 'unsubscribe', 'manage-subscriptions']);
+      // Try to match an English or published translated article route.
+      const knownPrefixes = new Set(CRAWLER_ROUTE_PREFIXES);
       const slug = p.replace(/^\//, '');
-      const firstSegment = slug.split('/')[0];
+      const parts = slug.split('/').filter(Boolean);
+      const supportedLocales = new Set(['zh', 'ko', 'ja', 'de', 'es', 'fr', 'pt', 'ru', 'ar', 'tr']);
+      const locale = parts.length === 2 && supportedLocales.has(parts[0]) ? parts[0] : undefined;
+      const articleSlug = locale ? parts[1] : parts.length === 1 ? parts[0] : undefined;
+      const firstSegment = parts[0];
 
-      if (slug && !knownPrefixes.has(firstSegment) && !slug.includes('/')) {
+      if (articleSlug && !knownPrefixes.has(firstSegment)) {
         // Looks like an article slug — fetch from DB
         try {
           const { getDb } = await import('../db');
           const db = await getDb();
           if (db) {
-            const { posts } = await import('../../drizzle/schema');
-            const { eq } = await import('drizzle-orm');
+            const { posts, postTranslations } = await import('../../drizzle/schema');
+            const { and, eq } = await import('drizzle-orm');
             const [post] = await db.select({
-              title: posts.title, excerpt: posts.excerpt,
+              id: posts.id, title: posts.title, slug: posts.slug, excerpt: posts.excerpt,
               featuredImageUrl: posts.featuredImageUrl, publishedAt: posts.publishedAt,
-            }).from(posts).where(eq(posts.slug, slug)).limit(1);
+              featuredImageAlt: posts.featuredImageAlt, seoTitle: posts.seoTitle,
+              seoDescription: posts.seoDescription, updatedAt: posts.updatedAt,
+            }).from(posts).where(and(eq(posts.slug, articleSlug), eq(posts.status, 'publish'))).limit(1);
 
             if (post) {
-              title = post.title;
-              description = (post.excerpt || '').replace(/<[^>]*>/g, '').slice(0, 200) || description;
-              if (post.featuredImageUrl) {
-                image = post.featuredImageUrl.startsWith('http') ? post.featuredImageUrl
-                  : post.featuredImageUrl.startsWith('/') ? baseUrl + post.featuredImageUrl.replace(/^\/manus-storage\//, '/media/')
-                  : post.featuredImageUrl;
-              } else {
-                image = `${baseUrl}/api/og?type=article&title=${encodeURIComponent(title.slice(0, 80))}`;
+              article = post;
+              const publishedTranslations = await db.select({ locale: postTranslations.locale })
+                .from(postTranslations)
+                .where(and(eq(postTranslations.postId, post.id), eq(postTranslations.status, 'published')));
+              translationLocales = publishedTranslations.map(item => item.locale);
+              if (locale) {
+                const [translated] = await db.select({
+                  locale: postTranslations.locale, title: postTranslations.title, excerpt: postTranslations.excerpt,
+                  metaTitle: postTranslations.metaTitle, metaDescription: postTranslations.metaDescription,
+                }).from(postTranslations).where(and(
+                  eq(postTranslations.postId, post.id),
+                  eq(postTranslations.locale, locale),
+                  eq(postTranslations.status, 'published'),
+                )).limit(1);
+                translation = translated;
               }
-              type = 'article';
-              publishedTime = post.publishedAt ? new Date(post.publishedAt).toISOString() : '';
             }
           }
         } catch {}
@@ -774,26 +782,7 @@ ${items}
         return next();
       }
 
-      const metaTags = [
-        `<meta property="og:title" content="${title.replace(/"/g, '&quot;')}" />`,
-        `<meta property="og:description" content="${description.replace(/"/g, '&quot;')}" />`,
-        `<meta property="og:image" content="${image}" />`,
-        `<meta property="og:image:width" content="${imageWidth}" />`,
-        `<meta property="og:image:height" content="${imageHeight}" />`,
-        `<meta property="og:type" content="${type}" />`,
-        `<meta property="og:url" content="${baseUrl}${p}" />`,
-        `<meta property="og:site_name" content="XTZ.News" />`,
-        `<meta name="twitter:card" content="summary_large_image" />`,
-        `<meta name="twitter:site" content="@XTZNews" />`,
-        `<meta name="twitter:title" content="${title.replace(/"/g, '&quot;')}" />`,
-        `<meta name="twitter:description" content="${description.replace(/"/g, '&quot;')}" />`,
-        `<meta name="twitter:image" content="${image}" />`,
-        publishedTime ? `<meta property="article:published_time" content="${publishedTime}" />` : '',
-        author ? `<meta name="author" content="${author}" />` : '',
-      ].filter(Boolean).join('\n    ');
-
-      // Inject before </head>
-      html = html.replace('</head>', `    ${metaTags}\n  </head>`);
+      html = renderCrawlerHtml({ html, baseUrl, pathname: p, article, translation, translationLocales });
 
       res.set('Content-Type', 'text/html');
       res.set('Cache-Control', 'public, max-age=300');

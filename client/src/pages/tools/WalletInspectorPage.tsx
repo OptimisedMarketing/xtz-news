@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { Search, Copy, ExternalLink, ChevronRight, Home, ArrowUpRight, ArrowDownLeft, Shield, Coins } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import ToolBreadcrumb from "@/components/ToolBreadcrumb";
+import { TezosResourceLinks } from "@/components/TezosResourceLinks";
 import { useSEO, buildToolSchema, buildFAQSchema } from "@/hooks/useSEO";
 import { toast } from "sonner";
 
@@ -316,6 +317,7 @@ export default function WalletInspectorPage() {
             <p style={{ fontSize: "0.9rem" }}>Enter a Tezos address above to inspect it</p>
           </div>
         )}
+        <TezosResourceLinks context="wallet" />
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { ExternalLink, Search, Copy, ChevronRight, Home, X, DollarSign, TrendingUp, ChevronDown } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useSEO, buildToolSchema, buildFAQSchema } from "@/hooks/useSEO";
+import { TezosResourceLinks } from "@/components/TezosResourceLinks";
 
 const templeDelegate = (address: string) =>
   `https://app.templewallet.com/delegating?baker=${address}`;
@@ -139,6 +140,7 @@ export default function StakingPage() {
       </div>
 
       <div className="container" style={{ padding: "2.5rem 1.25rem 4rem" }}>
+        <TezosResourceLinks context="staking" />
         <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 300px", gap: "2.5rem", alignItems: "start" }}>
 
           {/* ── Main calculator ── */}

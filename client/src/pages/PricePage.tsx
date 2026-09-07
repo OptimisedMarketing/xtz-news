@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { TrendingUp, TrendingDown, ArrowUpDown, ExternalLink, Star } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useSEO, buildWebPageSchema } from "@/hooks/useSEO";
+import { TezosResourceLinks } from "@/components/TezosResourceLinks";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 function formatPrice(price: number): string {
@@ -193,7 +194,8 @@ export default function PricePage() {
         </div>
       </div>
 
-      <div className="container" style={{ padding: "2rem 1.25rem 4rem" }}>
+      <div className="container" style={{ padding: "2.5rem 1.25rem 4rem" }}>
+        <TezosResourceLinks context="prices" />
         {/* XTZ 7-day price chart */}
         {xtzChartData.length > 0 && (
           <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "8px", padding: "1.5rem", marginBottom: "2rem" }}>

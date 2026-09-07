@@ -398,3 +398,10 @@
 - [x] Create a dedicated post-quantum landing page aggregating the article, tz5 guide, glossary, and official resources
 - [x] Feature the tz5 wallet guide prominently on the homepage and connect the new discovery paths
 - [x] Add focused regression coverage and validate the hub, glossary, and homepage feature on desktop and mobile
+
+## Phase 56: DataForSEO-Led On-Site SEO Growth
+- [x] Collect bounded UK and US English DataForSEO keyword, question, trend, and SERP evidence for core Tezos topics
+- [x] Document a DataForSEO-backed keyword-to-URL map and prioritise existing-page improvements over duplicate content
+- [x] Repair crawler-visible canonical, NewsArticle schema, hreflang, media, sitemap, and route-normalisation coverage for priority routes
+- [x] Improve the selected high-intent Tezos content clusters and descriptive internal discovery paths
+- [x] Run full regression and crawler-style validation, then record the SEO implementation and measurement hand-off

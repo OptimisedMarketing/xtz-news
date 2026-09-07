@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Search, Layers, ArrowRightLeft, TrendingUp, TrendingDown, Users, Zap, Shield, ExternalLink, RefreshCw, ChevronRight, Vote, ChevronDown, ChevronUp, ArrowUpDown } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useSEO, buildWebPageSchema, buildFAQSchema } from "@/hooks/useSEO";
+import { TezosResourceLinks } from "@/components/TezosResourceLinks";
 
 function formatXtz(v: number, decimals = 2) {
   if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(2)}M ꜩ`;
@@ -284,14 +285,15 @@ export default function ExplorerPage() {
               { label: "Latest Blocks", href: "/explorer" },
               { label: "Baker Leaderboard", href: "/explorer/bakers" },
               { label: "Token Transfers", href: "/explorer" },
-            ].map(l => (
-              <Link key={l.href} href={l.href} style={{ fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.45)", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "20px", padding: "0.25rem 0.75rem", textDecoration: "none", transition: "all 0.2s" }}
+            ].map((link) => (
+              <Link key={link.href} href={link.href} style={{ fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.45)", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "20px", padding: "0.25rem 0.75rem", textDecoration: "none", transition: "all 0.2s" }}
                 onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#fff"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(44,125,247,0.4)"; }}
                 onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.45)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.1)"; }}>
-                {l.label}
+                {link.label}
               </Link>
             ))}
           </div>
+          <TezosResourceLinks context="explorer" />
         </div>
       </div>
 
