@@ -535,12 +535,16 @@ ${items}
       const { isValidMonthlyDigestPayload, verifyMonthlyDigestScheduleSignature } = await import("../monthlyDigestScheduler");
       const { MONTHLY_DIGEST_SCHEDULER_PUBLIC_KEY } = await import("../monthlyDigestSchedulerPublicKey");
       const schedulerPayload = req.body as { deliveryId?: string; sentAt?: string; dryRun?: boolean };
+      const schedulerSignature = req.header("X-XTZ-Monthly-Digest-Signature") ?? undefined;
       const isSignedCloudCron = isValidMonthlyDigestPayload(schedulerPayload as any)
         && verifyMonthlyDigestScheduleSignature(
           schedulerPayload as any,
-          req.header("X-XTZ-Monthly-Digest-Signature") ?? undefined,
+          schedulerSignature,
           MONTHLY_DIGEST_SCHEDULER_PUBLIC_KEY,
         );
+      if (schedulerSignature && !isSignedCloudCron) {
+        return res.status(401).json({ error: "invalid-monthly-digest-signature" });
+      }
       if (!isCloudCron && !isSignedCloudCron) {
         const { sdk } = await import("./sdk");
         const user = await sdk.authenticateRequest(req);
