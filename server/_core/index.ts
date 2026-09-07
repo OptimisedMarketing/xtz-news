@@ -525,7 +525,7 @@ ${items}
   });
 
   // ─── Monthly Newsletter Digest ─────────────────────────────────────────────────
-  app.post("/api/scheduled/monthly-digest", async (req, res) => {
+  app.post("/api/internal/newsletter/monthly-digest", async (req, res) => {
     try {
       // Legacy CRON_SECRET_KEY callers remain valid during the transition, but
       // the dedicated cloud scheduler now uses a fresh signed request instead.
