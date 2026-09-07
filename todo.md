@@ -426,3 +426,9 @@
 - [x] Create a beginner-friendly Tezos staking starter hub with delegation context and clear non-advisory guidance
 - [x] Implement accessible automatic glossary definitions for supported terms across article content
 - [x] Add crawler metadata, internal discovery paths, focused tests, and desktop/mobile validation
+
+## Phase 60: Baker Comparison Checklist and Newsletter Glossary Coverage
+- [x] Inspect the staking starter and newsletter archive rendering paths and define non-ranking comparison rules
+- [x] Add an interactive reader-side baker checklist without recommendations, scores, or investment claims
+- [x] Extend glossary definitions safely to newsletter archive content without breaking newsletter components or links
+- [x] Add focused regression coverage and validate the checklist and glossary treatment on desktop and mobile
