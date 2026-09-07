@@ -21,7 +21,7 @@ export type CrawlerTranslation = {
 export const CRAWLER_ROUTE_PREFIXES = [
   "category", "tag", "projects", "timeline", "contact", "admin", "explorer",
   "staking", "tools", "guides", "glossary", "post-quantum", "art", "prices",
-  "etherlink", "wallets", "search", "unsubscribe", "manage-subscriptions",
+  "etherlink", "wallets", "art-on-tezos", "search", "unsubscribe", "manage-subscriptions",
 ];
 
 export const SEO_STATIC_PAGES = [
@@ -32,6 +32,7 @@ export const SEO_STATIC_PAGES = [
   { url: "/etherlink/bridge", priority: "0.8", changefreq: "monthly" },
   { url: "/wallets", priority: "0.8", changefreq: "monthly" },
   { url: "/staking/start", priority: "0.8", changefreq: "monthly" },
+  { url: "/art-on-tezos", priority: "0.8", changefreq: "weekly" },
 ];
 
 type StaticMeta = { title: string; description: string };
@@ -94,6 +95,10 @@ const STATIC_META: Record<string, StaticMeta> = {
     title: "Tezos Staking Starter Guide: Delegation Explained | XTZ.News",
     description: "A beginner-friendly Tezos staking starter hub explaining delegation, staking, bakers, liquidity, and the official route to check before you act.",
   },
+  "/art-on-tezos": {
+    title: "Art on Tezos Hub: Projects, Artists and News | XTZ.News",
+    description: "Explore Tezos art projects, creator-led coverage, collecting context, exhibitions, and digital-art resources from XTZ.News.",
+  },
 };
 
 const STATIC_FAQS: Record<string, FaqItem[]> = {
@@ -140,6 +145,11 @@ const STATIC_FAQS: Record<string, FaqItem[]> = {
     { question: "What is the difference between Tezos delegation and staking?", answer: "Delegation keeps your tez liquid and lets a baker use its associated baking power. Staking locks tez with a baker, increases the baker’s baking power more fully, and brings slashing exposure. Review the current official staking information before acting." },
     { question: "Do I have to run a baker to delegate or stake?", answer: "No. The official Tezos documentation describes delegation and staking with a baker as options for people who do not want to run a baking node themselves." },
     { question: "How do I start staking tez?", answer: "The official Tezos staking application provides the current workflow. If you are not already delegated, the official guidance says you first delegate to a baker that accepts external stakers and then choose the staking action." },
+  ],
+  "/art-on-tezos": [
+    { question: "What is the Art on Tezos collection hub?", answer: "It is an XTZ.News reading and discovery page that groups published Tezos art projects, relevant editorial coverage, and practical ecosystem paths in one place." },
+    { question: "Does XTZ.News endorse the listed art projects or collections?", answer: "No. The hub is an editorial discovery surface. Readers should review each project’s official information and make their own decisions before collecting, supporting, or using any service." },
+    { question: "Where can I find more Tezos art coverage?", answer: "Use the Art on Tezos news collection, the XTZ.News project directory, and the linked category archives to follow new published coverage." },
   ],
 };
 

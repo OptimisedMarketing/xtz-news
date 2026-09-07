@@ -472,3 +472,14 @@
 ## Phase 67: Kento Fundraising-Led Headline
 - [x] Replace the Kento article title and SEO fields with verified early-campaign milestone wording
 - [x] Validate the updated headline and metadata on the published article
+
+## Phase 68: Art on Tezos Hub and Kento Sharing
+- [x] Inventory published Art on Tezos projects and articles and inspect the established sharing-control patterns
+- [x] Build a dedicated Art on Tezos collection hub that groups genuine directory projects and editorial coverage
+- [x] Connect the hub through relevant navigation and internal discovery paths with crawler metadata and sitemap coverage
+- [x] Add accessible Kento sharing controls to the Kento article and project profile
+- [x] Add focused tests and validate the hub and sharing controls on desktop and mobile
+
+## Phase 69: Kento Milestone Attribution Correction
+- [x] Revise Kento’s campaign-milestone image wording to avoid implying direct supply to XTZ.News
+- [x] Validate the corrected reader-facing wording and preserve the early-milestone/live-total distinction

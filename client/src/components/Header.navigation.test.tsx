@@ -26,4 +26,12 @@ describe("primary navigation", () => {
     expect(desktopExplore?.children).toEqual(expect.arrayContaining([{ label: "TEZOS WALLET STARTER", href: "/wallets" }]));
     expect(mobileExplore?.items).toEqual(expect.arrayContaining([{ label: "Tezos Wallet Starter", href: "/wallets" }]));
   });
+
+  it("keeps the Art on Tezos hub discoverable in desktop and mobile Explore navigation", () => {
+    const desktopExplore = NAV_ITEMS.find((item) => item.label === "EXPLORE");
+    const mobileExplore = MOBILE_SECTIONS.find((section) => section.label === "Explore");
+
+    expect(desktopExplore?.children).toEqual(expect.arrayContaining([{ label: "ART ON TEZOS HUB", href: "/art-on-tezos" }]));
+    expect(mobileExplore?.items).toEqual(expect.arrayContaining([{ label: "Art on Tezos Hub", href: "/art-on-tezos" }]));
+  });
 });

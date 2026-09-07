@@ -27,6 +27,7 @@ import PostQuantumTopicFilter from "@/components/PostQuantumTopicFilter";
 import Tz5WalletGuideLink from "@/components/Tz5WalletGuideLink";
 import { isPostQuantumStory, prioritisePostQuantumRelatedStories } from "@/lib/postQuantumStory";
 import { isKentoStory, prioritiseKentoRelatedStories } from "@/lib/kentoStory";
+import KentoSharePanel from "@/components/KentoSharePanel";
 
 /** Injects / updates Open Graph + Twitter Card meta tags in <head> */
 function useOpenGraph(post: {
@@ -617,6 +618,7 @@ export default function ArticlePage() {
               newsletterPreviewSuccess={newsletterPreviewSuccess}
             />
             {isPostQuantumArticle && <Tz5WalletGuideLink />}
+            {isKentoArticle && <div style={{ marginTop: "1.5rem", padding: "1rem 1.1rem", borderRadius: "8px", border: "1px solid rgba(249,168,212,0.22)", background: "rgba(249,168,212,0.05)" }}><p style={{ margin: "0 0 0.3rem", color: "#f9a8d4", fontSize: "0.67rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.1em" }}>Discover more</p><Link href="/art-on-tezos" style={{ color: "#fff", fontWeight: 800, textDecoration: "none", fontSize: "0.9rem" }}>Explore the Art on Tezos collection <ChevronRight size={15} style={{ display: "inline", verticalAlign: "-2px" }} /></Link></div>}
 
             {/* Tags */}
             {post.tags && post.tags.length > 0 && (
@@ -636,6 +638,7 @@ export default function ArticlePage() {
             {isGaneshaArticle && <GaneshaSharePanel title={post.title} url={pageUrl} />}
             {isTezOracleArticle && <TezOracleProjectLink />}
             {isTezOracleArticle && <TezOracleSharePanel contentType="article" title={post.title} url={`https://xtz.news/${post.slug}`} />}
+            {isKentoArticle && <KentoSharePanel contentType="article" title={post.title} url={`https://xtz.news/${post.slug}`} />}
             <div style={{ marginTop: "2rem" }}>
               <ShareButtons title={post.title} url={pageUrl} variant="full" />
             </div>

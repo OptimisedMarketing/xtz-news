@@ -5,6 +5,7 @@ import { useSEO, buildWebPageSchema } from "@/hooks/useSEO";
 import { getMediaUrl } from "@/lib/mediaUrl";
 import TezOracleSharePanel from "@/components/TezOracleSharePanel";
 import TezOracleStatusPanel from "@/components/TezOracleStatusPanel";
+import KentoSharePanel from "@/components/KentoSharePanel";
 
 export default function ProjectDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -13,6 +14,7 @@ export default function ProjectDetailPage() {
     { enabled: !!slug }
   );
   const isTezOracleProject = slug === "tezoracle";
+  const isKentoProject = slug === "kento";
   const { data: tezoracleStatus } = trpc.projects.tezoracleStatus.useQuery(undefined, {
     enabled: isTezOracleProject,
     staleTime: 60_000,
@@ -115,6 +117,7 @@ export default function ProjectDetailPage() {
                 )}
               </div>
               {isTezOracleProject && <TezOracleSharePanel contentType="project" title="TezOracle — Tezos-native oracle infrastructure" url="https://xtz.news/projects/tezoracle" />}
+              {isKentoProject && <KentoSharePanel contentType="project" title="Kento — physical art cards from the objkt team" url="https://xtz.news/projects/kento" />}
             </div>
           </div>
         </div>
@@ -133,6 +136,7 @@ export default function ProjectDetailPage() {
               style={{ fontSize: "0.95rem", color: "rgba(255,255,255,0.8)", lineHeight: 1.75 }}
               dangerouslySetInnerHTML={{ __html: project.content || project.excerpt || "" }}
             />
+            {isKentoProject && <Link href="/art-on-tezos" style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", marginTop: "1.15rem", color: "#f9a8d4", fontSize: "0.78rem", fontWeight: 800, textDecoration: "none" }}>Explore the Art on Tezos collection <ChevronRight size={14} /></Link>}
           </div>
 
           {/* Info grid */}

@@ -36,9 +36,9 @@ describe("crawler SEO rendering", () => {
 
   it("keeps priority evergreen routes crawlable and protected from article-slug handling", () => {
     expect(SEO_STATIC_PAGES.map(page => page.url)).toEqual(expect.arrayContaining([
-      "/post-quantum", "/guides/tz5-wallet", "/glossary/tezos-prefixes", "/etherlink", "/etherlink/bridge", "/wallets",
+      "/post-quantum", "/guides/tz5-wallet", "/glossary/tezos-prefixes", "/etherlink", "/etherlink/bridge", "/wallets", "/art-on-tezos",
     ]));
-    expect(CRAWLER_ROUTE_PREFIXES).toEqual(expect.arrayContaining(["guides", "glossary", "post-quantum", "etherlink", "wallets"]));
+    expect(CRAWLER_ROUTE_PREFIXES).toEqual(expect.arrayContaining(["guides", "glossary", "post-quantum", "etherlink", "wallets", "art-on-tezos"]));
   });
 
   it("renders complete FAQPage schema for priority Tezos tool routes", () => {
@@ -64,5 +64,12 @@ describe("crawler SEO rendering", () => {
       expect(getCrawlerStaticFaqs(pathname).length).toBeGreaterThan(0);
       expect(output).toContain('"@type":"FAQPage"');
     });
+  });
+
+  it("renders FAQPage schema for the Art on Tezos collection hub", () => {
+    const output = renderCrawlerHtml({ html, baseUrl: "https://xtz.news", pathname: "/art-on-tezos" });
+    expect(getCrawlerStaticFaqs("/art-on-tezos")).toHaveLength(3);
+    expect(output).toContain('"@type":"FAQPage"');
+    expect(output).toContain("What is the Art on Tezos collection hub?");
   });
 });
