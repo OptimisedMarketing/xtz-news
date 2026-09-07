@@ -43,15 +43,16 @@ export async function setupVite(app: Express, _server: Server) {
         `src="/src/main.tsx"`,
         `src="/src/main.tsx?v=${nanoid()}"`
       );
-      // Vite still injects /@vite/client in middleware mode even when HMR is
-      // disabled. Remove that development-only client explicitly: it would
-      // otherwise attempt an unavailable preview-proxy WebSocket despite the
-      // HMR setting above. Ordinary module and stylesheet loading is unchanged.
-      const page = (await vite.transformIndexHtml(url, template)).replace(
-        /<script\s+type="module"\s+src="\/@vite\/client"><\/script>\s*/,
-        ""
-      );
-      res.status(200).set({ "Content-Type": "text/html" }).end(page);
+      // Do not call Vite's index transformer in the managed preview. In
+      // middleware mode it injects /@vite/client even when HMR is disabled,
+      // and that client attempts a WebSocket upgrade the preview proxy cannot
+      // reliably forward. The raw template still loads the Vite-served source
+      // modules and styles normally, but cannot acquire an HMR socket.
+      const page = template;
+      // A signed-in preview can otherwise retain an earlier HTML document that
+      // referenced Vite's removed HMR client. Never cache development HTML so
+      // refreshes always receive the WebSocket-free preview shell.
+      res.status(200).set({ "Content-Type": "text/html", "Cache-Control": "no-store" }).end(page);
     } catch (e) {
       vite.ssrFixStacktrace(e as Error);
       next(e);

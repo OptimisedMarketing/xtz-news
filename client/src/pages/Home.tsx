@@ -426,7 +426,7 @@ export function NewsletterCTABanner() {
           <div style={{ flex: "1 1 300px" }}>
             <p style={{ margin: "0 0 0.3rem", fontSize: "0.65rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "#2c7df7" }}>Free Newsletter</p>
             <h2 style={{ margin: "0 0 0.5rem", fontSize: "clamp(1.2rem, 3vw, 1.75rem)", fontWeight: 900, color: "#fff", lineHeight: 1.2 }}>Stay ahead of Tezos</h2>
-            <p style={{ margin: 0, fontSize: "0.85rem", color: "rgba(255,255,255,0.55)" }}>Join {count.toLocaleString()}+ readers. Weekly digest every Monday.</p>
+            <p style={{ margin: 0, fontSize: "0.85rem", color: "rgba(255,255,255,0.55)" }}>Join {count.toLocaleString()}+ readers. Monthly digest on the first of each month.</p>
           </div>
           <div style={{ flex: "1 1 360px" }}>
             {submitted ? (

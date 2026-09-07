@@ -445,3 +445,12 @@
 - [x] Route the signed monthly job through the production-reachable tRPC API after the new REST route fell through to the application shell
 - [x] Retire the weekly schedule and activate an idempotent monthly cloud schedule at the agreed delivery time
 - [x] Validate a no-send dry run, delivery guards, content selection, tests, and production scheduler status
+
+## Phase 63: Signed-In Preview WebSocket Repair
+- [x] Inspect the active signed-in preview response and Vite client injection
+- [x] Apply a development-only repair that removes failed WebSocket attempts without affecting published traffic
+- [x] Validate the repaired signed-in preview, document the result, and run regression checks
+
+## Phase 64: Monthly Digest Reader-Facing Copy
+- [x] Replace residual weekly-digest wording in newsletter surfaces with the approved monthly prior-calendar-month cadence
+- [x] Add regression coverage and validate the corrected signed-in homepage newsletter copy

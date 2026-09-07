@@ -24,6 +24,13 @@ vi.mock("sonner", () => ({ toast: { error: vi.fn() } }));
 import MidArticleNewsletter from "./MidArticleNewsletter";
 
 describe("MidArticleNewsletter", () => {
+  it("describes the monthly roundup before a reader subscribes", () => {
+    render(<MidArticleNewsletter />);
+    expect(screen.getByText(/XTZ.News monthly roundup/i)).toBeTruthy();
+    expect(screen.getByText(/previous month’s essential Tezos/i)).toBeTruthy();
+    expect(screen.getByText(/one concise monthly email/i)).toBeTruthy();
+  });
+
   it("shows the Resend-aware confirmation and preference guidance after a successful subscription", () => {
     render(<MidArticleNewsletter />);
     act(() => mutationState.options.onSuccess({ success: true, welcomeEmailRequested: true }));

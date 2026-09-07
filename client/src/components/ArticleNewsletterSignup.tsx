@@ -43,7 +43,7 @@ export default function ArticleNewsletterSignup() {
           You're subscribed!
         </h3>
         <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.55)", margin: 0 }}>
-          Welcome to the XTZ.News weekly digest.{govAlerts ? " You'll also receive governance alerts when new Tezos proposals enter voting." : " You'll receive the top Tezos stories every Monday."}
+          Welcome to the XTZ.News monthly digest.{govAlerts ? " You'll also receive governance alerts when new Tezos proposals enter voting." : " You'll receive the previous month’s Tezos stories on the first of each month."}
         </p>
       </div>
     );
@@ -73,7 +73,7 @@ export default function ArticleNewsletterSignup() {
             <Mail size={15} style={{ color: "#2c7df7" }} />
           </div>
           <span style={{ fontSize: "0.65rem", fontWeight: 700, color: "#2c7df7", textTransform: "uppercase", letterSpacing: "0.1em" }}>
-            Weekly Digest
+            Monthly Digest
           </span>
         </div>
 
@@ -81,7 +81,7 @@ export default function ArticleNewsletterSignup() {
           Stay ahead of Tezos news
         </h3>
         <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.55)", margin: "0 0 1.25rem", lineHeight: 1.6 }}>
-          Join {subscriberCount.toLocaleString()}+ Tezos enthusiasts who get the week's top stories delivered every Monday. No spam, unsubscribe anytime.
+          Join {subscriberCount.toLocaleString()}+ Tezos enthusiasts who receive the previous month’s top stories on the first of each month. No spam, unsubscribe anytime.
         </p>
 
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
@@ -161,7 +161,7 @@ export default function ArticleNewsletterSignup() {
         </form>
 
         <p style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.3)", margin: "0.75rem 0 0" }}>
-          📬 Sent every Monday · {subscriberCount.toLocaleString()}+ subscribers · No spam
+          📬 Sent monthly · {subscriberCount.toLocaleString()}+ subscribers · No spam
         </p>
       </div>
     </div>

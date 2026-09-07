@@ -22,6 +22,11 @@ vi.mock("@/lib/trpc", () => ({
 import { NewsletterCTABanner } from "./Home";
 
 describe("NewsletterCTABanner", () => {
+  it("describes the approved monthly digest cadence", () => {
+    render(<NewsletterCTABanner />);
+    expect(screen.getByText(/monthly digest on the first of each month/i)).toBeTruthy();
+  });
+
   it("uses the same Resend-aware confirmation copy after homepage subscription success", () => {
     render(<NewsletterCTABanner />);
     act(() => mutationState.options.onSuccess({ success: true, welcomeEmailRequested: true }));

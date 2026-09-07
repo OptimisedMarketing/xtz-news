@@ -109,10 +109,10 @@ export default function ManageSubscriptionsPage() {
                     <div>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.2rem" }}>
                         <Bell size={14} style={{ color: status === "active" ? "#22c55e" : "rgba(255,255,255,0.4)" }} />
-                        <span style={{ fontWeight: 700, color: status === "active" ? "#fff" : "rgba(255,255,255,0.5)", fontSize: "0.88rem" }}>Weekly Digest</span>
+                        <span style={{ fontWeight: 700, color: status === "active" ? "#fff" : "rgba(255,255,255,0.5)", fontSize: "0.88rem" }}>Monthly Digest</span>
                       </div>
                       <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)", margin: 0, lineHeight: 1.5 }}>
-                        Top Tezos stories every Monday. The main XTZ.News newsletter.
+                        Top Tezos stories from the previous calendar month, delivered on the first of each month.
                       </p>
                     </div>
                   </label>
