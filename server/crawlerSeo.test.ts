@@ -36,9 +36,9 @@ describe("crawler SEO rendering", () => {
 
   it("keeps priority evergreen routes crawlable and protected from article-slug handling", () => {
     expect(SEO_STATIC_PAGES.map(page => page.url)).toEqual(expect.arrayContaining([
-      "/post-quantum", "/guides/tz5-wallet", "/glossary/tezos-prefixes", "/etherlink",
+      "/post-quantum", "/guides/tz5-wallet", "/glossary/tezos-prefixes", "/etherlink", "/etherlink/bridge", "/wallets",
     ]));
-    expect(CRAWLER_ROUTE_PREFIXES).toEqual(expect.arrayContaining(["guides", "glossary", "post-quantum", "etherlink"]));
+    expect(CRAWLER_ROUTE_PREFIXES).toEqual(expect.arrayContaining(["guides", "glossary", "post-quantum", "etherlink", "wallets"]));
   });
 
   it("renders complete FAQPage schema for priority Tezos tool routes", () => {
@@ -52,6 +52,14 @@ describe("crawler SEO rendering", () => {
 
   it("renders complete FAQPage schema for every selected priority tool route", () => {
     ["/tools/wallet", "/staking", "/tools/rewards", "/prices", "/explorer"].forEach((pathname) => {
+      const output = renderCrawlerHtml({ html, baseUrl: "https://xtz.news", pathname });
+      expect(getCrawlerStaticFaqs(pathname).length).toBeGreaterThan(0);
+      expect(output).toContain('"@type":"FAQPage"');
+    });
+  });
+
+  it("renders FAQPage schema for the new Etherlink bridge and wallet starter guides", () => {
+    ["/etherlink/bridge", "/wallets"].forEach((pathname) => {
       const output = renderCrawlerHtml({ html, baseUrl: "https://xtz.news", pathname });
       expect(getCrawlerStaticFaqs(pathname).length).toBeGreaterThan(0);
       expect(output).toContain('"@type":"FAQPage"');

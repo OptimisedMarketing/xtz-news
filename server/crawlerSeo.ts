@@ -21,7 +21,7 @@ export type CrawlerTranslation = {
 export const CRAWLER_ROUTE_PREFIXES = [
   "category", "tag", "projects", "timeline", "contact", "admin", "explorer",
   "staking", "tools", "guides", "glossary", "post-quantum", "art", "prices",
-  "etherlink", "search", "unsubscribe", "manage-subscriptions",
+  "etherlink", "wallets", "search", "unsubscribe", "manage-subscriptions",
 ];
 
 export const SEO_STATIC_PAGES = [
@@ -29,6 +29,8 @@ export const SEO_STATIC_PAGES = [
   { url: "/guides/tz5-wallet", priority: "0.8", changefreq: "monthly" },
   { url: "/glossary/tezos-prefixes", priority: "0.7", changefreq: "monthly" },
   { url: "/etherlink", priority: "0.8", changefreq: "weekly" },
+  { url: "/etherlink/bridge", priority: "0.8", changefreq: "monthly" },
+  { url: "/wallets", priority: "0.8", changefreq: "monthly" },
 ];
 
 type StaticMeta = { title: string; description: string };
@@ -79,6 +81,14 @@ const STATIC_META: Record<string, StaticMeta> = {
     title: "Etherlink Hub: Tezos EVM News, Bridge & Resources | XTZ.News",
     description: "A source-led Etherlink hub for Tezos readers: XTZ.News coverage, EVM and Michelson context, bridge documentation, and official network resources.",
   },
+  "/etherlink/bridge": {
+    title: "How to Bridge XTZ to Etherlink: Timing & Safety Guide | XTZ.News",
+    description: "A plain-English Etherlink bridge explainer: deposits, withdrawals, timing context, and the official resources to review before moving XTZ between Tezos and Etherlink.",
+  },
+  "/wallets": {
+    title: "Tezos Wallet Starter Guide: First Steps for New Users | XTZ.News",
+    description: "A clear Tezos wallet starter hub for new users: official wallet setup guidance, address prefixes, read-only tools, staking context, and safe next steps.",
+  },
 };
 
 const STATIC_FAQS: Record<string, FaqItem[]> = {
@@ -110,6 +120,16 @@ const STATIC_FAQS: Record<string, FaqItem[]> = {
     { question: "What is Etherlink?", answer: "Etherlink is a non-custodial execution layer for Tezos powered by Tezos Smart Rollup technology. Its official documentation describes EVM and Michelson interfaces for the same blockchain." },
     { question: "Can I bridge XTZ between Tezos and Etherlink?", answer: "The official Etherlink bridge supports transfers between Tezos layer 1 and Etherlink EVM. Read the current official bridge instructions and timing information before initiating a transfer." },
     { question: "Is Etherlink a separate token?", answer: "Etherlink uses XTZ as its native coin. Its documentation also describes WXTZ, an ERC-20-compatible wrapped representation for use in relevant EVM applications." },
+  ],
+  "/etherlink/bridge": [
+    { question: "What does bridging XTZ to Etherlink mean?", answer: "The official Etherlink documentation calls a transfer from Tezos layer 1 to Etherlink EVM a deposit. It moves XTZ into the Etherlink EVM context so it can be used there." },
+    { question: "How long does an Etherlink bridge transfer take?", answer: "Official documentation says deposits from Tezos layer 1 are available on Etherlink immediately. Standard withdrawals back to Tezos layer 1 are normally available after 15 days; the optional fast-withdrawal path has a fee and may be available within approximately one minute." },
+    { question: "Which bridge should I use?", answer: "Use the current official Etherlink bridge and verify the website address, selected network, asset, destination, and displayed timing before confirming any transaction." },
+  ],
+  "/wallets": [
+    { question: "What is a Tezos wallet?", answer: "A Tezos wallet is an application that maintains your account and signs Tezos transactions on your behalf. Wallets allow dApp interaction without exposing the account private key." },
+    { question: "Which Tezos wallet should I use?", answer: "Wallet choice depends on your needs and preferred form factor. Consult the current official Tezos wallet documentation and each wallet provider’s own information before installing or using a wallet." },
+    { question: "What is the difference between tz1 and KT1?", answer: "Tezos user accounts can use prefixes such as tz1, tz2, tz3, or tz4. KT1 identifies a smart contract. Use the XTZ.News prefix glossary for a plain-English reference." },
   ],
 };
 

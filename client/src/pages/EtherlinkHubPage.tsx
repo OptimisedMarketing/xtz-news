@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "wouter";
-import { ArrowRight, BookOpen, ChevronRight, ExternalLink, Layers3, Route, ShieldCheck, WalletCards } from "lucide-react";
+import { ArrowRight, ArrowDownUp, BookOpen, ChevronRight, ExternalLink, Layers3, Route, ShieldCheck, WalletCards } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { buildFAQSchema, buildWebPageSchema, useSEO } from "@/hooks/useSEO";
 import { getMediaUrl } from "@/lib/mediaUrl";
@@ -71,6 +71,7 @@ export default function EtherlinkHubPage() {
               <p style={{ maxWidth: "65ch", color: "rgba(255,255,255,0.72)", lineHeight: 1.7, fontSize: "1rem", margin: 0 }}>Follow Etherlink news and technical context, then move into the official documentation for bridging, public network data, and getting started.</p>
               <div style={{ display: "flex", gap: "0.7rem", flexWrap: "wrap", marginTop: "1.4rem" }}>
                 <a href="#etherlink-coverage" style={{ background: "#2c7df7", color: "#fff", borderRadius: "8px", padding: "0.75rem 1rem", textDecoration: "none", fontWeight: 800, fontSize: "0.82rem", display: "inline-flex", alignItems: "center", gap: "0.4rem" }}>Read XTZ.News coverage <ArrowRight size={15} aria-hidden="true" /></a>
+                <Link href="/etherlink/bridge" style={{ border: "1px solid rgba(125,211,252,0.42)", color: "#c8edff", borderRadius: "8px", padding: "0.75rem 1rem", textDecoration: "none", fontWeight: 800, fontSize: "0.82rem", display: "inline-flex", alignItems: "center", gap: "0.4rem" }}><ArrowDownUp size={14} aria-hidden="true" /> Bridge explainer</Link>
                 <a href="https://docs.etherlink.com/" target="_blank" rel="noopener noreferrer" style={{ border: "1px solid rgba(255,255,255,0.23)", color: "#fff", borderRadius: "8px", padding: "0.75rem 1rem", textDecoration: "none", fontWeight: 800, fontSize: "0.82rem", display: "inline-flex", alignItems: "center", gap: "0.4rem" }}>Official docs <ExternalLink size={14} aria-hidden="true" /></a>
               </div>
             </div>
@@ -97,6 +98,12 @@ export default function EtherlinkHubPage() {
           </div>
         </section>
 
+        <section aria-labelledby="etherlink-bridge-guide-title" style={{ marginTop: "3.5rem", padding: "1.25rem", borderRadius: "13px", border: "1px solid rgba(125,211,252,0.25)", background: "linear-gradient(115deg, rgba(7,42,75,0.82), rgba(5,21,46,0.94))", display: "grid", gridTemplateColumns: "auto minmax(0,1fr) auto", gap: "1rem", alignItems: "center" }} className="etherlink-bridge-guide-promo">
+          <span aria-hidden="true" style={{ display: "grid", placeItems: "center", width: "46px", height: "46px", borderRadius: "10px", background: "rgba(125,211,252,0.14)", color: "#7dd3fc" }}><ArrowDownUp size={23} /></span>
+          <div><p style={{ margin: 0, color: "#7dd3fc", fontSize: "0.64rem", fontWeight: 900, letterSpacing: "0.12em", textTransform: "uppercase" }}>Practical guide</p><h2 id="etherlink-bridge-guide-title" style={{ margin: "0.25rem 0", fontSize: "1.2rem" }}>Understand the Etherlink bridge before you use it.</h2><p style={{ margin: 0, color: "rgba(255,255,255,0.65)", lineHeight: 1.5, fontSize: "0.84rem" }}>A clear explanation of deposits, withdrawals, timing context, and the official route to check before a transfer.</p></div>
+          <Link href="/etherlink/bridge" style={{ background: "#7dd3fc", color: "#061a39", padding: "0.7rem 0.85rem", borderRadius: "7px", fontSize: "0.76rem", fontWeight: 900, textDecoration: "none", whiteSpace: "nowrap" }}>Read explainer <ArrowRight size={14} aria-hidden="true" /></Link>
+        </section>
+
         <section id="etherlink-coverage" aria-labelledby="etherlink-coverage-title" style={{ marginTop: "3.5rem" }}>
           <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", alignItems: "end", flexWrap: "wrap", marginBottom: "1.15rem" }}>
             <div><p style={{ margin: 0, color: "#68a4ff", fontSize: "0.68rem", fontWeight: 900, letterSpacing: "0.13em", textTransform: "uppercase" }}>XTZ.News coverage</p><h2 id="etherlink-coverage-title" style={{ margin: "0.35rem 0 0", fontSize: "clamp(1.45rem, 3vw, 2.1rem)", letterSpacing: "-0.03em" }}>Etherlink news and analysis</h2></div>
@@ -113,6 +120,7 @@ export default function EtherlinkHubPage() {
 
         <section aria-label="Etherlink safety note" style={{ display: "flex", gap: "0.85rem", alignItems: "flex-start", marginTop: "3rem", padding: "1.1rem", borderRadius: "12px", border: "1px solid rgba(96,165,250,0.22)", background: "rgba(16,45,92,0.5)" }}><ShieldCheck size={22} style={{ color: "#86b9ff", flexShrink: 0 }} aria-hidden="true" /><div><strong>Keep the purpose clear.</strong><p style={{ color: "rgba(255,255,255,0.62)", margin: "0.35rem 0 0", lineHeight: 1.55, fontSize: "0.85rem" }}>This hub is for ecosystem context and official-source discovery. It does not replace current wallet, bridge, or transaction guidance from the relevant provider.</p></div></section>
       </div>
+      <style>{`@media (max-width: 700px) { .etherlink-bridge-guide-promo { grid-template-columns: auto minmax(0,1fr) !important; } .etherlink-bridge-guide-promo > a { grid-column: 1 / -1; justify-self: start; } }`}</style>
     </main>
   );
 }

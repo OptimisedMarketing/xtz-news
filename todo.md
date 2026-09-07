@@ -412,3 +412,10 @@
 - [x] Create a dedicated Etherlink resource hub with real XTZ.News coverage, clear official links, and no hardware-query contamination
 - [x] Connect the Etherlink hub through internal discovery paths and dynamic sitemap coverage
 - [x] Run regression, crawler, desktop, and mobile validation and document the SEO changes
+
+## Phase 58: Etherlink Bridge and Tezos Wallet Starter Hubs
+- [x] Verify official Etherlink bridge and Tezos wallet guidance and map existing XTZ.News content for reuse
+- [x] Publish a detailed, source-grounded Etherlink bridge explainer and link it from the Etherlink hub
+- [x] Create a comprehensive Tezos wallet starter hub with safe new-user guides and clear discovery paths
+- [x] Add SEO metadata, structured data, internal navigation, and sitemap coverage for both evergreen hubs
+- [x] Run regression, crawler, desktop, and mobile validation and document the new guide journeys
