@@ -192,6 +192,7 @@ export default function ToolsPage() {
             <div style={{ display: "flex", alignItems: "center", gap: "0.42rem", marginBottom: "0.38rem", color: "#c4b5fd", fontSize: "0.65rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase" }}><FlaskConical size={13} aria-hidden="true" /> New reader guide</div>
             <h2 id="tz5-guide-feature-title" style={{ margin: 0, color: "#fff", fontSize: "1.12rem", fontWeight: 900, letterSpacing: "-0.015em" }}>tz5 wallet guide</h2>
             <p style={{ margin: "0.35rem 0 0", color: "rgba(255,255,255,0.68)", fontSize: "0.84rem", lineHeight: 1.55 }}>Understand Tezos’ testnet-stage post-quantum account type, what it means today, and how to approach future testing safely.</p>
+            <Link href="/post-quantum" style={{ display: "inline-flex", marginTop: "0.6rem", color: "#cfc3ff", fontSize: "0.71rem", fontWeight: 800, textDecoration: "none" }}>Explore the post-quantum hub →</Link>
           </div>
           <Link href="/guides/tz5-wallet" aria-label="Read the tz5 wallet guide" style={{ display: "inline-flex", alignItems: "center", gap: "0.45rem", whiteSpace: "nowrap", color: "#fff", background: "#6654d9", padding: "0.7rem 0.9rem", borderRadius: "6px", textDecoration: "none", fontSize: "0.73rem", fontWeight: 800, letterSpacing: "0.04em", textTransform: "uppercase" }}>Read guide <ArrowRight size={15} aria-hidden="true" /></Link>
         </section>

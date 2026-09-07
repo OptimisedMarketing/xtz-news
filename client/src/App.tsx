@@ -68,6 +68,8 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import VerifyEmail from "./pages/VerifyEmail";
 import Tz5WalletGuidePage from "./pages/Tz5WalletGuidePage";
+import TezosPrefixGlossaryPage from "./pages/TezosPrefixGlossaryPage";
+import PostQuantumPage from "./pages/PostQuantumPage";
 
 function Router() {
   return (
@@ -110,6 +112,8 @@ function Router() {
       <Route path="/unsubscribe" component={UnsubscribePage} />
       <Route path="/manage-subscriptions" component={ManageSubscriptionsPage} />
       <Route path="/guides/tz5-wallet" component={Tz5WalletGuidePage} />
+      <Route path="/glossary/tezos-prefixes" component={TezosPrefixGlossaryPage} />
+      <Route path="/post-quantum" component={PostQuantumPage} />
 
       {/* Explorer routes */}
       <Route path="/explorer" component={ExplorerPage} />

@@ -391,3 +391,10 @@
 ## Phase 54: Main Navigation Home Entry
 - [x] Add a clearly labelled Home entry to the desktop and mobile primary navigation
 - [x] Validate the Home navigation entry without introducing a duplicate header or menu bar
+
+## Phase 55: Post-Quantum Discovery Hub
+- [x] Verify official prefix terminology, current post-quantum articles, and homepage integration points
+- [x] Create a searchable Tezos-prefix glossary with clear Mainnet and testnet-stage context
+- [x] Create a dedicated post-quantum landing page aggregating the article, tz5 guide, glossary, and official resources
+- [x] Feature the tz5 wallet guide prominently on the homepage and connect the new discovery paths
+- [x] Add focused regression coverage and validate the hub, glossary, and homepage feature on desktop and mobile

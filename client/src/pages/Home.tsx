@@ -7,6 +7,7 @@ import PostCard from "@/components/PostCard";
 import ForYouFeed from "@/components/ForYouFeed";
 import HomepageFilters from "@/components/HomepageFilters";
 import TezosSystemsNetworkPulse from "@/components/TezosSystemsNetworkPulse";
+import PostQuantumHomepageFeature from "@/components/PostQuantumHomepageFeature";
 import { useSEO } from "@/hooks/useSEO";
 import { getMediaUrl } from "@/lib/mediaUrl";
 import { getNewsletterConfirmationCopy } from "@/lib/newsletterConfirmation";
@@ -562,6 +563,7 @@ export default function Home() {
       </h1>
       {isLoading ? <HeroSkeleton /> : <HeroSection latestPosts={latest} mostReadPosts={mostRead} />}
       <HomepageFilters />
+      <PostQuantumHomepageFeature />
       <TezosSystemsNetworkPulse />
       <LatestNewsSection posts={latest.slice(0, 8)} weekPosts={(data as any)?.trending ?? mostRead} allTimePosts={mostRead} />
       <ForYouFeed />
