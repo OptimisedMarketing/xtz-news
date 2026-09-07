@@ -21,16 +21,18 @@ export type CrawlerTranslation = {
 export const CRAWLER_ROUTE_PREFIXES = [
   "category", "tag", "projects", "timeline", "contact", "admin", "explorer",
   "staking", "tools", "guides", "glossary", "post-quantum", "art", "prices",
-  "search", "unsubscribe", "manage-subscriptions",
+  "etherlink", "search", "unsubscribe", "manage-subscriptions",
 ];
 
 export const SEO_STATIC_PAGES = [
   { url: "/post-quantum", priority: "0.8", changefreq: "weekly" },
   { url: "/guides/tz5-wallet", priority: "0.8", changefreq: "monthly" },
   { url: "/glossary/tezos-prefixes", priority: "0.7", changefreq: "monthly" },
+  { url: "/etherlink", priority: "0.8", changefreq: "weekly" },
 ];
 
 type StaticMeta = { title: string; description: string };
+type FaqItem = { question: string; answer: string };
 
 const STATIC_META: Record<string, StaticMeta> = {
   "/": {
@@ -73,6 +75,42 @@ const STATIC_META: Record<string, StaticMeta> = {
     title: "Tezos Post-Quantum Hub | tz5, Cryptography and Network Updates | XTZ.News",
     description: "Follow Tezos post-quantum research, tz5 account guidance, explainer resources, and related XTZ.News coverage.",
   },
+  "/etherlink": {
+    title: "Etherlink Hub: Tezos EVM News, Bridge & Resources | XTZ.News",
+    description: "A source-led Etherlink hub for Tezos readers: XTZ.News coverage, EVM and Michelson context, bridge documentation, and official network resources.",
+  },
+};
+
+const STATIC_FAQS: Record<string, FaqItem[]> = {
+  "/tools/wallet": [
+    { question: "What can the Tezos Wallet Inspector show?", answer: "The XTZ.News Wallet Inspector can show public address information such as balances, tokens, NFTs, delegation and recent transactions. It does not require a private key or recovery phrase." },
+    { question: "What Tezos address prefixes might I see?", answer: "Tezos account and contract identifiers can begin with prefixes such as tz1, tz2, tz3, tz4, tz5 or KT1. Use the XTZ.News address-prefix glossary for a plain-English explanation of each family." },
+    { question: "Can I move funds with the Wallet Inspector?", answer: "No. The Wallet Inspector is read-only. It is designed to help readers understand public on-chain information without connecting or authorising a wallet." },
+  ],
+  "/staking": [
+    { question: "What is Tezos staking?", answer: "Tezos staking allows holders to delegate baking power to a validator, commonly called a baker, while retaining control of their tokens. Rewards and conditions can vary by baker and protocol rules." },
+    { question: "How can I use the Tezos staking calculator?", answer: "Use the calculator to compare public baker information and indicative reward context. Review a baker's current information and make your own decision before delegating." },
+    { question: "Is the staking calculator personalised financial advice?", answer: "No. The calculator presents public data and illustrative reward context. It does not provide personalised financial, tax, legal, or investment advice." },
+  ],
+  "/tools/rewards": [
+    { question: "What does the Tezos rewards history tool show?", answer: "The rewards tool presents available baker and delegator reward history for a public Tezos address over the selected cycles." },
+    { question: "Do historical Tezos rewards guarantee future rewards?", answer: "No. Historical reward data is context only. Baker performance, protocol conditions, fees and delegation choices can change over time." },
+  ],
+  "/prices": [
+    { question: "What does the Tezos price page show?", answer: "The XTZ.News price page displays live market context for XTZ and selected Tezos ecosystem tokens, alongside direct paths to news and practical Tezos resources." },
+    { question: "Is Tezos price information financial advice?", answer: "No. Price information is provided for general context and is not personalised financial, investment, legal, or tax advice." },
+    { question: "Where can I learn about Tezos beyond market data?", answer: "Readers can use the linked Tezos Explorer, Wallet Inspector, staking guide, and source-led XTZ.News coverage to explore the ecosystem further." },
+  ],
+  "/explorer": [
+    { question: "What can I search in the Tezos Explorer?", answer: "The XTZ.News Tezos Explorer supports public on-chain discovery for blocks, transactions, common Tezos addresses, bakers and token activity." },
+    { question: "Do I need to connect a wallet to use the Tezos Explorer?", answer: "No. The Explorer is a public, read-only discovery tool and does not require a wallet connection to look up available chain information." },
+    { question: "How can I understand a Tezos address prefix?", answer: "Use the linked Tezos address-prefix glossary for a plain-English reference to common account, contract and rollup address families." },
+  ],
+  "/etherlink": [
+    { question: "What is Etherlink?", answer: "Etherlink is a non-custodial execution layer for Tezos powered by Tezos Smart Rollup technology. Its official documentation describes EVM and Michelson interfaces for the same blockchain." },
+    { question: "Can I bridge XTZ between Tezos and Etherlink?", answer: "The official Etherlink bridge supports transfers between Tezos layer 1 and Etherlink EVM. Read the current official bridge instructions and timing information before initiating a transfer." },
+    { question: "Is Etherlink a separate token?", answer: "Etherlink uses XTZ as its native coin. Its documentation also describes WXTZ, an ERC-20-compatible wrapped representation for use in relevant EVM applications." },
+  ],
 };
 
 const stripHtml = (value: string) => value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
@@ -88,6 +126,10 @@ export function toRelayedMediaUrl(value: string | null, baseUrl: string): string
 
 export function getCrawlerStaticMeta(pathname: string): StaticMeta {
   return STATIC_META[pathname] || STATIC_META["/"];
+}
+
+export function getCrawlerStaticFaqs(pathname: string): FaqItem[] {
+  return STATIC_FAQS[pathname] || [];
 }
 
 export function renderCrawlerHtml({
@@ -152,6 +194,17 @@ export function renderCrawlerHtml({
     ],
   } : undefined;
 
+  const staticFaqs = article ? [] : getCrawlerStaticFaqs(pathname);
+  const faqSchema = staticFaqs.length ? {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: staticFaqs.map(({ question, answer }) => ({
+      "@type": "Question",
+      name: question,
+      acceptedAnswer: { "@type": "Answer", text: answer },
+    })),
+  } : undefined;
+
   const alternates = article
     ? [
         `<link rel="alternate" hreflang="en" href="${baseUrl}/${article.slug}" />`,
@@ -185,6 +238,7 @@ export function renderCrawlerHtml({
     modified ? `<meta property="article:modified_time" content="${modified}" />` : "",
     articleSchema ? `<script type="application/ld+json">${JSON.stringify(articleSchema)}</script>` : "",
     breadcrumbSchema ? `<script type="application/ld+json">${JSON.stringify(breadcrumbSchema)}</script>` : "",
+    faqSchema ? `<script type="application/ld+json">${JSON.stringify(faqSchema)}</script>` : "",
   ].filter(Boolean).join("\n    ");
 
   return rendered.replace("</head>", `    ${extraHead}\n  </head>`);

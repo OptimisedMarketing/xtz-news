@@ -405,3 +405,10 @@
 - [x] Repair crawler-visible canonical, NewsArticle schema, hreflang, media, sitemap, and route-normalisation coverage for priority routes
 - [x] Improve the selected high-intent Tezos content clusters and descriptive internal discovery paths
 - [x] Run full regression and crawler-style validation, then record the SEO implementation and measurement hand-off
+
+## Phase 57: Tool FAQs and Etherlink Resource Hub
+- [x] Verify priority tool-page FAQ coverage and filter Etherlink keyword evidence for ecosystem relevance
+- [x] Add crawler-visible FAQPage schema to the priority wallet, staking, price, and explorer routes
+- [x] Create a dedicated Etherlink resource hub with real XTZ.News coverage, clear official links, and no hardware-query contamination
+- [x] Connect the Etherlink hub through internal discovery paths and dynamic sitemap coverage
+- [x] Run regression, crawler, desktop, and mobile validation and document the SEO changes

@@ -10,4 +10,12 @@ describe("primary navigation", () => {
     const readSection = MOBILE_SECTIONS.find((section) => section.label === "Read");
     expect(readSection?.items[0]).toMatchObject({ label: "Home", href: "/" });
   });
+
+  it("keeps the Etherlink hub discoverable in desktop and mobile Explore navigation", () => {
+    const desktopExplore = NAV_ITEMS.find((item) => item.label === "EXPLORE");
+    const mobileExplore = MOBILE_SECTIONS.find((section) => section.label === "Explore");
+
+    expect(desktopExplore?.children).toEqual(expect.arrayContaining([{ label: "ETHERLINK HUB", href: "/etherlink" }]));
+    expect(mobileExplore?.items).toEqual(expect.arrayContaining([{ label: "Etherlink Hub", href: "/etherlink" }]));
+  });
 });
