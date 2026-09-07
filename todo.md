@@ -432,3 +432,8 @@
 - [x] Add an interactive reader-side baker checklist without recommendations, scores, or investment claims
 - [x] Extend glossary definitions safely to newsletter archive content without breaking newsletter components or links
 - [x] Add focused regression coverage and validate the checklist and glossary treatment on desktop and mobile
+
+## Phase 61: Recurring Vite Preview WebSocket Repair
+- [x] Inspect the active HMR configuration and reproduce the proxied preview connection failure
+- [x] Apply a proxy-compatible repair without altering published-site traffic
+- [x] Validate the local and HTTPS preview connection and document the resolution

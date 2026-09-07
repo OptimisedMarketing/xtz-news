@@ -6,19 +6,15 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import viteConfig from "../../vite.config";
 
-export async function setupVite(app: Express, server: Server) {
+export async function setupVite(app: Express, _server: Server) {
   const serverOptions = {
     middlewareMode: true,
-    // Browsers may access the dev app either through the HTTPS preview proxy
-    // or directly over local HTTP. Let Vite derive ws/wss and the port from
-    // the loaded client URL so neither path is forced onto the wrong scheme.
-    hmr: {
-      server,
-      // Keep upgrades off the document root. The managed HTTPS preview proxy
-      // forwards a dedicated path more reliably during browser reconnects.
-      path: "/__vite_hmr",
-      timeout: 30000,
-    },
+    // The managed preview proxy serves the application HTTP traffic but does
+    // not reliably forward this custom middleware-mode WebSocket upgrade.
+    // HMR is therefore disabled only for development preview: source changes
+    // still rebuild and readers can refresh normally, without a noisy or
+    // repeatedly failing localhost:5173 socket in their browser console.
+    hmr: false,
     allowedHosts: true as const,
   };
 
@@ -47,7 +43,14 @@ export async function setupVite(app: Express, server: Server) {
         `src="/src/main.tsx"`,
         `src="/src/main.tsx?v=${nanoid()}"`
       );
-      const page = await vite.transformIndexHtml(url, template);
+      // Vite still injects /@vite/client in middleware mode even when HMR is
+      // disabled. Remove that development-only client explicitly: it would
+      // otherwise attempt an unavailable preview-proxy WebSocket despite the
+      // HMR setting above. Ordinary module and stylesheet loading is unchanged.
+      const page = (await vite.transformIndexHtml(url, template)).replace(
+        /<script\s+type="module"\s+src="\/@vite\/client"><\/script>\s*/,
+        ""
+      );
       res.status(200).set({ "Content-Type": "text/html" }).end(page);
     } catch (e) {
       vite.ssrFixStacktrace(e as Error);
