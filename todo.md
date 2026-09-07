@@ -441,5 +441,6 @@
 ## Phase 62: Monthly Subscriber News Digest
 - [x] Inspect the existing weekly digest endpoint, current cloud schedule, and subscriber safeguards
 - [x] Replace the weekly article window and copy with a previous-calendar-month digest that includes all published monthly articles
+- [ ] Replace the stale legacy scheduler credential with a dedicated signed cloud authentication path
 - [ ] Retire the weekly schedule and activate an idempotent monthly cloud schedule at the agreed delivery time
 - [ ] Validate a no-send dry run, delivery guards, content selection, tests, and production scheduler status

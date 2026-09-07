@@ -527,11 +527,21 @@ ${items}
   // ─── Monthly Newsletter Digest ─────────────────────────────────────────────────
   app.post("/api/scheduled/monthly-digest", async (req, res) => {
     try {
-      // Allow cloud computer to call with CRON_SECRET_KEY header
+      // Legacy CRON_SECRET_KEY callers remain valid during the transition, but
+      // the dedicated cloud scheduler now uses a fresh signed request instead.
       const cronSecret = process.env.CRON_SECRET_KEY;
       const headerSecret = req.headers["x-cron-secret"];
       const isCloudCron = cronSecret && headerSecret === cronSecret;
-      if (!isCloudCron) {
+      const { isValidMonthlyDigestPayload, verifyMonthlyDigestScheduleSignature } = await import("../monthlyDigestScheduler");
+      const { MONTHLY_DIGEST_SCHEDULER_PUBLIC_KEY } = await import("../monthlyDigestSchedulerPublicKey");
+      const schedulerPayload = req.body as { deliveryId?: string; sentAt?: string; dryRun?: boolean };
+      const isSignedCloudCron = isValidMonthlyDigestPayload(schedulerPayload as any)
+        && verifyMonthlyDigestScheduleSignature(
+          schedulerPayload as any,
+          req.header("X-XTZ-Monthly-Digest-Signature") ?? undefined,
+          MONTHLY_DIGEST_SCHEDULER_PUBLIC_KEY,
+        );
+      if (!isCloudCron && !isSignedCloudCron) {
         const { sdk } = await import("./sdk");
         const user = await sdk.authenticateRequest(req);
         if (!user.isCron) return res.status(403).json({ error: "cron-only" });
@@ -571,7 +581,7 @@ ${items}
 
       if (!subscribers.length) return res.json({ ok: true, digestPeriod, skipped: "no-subscribers" });
 
-      const isDryRun = req.query.dry_run === "1";
+      const isDryRun = schedulerPayload?.dryRun === true || req.query.dry_run === "1";
       if (isDryRun) {
         return res.json({
           ok: true,
