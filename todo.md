@@ -437,3 +437,9 @@
 - [x] Inspect the active HMR configuration and reproduce the proxied preview connection failure
 - [x] Apply a proxy-compatible repair without altering published-site traffic
 - [x] Validate the local and HTTPS preview connection and document the resolution
+
+## Phase 62: Monthly Subscriber News Digest
+- [x] Inspect the existing weekly digest endpoint, current cloud schedule, and subscriber safeguards
+- [x] Replace the weekly article window and copy with a previous-calendar-month digest that includes all published monthly articles
+- [ ] Retire the weekly schedule and activate an idempotent monthly cloud schedule at the agreed delivery time
+- [ ] Validate a no-send dry run, delivery guards, content selection, tests, and production scheduler status

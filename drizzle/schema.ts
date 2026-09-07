@@ -296,6 +296,26 @@ export const newsletterSubscribers = mysqlTable(
 
 export type NewsletterSubscriber = typeof newsletterSubscribers.$inferSelect;
 
+// ─── Newsletter Monthly Digest Deliveries ──────────────────────────────────────
+// Records a successful subscriber-period delivery so scheduled retries cannot
+// send the same month's digest twice once Resend has accepted it.
+export const newsletterMonthlyDigestDeliveries = mysqlTable(
+  "newsletter_monthly_digest_deliveries",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    subscriberId: int("subscriberId").notNull(),
+    digestPeriod: varchar("digestPeriod", { length: 7 }).notNull(), // YYYY-MM
+    resendEmailId: varchar("resendEmailId", { length: 255 }),
+    sentAt: timestamp("sentAt").defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("newsletter_monthly_digest_subscriber_period_idx").on(t.subscriberId, t.digestPeriod),
+    index("newsletter_monthly_digest_period_idx").on(t.digestPeriod),
+  ]
+);
+
+export type NewsletterMonthlyDigestDelivery = typeof newsletterMonthlyDigestDeliveries.$inferSelect;
+
 // ─── Site Settings ────────────────────────────────────────────────────────────
 export const siteSettings = mysqlTable("site_settings", {
   id: int("id").autoincrement().primaryKey(),

@@ -524,8 +524,8 @@ ${items}
     res.send("xtz-news-indexnow-2026");
   });
 
-  // ─── Weekly Newsletter Digest ──────────────────────────────────────────────────
-  app.post("/api/scheduled/weekly-digest", async (req, res) => {
+  // ─── Monthly Newsletter Digest ─────────────────────────────────────────────────
+  app.post("/api/scheduled/monthly-digest", async (req, res) => {
     try {
       // Allow cloud computer to call with CRON_SECRET_KEY header
       const cronSecret = process.env.CRON_SECRET_KEY;
@@ -538,35 +538,56 @@ ${items}
       }
 
       const { getDb } = await import("../db");
-      const { posts, newsletterSubscribers } = await import("../../drizzle/schema");
-      const { eq, desc } = await import("drizzle-orm");
+      const { posts, newsletterMonthlyDigestDeliveries, newsletterSubscribers } = await import("../../drizzle/schema");
+      const { and, asc, eq, gte, lt } = await import("drizzle-orm");
+      const { getPreviousCalendarMonth } = await import("../monthlyDigest");
       const db = await getDb();
       if (!db) return res.json({ ok: true, skipped: "no-db" });
 
-      // Get top 5 posts from the last 7 days
-      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-      const topPosts = await db.select({
+      const { digestPeriod, end, label, start } = getPreviousCalendarMonth();
+      const monthlyPosts = await db.select({
         id: posts.id, title: posts.title, slug: posts.slug,
         excerpt: posts.excerpt, featuredImageUrl: posts.featuredImageUrl,
         publishedAt: posts.publishedAt,
       })
         .from(posts)
-        .where(eq(posts.status, "publish"))
-        .orderBy(desc(posts.publishedAt))
-        .limit(5);
+        .where(and(
+          eq(posts.status, "publish"),
+          gte(posts.publishedAt, start),
+          lt(posts.publishedAt, end),
+        ))
+        .orderBy(asc(posts.publishedAt));
 
-      if (!topPosts.length) return res.json({ ok: true, skipped: "no-posts" });
+      if (!monthlyPosts.length) return res.json({ ok: true, digestPeriod, skipped: "no-posts" });
 
       // Get all active subscribers (with unsubToken for personalised footer links)
-      const subscribers = await db.select({ email: newsletterSubscribers.email, unsubToken: newsletterSubscribers.unsubToken })
+      const subscribers = await db.select({
+        id: newsletterSubscribers.id,
+        email: newsletterSubscribers.email,
+        unsubToken: newsletterSubscribers.unsubToken,
+      })
         .from(newsletterSubscribers)
         .where(eq(newsletterSubscribers.status, "active"));
 
-      if (!subscribers.length) return res.json({ ok: true, skipped: "no-subscribers" });
+      if (!subscribers.length) return res.json({ ok: true, digestPeriod, skipped: "no-subscribers" });
+
+      const isDryRun = req.query.dry_run === "1";
+      if (isDryRun) {
+        return res.json({
+          ok: true,
+          dryRun: true,
+          digestPeriod,
+          month: label,
+          articleCount: monthlyPosts.length,
+          subscriberCount: subscribers.length,
+          firstArticle: monthlyPosts[0]?.slug ?? null,
+          lastArticle: monthlyPosts.at(-1)?.slug ?? null,
+        });
+      }
 
       // Build the email HTML (per-subscriber for personalised footer links)
       const baseUrl = "https://xtz.news";
-      const articlesHtml = topPosts.map(p => {
+      const articlesHtml = monthlyPosts.map(p => {
         const excerpt = (p.excerpt || "").replace(/<[^>]*>/g, "").slice(0, 120);
         const img = p.featuredImageUrl ? `<img src="${p.featuredImageUrl.startsWith('/') ? baseUrl + p.featuredImageUrl.replace(/^\/manus-storage\//, '/media/') : p.featuredImageUrl}" style="width:100%;max-height:200px;object-fit:cover;border-radius:6px;margin-bottom:12px" />` : "";
         return `<div style="margin-bottom:28px;padding-bottom:28px;border-bottom:1px solid rgba(255,255,255,0.08)">${img}<h3 style="margin:0 0 8px;font-size:17px;font-weight:700;color:#fff"><a href="${baseUrl}/${p.slug}" style="color:#fff;text-decoration:none">${p.title}</a></h3><p style="margin:0 0 12px;font-size:14px;color:rgba(255,255,255,0.6);line-height:1.6">${excerpt}...</p><a href="${baseUrl}/${p.slug}" style="display:inline-block;padding:8px 18px;background:#2c7df7;color:#fff;text-decoration:none;border-radius:4px;font-size:13px;font-weight:600">Read More</a></div>`;
@@ -575,42 +596,84 @@ ${items}
       const buildDigestHtml = (token: string | null) => {
         const manageUrl = token ? `${baseUrl}/manage-subscriptions?token=${token}` : `${baseUrl}`;
         const unsubUrl = token ? `${baseUrl}/unsubscribe?token=${token}` : `${baseUrl}`;
-        return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:0;background:#000;font-family:Arial,sans-serif"><div style="max-width:600px;margin:0 auto;padding:20px"><div style="text-align:center;padding:24px 0;border-bottom:2px solid #2c7df7;margin-bottom:28px"><img src="${baseUrl}/media/xtz-logo-square_c6689606.png" alt="XTZ.News" style="height:60px" /><h1 style="color:#fff;font-size:22px;margin:12px 0 4px">XTZ.News Weekly Digest</h1><p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0">Your weekly roundup of Tezos news</p></div>${articlesHtml}<div style="text-align:center;padding:20px 0;border-top:1px solid rgba(255,255,255,0.08);margin-top:8px"><p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0 0 8px">You're receiving this because you subscribed to XTZ.News. <a href="${baseUrl}" style="color:#2c7df7">Visit XTZ.News</a></p><p style="color:rgba(255,255,255,0.2);font-size:11px;margin:0"><a href="${manageUrl}" style="color:#2c7df7;text-decoration:none">Manage preferences</a> &nbsp;·&nbsp; <a href="${unsubUrl}" style="color:rgba(255,255,255,0.3);text-decoration:none">Unsubscribe</a></p></div></div></body></html>`;
+        return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:0;background:#000;font-family:Arial,sans-serif"><div style="max-width:600px;margin:0 auto;padding:20px"><div style="text-align:center;padding:24px 0;border-bottom:2px solid #2c7df7;margin-bottom:28px"><img src="${baseUrl}/media/xtz-logo-square_c6689606.png" alt="XTZ.News" style="height:60px" /><h1 style="color:#fff;font-size:22px;margin:12px 0 4px">XTZ.News Monthly Digest</h1><p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0">Every XTZ.News story published in ${label}</p></div><p style="color:rgba(255,255,255,0.7);font-size:14px;line-height:1.6;margin:0 0 24px">Here is your complete monthly Tezos news roundup: ${monthlyPosts.length} published ${monthlyPosts.length === 1 ? "story" : "stories"} from ${label}.</p>${articlesHtml}<div style="text-align:center;padding:20px 0;border-top:1px solid rgba(255,255,255,0.08);margin-top:8px"><p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0 0 8px">You're receiving this because you subscribed to XTZ.News. <a href="${baseUrl}" style="color:#2c7df7">Visit XTZ.News</a></p><p style="color:rgba(255,255,255,0.2);font-size:11px;margin:0"><a href="${manageUrl}" style="color:#2c7df7;text-decoration:none">Manage preferences</a> &nbsp;·&nbsp; <a href="${unsubUrl}" style="color:rgba(255,255,255,0.3);text-decoration:none">Unsubscribe</a></p></div></div></body></html>`;
       }
 
       // Send via Resend if available, otherwise notify owner
       const RESEND_API_KEY = process.env.RESEND_API_KEY;
       let sent = 0;
+      let alreadyDelivered = 0;
+      const failures: string[] = [];
       if (RESEND_API_KEY) {
-        // Send individually so each email has personalised unsubscribe link
-        const batchSize = 50;
-        for (let i = 0; i < subscribers.length; i += batchSize) {
-          const batch = subscribers.slice(i, i + batchSize);
-          await Promise.all(batch.map((s: any) =>
-            fetch("https://api.resend.com/emails", {
-              method: "POST",
-              headers: { "Authorization": `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-              body: JSON.stringify({
-                from: "XTZ.News <newsletter@xtz.news>",
-                to: [s.email],
-                subject: `📰 XTZ.News Weekly Digest — Top Tezos Stories`,
-                html: buildDigestHtml(s.unsubToken),
-              }),
-            })
-          ));
-          sent += batch.length;
+        // Each delivery has both a durable local record and a stable Resend
+        // idempotency key, making the scheduled endpoint safe to run again.
+        for (const subscriber of subscribers) {
+          const [existingDelivery] = await db.select({ id: newsletterMonthlyDigestDeliveries.id })
+            .from(newsletterMonthlyDigestDeliveries)
+            .where(and(
+              eq(newsletterMonthlyDigestDeliveries.subscriberId, subscriber.id),
+              eq(newsletterMonthlyDigestDeliveries.digestPeriod, digestPeriod),
+            ))
+            .limit(1);
+
+          if (existingDelivery) {
+            alreadyDelivered += 1;
+            continue;
+          }
+
+          const resendResponse = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${RESEND_API_KEY}`,
+              "Content-Type": "application/json",
+              "Idempotency-Key": `xtz-monthly-digest:${digestPeriod}:${subscriber.id}`,
+            },
+            body: JSON.stringify({
+              from: "XTZ.News <newsletter@xtz.news>",
+              to: [subscriber.email],
+              subject: `📰 XTZ.News Monthly Digest — ${label}`,
+              html: buildDigestHtml(subscriber.unsubToken),
+            }),
+          });
+
+          if (!resendResponse.ok) {
+            failures.push(`${subscriber.id}:${resendResponse.status}`);
+            continue;
+          }
+
+          const resendPayload = await resendResponse.json().catch(() => null) as { id?: string } | null;
+          await db.insert(newsletterMonthlyDigestDeliveries).values({
+            subscriberId: subscriber.id,
+            digestPeriod,
+            resendEmailId: resendPayload?.id ?? null,
+          }).onDuplicateKeyUpdate({
+            set: { resendEmailId: resendPayload?.id ?? null },
+          });
+          sent += 1;
         }
       } else {
         const { notifyOwner } = await import("./notification");
         await notifyOwner({
-          title: `Weekly Digest Ready — ${topPosts.length} articles, ${subscribers.length} subscribers`,
-          content: `Top articles this week:\n${topPosts.map((p: any, i: number) => `${i+1}. ${p.title} — ${baseUrl}/${p.slug}`).join("\n")}\n\nSubscribers: ${subscribers.length}\nNote: Set RESEND_API_KEY to enable actual email delivery.`,
+          title: `Monthly Digest Ready — ${monthlyPosts.length} articles, ${subscribers.length} subscribers`,
+          content: `Published in ${label}:\n${monthlyPosts.map((p: any, i: number) => `${i + 1}. ${p.title} — ${baseUrl}/${p.slug}`).join("\n")}\n\nSubscribers: ${subscribers.length}\nNote: Set RESEND_API_KEY to enable actual email delivery.`,
         });
       }
 
-      res.json({ ok: true, articles: topPosts.length, subscribers: subscribers.length, sent });
+      if (failures.length) {
+        return res.status(502).json({
+          error: "monthly-digest-partial-delivery",
+          digestPeriod,
+          articles: monthlyPosts.length,
+          subscribers: subscribers.length,
+          sent,
+          alreadyDelivered,
+          failures,
+        });
+      }
+
+      res.json({ ok: true, digestPeriod, articles: monthlyPosts.length, subscribers: subscribers.length, sent, alreadyDelivered });
     } catch (e: any) {
-      console.error("[weekly-digest] error:", e);
+      console.error("[monthly-digest] error:", e);
       res.status(500).json({ error: e.message, timestamp: new Date().toISOString() });
     }
   });

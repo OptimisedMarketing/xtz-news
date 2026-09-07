@@ -64,6 +64,13 @@
       "when": 1788211244520,
       "tag": "0008_sharp_luckman",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1788795884007,
+      "tag": "0009_naive_malice",
+      "breakpoints": true
     }
   ]
 }
