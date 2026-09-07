@@ -454,3 +454,10 @@
 ## Phase 64: Monthly Digest Reader-Facing Copy
 - [x] Replace residual weekly-digest wording in newsletter surfaces with the approved monthly prior-calendar-month cadence
 - [x] Add regression coverage and validate the corrected signed-in homepage newsletter copy
+
+## Phase 65: Kento Art-Collecting Story
+- [x] Verify the supplied objkt, Kento, Kickstarter, and social-source claims
+- [x] Prepare a source-grounded Kento article with SEO metadata and bullet Key Takeaways
+- [x] Use the user-supplied final Kickstarter milestone visual as the featured image through the reliable media relay
+- [x] Publish the story with appropriate taxonomy, durable source links, and clear campaign-status framing
+- [x] Run regression checks and validate the published article on desktop and mobile
