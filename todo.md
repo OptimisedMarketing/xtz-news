@@ -461,3 +461,15 @@
 - [x] Use the user-supplied final Kickstarter milestone visual as the featured image through the reliable media relay
 - [x] Publish the story with appropriate taxonomy, durable source links, and clear campaign-status framing
 - [x] Run regression checks and validate the published article on desktop and mobile
+
+## Phase 66: Kento Directory, Campaign Updates, and Related Reading
+- [ ] Verify Kento directory details, official Kickstarter campaign-update sources, and art-collecting related-story candidates
+- [ ] Add Kento to the Projects directory with an official link, durable visual, and direct link to the XTZ.News article
+- [ ] Build a source-aware Kento Kickstarter campaign-update tracker without fabricating live milestones
+- [ ] Surface the latest dated Kento campaign metrics on the XTZ.News homepage without presenting them as real-time donations
+- [ ] Tailor the Kento article bottom related-reading section to art-collecting and objkt coverage
+- [ ] Add focused tests and validate directory, campaign status, article links, and related reading on desktop and mobile
+
+## Phase 67: Kento Fundraising-Led Headline
+- [x] Replace the Kento article title and SEO fields with verified early-campaign milestone wording
+- [x] Validate the updated headline and metadata on the published article

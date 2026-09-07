@@ -5,12 +5,12 @@
 | Field | Proposed value |
 | --- | --- |
 | Slug | `kento-objkt-physical-digital-art-cards-kickstarter` |
-| Title | `Kento Brings Objkt’s Digital-Art Network Into Physical Card Packs` |
+| Title | `Kento Raises Over $100K in 24 Hours as Objkt Art Cards Hit Kickstarter` |
 | Excerpt | `Kento, a physical art-card project from the team behind objkt, is live on Kickstarter with a Web Nostalgia first season that connects collectible packs to original digital artworks.` |
 | Categories | Latest News; Art; NFTs |
 | Tags | Kento; objkt; Tezos; Digital Art; Collectibles; Kickstarter; NFTs |
-| SEO title | `Kento Brings Digital Art to Collectible Cards | XTZ.News` |
-| SEO description | `Kento, from the team behind objkt, is live on Kickstarter with physical art-card packs tied to a Web Nostalgia collection of digital art.` |
+| SEO title | `Kento Raises $100K in 24 Hours on Kickstarter | XTZ.News` |
+| SEO description | `Kento, the physical art-card project from the team behind objkt, says it raised over $100,000 in its first 24 hours on Kickstarter.` |
 | Featured image | User-supplied Kickstarter milestone visual: `kento-kickstarter-100k-milestone_349737b8.png` |
 | Featured-image alt text | `Kento Kickstarter milestone visual reading “over $100,000 raised in 24 hours”, shown over a collage of physical art cards.` |
 
