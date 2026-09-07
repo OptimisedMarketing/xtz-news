@@ -11,6 +11,9 @@ import { toolsRouter } from "./toolsRouter";
 import { translationsRouter } from "./translationsRouter";
 import { preferencesRouter } from "./preferencesRouter";
 import { customAuthRouter } from "./customAuthRouter";
+import { executeMonthlyDigest } from "./monthlyDigestRouter";
+import { isValidMonthlyDigestPayload, verifyMonthlyDigestScheduleSignature } from "./monthlyDigestScheduler";
+import { MONTHLY_DIGEST_SCHEDULER_PUBLIC_KEY } from "./monthlyDigestSchedulerPublicKey";
 
 // ─── Admin guard ──────────────────────────────────────────────────────────────
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -788,6 +791,26 @@ const audioRouter = router({
 });
 // ─────────────────────────────────────────────────────────────────────────────
 
+const monthlyDigestRouter = router({
+  run: publicProcedure
+    .input(z.object({
+      payload: z.object({
+        deliveryId: z.string(),
+        sentAt: z.string(),
+        dryRun: z.boolean(),
+      }),
+      signature: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      if (!isValidMonthlyDigestPayload(input.payload) || !verifyMonthlyDigestScheduleSignature(input.payload, input.signature, MONTHLY_DIGEST_SCHEDULER_PUBLIC_KEY)) {
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid monthly digest scheduler signature" });
+      }
+      const result = await executeMonthlyDigest(input.payload);
+      if (!result.ok) throw new TRPCError({ code: "BAD_GATEWAY", message: "Monthly digest delivery was partial" });
+      return result;
+    }),
+});
+
 // ─── App Router ───────────────────────────────────────────────────────────────
 export const appRouter = router({
   system: systemRouter,
@@ -817,5 +840,6 @@ export const appRouter = router({
   translations: translationsRouter,
   preferences: preferencesRouter,
   customAuth: customAuthRouter,
+  monthlyDigest: monthlyDigestRouter,
 })
 export type AppRouter = typeof appRouter;
