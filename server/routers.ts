@@ -396,6 +396,36 @@ const submissionsRouter = router({
     }),
 });
 
+// ─── Art on Tezos Editorial Submissions ──────────────────────────────────────
+const artProjectSubmissionsRouter = router({
+  create: publicProcedure
+    .input(z.object({
+      submitterName: z.string().trim().min(2).max(255),
+      submitterEmail: z.string().trim().email().max(320),
+      submitterType: z.enum(["artist", "gallery", "collective", "other"]),
+      projectName: z.string().trim().min(2).max(500),
+      projectType: z.enum(["exhibition", "marketplace", "creator_tool", "other"]),
+      websiteUrl: z.string().trim().url().max(2000),
+      description: z.string().trim().min(40).max(1600),
+      agreedToReview: z.literal(true),
+    }))
+    .mutation(async ({ input }) => {
+      await db.createArtProjectSubmission(input);
+      await notifyOwner({
+        title: `Art on Tezos project submission: ${input.projectName}`,
+        content: `A new Art on Tezos submission is ready for review.\n\nProject: ${input.projectName}\nGroup: ${input.projectType}\nSubmitted by: ${input.submitterName} (${input.submitterType})\nEmail: ${input.submitterEmail}\nWebsite: ${input.websiteUrl}\n\nDescription:\n${input.description}\n\nThe submission is pending editorial review and has not been published.`,
+      }).catch(() => {});
+      return { success: true } as const;
+    }),
+  list: adminProcedure.query(() => db.getAllArtProjectSubmissions()),
+  updateStatus: adminProcedure
+    .input(z.object({ id: z.number(), status: z.enum(["pending", "reviewed", "approved", "rejected"]), notes: z.string().max(2000).optional() }))
+    .mutation(async ({ input }) => {
+      await db.updateArtProjectSubmissionStatus(input.id, input.status, input.notes);
+      return { success: true } as const;
+    }),
+});
+
 // ─── Newsletter Router ───────────────────────────────────────────────────────
 const newsletterRouter = router({
   subscribe: publicProcedure
@@ -829,6 +859,7 @@ export const appRouter = router({
   events: eventsRouter,
   pages: pagesRouter,
   submissions: submissionsRouter,
+  artProjectSubmissions: artProjectSubmissionsRouter,
   newsletter: newsletterRouter,
   prices: priceRouter,
   upload: uploadRouter,

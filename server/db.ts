@@ -12,6 +12,7 @@ import {
   events, Event,
   pages, Page,
   articleSubmissions, ArticleSubmission,
+  artProjectSubmissions, ArtProjectSubmission,
   siteSettings,
   postTranslations,
   translationImportDeliveries,
@@ -630,6 +631,25 @@ export async function updateSubmissionStatus(id: number, status: "pending" | "re
   const db = await getDb();
   if (!db) return;
   await db.update(articleSubmissions).set({ status, ...(notes ? { adminNotes: notes } : {}) }).where(eq(articleSubmissions.id, id));
+}
+
+// ─── Art on Tezos Editorial Submissions ───────────────────────────────────────
+export async function createArtProjectSubmission(data: typeof artProjectSubmissions.$inferInsert) {
+  const db = await getDb();
+  if (!db) return null;
+  return db.insert(artProjectSubmissions).values(data);
+}
+
+export async function getAllArtProjectSubmissions(): Promise<ArtProjectSubmission[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(artProjectSubmissions).orderBy(desc(artProjectSubmissions.createdAt));
+}
+
+export async function updateArtProjectSubmissionStatus(id: number, status: "pending" | "reviewed" | "approved" | "rejected", notes?: string) {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(artProjectSubmissions).set({ status, ...(notes ? { adminNotes: notes } : {}) }).where(eq(artProjectSubmissions.id, id));
 }
 
 // ─── Site Settings ────────────────────────────────────────────────────────────

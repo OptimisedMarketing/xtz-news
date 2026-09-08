@@ -43,6 +43,9 @@ vi.mock("./db", () => ({
   createSubmission: vi.fn().mockResolvedValue({}),
   getAllSubmissions: vi.fn().mockResolvedValue([]),
   updateSubmissionStatus: vi.fn().mockResolvedValue(undefined),
+  createArtProjectSubmission: vi.fn().mockResolvedValue({}),
+  getAllArtProjectSubmissions: vi.fn().mockResolvedValue([]),
+  updateArtProjectSubmissionStatus: vi.fn().mockResolvedValue(undefined),
   getSetting: vi.fn().mockResolvedValue(null),
   setSetting: vi.fn().mockResolvedValue(undefined),
   upsertUser: vi.fn().mockResolvedValue(undefined),
@@ -223,6 +226,30 @@ describe("submissions", () => {
     const caller = appRouter.createCaller(makeAdminCtx());
     const result = await caller.submissions.list();
     expect(Array.isArray(result)).toBe(true);
+  });
+});
+
+describe("artProjectSubmissions", () => {
+  const submission = {
+    submitterName: "Ada Artist",
+    submitterEmail: "ada@example.com",
+    submitterType: "artist" as const,
+    projectName: "Ada Studio",
+    projectType: "creator_tool" as const,
+    websiteUrl: "https://ada.example",
+    description: "A source-grounded Tezos art profile with a useful official starting point for readers.",
+    agreedToReview: true as const,
+  };
+
+  it("stores a complete consented project submission for editorial review", async () => {
+    const caller = appRouter.createCaller(makePublicCtx());
+    await expect(caller.artProjectSubmissions.create(submission)).resolves.toEqual({ success: true });
+  });
+
+  it("requires explicit review consent and protects the editorial queue", async () => {
+    const caller = appRouter.createCaller(makePublicCtx());
+    await expect(caller.artProjectSubmissions.create({ ...submission, agreedToReview: false })).rejects.toThrow();
+    await expect(caller.artProjectSubmissions.list()).rejects.toThrow();
   });
 });
 

@@ -279,6 +279,25 @@ export const articleSubmissions = mysqlTable("article_submissions", {
 
 export type ArticleSubmission = typeof articleSubmissions.$inferSelect;
 
+// ─── Art on Tezos Editorial Submissions ───────────────────────────────────────
+// Public submissions are held for editorial review and are never published automatically.
+export const artProjectSubmissions = mysqlTable("art_project_submissions", {
+  id: int("id").autoincrement().primaryKey(),
+  submitterName: varchar("submitterName", { length: 255 }).notNull(),
+  submitterEmail: varchar("submitterEmail", { length: 320 }).notNull(),
+  submitterType: mysqlEnum("submitterType", ["artist", "gallery", "collective", "other"]).notNull(),
+  projectName: varchar("projectName", { length: 500 }).notNull(),
+  projectType: mysqlEnum("projectType", ["exhibition", "marketplace", "creator_tool", "other"]).notNull(),
+  websiteUrl: text("websiteUrl").notNull(),
+  description: text("description").notNull(),
+  agreedToReview: boolean("agreedToReview").default(false).notNull(),
+  status: mysqlEnum("status", ["pending", "reviewed", "approved", "rejected"]).default("pending").notNull(),
+  adminNotes: text("adminNotes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (t) => [index("art_project_submissions_status_idx").on(t.status), index("art_project_submissions_created_idx").on(t.createdAt)]);
+
+export type ArtProjectSubmission = typeof artProjectSubmissions.$inferSelect;
+
 // ─── Newsletter Subscribers ─────────────────────────────────────────────────────
 export const newsletterSubscribers = mysqlTable(
   "newsletter_subscribers",

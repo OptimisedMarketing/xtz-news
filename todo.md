@@ -483,3 +483,9 @@
 ## Phase 69: Kento Milestone Attribution Correction
 - [x] Revise Kento’s campaign-milestone image wording to avoid implying direct supply to XTZ.News
 - [x] Validate the corrected reader-facing wording and preserve the early-milestone/live-total distinction
+
+## Phase 70: Art on Tezos Curation, Filters, and Editorial Submissions
+- [x] Verify and add three source-grounded curated Art on Tezos project profiles
+- [x] Add accessible collection filters for exhibitions, marketplaces, and creator tools
+- [x] Create a lightweight artist and gallery editorial-submission form with clear review expectations
+- [x] Add focused tests and validate the filtered hub and submission journey on desktop and mobile
