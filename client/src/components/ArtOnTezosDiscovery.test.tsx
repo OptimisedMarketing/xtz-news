@@ -3,7 +3,7 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import KentoSharePanel from "./KentoSharePanel";
-import { ART_COLLECTION_FILTERS, ART_ON_TEZOS_FAQS, filterArtProjects, getArtProjectGroup } from "@/pages/ArtOnTezosPage";
+import { ART_COLLECTION_FILTERS, ART_EXHIBITION_TIMELINE, ART_ON_TEZOS_FAQS, filterArtProjects, getArtProjectGroup, getTimelineStatus, getWeeklyHeroProject } from "@/pages/ArtOnTezosPage";
 
 describe("Art on Tezos discovery", () => {
   it("keeps the collection hub FAQ reader-safe and non-endorsement based", () => {
@@ -28,5 +28,18 @@ describe("Art on Tezos discovery", () => {
     expect(filterArtProjects(projects, "exhibition")).toEqual([{ slug: "hek-tezos-digital-art" }]);
     expect(filterArtProjects(projects, "marketplace")).toEqual([{ slug: "teia" }]);
     expect(filterArtProjects(projects, "creator_tool")).toEqual([{ slug: "infiniteink" }]);
+  });
+
+  it("rotates the curated hero by ISO week without a background process", () => {
+    const projects = [{ slug: "objkt" }, { slug: "teia" }, { slug: "fxhash" }, { slug: "editart" }, { slug: "infiniteink" }];
+    expect(getWeeklyHeroProject(projects, new Date("2026-01-05"))?.slug).toBe("teia");
+    expect(getWeeklyHeroProject(projects, new Date("2026-01-12"))?.slug).toBe("fxhash");
+  });
+
+  it("keeps confirmed future, current, and historical exhibition dates distinct", () => {
+    const onDate = new Date("2026-09-08T12:00:00Z");
+    expect(getTimelineStatus(ART_EXHIBITION_TIMELINE.find((entry) => entry.id === "responsive-signals")!, onDate)).toBe("upcoming");
+    expect(getTimelineStatus(ART_EXHIBITION_TIMELINE.find((entry) => entry.id === "terms-of-agreement")!, onDate)).toBe("current");
+    expect(getTimelineStatus(ART_EXHIBITION_TIMELINE.find((entry) => entry.id === "404-land")!, onDate)).toBe("past");
   });
 });

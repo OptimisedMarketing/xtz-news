@@ -28,6 +28,7 @@ import AdminPostNew from "./pages/admin/AdminPostNew";
 import AdminCategories from "./pages/admin/AdminCategories";
 import AdminProjects from "./pages/admin/AdminProjects";
 import AdminSubmissions from "./pages/admin/AdminSubmissions";
+import AdminArtProjectSubmissions from "./pages/admin/AdminArtProjectSubmissions";
 import AdminSubscribers from "./pages/admin/AdminSubscribers";
 import AdminSettings from "./pages/admin/AdminSettings";
 import NotFound from "./pages/NotFound";
@@ -110,6 +111,7 @@ function Router() {
       <Route path="/admin/categories" component={AdminCategories} />
       <Route path="/admin/projects" component={AdminProjects} />
       <Route path="/admin/submissions" component={AdminSubmissions} />
+      <Route path="/admin/art-project-submissions" component={AdminArtProjectSubmissions} />
       <Route path="/admin/subscribers" component={AdminSubscribers} />
       <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/prices" component={PricePage} />

@@ -489,3 +489,9 @@
 - [x] Add accessible collection filters for exhibitions, marketplaces, and creator tools
 - [x] Create a lightweight artist and gallery editorial-submission form with clear review expectations
 - [x] Add focused tests and validate the filtered hub and submission journey on desktop and mobile
+
+## Phase 71: Art Submission Review, Curated Hero, and Exhibition Timeline
+- [x] Create a secure administrator-only review page for Art on Tezos project submissions with approve and reject actions
+- [x] Add a deterministic weekly rotating hero that highlights a different curated Art on Tezos profile without a background job
+- [x] Research and publish an interactive, source-grounded timeline for confirmed past and upcoming Tezos digital-art events
+- [x] Add focused tests and validate the editor workspace and enhanced hub on desktop and mobile
