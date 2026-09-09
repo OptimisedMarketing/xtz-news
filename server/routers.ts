@@ -433,6 +433,28 @@ const artProjectSubmissionsRouter = router({
 // ─── Cloud-discovered Tezos Event Candidates ──────────────────────────────────
 const tezosEventCandidatesRouter = router({
   published: publicProcedure.query(() => db.getPublishedTezosEventCandidates()),
+  create: publicProcedure
+    .input(z.object({
+      submitterName: z.string().trim().min(2).max(255),
+      submitterEmail: z.string().trim().email().max(320),
+      eventTitle: z.string().trim().min(2).max(500),
+      eventType: z.enum(["community", "conference", "meetup", "workshop", "exhibition", "online", "other"]),
+      sourceUrl: z.string().trim().url().max(2000),
+      startAt: z.string().datetime({ offset: true }),
+      endAt: z.string().datetime({ offset: true }).optional(),
+      location: z.string().trim().min(2).max(500),
+      timezone: z.string().trim().max(64).optional(),
+      description: z.string().trim().min(40).max(1600),
+      agreedToReview: z.literal(true),
+    }).refine((input) => !input.endAt || new Date(input.endAt).getTime() >= new Date(input.startAt).getTime(), { message: "The event end time must be after its start time", path: ["endAt"] }))
+    .mutation(async ({ input }) => {
+      await db.createTezosEventSubmission(input);
+      await notifyOwner({
+        title: `Tezos event submission: ${input.eventTitle}`,
+        content: `A Tezos event has been submitted for editorial review.\n\nEvent: ${input.eventTitle}\nType: ${input.eventType}\nStarts: ${input.startAt}\nLocation: ${input.location}\nSubmitted by: ${input.submitterName} (${input.submitterEmail})\nSource: ${input.sourceUrl}\n\nThe event is pending review and has not been published.`,
+      }).catch(() => {});
+      return { success: true } as const;
+    }),
   list: adminProcedure.query(() => db.getAllTezosEventCandidates()),
   updateStatus: adminProcedure
     .input(z.object({ id: z.number().int().positive(), status: z.enum(["pending", "reviewed", "published", "rejected"]), notes: z.string().max(2000).optional() }))
@@ -440,6 +462,13 @@ const tezosEventCandidatesRouter = router({
       await db.updateTezosEventCandidateStatus(input.id, input.status, input.notes);
       return { success: true } as const;
     }),
+  bulkUpdateStatus: adminProcedure
+    .input(z.object({
+      ids: z.array(z.number().int().positive()).min(1).max(50).refine((ids) => new Set(ids).size === ids.length, "Each selected candidate must be unique"),
+      status: z.enum(["reviewed", "published", "rejected"]),
+      notes: z.string().max(2000).optional(),
+    }))
+    .mutation(async ({ input }) => db.bulkUpdateTezosEventCandidateStatus(input.ids, input.status, input.notes)),
 });
 
 // ─── Newsletter Router ───────────────────────────────────────────────────────

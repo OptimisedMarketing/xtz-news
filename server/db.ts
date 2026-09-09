@@ -1,4 +1,5 @@
 import { eq, desc, asc, like, or, sql, and, inArray, ne } from "drizzle-orm";
+import { createHash, randomUUID } from "node:crypto";
 import mysql from "mysql2/promise";
 import { drizzle, type MySql2Database } from "drizzle-orm/mysql2";
 import {
@@ -698,13 +699,71 @@ export async function getAllTezosEventCandidates(): Promise<TezosEventCandidate[
 export async function getPublishedTezosEventCandidates(): Promise<TezosEventCandidate[]> {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(tezosEventCandidates).where(eq(tezosEventCandidates.status, "published")).orderBy(asc(tezosEventCandidates.startAt));
+  return db.select({
+    id: tezosEventCandidates.id,
+    sourceUrl: tezosEventCandidates.sourceUrl,
+    title: tezosEventCandidates.title,
+    description: tezosEventCandidates.description,
+    startAt: tezosEventCandidates.startAt,
+    endAt: tezosEventCandidates.endAt,
+    location: tezosEventCandidates.location,
+    timezone: tezosEventCandidates.timezone,
+    eventType: tezosEventCandidates.eventType,
+  }).from(tezosEventCandidates).where(eq(tezosEventCandidates.status, "published")).orderBy(asc(tezosEventCandidates.startAt)) as unknown as TezosEventCandidate[];
 }
 
 export async function updateTezosEventCandidateStatus(id: number, status: "pending" | "reviewed" | "published" | "rejected", notes?: string) {
   const db = await getDb();
   if (!db) throw new Error("Database unavailable");
   await db.update(tezosEventCandidates).set({ status, ...(notes !== undefined ? { adminNotes: notes || null } : {}) }).where(eq(tezosEventCandidates.id, id));
+}
+
+export type TezosEventSubmissionInput = {
+  submitterName: string;
+  submitterEmail: string;
+  eventTitle: string;
+  eventType: "community" | "conference" | "meetup" | "workshop" | "exhibition" | "online" | "other";
+  sourceUrl: string;
+  startAt: string;
+  endAt?: string;
+  location: string;
+  timezone?: string;
+  description: string;
+  agreedToReview: true;
+};
+
+export async function createTezosEventSubmission(input: TezosEventSubmissionInput) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  const now = new Date();
+  const sourceEventId = `community-submission:${randomUUID()}`;
+  const sourceHash = createHash("sha256").update(JSON.stringify({ sourceEventId, title: input.eventTitle, startAt: input.startAt, sourceUrl: input.sourceUrl })).digest("hex");
+  await db.insert(tezosEventCandidates).values({
+    sourceKey: "community-submission",
+    sourceEventId,
+    sourceUrl: input.sourceUrl,
+    title: input.eventTitle,
+    description: input.description,
+    startAt: new Date(input.startAt),
+    endAt: input.endAt ? new Date(input.endAt) : null,
+    location: input.location,
+    timezone: input.timezone?.trim() || null,
+    eventType: input.eventType,
+    submitterName: input.submitterName,
+    submitterEmail: input.submitterEmail,
+    agreedToReview: true,
+    sourceHash,
+    sourceCheckedAt: now,
+  });
+}
+
+export async function bulkUpdateTezosEventCandidateStatus(ids: number[], status: "reviewed" | "published" | "rejected", notes?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  const uniqueIds = Array.from(new Set(ids));
+  if (!uniqueIds.length) return { updated: 0 };
+  await db.update(tezosEventCandidates).set({ status, ...(notes !== undefined ? { adminNotes: notes || null } : {}) }).where(inArray(tezosEventCandidates.id, uniqueIds));
+  return { updated: uniqueIds.length };
 }
 
 // ─── Site Settings ────────────────────────────────────────────────────────────

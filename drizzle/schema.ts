@@ -312,6 +312,10 @@ export const tezosEventCandidates = mysqlTable("tezos_event_candidates", {
   endAt: timestamp("endAt"),
   location: varchar("location", { length: 500 }),
   timezone: varchar("timezone", { length: 64 }),
+  eventType: mysqlEnum("eventType", ["community", "conference", "meetup", "workshop", "exhibition", "online", "other"]).default("community").notNull(),
+  submitterName: varchar("submitterName", { length: 255 }),
+  submitterEmail: varchar("submitterEmail", { length: 320 }),
+  agreedToReview: boolean("agreedToReview").default(false).notNull(),
   sourceHash: varchar("sourceHash", { length: 64 }).notNull(),
   sourceCheckedAt: timestamp("sourceCheckedAt").notNull(),
   status: mysqlEnum("status", ["pending", "reviewed", "published", "rejected"]).default("pending").notNull(),
@@ -323,6 +327,7 @@ export const tezosEventCandidates = mysqlTable("tezos_event_candidates", {
   uniqueIndex("tezos_event_candidate_source_idx").on(t.sourceKey, t.sourceEventId),
   index("tezos_event_candidate_status_idx").on(t.status),
   index("tezos_event_candidate_start_idx").on(t.startAt),
+  index("tezos_event_candidate_type_idx").on(t.eventType),
 ]);
 
 export type TezosEventCandidate = typeof tezosEventCandidates.$inferSelect;

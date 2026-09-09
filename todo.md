@@ -501,3 +501,9 @@
 - [x] Add keyboard-accessible exhibition preview interactions with event details and source links
 - [x] Build a cloud-only weekly source-specific Tezos event discovery runner that creates review candidates without automatic publication
 - [x] Add secure candidate intake, editorial review controls, source documentation, and validation coverage
+
+## Phase 73: Event Submissions, Reader Filters, and Bulk Editorial Review
+- [x] Add a lightweight public Tezos event-submission form with explicit review consent and no automatic publication
+- [x] Add accessible location and event-type filters to the public Tezos Events page
+- [x] Add protected administrator bulk review, publish, and reject actions for selected event candidates
+- [x] Add focused tests and validate public and administrator event workflows on desktop and mobile

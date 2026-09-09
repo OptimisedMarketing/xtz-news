@@ -49,6 +49,8 @@ vi.mock("./db", () => ({
   getAllTezosEventCandidates: vi.fn().mockResolvedValue([]),
   getPublishedTezosEventCandidates: vi.fn().mockResolvedValue([]),
   updateTezosEventCandidateStatus: vi.fn().mockResolvedValue(undefined),
+  createTezosEventSubmission: vi.fn().mockResolvedValue(undefined),
+  bulkUpdateTezosEventCandidateStatus: vi.fn().mockResolvedValue({ updated: 2 }),
   getSetting: vi.fn().mockResolvedValue(null),
   setSetting: vi.fn().mockResolvedValue(undefined),
   upsertUser: vi.fn().mockResolvedValue(undefined),
@@ -268,6 +270,30 @@ describe("tezosEventCandidates", () => {
     const adminCaller = appRouter.createCaller(makeAdminCtx());
     await expect(userCaller.tezosEventCandidates.updateStatus({ id: 4, status: "published" })).rejects.toThrow();
     await expect(adminCaller.tezosEventCandidates.updateStatus({ id: 4, status: "published", notes: "Reviewed against source." })).resolves.toEqual({ success: true });
+  });
+
+  it("stores a consented community event for review without allowing a reader to self-publish", async () => {
+    const publicCaller = appRouter.createCaller(makePublicCtx());
+    const userCaller = appRouter.createCaller(makeUserCtx());
+    const submission = {
+      submitterName: "Tezos Community",
+      submitterEmail: "events@example.com",
+      eventTitle: "Tezos Builders Meetup",
+      eventType: "meetup" as const,
+      sourceUrl: "https://example.com/tezos-meetup",
+      startAt: "2026-10-01T18:00:00.000Z",
+      location: "London, United Kingdom",
+      description: "A community event for Tezos builders, contributors, and people who want to learn about the ecosystem.",
+      agreedToReview: true as const,
+    };
+    await expect(publicCaller.tezosEventCandidates.create(submission)).resolves.toEqual({ success: true });
+    await expect(userCaller.tezosEventCandidates.bulkUpdateStatus({ ids: [1], status: "published" })).rejects.toThrow();
+  });
+
+  it("allows administrators to update a bounded selected set in one explicit action", async () => {
+    const adminCaller = appRouter.createCaller(makeAdminCtx());
+    await expect(adminCaller.tezosEventCandidates.bulkUpdateStatus({ ids: [1, 2], status: "reviewed", notes: "Checked as a batch." })).resolves.toEqual({ updated: 2 });
+    await expect(adminCaller.tezosEventCandidates.bulkUpdateStatus({ ids: [1, 1], status: "reviewed" })).rejects.toThrow();
   });
 });
 
