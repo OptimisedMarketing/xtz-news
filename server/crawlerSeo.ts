@@ -19,7 +19,7 @@ export type CrawlerTranslation = {
 };
 
 export const CRAWLER_ROUTE_PREFIXES = [
-  "category", "tag", "projects", "timeline", "contact", "admin", "explorer",
+  "category", "tag", "projects", "timeline", "events", "contact", "admin", "explorer",
   "staking", "tools", "guides", "glossary", "post-quantum", "art", "prices",
   "etherlink", "wallets", "art-on-tezos", "search", "unsubscribe", "manage-subscriptions",
 ];
@@ -33,6 +33,7 @@ export const SEO_STATIC_PAGES = [
   { url: "/wallets", priority: "0.8", changefreq: "monthly" },
   { url: "/staking/start", priority: "0.8", changefreq: "monthly" },
   { url: "/art-on-tezos", priority: "0.8", changefreq: "weekly" },
+  { url: "/events", priority: "0.7", changefreq: "weekly" },
 ];
 
 type StaticMeta = { title: string; description: string };
@@ -98,6 +99,10 @@ const STATIC_META: Record<string, StaticMeta> = {
   "/art-on-tezos": {
     title: "Art on Tezos Hub: Projects, Artists and News | XTZ.News",
     description: "Explore Tezos art projects, creator-led coverage, collecting context, exhibitions, and digital-art resources from XTZ.News.",
+  },
+  "/events": {
+    title: "Tezos Events | Editor-Reviewed Calendar | XTZ.News",
+    description: "Browse editor-reviewed Tezos event listings with source links and calendar downloads from XTZ.News.",
   },
 };
 

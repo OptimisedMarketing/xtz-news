@@ -495,3 +495,9 @@
 - [x] Add a deterministic weekly rotating hero that highlights a different curated Art on Tezos profile without a background job
 - [x] Research and publish an interactive, source-grounded timeline for confirmed past and upcoming Tezos digital-art events
 - [x] Add focused tests and validate the editor workspace and enhanced hub on desktop and mobile
+
+## Phase 72: Calendar Controls, Timeline Previews, and Cloud Event Discovery
+- [ ] Add accessible calendar-download controls for confirmed upcoming exhibition timeline entries
+- [ ] Add keyboard-accessible exhibition preview interactions with event details and source links
+- [ ] Build a cloud-only weekly source-specific Tezos event discovery runner that creates review candidates without automatic publication
+- [ ] Add secure candidate intake, editorial review controls, source documentation, and validation coverage

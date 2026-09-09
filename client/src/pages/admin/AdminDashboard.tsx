@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { FileText, Tag, FolderOpen, Inbox, BarChart2, ChevronRight, Settings, Palette } from "lucide-react";
+import { FileText, Tag, FolderOpen, Inbox, BarChart2, ChevronRight, Settings, Palette, CalendarDays } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -10,6 +10,7 @@ export default function AdminDashboard() {
   const { data: categories = [] } = trpc.categories.all.useQuery();
   const { data: submissions = [] } = trpc.submissions.list.useQuery(undefined, { enabled: user?.role === "admin" });
   const { data: artSubmissions = [] } = trpc.artProjectSubmissions.list.useQuery(undefined, { enabled: user?.role === "admin" });
+  const { data: eventCandidates = [] } = trpc.tezosEventCandidates.list.useQuery(undefined, { enabled: user?.role === "admin" });
 
   if (loading) {
     return <div className="container py-16 text-center"><div className="skeleton h-8 w-48 mx-auto" /></div>;
@@ -37,12 +38,14 @@ export default function AdminDashboard() {
 
   const pendingSubmissions = submissions.filter((s) => s.status === "pending").length;
   const pendingArtSubmissions = artSubmissions.filter((s) => s.status === "pending").length;
+  const pendingEventCandidates = eventCandidates.filter((candidate) => candidate.status === "pending").length;
 
   const stats = [
     { label: "Total Posts", value: postCount ?? "—", icon: <FileText size={20} />, href: "/admin/posts" },
     { label: "Categories", value: categories.length, icon: <Tag size={20} />, href: "/admin/categories" },
     { label: "Submissions", value: submissions.length, icon: <Inbox size={20} />, href: "/admin/submissions", badge: pendingSubmissions },
     { label: "Art Submissions", value: artSubmissions.length, icon: <Palette size={20} />, href: "/admin/art-project-submissions", badge: pendingArtSubmissions },
+    { label: "Event Candidates", value: eventCandidates.length, icon: <CalendarDays size={20} />, href: "/admin/tezos-event-candidates", badge: pendingEventCandidates },
     { label: "Projects", value: "—", icon: <FolderOpen size={20} />, href: "/admin/projects" },
   ];
 
@@ -52,6 +55,7 @@ export default function AdminDashboard() {
     { label: "Manage Projects", href: "/admin/projects", icon: <FolderOpen size={16} /> },
     { label: "Article Submissions", href: "/admin/submissions", icon: <Inbox size={16} />, badge: pendingSubmissions },
     { label: "Art Project Submissions", href: "/admin/art-project-submissions", icon: <Palette size={16} />, badge: pendingArtSubmissions },
+    { label: "Tezos Event Candidates", href: "/admin/tezos-event-candidates", icon: <CalendarDays size={16} />, badge: pendingEventCandidates },
     { label: "Newsletter Subscribers", href: "/admin/subscribers", icon: <BarChart2 size={16} /> },
     { label: "Site Settings", href: "/admin/settings", icon: <Settings size={16} /> },
   ];
@@ -71,7 +75,7 @@ export default function AdminDashboard() {
 
       <div className="container py-8">
         {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
           {stats.map((stat) => (
             <Link
               key={stat.label}

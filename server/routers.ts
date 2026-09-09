@@ -426,6 +426,18 @@ const artProjectSubmissionsRouter = router({
     }),
 });
 
+// ─── Cloud-discovered Tezos Event Candidates ──────────────────────────────────
+const tezosEventCandidatesRouter = router({
+  published: publicProcedure.query(() => db.getPublishedTezosEventCandidates()),
+  list: adminProcedure.query(() => db.getAllTezosEventCandidates()),
+  updateStatus: adminProcedure
+    .input(z.object({ id: z.number().int().positive(), status: z.enum(["pending", "reviewed", "published", "rejected"]), notes: z.string().max(2000).optional() }))
+    .mutation(async ({ input }) => {
+      await db.updateTezosEventCandidateStatus(input.id, input.status, input.notes);
+      return { success: true } as const;
+    }),
+});
+
 // ─── Newsletter Router ───────────────────────────────────────────────────────
 const newsletterRouter = router({
   subscribe: publicProcedure
@@ -860,6 +872,7 @@ export const appRouter = router({
   pages: pagesRouter,
   submissions: submissionsRouter,
   artProjectSubmissions: artProjectSubmissionsRouter,
+  tezosEventCandidates: tezosEventCandidatesRouter,
   newsletter: newsletterRouter,
   prices: priceRouter,
   upload: uploadRouter,

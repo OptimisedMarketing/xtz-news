@@ -298,6 +298,45 @@ export const artProjectSubmissions = mysqlTable("art_project_submissions", {
 
 export type ArtProjectSubmission = typeof artProjectSubmissions.$inferSelect;
 
+// ─── Cloud-discovered Tezos Event Candidates ───────────────────────────────────
+// The cloud importer can only create or refresh pending review records. Reader-facing
+// events are created only after an administrator deliberately publishes a candidate.
+export const tezosEventCandidates = mysqlTable("tezos_event_candidates", {
+  id: int("id").autoincrement().primaryKey(),
+  sourceKey: varchar("sourceKey", { length: 64 }).notNull(),
+  sourceEventId: varchar("sourceEventId", { length: 512 }).notNull(),
+  sourceUrl: text("sourceUrl").notNull(),
+  title: varchar("title", { length: 500 }).notNull(),
+  description: text("description"),
+  startAt: timestamp("startAt").notNull(),
+  endAt: timestamp("endAt"),
+  location: varchar("location", { length: 500 }),
+  timezone: varchar("timezone", { length: 64 }),
+  sourceHash: varchar("sourceHash", { length: 64 }).notNull(),
+  sourceCheckedAt: timestamp("sourceCheckedAt").notNull(),
+  status: mysqlEnum("status", ["pending", "reviewed", "published", "rejected"]).default("pending").notNull(),
+  eventId: int("eventId"),
+  adminNotes: text("adminNotes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (t) => [
+  uniqueIndex("tezos_event_candidate_source_idx").on(t.sourceKey, t.sourceEventId),
+  index("tezos_event_candidate_status_idx").on(t.status),
+  index("tezos_event_candidate_start_idx").on(t.startAt),
+]);
+
+export type TezosEventCandidate = typeof tezosEventCandidates.$inferSelect;
+
+export const tezosEventImportDeliveries = mysqlTable("tezos_event_import_deliveries", {
+  id: int("id").autoincrement().primaryKey(),
+  deliveryId: varchar("deliveryId", { length: 128 }).notNull(),
+  payloadHash: varchar("payloadHash", { length: 64 }).notNull(),
+  candidateCount: int("candidateCount").notNull(),
+  receivedAt: timestamp("receivedAt").defaultNow().notNull(),
+}, (t) => [uniqueIndex("tezos_event_import_delivery_idx").on(t.deliveryId)]);
+
+export type TezosEventImportDelivery = typeof tezosEventImportDeliveries.$inferSelect;
+
 // ─── Newsletter Subscribers ─────────────────────────────────────────────────────
 export const newsletterSubscribers = mysqlTable(
   "newsletter_subscribers",

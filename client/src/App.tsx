@@ -76,6 +76,8 @@ import EtherlinkBridgeGuidePage from "./pages/EtherlinkBridgeGuidePage";
 import TezosWalletStarterPage from "./pages/TezosWalletStarterPage";
 import TezosStakingStarterPage from "./pages/TezosStakingStarterPage";
 import ArtOnTezosPage from "./pages/ArtOnTezosPage";
+import EventsPage from "./pages/EventsPage";
+import AdminTezosEventCandidates from "./pages/admin/AdminTezosEventCandidates";
 
 function Router() {
   return (
@@ -96,6 +98,7 @@ function Router() {
       <Route path="/tezos-projects" component={ProjectsPage} />
       <Route path="/project/:slug" component={ProjectDetailPage} />
       <Route path="/timeline" component={TimelinePage} />
+      <Route path="/events" component={EventsPage} />
 
       <Route path="/submit-article" component={SubmitArticlePage} />
       <Route path="/contact" component={ContactPage} />
@@ -112,6 +115,7 @@ function Router() {
       <Route path="/admin/projects" component={AdminProjects} />
       <Route path="/admin/submissions" component={AdminSubmissions} />
       <Route path="/admin/art-project-submissions" component={AdminArtProjectSubmissions} />
+      <Route path="/admin/tezos-event-candidates" component={AdminTezosEventCandidates} />
       <Route path="/admin/subscribers" component={AdminSubscribers} />
       <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/prices" component={PricePage} />

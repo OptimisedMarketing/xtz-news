@@ -18,11 +18,14 @@ import {
   translationImportDeliveries,
   tezoracleStatusSnapshots,
   tezoracleStatusImportDeliveries,
+  tezosEventCandidates, TezosEventCandidate,
+  tezosEventImportDeliveries,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 import type { TranslationImportPayload, TranslationImportResult } from "./translationImportRouter";
 import type { TranslationJob } from "./translationJobRouter";
 import type { TezOracleStatusImportPayload, TezOracleStatusImportResult } from "./tezoracleStatusImportRouter";
+import type { TezosEventCandidateImportPayload, TezosEventCandidateImportResult } from "./tezosEventCandidateImportRouter";
 import { SUPPORTED_LOCALES } from "../shared/locales";
 
 let _db: MySql2Database | null = null;
@@ -650,6 +653,58 @@ export async function updateArtProjectSubmissionStatus(id: number, status: "pend
   const db = await getDb();
   if (!db) return;
   await db.update(artProjectSubmissions).set({ status, ...(notes ? { adminNotes: notes } : {}) }).where(eq(artProjectSubmissions.id, id));
+}
+
+// ─── Cloud-discovered Tezos Event Candidates ───────────────────────────────────
+export async function importTezosEventCandidates(payload: TezosEventCandidateImportPayload, payloadHash: string): Promise<TezosEventCandidateImportResult> {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  const delivered = await db.select({ id: tezosEventImportDeliveries.id }).from(tezosEventImportDeliveries).where(eq(tezosEventImportDeliveries.deliveryId, payload.deliveryId)).limit(1);
+  if (delivered[0]) return { imported: 0, refreshed: 0, duplicate: true };
+
+  let imported = 0;
+  let refreshed = 0;
+  for (const candidate of payload.candidates) {
+    const existing = await db.select().from(tezosEventCandidates).where(and(eq(tezosEventCandidates.sourceKey, candidate.sourceKey), eq(tezosEventCandidates.sourceEventId, candidate.sourceEventId))).limit(1);
+    const common = {
+      sourceUrl: candidate.sourceUrl,
+      title: candidate.title.trim(),
+      description: candidate.description?.trim() || null,
+      startAt: new Date(candidate.startAt),
+      endAt: candidate.endAt ? new Date(candidate.endAt) : null,
+      location: candidate.location?.trim() || null,
+      timezone: candidate.timezone?.trim() || null,
+      sourceHash: candidate.sourceHash,
+      sourceCheckedAt: new Date(candidate.sourceCheckedAt),
+    };
+    if (!existing[0]) {
+      await db.insert(tezosEventCandidates).values({ sourceKey: candidate.sourceKey, sourceEventId: candidate.sourceEventId, ...common });
+      imported += 1;
+    } else if (existing[0].status === "pending" || existing[0].status === "reviewed") {
+      await db.update(tezosEventCandidates).set(common).where(eq(tezosEventCandidates.id, existing[0].id));
+      refreshed += 1;
+    }
+  }
+  await db.insert(tezosEventImportDeliveries).values({ deliveryId: payload.deliveryId, payloadHash, candidateCount: payload.candidates.length });
+  return { imported, refreshed };
+}
+
+export async function getAllTezosEventCandidates(): Promise<TezosEventCandidate[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(tezosEventCandidates).orderBy(asc(tezosEventCandidates.startAt));
+}
+
+export async function getPublishedTezosEventCandidates(): Promise<TezosEventCandidate[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(tezosEventCandidates).where(eq(tezosEventCandidates.status, "published")).orderBy(asc(tezosEventCandidates.startAt));
+}
+
+export async function updateTezosEventCandidateStatus(id: number, status: "pending" | "reviewed" | "published" | "rejected", notes?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  await db.update(tezosEventCandidates).set({ status, ...(notes !== undefined ? { adminNotes: notes || null } : {}) }).where(eq(tezosEventCandidates.id, id));
 }
 
 // ─── Site Settings ────────────────────────────────────────────────────────────

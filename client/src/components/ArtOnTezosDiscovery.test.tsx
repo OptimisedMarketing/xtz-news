@@ -1,8 +1,9 @@
 /** @vitest-environment jsdom */
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import KentoSharePanel from "./KentoSharePanel";
+import ArtExhibitionTimeline from "./ArtExhibitionTimeline";
 import { ART_COLLECTION_FILTERS, ART_EXHIBITION_TIMELINE, ART_ON_TEZOS_FAQS, filterArtProjects, getArtProjectGroup, getTimelineStatus, getWeeklyHeroProject } from "@/pages/ArtOnTezosPage";
 
 describe("Art on Tezos discovery", () => {
@@ -41,5 +42,15 @@ describe("Art on Tezos discovery", () => {
     expect(getTimelineStatus(ART_EXHIBITION_TIMELINE.find((entry) => entry.id === "responsive-signals")!, onDate)).toBe("upcoming");
     expect(getTimelineStatus(ART_EXHIBITION_TIMELINE.find((entry) => entry.id === "terms-of-agreement")!, onDate)).toBe("current");
     expect(getTimelineStatus(ART_EXHIBITION_TIMELINE.find((entry) => entry.id === "404-land")!, onDate)).toBe("past");
+  });
+
+  it("offers a source-linked calendar download and quick preview for an upcoming exhibition", () => {
+    render(<ArtExhibitionTimeline entries={[{ id: "future-art", title: "Future Tezos Art", startDate: "2030-09-22", endDate: "2030-09-22", location: "New York", description: "A confirmed programme.", sourceLabel: "Open source", sourceUrl: "https://movingimage.org/event/future-art" }]} />);
+    const eventButton = screen.getByRole("button", { name: /future tezos art/i });
+    fireEvent.focus(eventButton);
+    expect(screen.getByRole("status", { name: /future tezos art quick preview/i })).toBeTruthy();
+    const calendarLink = screen.getByRole("link", { name: /add to calendar/i });
+    expect(calendarLink.getAttribute("href")).toContain("data:text/calendar");
+    expect(calendarLink.getAttribute("download")).toBe("future-tezos-art.ics");
   });
 });

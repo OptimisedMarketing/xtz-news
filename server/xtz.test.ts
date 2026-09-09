@@ -46,6 +46,9 @@ vi.mock("./db", () => ({
   createArtProjectSubmission: vi.fn().mockResolvedValue({}),
   getAllArtProjectSubmissions: vi.fn().mockResolvedValue([]),
   updateArtProjectSubmissionStatus: vi.fn().mockResolvedValue(undefined),
+  getAllTezosEventCandidates: vi.fn().mockResolvedValue([]),
+  getPublishedTezosEventCandidates: vi.fn().mockResolvedValue([]),
+  updateTezosEventCandidateStatus: vi.fn().mockResolvedValue(undefined),
   getSetting: vi.fn().mockResolvedValue(null),
   setSetting: vi.fn().mockResolvedValue(undefined),
   upsertUser: vi.fn().mockResolvedValue(undefined),
@@ -250,6 +253,21 @@ describe("artProjectSubmissions", () => {
     const caller = appRouter.createCaller(makePublicCtx());
     await expect(caller.artProjectSubmissions.create({ ...submission, agreedToReview: false })).rejects.toThrow();
     await expect(caller.artProjectSubmissions.list()).rejects.toThrow();
+  });
+});
+
+describe("tezosEventCandidates", () => {
+  it("keeps the review queue private while allowing readers to list editor-published events", async () => {
+    const publicCaller = appRouter.createCaller(makePublicCtx());
+    await expect(publicCaller.tezosEventCandidates.list()).rejects.toThrow();
+    await expect(publicCaller.tezosEventCandidates.published()).resolves.toEqual([]);
+  });
+
+  it("allows only administrators to change a candidate’s public status", async () => {
+    const userCaller = appRouter.createCaller(makeUserCtx());
+    const adminCaller = appRouter.createCaller(makeAdminCtx());
+    await expect(userCaller.tezosEventCandidates.updateStatus({ id: 4, status: "published" })).rejects.toThrow();
+    await expect(adminCaller.tezosEventCandidates.updateStatus({ id: 4, status: "published", notes: "Reviewed against source." })).resolves.toEqual({ success: true });
   });
 });
 
