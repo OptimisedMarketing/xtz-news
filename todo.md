@@ -497,7 +497,7 @@
 - [x] Add focused tests and validate the editor workspace and enhanced hub on desktop and mobile
 
 ## Phase 72: Calendar Controls, Timeline Previews, and Cloud Event Discovery
-- [ ] Add accessible calendar-download controls for confirmed upcoming exhibition timeline entries
-- [ ] Add keyboard-accessible exhibition preview interactions with event details and source links
-- [ ] Build a cloud-only weekly source-specific Tezos event discovery runner that creates review candidates without automatic publication
-- [ ] Add secure candidate intake, editorial review controls, source documentation, and validation coverage
+- [x] Add accessible calendar-download controls for confirmed upcoming exhibition timeline entries
+- [x] Add keyboard-accessible exhibition preview interactions with event details and source links
+- [x] Build a cloud-only weekly source-specific Tezos event discovery runner that creates review candidates without automatic publication
+- [x] Add secure candidate intake, editorial review controls, source documentation, and validation coverage
