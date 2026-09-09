@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { createHash } from "node:crypto";
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
@@ -14,6 +15,9 @@ import { customAuthRouter } from "./customAuthRouter";
 import { executeMonthlyDigest } from "./monthlyDigestRouter";
 import { isValidMonthlyDigestPayload, verifyMonthlyDigestScheduleSignature } from "./monthlyDigestScheduler";
 import { MONTHLY_DIGEST_SCHEDULER_PUBLIC_KEY } from "./monthlyDigestSchedulerPublicKey";
+import { isValidTezosEventCandidateImportPayload, verifyTezosEventCandidateImportSignature, type TezosEventCandidateImportPayload } from "./tezosEventCandidateImportRouter";
+import { TEZOS_EVENT_CANDIDATE_IMPORT_PUBLIC_KEY } from "./tezosEventCandidateImportPublicKey";
+import { stableJson } from "./translationImportRouter";
 
 // ─── Admin guard ──────────────────────────────────────────────────────────────
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -853,6 +857,17 @@ const monthlyDigestRouter = router({
     }),
 });
 
+const tezosEventCandidateImportRouter = router({
+  run: publicProcedure
+    .input(z.object({ payload: z.custom<TezosEventCandidateImportPayload>(), signature: z.string().min(32) }))
+    .mutation(async ({ input }) => {
+      if (!isValidTezosEventCandidateImportPayload(input.payload) || !verifyTezosEventCandidateImportSignature(input.payload, input.signature, TEZOS_EVENT_CANDIDATE_IMPORT_PUBLIC_KEY)) {
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid Tezos event candidate import signature or payload" });
+      }
+      return db.importTezosEventCandidates(input.payload, createHash("sha256").update(stableJson(input.payload)).digest("hex"));
+    }),
+});
+
 // ─── App Router ───────────────────────────────────────────────────────────────
 export const appRouter = router({
   system: systemRouter,
@@ -885,5 +900,6 @@ export const appRouter = router({
   preferences: preferencesRouter,
   customAuth: customAuthRouter,
   monthlyDigest: monthlyDigestRouter,
+  tezosEventCandidateImport: tezosEventCandidateImportRouter,
 })
 export type AppRouter = typeof appRouter;

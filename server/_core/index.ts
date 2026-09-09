@@ -19,9 +19,6 @@ import { importTezOracleStatus } from "../db";
 import { CRAWLER_ROUTE_PREFIXES, SEO_STATIC_PAGES, renderCrawlerHtml } from "../crawlerSeo";
 import { createMonthlyDigestRouter } from "../monthlyDigestRouter";
 import { MONTHLY_DIGEST_SCHEDULER_PUBLIC_KEY } from "../monthlyDigestSchedulerPublicKey";
-import { createTezosEventCandidateImportRouter } from "../tezosEventCandidateImportRouter";
-import { TEZOS_EVENT_CANDIDATE_IMPORT_PUBLIC_KEY } from "../tezosEventCandidateImportPublicKey";
-import { importTezosEventCandidates } from "../db";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -65,10 +62,6 @@ async function startServer() {
     importStatus: importTezOracleStatus,
   }));
   app.use("/api/internal/monthly-digest", createMonthlyDigestRouter(MONTHLY_DIGEST_SCHEDULER_PUBLIC_KEY));
-  app.use("/api/internal/tezos-event-candidates", createTezosEventCandidateImportRouter({
-    publicKey: TEZOS_EVENT_CANDIDATE_IMPORT_PUBLIC_KEY,
-    importCandidates: importTezosEventCandidates,
-  }));
 
   // ─── Custom Image Proxy (overrides framework storageProxy for wp-media) ────
   // The framework storageProxy does a 307 redirect which some browsers don't
