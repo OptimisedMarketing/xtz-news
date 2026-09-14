@@ -538,3 +538,8 @@
 - [x] Send correction-report notifications to info@optimised.marketing without exposing reporter details publicly
 - [x] Add protected per-article author reassignment controls for assigning selected existing stories to Rossa Browne
 - [x] Add regression coverage and validate reader and administrator workflows on desktop and mobile
+
+## Phase 79: Hero Banner Promotion Placeholder
+- [x] Add a clearly labelled first-party banner placeholder beneath the homepage hero without obscuring the lead story
+- [x] Add administrator configuration guidance for future owner-supplied banner creative and links
+- [x] Add regression coverage and validate the hero banner at desktop and mobile widths
