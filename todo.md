@@ -543,3 +543,9 @@
 - [x] Add a clearly labelled first-party banner placeholder beneath the homepage hero without obscuring the lead story
 - [x] Add administrator configuration guidance for future owner-supplied banner creative and links
 - [x] Add regression coverage and validate the hero banner at desktop and mobile widths
+
+## Phase 80: Supplied First-Party Banner Deployment
+- [x] Store and serve the supplied Optimised Marketing × XTZ.News banner through the approved media path
+- [x] Replace the homepage hero placeholder with the supplied responsive first-party banner
+- [x] Add the same clearly labelled banner to news article pages without disrupting reading controls or related content
+- [x] Add regression coverage and validate banner rendering at desktop and mobile widths

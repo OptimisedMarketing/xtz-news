@@ -12,7 +12,7 @@ import WalletStarterHomepageFeature from "@/components/WalletStarterHomepageFeat
 import StakingStarterHomepageFeature from "@/components/StakingStarterHomepageFeature";
 import ArtOnTezosHomepageFeature from "@/components/ArtOnTezosHomepageFeature";
 import FirstPartyPromotion from "@/components/FirstPartyPromotion";
-import HeroBannerPlaceholder from "@/components/HeroBannerPlaceholder";
+import FirstPartyImageBanner from "@/components/FirstPartyImageBanner";
 import { useSEO } from "@/hooks/useSEO";
 import { getMediaUrl } from "@/lib/mediaUrl";
 import { getNewsletterConfirmationCopy } from "@/lib/newsletterConfirmation";
@@ -567,7 +567,7 @@ export default function Home() {
         Tezos News — Latest XTZ Blockchain Updates, DeFi, NFTs &amp; Ecosystem
       </h1>
       {isLoading ? <HeroSkeleton /> : <HeroSection latestPosts={latest} mostReadPosts={mostRead} />}
-      <HeroBannerPlaceholder />
+      <FirstPartyImageBanner placement="home" />
       <HomepageFilters />
       <WalletStarterHomepageFeature />
       <StakingStarterHomepageFeature />

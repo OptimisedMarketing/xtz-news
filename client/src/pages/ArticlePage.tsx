@@ -29,6 +29,7 @@ import { isPostQuantumStory, prioritisePostQuantumRelatedStories } from "@/lib/p
 import { isKentoStory, prioritiseKentoRelatedStories } from "@/lib/kentoStory";
 import KentoSharePanel from "@/components/KentoSharePanel";
 import { getEditorialAuthor } from "@shared/editorialAuthors";
+import FirstPartyImageBanner from "@/components/FirstPartyImageBanner";
 
 /** Injects / updates Open Graph + Twitter Card meta tags in <head> */
 function useOpenGraph(post: {
@@ -666,6 +667,8 @@ export default function ArticlePage() {
                 {articleAuthor && <Link href={`/authors/${articleAuthor.slug}`} style={{ display: "inline-block", marginTop: "0.65rem", color: "#8cbcff", fontSize: "0.72rem", fontWeight: 800, textDecoration: "none" }}>View {articleAuthor.name}'s profile →</Link>}
               </div>
             </div>
+
+            <FirstPartyImageBanner placement="article" />
 
             {/* Newsletter Signup */}
             <ArticleNewsletterSignup />
