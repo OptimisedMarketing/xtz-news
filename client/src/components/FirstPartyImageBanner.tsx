@@ -1,14 +1,25 @@
 import React from "react";
 import { getMediaUrl } from "@/lib/mediaUrl";
+import { trpc } from "@/lib/trpc";
+import { useEffect, useState } from "react";
 
 const OPTIMISED_MARKETING_BANNER = "/manus-storage/optimised-marketing-xtz-news-wide_fbd697e0.png";
 
 type FirstPartyImageBannerProps = {
   placement: "home" | "article";
 };
+type BannerCampaign = { active: boolean; endAt: string | null };
+
+export function isFirstPartyBannerVisible(campaign: BannerCampaign, now = Date.now()) {
+  if (!campaign.active) return false;
+  if (!campaign.endAt) return true;
+  const endAt = Date.parse(campaign.endAt);
+  return Number.isNaN(endAt) || endAt > now;
+}
 
 /** A first-party promotion with no network scripts, tracking redirects, or third-party assets. */
-export default function FirstPartyImageBanner({ placement }: FirstPartyImageBannerProps) {
+export function FirstPartyImageBannerPresentation({ placement, campaign, now }: FirstPartyImageBannerProps & { campaign: BannerCampaign; now: number }) {
+  if (!isFirstPartyBannerVisible(campaign, now)) return null;
   const isHome = placement === "home";
   const maxWidth = isHome ? "1100px" : "760px";
   return (
@@ -37,4 +48,14 @@ export default function FirstPartyImageBanner({ placement }: FirstPartyImageBann
       </div>
     </aside>
   );
+}
+
+export default function FirstPartyImageBanner({ placement }: FirstPartyImageBannerProps) {
+  const { data } = trpc.settings.getFirstPartyBannerCampaign.useQuery();
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 60_000);
+    return () => window.clearInterval(timer);
+  }, []);
+  return <FirstPartyImageBannerPresentation placement={placement} campaign={data ?? { active: true, endAt: null }} now={now} />;
 }

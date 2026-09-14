@@ -51,6 +51,10 @@ vi.mock("./db", () => ({
   getAllCorrectionReports: vi.fn().mockResolvedValue([]),
   updateCorrectionReportStatus: vi.fn().mockResolvedValue(undefined),
   bulkUpdateCorrectionReportStatus: vi.fn().mockResolvedValue({ updated: 2 }),
+  createAdvertiserEnquiry: vi.fn().mockResolvedValue(undefined),
+  getAllAdvertiserEnquiries: vi.fn().mockResolvedValue([]),
+  updateAdvertiserEnquiryStatus: vi.fn().mockResolvedValue(undefined),
+  bulkUpdateAdvertiserEnquiryStatus: vi.fn().mockResolvedValue({ updated: 2 }),
   getAllTezosEventCandidates: vi.fn().mockResolvedValue([]),
   getPublishedTezosEventCandidates: vi.fn().mockResolvedValue([]),
   updateTezosEventCandidateStatus: vi.fn().mockResolvedValue(undefined),
@@ -67,6 +71,9 @@ vi.mock("./_core/notification", () => ({
 }));
 vi.mock("./correctionReportNotifications", () => ({
   sendCorrectionReportNotification: vi.fn().mockResolvedValue(true),
+}));
+vi.mock("./advertiserEnquiryNotifications", () => ({
+  sendAdvertiserEnquiryNotification: vi.fn().mockResolvedValue(true),
 }));
 
 // ─── Context helpers ──────────────────────────────────────────────────────────
@@ -382,6 +389,46 @@ describe("first-party promotion settings", () => {
       { id: "reserved-app", title: "Your next app", description: "A reserved owner placement.", url: "", ctaLabel: "Reserved", active: true, placeholder: true },
     ])).resolves.toEqual({ success: true });
     await expect(adminCaller.settings.setFirstPartyPromotions([{ id: "unsafe", title: "Unsafe", description: "Unsafe destination.", url: "javascript:alert(1)", ctaLabel: "Open", active: true, placeholder: false }])).rejects.toThrow("A live promotion needs an internal path or HTTPS URL.");
+  });
+
+  it("keeps the banner campaign publicly readable and reserves expiry edits for administrators", async () => {
+    const publicCaller = appRouter.createCaller(makePublicCtx());
+    const readerCaller = appRouter.createCaller(makeUserCtx());
+    const adminCaller = appRouter.createCaller(makeAdminCtx());
+    await expect(publicCaller.settings.getFirstPartyBannerCampaign()).resolves.toEqual({ active: true, endAt: null });
+    await expect(readerCaller.settings.setFirstPartyBannerCampaign({ active: true, endAt: "2026-10-01T00:00:00.000Z" })).rejects.toThrow();
+    await expect(adminCaller.settings.setFirstPartyBannerCampaign({ active: true, endAt: "2026-10-01T00:00:00.000Z" })).resolves.toEqual({ success: true });
+    await expect(adminCaller.settings.setFirstPartyBannerCampaign({ active: true, endAt: "not-a-date" })).rejects.toThrow();
+  });
+});
+
+describe("advertiser enquiries", () => {
+  const enquiry = {
+    contactName: "Alex Partner",
+    contactEmail: "alex@example.com",
+    companyName: "Tezos Example",
+    websiteUrl: "https://example.com",
+    placementInterest: "homepage_banner" as const,
+    campaignBrief: "We would like to discuss a clearly labelled homepage campaign for a Tezos-native product launch.",
+    agreedToContact: true as const,
+  };
+
+  it("stores consented advertiser enquiries privately for review", async () => {
+    const caller = appRouter.createCaller(makePublicCtx());
+    await expect(caller.advertiserEnquiries.create(enquiry)).resolves.toEqual({ success: true });
+  });
+
+  it("requires consent and protects advertiser enquiry records from non-administrators", async () => {
+    const publicCaller = appRouter.createCaller(makePublicCtx());
+    const readerCaller = appRouter.createCaller(makeUserCtx());
+    await expect(publicCaller.advertiserEnquiries.create({ ...enquiry, agreedToContact: false })).rejects.toThrow();
+    await expect(readerCaller.advertiserEnquiries.list()).rejects.toThrow();
+  });
+
+  it("allows administrators to bulk progress selected advertiser enquiries", async () => {
+    const caller = appRouter.createCaller(makeAdminCtx());
+    await expect(caller.advertiserEnquiries.bulkUpdateStatus({ ids: [1, 2], status: "replied", notes: "Contacted with availability." })).resolves.toEqual({ updated: 2 });
+    await expect(caller.advertiserEnquiries.bulkUpdateStatus({ ids: [1, 1], status: "replied" })).rejects.toThrow();
   });
 });
 

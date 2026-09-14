@@ -82,6 +82,7 @@ import AuthorProfilePage from "./pages/AuthorProfilePage";
 import NewsroomEditorialPolicyPage from "./pages/NewsroomEditorialPolicyPage";
 import AdminFirstPartyPromotion from "./pages/admin/AdminFirstPartyPromotion";
 import AdminCorrectionReports from "./pages/admin/AdminCorrectionReports";
+import AdminAdvertiserEnquiries from "./pages/admin/AdminAdvertiserEnquiries";
 
 function Router() {
   return (
@@ -126,6 +127,7 @@ function Router() {
       <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/admin/first-party-promotion" component={AdminFirstPartyPromotion} />
       <Route path="/admin/correction-reports" component={AdminCorrectionReports} />
+      <Route path="/admin/advertiser-enquiries" component={AdminAdvertiserEnquiries} />
       <Route path="/prices" component={PricePage} />
       <Route path="/submit-project" component={SubmitProjectPage} />
       <Route path="/unsubscribe" component={UnsubscribePage} />

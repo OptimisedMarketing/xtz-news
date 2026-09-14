@@ -15,6 +15,7 @@ import {
   articleSubmissions, ArticleSubmission,
   artProjectSubmissions, ArtProjectSubmission,
   correctionReports, CorrectionReport,
+  advertiserEnquiries, AdvertiserEnquiry,
   siteSettings,
   postTranslations,
   translationImportDeliveries,
@@ -711,6 +712,52 @@ export async function bulkUpdateCorrectionReportStatus(ids: number[], status: "r
   const uniqueIds = Array.from(new Set(ids));
   if (!uniqueIds.length) return { updated: 0 };
   await db.update(correctionReports).set({ status, ...(notes !== undefined ? { adminNotes: notes || null } : {}) }).where(inArray(correctionReports.id, uniqueIds));
+  return { updated: uniqueIds.length };
+}
+
+// ─── Advertiser Enquiries ─────────────────────────────────────────────────────
+export type AdvertiserEnquiryInput = {
+  contactName: string;
+  contactEmail: string;
+  companyName: string;
+  websiteUrl?: string;
+  placementInterest: "homepage_banner" | "article_banner" | "newsletter" | "sponsored_article" | "directory_feature" | "custom";
+  campaignBrief: string;
+  agreedToContact: true;
+};
+
+export async function createAdvertiserEnquiry(input: AdvertiserEnquiryInput) {
+  const database = await getDb();
+  if (!database) throw new Error("Database unavailable");
+  await database.insert(advertiserEnquiries).values({
+    contactName: input.contactName,
+    contactEmail: input.contactEmail,
+    companyName: input.companyName,
+    websiteUrl: input.websiteUrl?.trim() || null,
+    placementInterest: input.placementInterest,
+    campaignBrief: input.campaignBrief,
+    agreedToContact: true,
+  });
+}
+
+export async function getAllAdvertiserEnquiries(): Promise<AdvertiserEnquiry[]> {
+  const database = await getDb();
+  if (!database) return [];
+  return database.select().from(advertiserEnquiries).orderBy(desc(advertiserEnquiries.createdAt));
+}
+
+export async function updateAdvertiserEnquiryStatus(id: number, status: "pending" | "reviewed" | "replied" | "closed", notes?: string) {
+  const database = await getDb();
+  if (!database) throw new Error("Database unavailable");
+  await database.update(advertiserEnquiries).set({ status, ...(notes !== undefined ? { adminNotes: notes || null } : {}) }).where(eq(advertiserEnquiries.id, id));
+}
+
+export async function bulkUpdateAdvertiserEnquiryStatus(ids: number[], status: "reviewed" | "replied" | "closed", notes?: string) {
+  const database = await getDb();
+  if (!database) throw new Error("Database unavailable");
+  const uniqueIds = Array.from(new Set(ids));
+  if (!uniqueIds.length) return { updated: 0 };
+  await database.update(advertiserEnquiries).set({ status, ...(notes !== undefined ? { adminNotes: notes || null } : {}) }).where(inArray(advertiserEnquiries.id, uniqueIds));
   return { updated: uniqueIds.length };
 }
 

@@ -1,0 +1,35 @@
+import React, { useState, type CSSProperties, type FormEvent } from "react";
+import { CheckCircle2, Loader2, Send } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+
+export const ADVERTISING_PLACEMENT_OPTIONS = [
+  ["homepage_banner", "Homepage banner"],
+  ["article_banner", "Article companion banner"],
+  ["newsletter", "Newsletter sponsorship"],
+  ["sponsored_article", "Sponsored article"],
+  ["directory_feature", "Featured directory listing"],
+  ["custom", "Custom partnership"],
+] as const;
+
+type FormState = { contactName: string; contactEmail: string; companyName: string; websiteUrl: string; placementInterest: typeof ADVERTISING_PLACEMENT_OPTIONS[number][0]; campaignBrief: string; agreedToContact: boolean };
+const initialForm: FormState = { contactName: "", contactEmail: "", companyName: "", websiteUrl: "", placementInterest: "homepage_banner", campaignBrief: "", agreedToContact: false };
+const fieldStyle: CSSProperties = { width: "100%", boxSizing: "border-box", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.16)", background: "rgba(3,8,20,.72)", color: "#fff", font: "inherit", fontSize: ".86rem", padding: ".7rem .78rem" };
+function Label({ htmlFor, children }: { htmlFor: string; children: React.ReactNode }) { return <label htmlFor={htmlFor} style={{ display: "block", marginBottom: ".38rem", color: "rgba(255,255,255,.72)", fontSize: ".7rem", fontWeight: 800, letterSpacing: ".05em", textTransform: "uppercase" }}>{children}</label>; }
+
+export default function AdvertiserEnquiryForm() {
+  const [form, setForm] = useState(initialForm); const [feedback, setFeedback] = useState("");
+  const submit = trpc.advertiserEnquiries.create.useMutation({ onSuccess: () => { setFeedback("Thank you. Your enquiry has been sent to the advertising team for review."); setForm(initialForm); }, onError: (error) => setFeedback(error.message || "We could not send your enquiry just now. Please try again later.") });
+  const update = <K extends keyof FormState>(key: K, value: FormState[K]) => setForm((current) => ({ ...current, [key]: value }));
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); setFeedback(""); if (!form.agreedToContact) { setFeedback("Please confirm that the team may contact you about this enquiry."); return; } submit.mutate({ contactName: form.contactName, contactEmail: form.contactEmail, companyName: form.companyName, ...(form.websiteUrl.trim() ? { websiteUrl: form.websiteUrl.trim() } : {}), placementInterest: form.placementInterest, campaignBrief: form.campaignBrief, agreedToContact: true }); };
+  return <form onSubmit={handleSubmit} aria-describedby="advertiser-enquiry-note" style={{ marginTop: "1.1rem", padding: "1.1rem", background: "#05152e", border: "1px solid rgba(99,247,177,.28)", borderRadius: "8px" }}>
+    <h2 style={{ color: "#fff", margin: 0, fontSize: "1.15rem" }}>Start an advertising enquiry</h2><p style={{ color: "rgba(255,255,255,.55)", margin: ".45rem 0 0", fontSize: ".8rem", lineHeight: 1.55 }}>Tell us what you would like to promote. Requests are reviewed before any placement, pricing agreement, or public campaign is created.</p>
+    <div style={{ display: "grid", gap: ".75rem", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", marginTop: "1rem" }}><div><Label htmlFor="advertiser-contact-name">Your name</Label><input id="advertiser-contact-name" value={form.contactName} onChange={(event) => update("contactName", event.target.value)} minLength={2} maxLength={255} required autoComplete="name" style={fieldStyle} /></div><div><Label htmlFor="advertiser-contact-email">Email</Label><input id="advertiser-contact-email" type="email" value={form.contactEmail} onChange={(event) => update("contactEmail", event.target.value)} maxLength={320} required autoComplete="email" style={fieldStyle} /></div></div>
+    <div style={{ display: "grid", gap: ".75rem", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", marginTop: ".75rem" }}><div><Label htmlFor="advertiser-company">Company or project</Label><input id="advertiser-company" value={form.companyName} onChange={(event) => update("companyName", event.target.value)} minLength={2} maxLength={255} required autoComplete="organization" style={fieldStyle} /></div><div><Label htmlFor="advertiser-website">Website <span style={{ textTransform: "none", fontWeight: 400 }}>(optional)</span></Label><input id="advertiser-website" type="url" value={form.websiteUrl} onChange={(event) => update("websiteUrl", event.target.value)} placeholder="https://example.com" maxLength={2000} style={fieldStyle} /></div></div>
+    <div style={{ marginTop: ".75rem" }}><Label htmlFor="advertiser-placement">Placement of interest</Label><select id="advertiser-placement" value={form.placementInterest} onChange={(event) => update("placementInterest", event.target.value as FormState["placementInterest"])} style={fieldStyle}>{ADVERTISING_PLACEMENT_OPTIONS.map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></div>
+    <div style={{ marginTop: ".75rem" }}><Label htmlFor="advertiser-brief">Campaign details</Label><textarea id="advertiser-brief" value={form.campaignBrief} onChange={(event) => update("campaignBrief", event.target.value)} minLength={30} maxLength={4000} rows={5} required placeholder="What would you like to promote, when would you like to run it, and what is the preferred destination?" style={{ ...fieldStyle, resize: "vertical", lineHeight: 1.55 }} /><p style={{ color: "rgba(255,255,255,.42)", margin: ".3rem 0 0", fontSize: ".68rem" }}>{form.campaignBrief.length}/4000 characters · minimum 30</p></div>
+    <label style={{ display: "flex", gap: ".55rem", alignItems: "flex-start", cursor: "pointer", color: "rgba(255,255,255,.72)", marginTop: "1rem", fontSize: ".78rem", lineHeight: 1.5 }}><input type="checkbox" checked={form.agreedToContact} onChange={(event) => update("agreedToContact", event.target.checked)} style={{ marginTop: ".2rem", accentColor: "#63f7b1" }} />I agree that XTZ.News may contact me about this advertising enquiry.</label>
+    <p id="advertiser-enquiry-note" style={{ color: "rgba(255,255,255,.44)", margin: ".7rem 0 0", fontSize: ".72rem", lineHeight: 1.5 }}>Your details remain private. A notification is sent to the advertising inbox at info@optimised.marketing; no ad is published automatically.</p>
+    {feedback && <p role="status" style={{ color: feedback.startsWith("Thank") ? "#7ff0bd" : "#fecaca", margin: ".75rem 0 0", fontSize: ".78rem", fontWeight: 700, display: "flex", gap: ".4rem", alignItems: "center" }}><CheckCircle2 size={15} />{feedback}</p>}
+    <button type="submit" disabled={submit.isPending} style={{ display: "inline-flex", alignItems: "center", gap: ".45rem", marginTop: "1rem", border: 0, borderRadius: "4px", color: "#062013", background: "#63f7b1", padding: ".7rem .9rem", cursor: submit.isPending ? "wait" : "pointer", fontWeight: 900, fontSize: ".76rem" }}>{submit.isPending ? <><Loader2 className="animate-spin" size={15} /> Sending</> : <><Send size={15} /> Send advertising enquiry</>}</button>
+  </form>;
+}

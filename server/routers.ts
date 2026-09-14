@@ -19,6 +19,7 @@ import { isValidTezosEventCandidateImportPayload, verifyTezosEventCandidateImpor
 import { TEZOS_EVENT_CANDIDATE_IMPORT_PUBLIC_KEY } from "./tezosEventCandidateImportPublicKey";
 import { stableJson } from "./translationImportRouter";
 import { sendCorrectionReportNotification } from "./correctionReportNotifications";
+import { sendAdvertiserEnquiryNotification } from "./advertiserEnquiryNotifications";
 
 // ─── Admin guard ──────────────────────────────────────────────────────────────
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -486,6 +487,38 @@ const correctionReportsRouter = router({
     .mutation(async ({ input }) => db.bulkUpdateCorrectionReportStatus(input.ids, input.status, input.notes)),
 });
 
+// ─── Advertiser Enquiries ─────────────────────────────────────────────────────
+const advertiserEnquiriesRouter = router({
+  create: publicProcedure
+    .input(z.object({
+      contactName: z.string().trim().min(2).max(255),
+      contactEmail: z.string().trim().email().max(320),
+      companyName: z.string().trim().min(2).max(255),
+      websiteUrl: z.string().trim().url().max(2000).optional(),
+      placementInterest: z.enum(["homepage_banner", "article_banner", "newsletter", "sponsored_article", "directory_feature", "custom"]),
+      campaignBrief: z.string().trim().min(30).max(4000),
+      agreedToContact: z.literal(true),
+    }))
+    .mutation(async ({ input }) => {
+      await db.createAdvertiserEnquiry(input);
+      await Promise.allSettled([
+        notifyOwner({ title: `XTZ.News advertising enquiry: ${input.companyName}`, content: `A private advertising enquiry is ready for review.\n\nCompany: ${input.companyName}\nContact: ${input.contactName} (${input.contactEmail})\nPlacement: ${input.placementInterest}\n\nCampaign details:\n${input.campaignBrief}` }),
+        sendAdvertiserEnquiryNotification(input),
+      ]);
+      return { success: true } as const;
+    }),
+  list: adminProcedure.query(() => db.getAllAdvertiserEnquiries()),
+  updateStatus: adminProcedure
+    .input(z.object({ id: z.number().int().positive(), status: z.enum(["pending", "reviewed", "replied", "closed"]), notes: z.string().max(2000).optional() }))
+    .mutation(async ({ input }) => {
+      await db.updateAdvertiserEnquiryStatus(input.id, input.status, input.notes);
+      return { success: true } as const;
+    }),
+  bulkUpdateStatus: adminProcedure
+    .input(z.object({ ids: z.array(z.number().int().positive()).min(1).max(50).refine((ids) => new Set(ids).size === ids.length, "Each selected enquiry must be unique"), status: z.enum(["reviewed", "replied", "closed"]), notes: z.string().max(2000).optional() }))
+    .mutation(async ({ input }) => db.bulkUpdateAdvertiserEnquiryStatus(input.ids, input.status, input.notes)),
+});
+
 // ─── Cloud-discovered Tezos Event Candidates ──────────────────────────────────
 const tezosEventCandidatesRouter = router({
   published: publicProcedure.query(() => db.getPublishedTezosEventCandidates()),
@@ -915,6 +948,19 @@ const settingsRouter = router({
       await db.setSetting("first_party_promotions", JSON.stringify(input));
       return { success: true } as const;
     }),
+  getFirstPartyBannerCampaign: publicProcedure.query(async () => {
+    const [active, endAt] = await Promise.all([db.getSetting("first_party_banner_active"), db.getSetting("first_party_banner_end_at")]);
+    return { active: active !== "false", endAt: endAt || null };
+  }),
+  setFirstPartyBannerCampaign: adminProcedure
+    .input(z.object({ active: z.boolean(), endAt: z.string().datetime().nullable() }))
+    .mutation(async ({ input }) => {
+      await Promise.all([
+        db.setSetting("first_party_banner_active", input.active ? "true" : "false"),
+        db.setSetting("first_party_banner_end_at", input.endAt || ""),
+      ]);
+      return { success: true } as const;
+    }),
 });
 
 // ─── Audio Router (on-demand ElevenLabs generation) ──────────────────────────
@@ -1030,6 +1076,7 @@ export const appRouter = router({
   submissions: submissionsRouter,
   artProjectSubmissions: artProjectSubmissionsRouter,
   correctionReports: correctionReportsRouter,
+  advertiserEnquiries: advertiserEnquiriesRouter,
   tezosEventCandidates: tezosEventCandidatesRouter,
   newsletter: newsletterRouter,
   prices: priceRouter,

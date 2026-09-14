@@ -319,6 +319,26 @@ export const correctionReports = mysqlTable("correction_reports", {
 
 export type CorrectionReport = typeof correctionReports.$inferSelect;
 
+// ─── Advertiser Enquiries ─────────────────────────────────────────────────────
+// Advertising requests remain private until an editor responds. They never create
+// a promotion, a campaign, or any public content automatically.
+export const advertiserEnquiries = mysqlTable("advertiser_enquiries", {
+  id: int("id").autoincrement().primaryKey(),
+  contactName: varchar("contactName", { length: 255 }).notNull(),
+  contactEmail: varchar("contactEmail", { length: 320 }).notNull(),
+  companyName: varchar("companyName", { length: 255 }).notNull(),
+  websiteUrl: text("websiteUrl"),
+  placementInterest: mysqlEnum("placementInterest", ["homepage_banner", "article_banner", "newsletter", "sponsored_article", "directory_feature", "custom"]).notNull(),
+  campaignBrief: text("campaignBrief").notNull(),
+  agreedToContact: boolean("agreedToContact").default(false).notNull(),
+  status: mysqlEnum("status", ["pending", "reviewed", "replied", "closed"]).default("pending").notNull(),
+  adminNotes: text("adminNotes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (t) => [index("advertiser_enquiries_status_idx").on(t.status), index("advertiser_enquiries_created_idx").on(t.createdAt)]);
+
+export type AdvertiserEnquiry = typeof advertiserEnquiries.$inferSelect;
+
 // ─── Cloud-discovered Tezos Event Candidates ───────────────────────────────────
 // The cloud importer can only create or refresh pending review records. Reader-facing
 // events are created only after an administrator deliberately publishes a candidate.

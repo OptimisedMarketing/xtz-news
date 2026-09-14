@@ -560,3 +560,9 @@
 - [x] Add an accessible visual icon and subtle hover state to the Optimised Marketing header link
 - [x] Publish an Advertising page and link it from the shared header utility bar
 - [x] Add regression coverage and validate banner, header, and advertising-page journeys on desktop and mobile
+
+## Phase 83: Advertiser Enquiries and Campaign Expiry
+- [x] Add a lightweight review-first advertiser enquiry form to the advertising page
+- [x] Clarify banner-placement options and pricing on the advertising page without publishing unsupported audience claims
+- [x] Add an administrator-managed campaign end date that hides expired first-party banner creatives automatically
+- [x] Add regression coverage and validate advertiser and administrator workflows on desktop and mobile
