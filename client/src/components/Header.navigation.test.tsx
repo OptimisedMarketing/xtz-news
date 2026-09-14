@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MOBILE_SECTIONS, NAV_ITEMS } from "./Header";
+import { MOBILE_SECTIONS, NAV_ITEMS, OPTIMISED_MARKETING_HEADER_LINK } from "./Header";
 
 describe("primary navigation", () => {
   it("keeps Home as the first desktop navigation destination", () => {
@@ -33,5 +33,12 @@ describe("primary navigation", () => {
 
     expect(desktopExplore?.children).toEqual(expect.arrayContaining([{ label: "ART ON TEZOS HUB", href: "/art-on-tezos" }]));
     expect(mobileExplore?.items).toEqual(expect.arrayContaining([{ label: "Art on Tezos Hub", href: "/art-on-tezos" }]));
+  });
+
+  it("keeps the Optimised Marketing utility destination configured for the shared header", () => {
+    expect(OPTIMISED_MARKETING_HEADER_LINK).toEqual({
+      label: "OPTIMISED MARKETING",
+      href: "https://optimised.marketing",
+    });
   });
 });

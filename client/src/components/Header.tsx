@@ -51,6 +51,10 @@ export const NAV_ITEMS = [
 ];
 
 const HEADER_LOGO_URL = getMediaUrl("/manus-storage/xtz-logo-square_c6689606.png");
+export const OPTIMISED_MARKETING_HEADER_LINK = {
+  label: "OPTIMISED MARKETING",
+  href: "https://optimised.marketing",
+};
 
 export const MOBILE_SECTIONS = [
   {
@@ -138,6 +142,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
         <div className="container" style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "1rem" }}>
           <DonateButton variant="header" />
           <Link href="/" style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.8)", textDecoration: "none" }}>XTZ.NEWS</Link>
+          <a href={OPTIMISED_MARKETING_HEADER_LINK.href} target="_blank" rel="noopener noreferrer" aria-label="Visit Optimised Marketing, the team building XTZ.News" style={{ fontSize: "0.68rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "#63f7b1", display: "inline-flex", alignItems: "center", gap: "0.35rem", textDecoration: "none", whiteSpace: "nowrap" }}><ExternalLink size={10} />{OPTIMISED_MARKETING_HEADER_LINK.label}</a>
           <Link href="/prices" style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.8)", display: "flex", alignItems: "center", gap: "0.35rem", textDecoration: "none" }}><ExternalLink size={10} />TEZOS TOKEN TRACKER</Link>
           {!loading && (isAuthenticated ? <button onClick={() => logout()} style={accountButtonStyle}><LogOut size={11} /> Sign out</button> : <Link href={loginHref} style={accountButtonStyle}><LogIn size={11} /> Sign in</Link>)}
           <details style={{ position: "relative" }}>
@@ -189,7 +194,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
           <div style={{ display: "flex", gap: "0.5rem", padding: "0.35rem 0.75rem 0.8rem" }}>
             {!loading && (isAuthenticated ? <button onClick={() => logout()} style={{ ...mobileAccountStyle, flex: 1 }}><UserRound size={14} /> {user?.name || "Signed in"}<span style={{ marginLeft: "auto", color: "rgba(255,255,255,0.55)" }}>Sign out</span></button> : <><Link href={loginHref} style={{ ...mobileAccountStyle, flex: 1 }}><LogIn size={14} /> Sign in</Link><Link href={`/register?returnTo=${encodeURIComponent(location)}`} style={{ ...mobileAccountStyle, flex: 1, background: "#2c7df7", borderColor: "#2c7df7", color: "#fff" }}>Create account</Link></>)}
           </div>
-          <div style={{ padding: "0.5rem 0.75rem 0.75rem" }}><DonateButton variant="article" /></div>
+          <div style={{ padding: "0.5rem 0.75rem 0.75rem", display: "flex", flexWrap: "wrap", alignItems: "center", gap: ".7rem" }}><DonateButton variant="article" /><a href={OPTIMISED_MARKETING_HEADER_LINK.href} target="_blank" rel="noopener noreferrer" aria-label="Visit Optimised Marketing, the team building XTZ.News" style={{ color: "#63f7b1", fontSize: ".7rem", fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: ".3rem" }}><ExternalLink size={12} />Built by Optimised Marketing</a></div>
           {MOBILE_SECTIONS.map((section) => <section key={section.label} style={{ padding: "0.75rem", borderTop: "1px solid rgba(255,255,255,0.07)" }}>
             <p style={{ margin: "0 0 0.4rem", color: "#5a9fff", fontSize: "0.6rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.13em" }}>{section.label}</p>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "0.35rem" }}>{section.items.map((item) => <Link key={item.label} href={item.href} style={{ padding: "0.72rem", borderRadius: "5px", background: "rgba(255,255,255,0.045)", color: "rgba(255,255,255,0.85)", fontSize: "0.74rem", fontWeight: 700, textDecoration: "none" }}>{item.label}</Link>)}</div>

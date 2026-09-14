@@ -549,3 +549,8 @@
 - [x] Replace the homepage hero placeholder with the supplied responsive first-party banner
 - [x] Add the same clearly labelled banner to news article pages without disrupting reading controls or related content
 - [x] Add regression coverage and validate banner rendering at desktop and mobile widths
+
+## Phase 81: Header Optimised Marketing Link
+- [x] Add an accessible Optimised Marketing external link in the header utility bar
+- [x] Preserve desktop primary navigation and mobile header clarity
+- [x] Add regression coverage and validate the link at desktop and mobile widths
