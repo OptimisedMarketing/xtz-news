@@ -507,3 +507,14 @@
 - [x] Add accessible location and event-type filters to the public Tezos Events page
 - [x] Add protected administrator bulk review, publish, and reject actions for selected event candidates
 - [x] Add focused tests and validate public and administrator event workflows on desktop and mobile
+
+## Phase 74: HEK × Tezos Foundation Partnership Story
+- [x] Research primary HEK and Tezos sources for a source-grounded partnership article
+- [x] Publish the HEK × Tezos Foundation story with the user-provided featured image and clear source attribution
+- [x] Check the project directory and add or update a suitable HEK × Tezos partnership profile with a direct article link
+- [x] Validate article metadata, featured media, and directory discovery before release
+
+## Phase 75: Google News Discovery for the HEK Partnership Story
+- [x] Add Google News-compatible `NewsArticle` metadata for published news stories, including the HEK partnership article
+- [x] Add a dynamic News sitemap XML feed for recent published XTZ.News articles and expose it in sitemap discovery
+- [x] Add regression coverage and validate Googlebot-facing metadata and XML output

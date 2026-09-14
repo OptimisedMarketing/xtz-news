@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CRAWLER_ROUTE_PREFIXES, SEO_STATIC_PAGES, getCrawlerStaticFaqs, renderCrawlerHtml, toRelayedMediaUrl } from "./crawlerSeo";
+import { CRAWLER_ROUTE_PREFIXES, SEO_STATIC_PAGES, getCrawlerStaticFaqs, renderCrawlerHtml, renderNewsSitemapXml, toRelayedMediaUrl } from "./crawlerSeo";
 
 const html = `<!doctype html><html lang="en"><head><title>Default title</title><meta name="description" content="Default description" /><link rel="canonical" href="https://xtz.news/" /><meta property="og:title" content="Default title" /><meta property="og:description" content="Default description" /><meta property="og:image" content="https://xtz.news/manus-storage/logo.png" /><meta property="og:url" content="https://xtz.news/" /><meta property="og:type" content="website" /></head><body></body></html>`;
 
@@ -30,6 +30,8 @@ describe("crawler SEO rendering", () => {
     expect(output).toContain('<link rel="canonical" href="https://xtz.news/tezos-wallet-guide" />');
     expect(output).toContain('https://xtz.news/media/wallet-cover.png');
     expect(output).toContain('"@type":"NewsArticle"');
+    expect(output).toContain('"articleSection":"Tezos News"');
+    expect(output).toContain('"isAccessibleForFree":true');
     expect(output).toContain('hreflang="fr" href="https://xtz.news/fr/tezos-wallet-guide"');
     expect(output).toContain('hreflang="x-default"');
   });
@@ -71,5 +73,21 @@ describe("crawler SEO rendering", () => {
     expect(getCrawlerStaticFaqs("/art-on-tezos")).toHaveLength(3);
     expect(output).toContain('"@type":"FAQPage"');
     expect(output).toContain("What is the Art on Tezos collection hub?");
+  });
+
+  it("creates a dynamic, escaped News sitemap that contains only recently published articles", () => {
+    const output = renderNewsSitemapXml({
+      baseUrl: "https://xtz.news",
+      now: new Date("2026-09-14T12:00:00.000Z"),
+      articles: [
+        { slug: "hek-tezos-foundation-digital-art-partnership-2026", title: "HEK & Tezos < Digital Art", publishedAt: new Date("2026-09-14T10:00:00.000Z") },
+        { slug: "archive-story", title: "Archive story", publishedAt: new Date("2026-09-11T10:00:00.000Z") },
+      ],
+    });
+
+    expect(output).toContain('<news:name>XTZ.News</news:name>');
+    expect(output).toContain('https://xtz.news/hek-tezos-foundation-digital-art-partnership-2026');
+    expect(output).toContain('HEK &amp; Tezos &lt; Digital Art');
+    expect(output).not.toContain('archive-story');
   });
 });

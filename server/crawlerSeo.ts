@@ -18,6 +18,12 @@ export type CrawlerTranslation = {
   metaDescription: string | null;
 };
 
+export type NewsSitemapArticle = {
+  slug: string;
+  title: string;
+  publishedAt: Date | null;
+};
+
 export const CRAWLER_ROUTE_PREFIXES = [
   "category", "tag", "projects", "timeline", "events", "contact", "admin", "explorer",
   "staking", "tools", "guides", "glossary", "post-quantum", "art", "prices",
@@ -160,6 +166,36 @@ const STATIC_FAQS: Record<string, FaqItem[]> = {
 
 const stripHtml = (value: string) => value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 const escapeAttribute = (value: string) => value.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const escapeXml = (value: string) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+
+/**
+ * Google News accepts recently published articles only. Keep the feed dynamic
+ * and bounded to the last 48 hours, while the primary sitemap retains the
+ * complete canonical article archive.
+ */
+export function renderNewsSitemapXml({
+  articles,
+  baseUrl,
+  now = new Date(),
+}: {
+  articles: NewsSitemapArticle[];
+  baseUrl: string;
+  now?: Date;
+}): string {
+  const cutoff = now.getTime() - 2 * 24 * 60 * 60 * 1000;
+  const entries = articles
+    .filter((article) => article.publishedAt && new Date(article.publishedAt).getTime() >= cutoff)
+    .map((article) => {
+      const publishedAt = new Date(article.publishedAt!).toISOString();
+      return `  <url>\n    <loc>${escapeXml(`${baseUrl}/${article.slug}`)}</loc>\n    <news:news>\n      <news:publication><news:name>XTZ.News</news:name><news:language>en</news:language></news:publication>\n      <news:publication_date>${publishedAt}</news:publication_date>\n      <news:title>${escapeXml(article.title)}</news:title>\n    </news:news>\n  </url>`;
+    });
+  return [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">',
+    ...entries,
+    '</urlset>',
+  ].join("\n");
+}
 
 export function toRelayedMediaUrl(value: string | null, baseUrl: string): string {
   if (!value) return `${baseUrl}/media/xtz-logo-square_c6689606.png`;
@@ -221,6 +257,8 @@ export function renderCrawlerHtml({
     datePublished: published || undefined,
     dateModified: modified || published || undefined,
     inLanguage: htmlLanguage,
+    articleSection: "Tezos News",
+    isAccessibleForFree: true,
     author: { "@type": "Organization", name: "XTZ.News", url: baseUrl },
     publisher: {
       "@type": "Organization",

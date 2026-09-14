@@ -16,7 +16,7 @@ import { createTranslationJobRouter } from "../translationJobRouter";
 import { createTezOracleStatusImportRouter } from "../tezoracleStatusImportRouter";
 import { TEZORACLE_STATUS_IMPORT_PUBLIC_KEY } from "../tezoracleStatusImportPublicKey";
 import { importTezOracleStatus } from "../db";
-import { CRAWLER_ROUTE_PREFIXES, SEO_STATIC_PAGES, renderCrawlerHtml } from "../crawlerSeo";
+import { CRAWLER_ROUTE_PREFIXES, SEO_STATIC_PAGES, renderCrawlerHtml, renderNewsSitemapXml } from "../crawlerSeo";
 import { createMonthlyDigestRouter } from "../monthlyDigestRouter";
 import { MONTHLY_DIGEST_SCHEDULER_PUBLIC_KEY } from "../monthlyDigestSchedulerPublicKey";
 
@@ -469,26 +469,14 @@ ${items}
       const { eq, desc } = await import("drizzle-orm");
       const db = await getDb();
       const baseUrl = "https://xtz.news";
-      const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
-      let recentPosts: { slug: string; title: string; publishedAt: Date | null }[] = [];
+      let publishedPosts: { slug: string; title: string; publishedAt: Date | null }[] = [];
       if (db) {
-        const all = await db.select({ slug: posts.slug, title: posts.title, publishedAt: posts.publishedAt })
+        publishedPosts = await db.select({ slug: posts.slug, title: posts.title, publishedAt: posts.publishedAt })
           .from(posts).where(eq(posts.status, "publish")).orderBy(desc(posts.publishedAt)).limit(500);
-        recentPosts = all.filter(p => p.publishedAt && new Date(p.publishedAt) >= twoDaysAgo);
       }
-      const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      const lines = [
-        '<?xml version="1.0" encoding="UTF-8"?>',
-        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">',
-        ...recentPosts.map(p => {
-          const pub = p.publishedAt ? new Date(p.publishedAt).toISOString() : new Date().toISOString();
-          return `  <url>\n    <loc>${baseUrl}/${p.slug}</loc>\n    <news:news>\n      <news:publication><news:name>XTZ.News</news:name><news:language>en</news:language></news:publication>\n      <news:publication_date>${pub}</news:publication_date>\n      <news:title>${esc(p.title)}</news:title>\n    </news:news>\n  </url>`;
-        }),
-        '</urlset>'
-      ];
       res.set("Content-Type", "application/xml");
       res.set("Cache-Control", "public, max-age=900");
-      res.send(lines.join("\n"));
+      res.send(renderNewsSitemapXml({ articles: publishedPosts, baseUrl }));
     } catch (err) {
       res.status(500).send("Error");
     }
