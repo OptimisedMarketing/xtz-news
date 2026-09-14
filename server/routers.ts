@@ -159,6 +159,13 @@ const postsRouter = router({
       return { ...post, categories: postCats, tags: postTagsList };
     }),
 
+  byAuthor: publicProcedure
+    .input(z.object({ authorSlug: z.string().min(1).max(100), limit: z.number().min(1).max(24).default(12) }))
+    .query(async ({ input }) => {
+      const postList = await db.getPostsByAuthorSlug(input.authorSlug, input.limit);
+      return Promise.all(postList.map(async (post) => ({ ...post, categories: await db.getPostCategories(post.id) })));
+    }),
+
   byCategory: publicProcedure
     .input(z.object({ slug: z.string(), limit: z.number().default(12), offset: z.number().default(0) }))
     .query(async ({ input }) => {

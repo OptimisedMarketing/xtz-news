@@ -1,3 +1,5 @@
+import { getEditorialAuthor, getEditorialAuthorFromPath } from "../shared/editorialAuthors";
+
 export type CrawlerArticle = {
   title: string;
   slug: string;
@@ -8,6 +10,7 @@ export type CrawlerArticle = {
   featuredImageAlt: string | null;
   publishedAt: Date | null;
   updatedAt: Date | null;
+  authorSlug?: string | null;
 };
 
 export type CrawlerTranslation = {
@@ -27,7 +30,7 @@ export type NewsSitemapArticle = {
 export const CRAWLER_ROUTE_PREFIXES = [
   "category", "tag", "projects", "timeline", "events", "contact", "admin", "explorer",
   "staking", "tools", "guides", "glossary", "post-quantum", "art", "prices",
-  "etherlink", "wallets", "art-on-tezos", "search", "unsubscribe", "manage-subscriptions",
+  "etherlink", "wallets", "art-on-tezos", "search", "unsubscribe", "manage-subscriptions", "authors",
 ];
 
 export const SEO_STATIC_PAGES = [
@@ -40,6 +43,8 @@ export const SEO_STATIC_PAGES = [
   { url: "/staking/start", priority: "0.8", changefreq: "monthly" },
   { url: "/art-on-tezos", priority: "0.8", changefreq: "weekly" },
   { url: "/events", priority: "0.7", changefreq: "weekly" },
+  { url: "/authors/lee-evans", priority: "0.5", changefreq: "monthly" },
+  { url: "/authors/rossa-browne", priority: "0.5", changefreq: "monthly" },
 ];
 
 type StaticMeta = { title: string; description: string };
@@ -206,6 +211,10 @@ export function toRelayedMediaUrl(value: string | null, baseUrl: string): string
 }
 
 export function getCrawlerStaticMeta(pathname: string): StaticMeta {
+  const author = getEditorialAuthorFromPath(pathname);
+  if (author) {
+    return { title: `${author.name} | XTZ.News`, description: author.description };
+  }
   return STATIC_META[pathname] || STATIC_META["/"];
 }
 
@@ -229,6 +238,7 @@ export function renderCrawlerHtml({
   translationLocales?: string[];
 }): string {
   const canonical = `${baseUrl}${pathname}`;
+  const editorialAuthor = getEditorialAuthor(article?.authorSlug) || getEditorialAuthorFromPath(pathname);
   const staticMeta = getCrawlerStaticMeta(pathname);
   const title = article
     ? translation?.metaTitle || translation?.title || article.seoTitle || article.title
@@ -259,7 +269,9 @@ export function renderCrawlerHtml({
     inLanguage: htmlLanguage,
     articleSection: "Tezos News",
     isAccessibleForFree: true,
-    author: { "@type": "Organization", name: "XTZ.News", url: baseUrl },
+    author: editorialAuthor
+      ? { "@type": "Person", name: editorialAuthor.name, url: `${baseUrl}/authors/${editorialAuthor.slug}` }
+      : { "@type": "Organization", name: "XTZ.News", url: baseUrl },
     publisher: {
       "@type": "Organization",
       name: "XTZ.News",
@@ -275,6 +287,19 @@ export function renderCrawlerHtml({
       { "@type": "ListItem", position: 1, name: "Home", item: baseUrl },
       { "@type": "ListItem", position: 2, name: title, item: canonical },
     ],
+  } : undefined;
+
+  const personSchema = editorialAuthor ? {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: editorialAuthor.name,
+    url: `${baseUrl}/authors/${editorialAuthor.slug}`,
+    jobTitle: editorialAuthor.jobTitle,
+    description: editorialAuthor.description,
+    homeLocation: { "@type": "Place", name: editorialAuthor.location },
+    ...(editorialAuthor.imageUrl ? { image: toRelayedMediaUrl(editorialAuthor.imageUrl, baseUrl) } : {}),
+    ...(editorialAuthor.websiteUrl ? { sameAs: [editorialAuthor.websiteUrl] } : {}),
+    worksFor: { "@type": "Organization", name: "XTZ.News", url: baseUrl },
   } : undefined;
 
   const staticFaqs = article ? [] : getCrawlerStaticFaqs(pathname);
@@ -321,6 +346,7 @@ export function renderCrawlerHtml({
     modified ? `<meta property="article:modified_time" content="${modified}" />` : "",
     articleSchema ? `<script type="application/ld+json">${JSON.stringify(articleSchema)}</script>` : "",
     breadcrumbSchema ? `<script type="application/ld+json">${JSON.stringify(breadcrumbSchema)}</script>` : "",
+    personSchema ? `<script type="application/ld+json">${JSON.stringify(personSchema)}</script>` : "",
     faqSchema ? `<script type="application/ld+json">${JSON.stringify(faqSchema)}</script>` : "",
   ].filter(Boolean).join("\n    ");
 

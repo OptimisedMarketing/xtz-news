@@ -153,6 +153,17 @@ export async function getPostBySlug(slug: string) {
   return result[0];
 }
 
+export async function getPostsByAuthorSlug(authorSlug: string, limit = 12) {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(posts)
+    .where(and(eq(posts.status, "publish"), eq(posts.authorSlug, authorSlug)))
+    .orderBy(desc(posts.publishedAt))
+    .limit(limit);
+}
+
 export async function getPostById(id: number) {
   const db = await getDb();
   if (!db) return undefined;

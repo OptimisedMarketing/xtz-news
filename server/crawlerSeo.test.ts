@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CRAWLER_ROUTE_PREFIXES, SEO_STATIC_PAGES, getCrawlerStaticFaqs, renderCrawlerHtml, renderNewsSitemapXml, toRelayedMediaUrl } from "./crawlerSeo";
+import { CRAWLER_ROUTE_PREFIXES, SEO_STATIC_PAGES, getCrawlerStaticFaqs, getCrawlerStaticMeta, renderCrawlerHtml, renderNewsSitemapXml, toRelayedMediaUrl } from "./crawlerSeo";
 
 const html = `<!doctype html><html lang="en"><head><title>Default title</title><meta name="description" content="Default description" /><link rel="canonical" href="https://xtz.news/" /><meta property="og:title" content="Default title" /><meta property="og:description" content="Default description" /><meta property="og:image" content="https://xtz.news/manus-storage/logo.png" /><meta property="og:url" content="https://xtz.news/" /><meta property="og:type" content="website" /></head><body></body></html>`;
 
@@ -89,5 +89,33 @@ describe("crawler SEO rendering", () => {
     expect(output).toContain('https://xtz.news/hek-tezos-foundation-digital-art-partnership-2026');
     expect(output).toContain('HEK &amp; Tezos &lt; Digital Art');
     expect(output).not.toContain('archive-story');
+  });
+
+  it("renders a named Person schema for editorial author pages and assigned article bylines", () => {
+    const profileOutput = renderCrawlerHtml({ html, baseUrl: "https://xtz.news", pathname: "/authors/lee-evans" });
+    const articleOutput = renderCrawlerHtml({
+      html,
+      baseUrl: "https://xtz.news",
+      pathname: "/hek-tezos-foundation-digital-art-partnership-2026",
+      article: {
+        title: "HEK and Tezos Foundation partnership",
+        slug: "hek-tezos-foundation-digital-art-partnership-2026",
+        excerpt: "A source-led art partnership story.",
+        seoTitle: null,
+        seoDescription: null,
+        featuredImageUrl: null,
+        featuredImageAlt: null,
+        publishedAt: new Date("2026-09-14T10:00:00.000Z"),
+        updatedAt: new Date("2026-09-14T11:00:00.000Z"),
+        authorSlug: "lee-evans",
+      },
+    });
+
+    expect(getCrawlerStaticMeta("/authors/lee-evans").title).toBe("Lee Evans | XTZ.News");
+    expect(CRAWLER_ROUTE_PREFIXES).toContain("authors");
+    expect(SEO_STATIC_PAGES.map((page) => page.url)).toEqual(expect.arrayContaining(["/authors/lee-evans", "/authors/rossa-browne"]));
+    expect(profileOutput).toContain('"@type":"Person"');
+    expect(profileOutput).toContain('"name":"Lee Evans"');
+    expect(articleOutput).toContain('"author":{"@type":"Person","name":"Lee Evans"');
   });
 });

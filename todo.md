@@ -518,3 +518,9 @@
 - [x] Add Google News-compatible `NewsArticle` metadata for published news stories, including the HEK partnership article
 - [x] Add a dynamic News sitemap XML feed for recent published XTZ.News articles and expose it in sitemap discovery
 - [x] Add regression coverage and validate Googlebot-facing metadata and XML output
+
+## Phase 76: Editorial Author Profiles and Article Revision Discovery
+- [x] Create the Lee Evans and Rossa Browne author profiles with approved biographical details and Person schema
+- [x] Add a visible last-updated timestamp to revised published articles without hiding the original publication date
+- [x] Add accessible X and LinkedIn sharing controls and a relevant related-articles section to the HEK partnership article
+- [x] Add focused tests and validate author pages, structured data, timestamps, and HEK discovery on desktop and mobile

@@ -78,6 +78,7 @@ import TezosStakingStarterPage from "./pages/TezosStakingStarterPage";
 import ArtOnTezosPage from "./pages/ArtOnTezosPage";
 import EventsPage from "./pages/EventsPage";
 import AdminTezosEventCandidates from "./pages/admin/AdminTezosEventCandidates";
+import AuthorProfilePage from "./pages/AuthorProfilePage";
 
 function Router() {
   return (
@@ -99,6 +100,7 @@ function Router() {
       <Route path="/project/:slug" component={ProjectDetailPage} />
       <Route path="/timeline" component={TimelinePage} />
       <Route path="/events" component={EventsPage} />
+      <Route path="/authors/:slug" component={AuthorProfilePage} />
 
       <Route path="/submit-article" component={SubmitArticlePage} />
       <Route path="/contact" component={ContactPage} />

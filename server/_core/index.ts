@@ -812,7 +812,7 @@ ${items}
               id: posts.id, title: posts.title, slug: posts.slug, excerpt: posts.excerpt,
               featuredImageUrl: posts.featuredImageUrl, publishedAt: posts.publishedAt,
               featuredImageAlt: posts.featuredImageAlt, seoTitle: posts.seoTitle,
-              seoDescription: posts.seoDescription, updatedAt: posts.updatedAt,
+              seoDescription: posts.seoDescription, updatedAt: posts.updatedAt, authorSlug: posts.authorSlug,
             }).from(posts).where(and(eq(posts.slug, articleSlug), eq(posts.status, 'publish'))).limit(1);
 
             if (post) {

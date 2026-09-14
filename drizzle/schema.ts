@@ -119,15 +119,17 @@ export const posts = mysqlTable(
     createdAt: timestamp("createdAt").defaultNow().notNull(),
     updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
     seoTitle: varchar("seoTitle", { length: 255 }),
-  seoDescription: text("seoDescription"),
-  audioUrl: varchar("audioUrl", { length: 500 }),
-  keyTakeaways: text("keyTakeaways"),
+    seoDescription: text("seoDescription"),
+    audioUrl: varchar("audioUrl", { length: 500 }),
+    keyTakeaways: text("keyTakeaways"),
+    authorSlug: varchar("authorSlug", { length: 100 }),
   },
   (t) => [
     uniqueIndex("posts_slug_idx").on(t.slug),
     index("posts_status_idx").on(t.status),
     index("posts_published_idx").on(t.publishedAt),
     index("posts_featured_idx").on(t.isFeatured),
+    index("posts_author_slug_idx").on(t.authorSlug),
   ]
 );
 

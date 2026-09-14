@@ -28,6 +28,7 @@ import Tz5WalletGuideLink from "@/components/Tz5WalletGuideLink";
 import { isPostQuantumStory, prioritisePostQuantumRelatedStories } from "@/lib/postQuantumStory";
 import { isKentoStory, prioritiseKentoRelatedStories } from "@/lib/kentoStory";
 import KentoSharePanel from "@/components/KentoSharePanel";
+import { getEditorialAuthor } from "@shared/editorialAuthors";
 
 /** Injects / updates Open Graph + Twitter Card meta tags in <head> */
 function useOpenGraph(post: {
@@ -36,6 +37,8 @@ function useOpenGraph(post: {
   featuredImageUrl?: string | null;
   slug: string;
   publishedAt?: Date | string | null;
+  updatedAt?: Date | string | null;
+  authorSlug?: string | null;
   categories?: Array<{ name: string }> | null;
 } | undefined) {
   useEffect(() => {
@@ -86,6 +89,9 @@ function useOpenGraph(post: {
     if (post.publishedAt) {
       setMeta("article:published_time", new Date(post.publishedAt).toISOString());
     }
+    if (post.updatedAt) {
+      setMeta("article:modified_time", new Date(post.updatedAt).toISOString());
+    }
     if (post.categories?.[0]) {
       setMeta("article:section", post.categories[0].name);
     }
@@ -119,6 +125,8 @@ function useOpenGraph(post: {
       document.head.appendChild(schemaEl);
     }
     const publishedIso = post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined;
+    const updatedIso = post.updatedAt ? new Date(post.updatedAt).toISOString() : publishedIso;
+    const editorialAuthor = getEditorialAuthor(post.authorSlug);
     const category = post.categories?.[0]?.name || 'Tezos News';
     const catSlug = (post.categories?.[0] as any)?.slug || 'latest-news';
     const keywords = post.categories?.map((c: { name: string }) => c.name).join(', ') || 'Tezos, XTZ, blockchain';
@@ -131,11 +139,13 @@ function useOpenGraph(post: {
         'image': [{ '@type': 'ImageObject', 'url': image, 'width': 1200, 'height': 630 }],
         'url': url,
         'datePublished': publishedIso,
-        'dateModified': publishedIso,
+        'dateModified': updatedIso,
         'inLanguage': 'en-GB',
         'isAccessibleForFree': true,
         'keywords': keywords,
-        'author': [{ '@type': 'Organization', 'name': 'XTZ.News', 'url': 'https://xtz.news', 'sameAs': ['https://twitter.com/XTZNews'] }],
+        'author': editorialAuthor
+          ? [{ '@type': 'Person', 'name': editorialAuthor.name, 'url': `https://xtz.news/authors/${editorialAuthor.slug}` }]
+          : [{ '@type': 'Organization', 'name': 'XTZ.News', 'url': 'https://xtz.news', 'sameAs': ['https://twitter.com/XTZNews'] }],
         'publisher': {
           '@type': 'Organization',
           'name': 'XTZ.News',
@@ -167,7 +177,7 @@ function useOpenGraph(post: {
       const el = document.getElementById(schemaId);
       if (el) el.remove();
     };
-  }, [post?.slug]);
+  }, [post?.slug, post?.updatedAt, post?.authorSlug]);
 }
 
 function formatDate(date: Date | string | null | undefined) {
@@ -475,6 +485,7 @@ export default function ArticlePage() {
   const isTezOracleArticle = isTezOracleStory(post.slug);
   const isPostQuantumArticle = isPostQuantumStory(post.slug);
   const isKentoArticle = isKentoStory(post.slug);
+  const articleAuthor = getEditorialAuthor((post as { authorSlug?: string | null }).authorSlug);
   const newsletterPreviewSuccess = typeof window !== "undefined" && import.meta.env.DEV && new URLSearchParams(window.location.search).get("newsletterPreview") === "success";
   const displayedRelated = isGaneshaArticle
     ? prioritiseGaneshaRelatedStories(uniqueRelated)
@@ -487,6 +498,7 @@ export default function ArticlePage() {
           : uniqueRelated;
   const wordCount = post.content ? post.content.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length : 0;
   const readMins = Math.max(1, Math.round(wordCount / 200));
+  const lastUpdatedAt = (post as { updatedAt?: Date | string | null }).updatedAt || post.publishedAt;
 
   return (
     <article aria-labelledby="article-title">
@@ -566,10 +578,11 @@ export default function ArticlePage() {
           {/* Meta row */}
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.75rem" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <div style={{ width: "28px", height: "28px", borderRadius: "50%", background: "#2c7df7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", fontWeight: 900, color: "#fff", flexShrink: 0 }}>X</div>
-              <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "rgba(255,255,255,0.85)" }}>XTZ News</span>
+              {articleAuthor?.imageUrl ? <img src={getMediaUrl(articleAuthor.imageUrl)} alt="" style={{ width: "28px", height: "28px", borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} /> : <div style={{ width: "28px", height: "28px", borderRadius: "50%", background: "#2c7df7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", fontWeight: 900, color: "#fff", flexShrink: 0 }}>{articleAuthor?.initials || "X"}</div>}
+              {articleAuthor ? <Link href={`/authors/${articleAuthor.slug}`} style={{ fontSize: "0.8rem", fontWeight: 700, color: "rgba(255,255,255,0.85)", textDecoration: "none" }}>By {articleAuthor.name}</Link> : <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "rgba(255,255,255,0.85)" }}>XTZ News</span>}
             </div>
-            <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.75rem" }}>{formatDate(post.publishedAt)}</span>
+            <time dateTime={post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined} style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.75rem" }}>Published {formatDate(post.publishedAt)}</time>
+            <time dateTime={lastUpdatedAt ? new Date(lastUpdatedAt).toISOString() : undefined} style={{ color: "rgba(255,255,255,0.52)", fontSize: "0.75rem" }}>Last updated {formatDate(lastUpdatedAt)}</time>
             <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", fontSize: "0.68rem", fontWeight: 700, padding: "3px 9px", background: "rgba(255,255,255,0.08)", borderRadius: "20px", color: "rgba(255,255,255,0.7)" }}>
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               {readMins} min read
@@ -643,13 +656,13 @@ export default function ArticlePage() {
               <ShareButtons title={post.title} url={pageUrl} variant="full" />
             </div>
 
-            {/* 6. Author card */}
+            {/* Author card */}
             <div style={{ marginTop: "2rem", padding: "1.25rem 1.5rem", background: "#05152e", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "10px", display: "flex", alignItems: "flex-start", gap: "1rem" }}>
-              <div style={{ width: "52px", height: "52px", borderRadius: "50%", background: "linear-gradient(135deg, #2c7df7, #1a6ae0)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.3rem", fontWeight: 900, color: "#fff", flexShrink: 0 }}>X</div>
+              <div style={{ width: "52px", height: "52px", borderRadius: "50%", overflow: "hidden", background: "linear-gradient(135deg, #2c7df7, #1a6ae0)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.3rem", fontWeight: 900, color: "#fff", flexShrink: 0 }}>{articleAuthor?.imageUrl ? <img src={getMediaUrl(articleAuthor.imageUrl)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : articleAuthor?.initials || "X"}</div>
               <div>
-                <div style={{ fontWeight: 800, color: "#fff", fontSize: "0.95rem", marginBottom: "0.2rem" }}>XTZ.News Editorial</div>
-                <div style={{ fontSize: "0.72rem", color: "#2c7df7", fontWeight: 700, marginBottom: "0.5rem", textTransform: "uppercase", letterSpacing: "0.06em" }}>Tezos News Team</div>
-                <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.5)", margin: 0, lineHeight: 1.6 }}>XTZ.News is the leading independent news platform covering the Tezos blockchain ecosystem — from protocol upgrades and DeFi to digital art and community projects.</p>
+                {articleAuthor ? <Link href={`/authors/${articleAuthor.slug}`} style={{ fontWeight: 800, color: "#fff", fontSize: "0.95rem", marginBottom: "0.2rem", textDecoration: "none", display: "inline-block" }}>{articleAuthor.name}</Link> : <div style={{ fontWeight: 800, color: "#fff", fontSize: "0.95rem", marginBottom: "0.2rem" }}>XTZ.News Editorial</div>}
+                <div style={{ fontSize: "0.72rem", color: "#2c7df7", fontWeight: 700, marginBottom: "0.5rem", textTransform: "uppercase", letterSpacing: "0.06em" }}>{articleAuthor ? articleAuthor.jobTitle : "Tezos News Team"}</div>
+                <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.5)", margin: 0, lineHeight: 1.6 }}>{articleAuthor ? articleAuthor.description : "XTZ.News is an independent news platform covering the Tezos blockchain ecosystem — from protocol upgrades and DeFi to digital art and community projects."}</p>
               </div>
             </div>
 
