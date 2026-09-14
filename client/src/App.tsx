@@ -81,6 +81,7 @@ import AdminTezosEventCandidates from "./pages/admin/AdminTezosEventCandidates";
 import AuthorProfilePage from "./pages/AuthorProfilePage";
 import NewsroomEditorialPolicyPage from "./pages/NewsroomEditorialPolicyPage";
 import AdminFirstPartyPromotion from "./pages/admin/AdminFirstPartyPromotion";
+import AdminCorrectionReports from "./pages/admin/AdminCorrectionReports";
 
 function Router() {
   return (
@@ -124,6 +125,7 @@ function Router() {
       <Route path="/admin/subscribers" component={AdminSubscribers} />
       <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/admin/first-party-promotion" component={AdminFirstPartyPromotion} />
+      <Route path="/admin/correction-reports" component={AdminCorrectionReports} />
       <Route path="/prices" component={PricePage} />
       <Route path="/submit-project" component={SubmitProjectPage} />
       <Route path="/unsubscribe" component={UnsubscribePage} />

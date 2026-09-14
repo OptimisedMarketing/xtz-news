@@ -14,6 +14,7 @@ import {
   pages, Page,
   articleSubmissions, ArticleSubmission,
   artProjectSubmissions, ArtProjectSubmission,
+  correctionReports, CorrectionReport,
   siteSettings,
   postTranslations,
   translationImportDeliveries,
@@ -665,6 +666,52 @@ export async function updateArtProjectSubmissionStatus(id: number, status: "pend
   const db = await getDb();
   if (!db) return;
   await db.update(artProjectSubmissions).set({ status, ...(notes ? { adminNotes: notes } : {}) }).where(eq(artProjectSubmissions.id, id));
+}
+
+// ─── Editorial Correction Reports ────────────────────────────────────────────
+export type CorrectionReportInput = {
+  reporterName: string;
+  reporterEmail: string;
+  articleUrl: string;
+  articleTitle?: string;
+  correctionDetail: string;
+  sourceUrl?: string;
+  agreedToReview: true;
+};
+
+export async function createCorrectionReport(input: CorrectionReportInput) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  await db.insert(correctionReports).values({
+    reporterName: input.reporterName,
+    reporterEmail: input.reporterEmail,
+    articleUrl: input.articleUrl,
+    articleTitle: input.articleTitle?.trim() || null,
+    correctionDetail: input.correctionDetail,
+    sourceUrl: input.sourceUrl?.trim() || null,
+    agreedToReview: true,
+  });
+}
+
+export async function getAllCorrectionReports(): Promise<CorrectionReport[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(correctionReports).orderBy(desc(correctionReports.createdAt));
+}
+
+export async function updateCorrectionReportStatus(id: number, status: "pending" | "reviewed" | "resolved" | "rejected", notes?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  await db.update(correctionReports).set({ status, ...(notes !== undefined ? { adminNotes: notes || null } : {}) }).where(eq(correctionReports.id, id));
+}
+
+export async function bulkUpdateCorrectionReportStatus(ids: number[], status: "reviewed" | "resolved" | "rejected", notes?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  const uniqueIds = Array.from(new Set(ids));
+  if (!uniqueIds.length) return { updated: 0 };
+  await db.update(correctionReports).set({ status, ...(notes !== undefined ? { adminNotes: notes || null } : {}) }).where(inArray(correctionReports.id, uniqueIds));
+  return { updated: uniqueIds.length };
 }
 
 // ─── Cloud-discovered Tezos Event Candidates ───────────────────────────────────

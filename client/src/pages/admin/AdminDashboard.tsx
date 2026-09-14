@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { FileText, Tag, FolderOpen, Inbox, BarChart2, ChevronRight, Settings, Palette, CalendarDays, Megaphone } from "lucide-react";
+import { FileText, Tag, FolderOpen, Inbox, BarChart2, ChevronRight, Settings, Palette, CalendarDays, Megaphone, MessageSquareWarning } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -11,6 +11,7 @@ export default function AdminDashboard() {
   const { data: submissions = [] } = trpc.submissions.list.useQuery(undefined, { enabled: user?.role === "admin" });
   const { data: artSubmissions = [] } = trpc.artProjectSubmissions.list.useQuery(undefined, { enabled: user?.role === "admin" });
   const { data: eventCandidates = [] } = trpc.tezosEventCandidates.list.useQuery(undefined, { enabled: user?.role === "admin" });
+  const { data: correctionReports = [] } = trpc.correctionReports.list.useQuery(undefined, { enabled: user?.role === "admin" });
 
   if (loading) {
     return <div className="container py-16 text-center"><div className="skeleton h-8 w-48 mx-auto" /></div>;
@@ -39,6 +40,7 @@ export default function AdminDashboard() {
   const pendingSubmissions = submissions.filter((s) => s.status === "pending").length;
   const pendingArtSubmissions = artSubmissions.filter((s) => s.status === "pending").length;
   const pendingEventCandidates = eventCandidates.filter((candidate) => candidate.status === "pending").length;
+  const pendingCorrectionReports = correctionReports.filter((report) => report.status === "pending").length;
 
   const stats = [
     { label: "Total Posts", value: postCount ?? "—", icon: <FileText size={20} />, href: "/admin/posts" },
@@ -56,6 +58,7 @@ export default function AdminDashboard() {
     { label: "Article Submissions", href: "/admin/submissions", icon: <Inbox size={16} />, badge: pendingSubmissions },
     { label: "Art Project Submissions", href: "/admin/art-project-submissions", icon: <Palette size={16} />, badge: pendingArtSubmissions },
     { label: "Tezos Event Candidates", href: "/admin/tezos-event-candidates", icon: <CalendarDays size={16} />, badge: pendingEventCandidates },
+    { label: "Correction Reports", href: "/admin/correction-reports", icon: <MessageSquareWarning size={16} />, badge: pendingCorrectionReports },
     { label: "Newsletter Subscribers", href: "/admin/subscribers", icon: <BarChart2 size={16} /> },
     { label: "Site Settings", href: "/admin/settings", icon: <Settings size={16} /> },
     { label: "First-Party Promotion", href: "/admin/first-party-promotion", icon: <Megaphone size={16} /> },

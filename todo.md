@@ -531,3 +531,10 @@
 - [x] Add reusable compact author bio boxes with direct profile links to news articles
 - [x] Assign eligible historic published articles to the Lee Evans author profile without overwriting any existing named attribution
 - [x] Add regression coverage and validate promotional, policy, byline, and author-archive journeys on desktop and mobile
+
+## Phase 78: Promotion Rotation, Corrections, and Editorial Reassignment
+- [x] Upgrade first-party promotions to support multiple owner-managed placements, rotation, and clearly marked placeholders
+- [x] Add a public correction-report form on the newsroom editorial-policy page with review-only storage and an administrator queue
+- [x] Send correction-report notifications to info@optimised.marketing without exposing reporter details publicly
+- [x] Add protected per-article author reassignment controls for assigning selected existing stories to Rossa Browne
+- [x] Add regression coverage and validate reader and administrator workflows on desktop and mobile

@@ -47,6 +47,10 @@ vi.mock("./db", () => ({
   createArtProjectSubmission: vi.fn().mockResolvedValue({}),
   getAllArtProjectSubmissions: vi.fn().mockResolvedValue([]),
   updateArtProjectSubmissionStatus: vi.fn().mockResolvedValue(undefined),
+  createCorrectionReport: vi.fn().mockResolvedValue(undefined),
+  getAllCorrectionReports: vi.fn().mockResolvedValue([]),
+  updateCorrectionReportStatus: vi.fn().mockResolvedValue(undefined),
+  bulkUpdateCorrectionReportStatus: vi.fn().mockResolvedValue({ updated: 2 }),
   getAllTezosEventCandidates: vi.fn().mockResolvedValue([]),
   getPublishedTezosEventCandidates: vi.fn().mockResolvedValue([]),
   updateTezosEventCandidateStatus: vi.fn().mockResolvedValue(undefined),
@@ -60,6 +64,9 @@ vi.mock("./db", () => ({
 
 vi.mock("./_core/notification", () => ({
   notifyOwner: vi.fn().mockResolvedValue(true),
+}));
+vi.mock("./correctionReportNotifications", () => ({
+  sendCorrectionReportNotification: vi.fn().mockResolvedValue(true),
 }));
 
 // ─── Context helpers ──────────────────────────────────────────────────────────
@@ -168,6 +175,16 @@ describe("posts", () => {
     const caller = appRouter.createCaller(makeAdminCtx());
     const result = await caller.posts.adminList({ limit: 10, offset: 0 });
     expect(Array.isArray(result)).toBe(true);
+  });
+
+  it("allows administrators to assign a specific post to Rossa Browne", async () => {
+    const adminCaller = appRouter.createCaller(makeAdminCtx());
+    await expect(adminCaller.posts.adminUpdate({ id: 1, authorSlug: "rossa-browne" })).resolves.toEqual({ success: true });
+  });
+
+  it("does not allow a reader to reassign a published post", async () => {
+    const readerCaller = appRouter.createCaller(makeUserCtx());
+    await expect(readerCaller.posts.adminUpdate({ id: 1, authorSlug: "rossa-browne" })).rejects.toThrow();
   });
 });
 
@@ -303,6 +320,37 @@ describe("tezosEventCandidates", () => {
   });
 });
 
+describe("correction reports", () => {
+  const report = {
+    reporterName: "Careful Reader",
+    reporterEmail: "reader@example.com",
+    articleUrl: "https://xtz.news/example-story",
+    articleTitle: "Example story",
+    correctionDetail: "The date in the second paragraph should be checked against the linked official source.",
+    sourceUrl: "https://example.com/official-source",
+    agreedToReview: true as const,
+  };
+
+  it("stores a consented correction privately for editorial review", async () => {
+    const caller = appRouter.createCaller(makePublicCtx());
+    await expect(caller.correctionReports.create(report)).resolves.toEqual({ success: true });
+  });
+
+  it("requires consent and protects correction reports from non-administrators", async () => {
+    const publicCaller = appRouter.createCaller(makePublicCtx());
+    const readerCaller = appRouter.createCaller(makeUserCtx());
+    await expect(publicCaller.correctionReports.create({ ...report, agreedToReview: false })).rejects.toThrow();
+    await expect(publicCaller.correctionReports.create({ ...report, articleUrl: "https://example.com/other-story" })).rejects.toThrow("Use the canonical XTZ.News article URL.");
+    await expect(readerCaller.correctionReports.list()).rejects.toThrow();
+  });
+
+  it("allows administrators to update a bounded selected correction-report set", async () => {
+    const caller = appRouter.createCaller(makeAdminCtx());
+    await expect(caller.correctionReports.bulkUpdateStatus({ ids: [1, 2], status: "resolved", notes: "Checked against source." })).resolves.toEqual({ updated: 2 });
+    await expect(caller.correctionReports.bulkUpdateStatus({ ids: [1, 1], status: "resolved" })).rejects.toThrow();
+  });
+});
+
 describe("first-party promotion settings", () => {
   const promotion = {
     title: "Example owner app",
@@ -325,6 +373,15 @@ describe("first-party promotion settings", () => {
     const adminCaller = appRouter.createCaller(makeAdminCtx());
     await expect(adminCaller.settings.setFirstPartyPromotion({ ...promotion, url: "/tools" })).resolves.toEqual({ success: true });
     await expect(adminCaller.settings.setFirstPartyPromotion({ ...promotion, url: "javascript:alert(1)" })).rejects.toThrow("Use an internal path or an HTTPS URL.");
+  });
+
+  it("allows administrators to configure rotating owner placements and placeholders without external destinations", async () => {
+    const adminCaller = appRouter.createCaller(makeAdminCtx());
+    await expect(adminCaller.settings.setFirstPartyPromotions([
+      { id: "owner-app", title: "Owner app", description: "A factual first-party app placement.", url: "https://example.com", ctaLabel: "Open", active: true, placeholder: false },
+      { id: "reserved-app", title: "Your next app", description: "A reserved owner placement.", url: "", ctaLabel: "Reserved", active: true, placeholder: true },
+    ])).resolves.toEqual({ success: true });
+    await expect(adminCaller.settings.setFirstPartyPromotions([{ id: "unsafe", title: "Unsafe", description: "Unsafe destination.", url: "javascript:alert(1)", ctaLabel: "Open", active: true, placeholder: false }])).rejects.toThrow("A live promotion needs an internal path or HTTPS URL.");
   });
 });
 

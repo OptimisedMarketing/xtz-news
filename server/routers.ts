@@ -18,6 +18,7 @@ import { MONTHLY_DIGEST_SCHEDULER_PUBLIC_KEY } from "./monthlyDigestSchedulerPub
 import { isValidTezosEventCandidateImportPayload, verifyTezosEventCandidateImportSignature, type TezosEventCandidateImportPayload } from "./tezosEventCandidateImportRouter";
 import { TEZOS_EVENT_CANDIDATE_IMPORT_PUBLIC_KEY } from "./tezosEventCandidateImportPublicKey";
 import { stableJson } from "./translationImportRouter";
+import { sendCorrectionReportNotification } from "./correctionReportNotifications";
 
 // ─── Admin guard ──────────────────────────────────────────────────────────────
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -26,6 +27,14 @@ const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
   }
   return next({ ctx });
 });
+const xtzArticleUrlSchema = z.string().trim().url().max(2000).refine((value) => {
+  try {
+    const host = new URL(value).hostname.toLowerCase();
+    return host === "xtz.news" || host === "www.xtz.news";
+  } catch {
+    return false;
+  }
+}, "Use the canonical XTZ.News article URL.");
 
 // ─── Posts Router ─────────────────────────────────────────────────────────────
 const postsRouter = router({
@@ -243,6 +252,7 @@ const postsRouter = router({
       featuredImageUrl: z.string().optional(),
       seoTitle: z.string().optional(),
       seoDescription: z.string().optional(),
+      authorSlug: z.enum(["lee-evans", "rossa-browne"]).optional(),
     }))
     .mutation(async ({ input }) => {
       const { id, ...data } = input;
@@ -435,6 +445,45 @@ const artProjectSubmissionsRouter = router({
       await db.updateArtProjectSubmissionStatus(input.id, input.status, input.notes);
       return { success: true } as const;
     }),
+});
+
+// ─── Editorial Correction Reports ────────────────────────────────────────────
+const correctionReportsRouter = router({
+  create: publicProcedure
+    .input(z.object({
+      reporterName: z.string().trim().min(2).max(255),
+      reporterEmail: z.string().trim().email().max(320),
+      articleUrl: xtzArticleUrlSchema,
+      articleTitle: z.string().trim().max(500).optional(),
+      correctionDetail: z.string().trim().min(20).max(4000),
+      sourceUrl: z.string().trim().url().max(2000).optional(),
+      agreedToReview: z.literal(true),
+    }))
+    .mutation(async ({ input }) => {
+      await db.createCorrectionReport(input);
+      await Promise.allSettled([
+        notifyOwner({
+          title: `XTZ.News correction report: ${input.articleTitle || input.articleUrl}`,
+          content: `A correction report is ready for editorial review.\n\nArticle: ${input.articleTitle || input.articleUrl}\nArticle URL: ${input.articleUrl}\nReporter: ${input.reporterName} (${input.reporterEmail})\n\nReported issue:\n${input.correctionDetail}${input.sourceUrl ? `\n\nSuggested source: ${input.sourceUrl}` : ""}\n\nThe report is private, pending review, and has not changed published content.`,
+        }),
+        sendCorrectionReportNotification(input),
+      ]);
+      return { success: true } as const;
+    }),
+  list: adminProcedure.query(() => db.getAllCorrectionReports()),
+  updateStatus: adminProcedure
+    .input(z.object({ id: z.number().int().positive(), status: z.enum(["pending", "reviewed", "resolved", "rejected"]), notes: z.string().max(2000).optional() }))
+    .mutation(async ({ input }) => {
+      await db.updateCorrectionReportStatus(input.id, input.status, input.notes);
+      return { success: true } as const;
+    }),
+  bulkUpdateStatus: adminProcedure
+    .input(z.object({
+      ids: z.array(z.number().int().positive()).min(1).max(50).refine((ids) => new Set(ids).size === ids.length, "Each selected report must be unique"),
+      status: z.enum(["reviewed", "resolved", "rejected"]),
+      notes: z.string().max(2000).optional(),
+    }))
+    .mutation(async ({ input }) => db.bulkUpdateCorrectionReportStatus(input.ids, input.status, input.notes)),
 });
 
 // ─── Cloud-discovered Tezos Event Candidates ──────────────────────────────────
@@ -837,6 +886,35 @@ const settingsRouter = router({
       ]);
       return { success: true } as const;
     }),
+  getFirstPartyPromotions: publicProcedure.query(async () => {
+    const stored = await db.getSetting("first_party_promotions");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) return parsed;
+      } catch {
+        // Fall back to the original single placement rather than exposing malformed data.
+      }
+    }
+    const [title, description, url, ctaLabel, active] = await Promise.all([
+      db.getSetting("first_party_promotion_title"), db.getSetting("first_party_promotion_description"), db.getSetting("first_party_promotion_url"), db.getSetting("first_party_promotion_cta_label"), db.getSetting("first_party_promotion_active"),
+    ]);
+    return title ? [{ id: "legacy-promotion", title, description: description || "", url: url || "", ctaLabel: ctaLabel || "Explore", active: active === "true", placeholder: false }] : [];
+  }),
+  setFirstPartyPromotions: adminProcedure
+    .input(z.array(z.object({
+      id: z.string().min(1).max(100),
+      title: z.string().trim().min(1).max(100),
+      description: z.string().trim().max(280),
+      url: z.string().trim().max(500),
+      ctaLabel: z.string().trim().min(1).max(40),
+      active: z.boolean(),
+      placeholder: z.boolean(),
+    }).refine((promotion) => promotion.placeholder || promotion.url.startsWith("/") || /^https:\/\//.test(promotion.url), "A live promotion needs an internal path or HTTPS URL.")).min(1).max(8))
+    .mutation(async ({ input }) => {
+      await db.setSetting("first_party_promotions", JSON.stringify(input));
+      return { success: true } as const;
+    }),
 });
 
 // ─── Audio Router (on-demand ElevenLabs generation) ──────────────────────────
@@ -951,6 +1029,7 @@ export const appRouter = router({
   pages: pagesRouter,
   submissions: submissionsRouter,
   artProjectSubmissions: artProjectSubmissionsRouter,
+  correctionReports: correctionReportsRouter,
   tezosEventCandidates: tezosEventCandidatesRouter,
   newsletter: newsletterRouter,
   prices: priceRouter,

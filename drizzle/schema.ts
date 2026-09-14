@@ -300,6 +300,25 @@ export const artProjectSubmissions = mysqlTable("art_project_submissions", {
 
 export type ArtProjectSubmission = typeof artProjectSubmissions.$inferSelect;
 
+// ─── Editorial Correction Reports ────────────────────────────────────────────
+// Reader reports remain private and are never applied to published content automatically.
+export const correctionReports = mysqlTable("correction_reports", {
+  id: int("id").autoincrement().primaryKey(),
+  reporterName: varchar("reporterName", { length: 255 }).notNull(),
+  reporterEmail: varchar("reporterEmail", { length: 320 }).notNull(),
+  articleUrl: text("articleUrl").notNull(),
+  articleTitle: varchar("articleTitle", { length: 500 }),
+  correctionDetail: text("correctionDetail").notNull(),
+  sourceUrl: text("sourceUrl"),
+  agreedToReview: boolean("agreedToReview").default(false).notNull(),
+  status: mysqlEnum("status", ["pending", "reviewed", "resolved", "rejected"]).default("pending").notNull(),
+  adminNotes: text("adminNotes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (t) => [index("correction_reports_status_idx").on(t.status), index("correction_reports_created_idx").on(t.createdAt)]);
+
+export type CorrectionReport = typeof correctionReports.$inferSelect;
+
 // ─── Cloud-discovered Tezos Event Candidates ───────────────────────────────────
 // The cloud importer can only create or refresh pending review records. Reader-facing
 // events are created only after an administrator deliberately publishes a candidate.

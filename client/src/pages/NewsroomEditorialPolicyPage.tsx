@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { ArrowLeft, CheckCircle2, FilePenLine, Landmark, MessagesSquare } from "lucide-react";
 import { buildWebPageSchema, useSEO } from "@/hooks/useSEO";
+import CorrectionReportForm from "@/components/CorrectionReportForm";
 
 const updatedLabel = "14 September 2026";
 
@@ -34,8 +35,8 @@ export default function NewsroomEditorialPolicyPage() {
       <PolicySection icon={<Landmark size={18} />} title="Editorial purpose"><p style={{ margin: 0 }}>XTZ.News covers Tezos protocol activity, ecosystem projects, digital art, research, events, and practical reader resources. We aim to provide clear context and link readers to relevant primary or official material whenever it is available.</p></PolicySection>
       <PolicySection icon={<FilePenLine size={18} />} title="Sources, context, and attribution"><p style={{ margin: 0 }}>Articles identify their source material through links, in-story context, or both. We distinguish reported information from commentary and do not present a campaign, project, service, or collection as an endorsement. Dates, availability, and other time-sensitive details can change after publication.</p></PolicySection>
       <PolicySection icon={<CheckCircle2 size={18} />} title="Authors and article updates"><p style={{ margin: 0 }}>Named contributors have public XTZ.News profile pages that identify their declared role and location. Article pages display the original publication date and a Last updated date when stored content is changed. Byline assignments identify editorial responsibility; they do not change the underlying source record.</p></PolicySection>
-      <PolicySection icon={<MessagesSquare size={18} />} title="Corrections and transparent promotion"><p style={{ margin: 0 }}>If you believe an article needs a factual correction, email <a href="mailto:hello@xtz.news" style={{ color: "#5a9fff" }}>hello@xtz.news</a> with the article URL, the detail in question, and a relevant source. We may update an article when warranted and retain its visible update date. Placements labelled “From our network” are first-party promotions for businesses or apps managed by the XTZ.News owner. They are separate from editorial coverage and are not third-party advertising placements.</p></PolicySection>
-      <div style={{ marginTop: "1.5rem", padding: "1rem 1.15rem", background: "rgba(44,125,247,0.08)", border: "1px solid rgba(44,125,247,0.24)", borderRadius: "8px", color: "rgba(255,255,255,0.68)", fontSize: "0.84rem", lineHeight: 1.6 }}>For general editorial contact, corrections, or source material, use <a href="mailto:hello@xtz.news" style={{ color: "#5a9fff", fontWeight: 700 }}>hello@xtz.news</a>.</div>
+      <PolicySection icon={<MessagesSquare size={18} />} title="Corrections and transparent promotion"><p style={{ margin: 0 }}>If you believe an article needs a factual correction, use the private form below with the article URL, the detail in question, and a relevant source. We may update an article when warranted and retain its visible update date. Placements labelled “From our network” are first-party promotions for businesses or apps managed by the XTZ.News owner. They are separate from editorial coverage and are not third-party advertising placements.</p><CorrectionReportForm /></PolicySection>
+      <div style={{ marginTop: "1.5rem", padding: "1rem 1.15rem", background: "rgba(44,125,247,0.08)", border: "1px solid rgba(44,125,247,0.24)", borderRadius: "8px", color: "rgba(255,255,255,0.68)", fontSize: "0.84rem", lineHeight: 1.6 }}>For general editorial contact or source material, use <a href="mailto:hello@xtz.news" style={{ color: "#5a9fff", fontWeight: 700 }}>hello@xtz.news</a>.</div>
     </div>
   </main>;
 }

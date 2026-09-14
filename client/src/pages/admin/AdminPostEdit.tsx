@@ -21,6 +21,7 @@ export default function AdminPostEdit() {
     seoTitle: "",
     seoDescription: "",
     featuredImageUrl: "",
+    authorSlug: "lee-evans" as "lee-evans" | "rossa-browne",
   });
 
   useEffect(() => {
@@ -33,6 +34,7 @@ export default function AdminPostEdit() {
         seoTitle: post.seoTitle || "",
         seoDescription: post.seoDescription || "",
         featuredImageUrl: post.featuredImageUrl || "",
+        authorSlug: post.authorSlug === "rossa-browne" ? "rossa-browne" : "lee-evans",
       });
     }
   }, [post]);
@@ -95,6 +97,14 @@ export default function AdminPostEdit() {
           <div>
             <label className="block text-xs font-bold uppercase tracking-widest text-white/50 mb-1.5">SEO Description</label>
             <textarea rows={3} value={form.seoDescription} onChange={(e) => setForm({ ...form, seoDescription: e.target.value })} className="form-input resize-none" />
+          </div>
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-widest text-white/50 mb-1.5">Editorial Byline</label>
+            <select value={form.authorSlug} onChange={(e) => setForm({ ...form, authorSlug: e.target.value as "lee-evans" | "rossa-browne" })} className="form-input">
+              <option value="lee-evans">Lee Evans</option>
+              <option value="rossa-browne">Rossa Browne</option>
+            </select>
+            <p className="text-xs text-white/40 mt-1.5">Choose the named XTZ.News writer responsible for this article. This updates the public byline and author archive only.</p>
           </div>
           <button type="submit" disabled={updateMutation.isPending} className="btn-primary">
             <Save size={14} /> {updateMutation.isPending ? "Saving..." : "Save Changes"}
