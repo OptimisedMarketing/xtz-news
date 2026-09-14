@@ -663,6 +663,7 @@ export default function ArticlePage() {
                 {articleAuthor ? <Link href={`/authors/${articleAuthor.slug}`} style={{ fontWeight: 800, color: "#fff", fontSize: "0.95rem", marginBottom: "0.2rem", textDecoration: "none", display: "inline-block" }}>{articleAuthor.name}</Link> : <div style={{ fontWeight: 800, color: "#fff", fontSize: "0.95rem", marginBottom: "0.2rem" }}>XTZ.News Editorial</div>}
                 <div style={{ fontSize: "0.72rem", color: "#2c7df7", fontWeight: 700, marginBottom: "0.5rem", textTransform: "uppercase", letterSpacing: "0.06em" }}>{articleAuthor ? articleAuthor.jobTitle : "Tezos News Team"}</div>
                 <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.5)", margin: 0, lineHeight: 1.6 }}>{articleAuthor ? articleAuthor.description : "XTZ.News is an independent news platform covering the Tezos blockchain ecosystem — from protocol upgrades and DeFi to digital art and community projects."}</p>
+                {articleAuthor && <Link href={`/authors/${articleAuthor.slug}`} style={{ display: "inline-block", marginTop: "0.65rem", color: "#8cbcff", fontSize: "0.72rem", fontWeight: 800, textDecoration: "none" }}>View {articleAuthor.name}'s profile →</Link>}
               </div>
             </div>
 

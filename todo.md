@@ -524,3 +524,10 @@
 - [x] Add a visible last-updated timestamp to revised published articles without hiding the original publication date
 - [x] Add accessible X and LinkedIn sharing controls and a relevant related-articles section to the HEK partnership article
 - [x] Add focused tests and validate author pages, structured data, timestamps, and HEK discovery on desktop and mobile
+
+## Phase 77: First-Party Promotion and Editorial Transparency
+- [x] Add a clearly labelled, self-managed first-party promotion area for XTZ.News owner businesses and apps without third-party tracking
+- [x] Publish a newsroom editorial-policy page and link it from both public author profiles
+- [x] Add reusable compact author bio boxes with direct profile links to news articles
+- [x] Assign eligible historic published articles to the Lee Evans author profile without overwriting any existing named attribution
+- [x] Add regression coverage and validate promotional, policy, byline, and author-archive journeys on desktop and mobile

@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { FileText, Tag, FolderOpen, Inbox, BarChart2, ChevronRight, Settings, Palette, CalendarDays } from "lucide-react";
+import { FileText, Tag, FolderOpen, Inbox, BarChart2, ChevronRight, Settings, Palette, CalendarDays, Megaphone } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -58,6 +58,7 @@ export default function AdminDashboard() {
     { label: "Tezos Event Candidates", href: "/admin/tezos-event-candidates", icon: <CalendarDays size={16} />, badge: pendingEventCandidates },
     { label: "Newsletter Subscribers", href: "/admin/subscribers", icon: <BarChart2 size={16} /> },
     { label: "Site Settings", href: "/admin/settings", icon: <Settings size={16} /> },
+    { label: "First-Party Promotion", href: "/admin/first-party-promotion", icon: <Megaphone size={16} /> },
   ];
 
   return (

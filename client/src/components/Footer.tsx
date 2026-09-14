@@ -136,6 +136,7 @@ export default function Footer() {
             </p>
             {[
               { label: "Privacy Policy", href: "/privacy-policy" },
+              { label: "Editorial Policy", href: "/newsroom/editorial-policy" },
               { label: "Disclaimer", href: "/disclaimer" },
               { label: "Terms & Conditions", href: "/terms-and-conditions" },
             ].map((item) => (

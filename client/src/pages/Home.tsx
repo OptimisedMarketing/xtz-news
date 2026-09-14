@@ -11,6 +11,7 @@ import PostQuantumHomepageFeature from "@/components/PostQuantumHomepageFeature"
 import WalletStarterHomepageFeature from "@/components/WalletStarterHomepageFeature";
 import StakingStarterHomepageFeature from "@/components/StakingStarterHomepageFeature";
 import ArtOnTezosHomepageFeature from "@/components/ArtOnTezosHomepageFeature";
+import FirstPartyPromotion from "@/components/FirstPartyPromotion";
 import { useSEO } from "@/hooks/useSEO";
 import { getMediaUrl } from "@/lib/mediaUrl";
 import { getNewsletterConfirmationCopy } from "@/lib/newsletterConfirmation";
@@ -569,6 +570,7 @@ export default function Home() {
       <WalletStarterHomepageFeature />
       <StakingStarterHomepageFeature />
       <ArtOnTezosHomepageFeature />
+      <FirstPartyPromotion />
       <PostQuantumHomepageFeature />
       <TezosSystemsNetworkPulse />
       <LatestNewsSection posts={latest.slice(0, 8)} weekPosts={(data as any)?.trending ?? mostRead} allTimePosts={mostRead} />

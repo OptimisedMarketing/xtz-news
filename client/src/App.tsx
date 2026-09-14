@@ -79,6 +79,8 @@ import ArtOnTezosPage from "./pages/ArtOnTezosPage";
 import EventsPage from "./pages/EventsPage";
 import AdminTezosEventCandidates from "./pages/admin/AdminTezosEventCandidates";
 import AuthorProfilePage from "./pages/AuthorProfilePage";
+import NewsroomEditorialPolicyPage from "./pages/NewsroomEditorialPolicyPage";
+import AdminFirstPartyPromotion from "./pages/admin/AdminFirstPartyPromotion";
 
 function Router() {
   return (
@@ -101,6 +103,7 @@ function Router() {
       <Route path="/timeline" component={TimelinePage} />
       <Route path="/events" component={EventsPage} />
       <Route path="/authors/:slug" component={AuthorProfilePage} />
+      <Route path="/newsroom/editorial-policy" component={NewsroomEditorialPolicyPage} />
 
       <Route path="/submit-article" component={SubmitArticlePage} />
       <Route path="/contact" component={ContactPage} />
@@ -120,6 +123,7 @@ function Router() {
       <Route path="/admin/tezos-event-candidates" component={AdminTezosEventCandidates} />
       <Route path="/admin/subscribers" component={AdminSubscribers} />
       <Route path="/admin/settings" component={AdminSettings} />
+      <Route path="/admin/first-party-promotion" component={AdminFirstPartyPromotion} />
       <Route path="/prices" component={PricePage} />
       <Route path="/submit-project" component={SubmitProjectPage} />
       <Route path="/unsubscribe" component={UnsubscribePage} />

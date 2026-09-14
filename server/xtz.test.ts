@@ -15,6 +15,7 @@ vi.mock("./db", () => ({
   }),
   getPostCategories: vi.fn().mockResolvedValue([{ id: 1, name: "Latest News", slug: "latest-news", postCount: 50, wpId: 1, parentId: null, description: null, createdAt: new Date() }]),
   getPostTags: vi.fn().mockResolvedValue([]),
+  getPostsByAuthorSlug: vi.fn().mockResolvedValue([]),
   incrementPostViewCount: vi.fn().mockResolvedValue(undefined),
   getPostsByCategorySlug: vi.fn().mockResolvedValue({ posts: [], total: 0 }),
   getPostsByTagSlug: vi.fn().mockResolvedValue({ posts: [], total: 0 }),
@@ -132,6 +133,11 @@ describe("posts", () => {
     expect(result.slug).toBe("test-post");
     expect(result.categories).toBeDefined();
     expect(result.tags).toBeDefined();
+  });
+
+  it("lists only published stories assigned to a requested author profile", async () => {
+    const caller = appRouter.createCaller(makePublicCtx());
+    await expect(caller.posts.byAuthor({ authorSlug: "lee-evans" })).resolves.toEqual([]);
   });
 
   it("search returns results for valid query", async () => {
@@ -294,6 +300,31 @@ describe("tezosEventCandidates", () => {
     const adminCaller = appRouter.createCaller(makeAdminCtx());
     await expect(adminCaller.tezosEventCandidates.bulkUpdateStatus({ ids: [1, 2], status: "reviewed", notes: "Checked as a batch." })).resolves.toEqual({ updated: 2 });
     await expect(adminCaller.tezosEventCandidates.bulkUpdateStatus({ ids: [1, 1], status: "reviewed" })).rejects.toThrow();
+  });
+});
+
+describe("first-party promotion settings", () => {
+  const promotion = {
+    title: "Example owner app",
+    description: "A concise owner-managed promotion.",
+    url: "https://example.com/app",
+    ctaLabel: "Explore",
+    active: true,
+  };
+
+  it("keeps public display data readable and requires an administrator to configure it", async () => {
+    const publicCaller = appRouter.createCaller(makePublicCtx());
+    const readerCaller = appRouter.createCaller(makeUserCtx());
+    const adminCaller = appRouter.createCaller(makeAdminCtx());
+    await expect(publicCaller.settings.getFirstPartyPromotion()).resolves.toMatchObject({ active: false });
+    await expect(readerCaller.settings.setFirstPartyPromotion(promotion)).rejects.toThrow();
+    await expect(adminCaller.settings.setFirstPartyPromotion(promotion)).resolves.toEqual({ success: true });
+  });
+
+  it("accepts internal paths or HTTPS destinations and rejects unsafe promotion destinations", async () => {
+    const adminCaller = appRouter.createCaller(makeAdminCtx());
+    await expect(adminCaller.settings.setFirstPartyPromotion({ ...promotion, url: "/tools" })).resolves.toEqual({ success: true });
+    await expect(adminCaller.settings.setFirstPartyPromotion({ ...promotion, url: "javascript:alert(1)" })).rejects.toThrow("Use an internal path or an HTTPS URL.");
   });
 });
 

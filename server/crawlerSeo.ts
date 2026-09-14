@@ -30,7 +30,7 @@ export type NewsSitemapArticle = {
 export const CRAWLER_ROUTE_PREFIXES = [
   "category", "tag", "projects", "timeline", "events", "contact", "admin", "explorer",
   "staking", "tools", "guides", "glossary", "post-quantum", "art", "prices",
-  "etherlink", "wallets", "art-on-tezos", "search", "unsubscribe", "manage-subscriptions", "authors",
+  "etherlink", "wallets", "art-on-tezos", "search", "unsubscribe", "manage-subscriptions", "authors", "newsroom",
 ];
 
 export const SEO_STATIC_PAGES = [
@@ -45,6 +45,7 @@ export const SEO_STATIC_PAGES = [
   { url: "/events", priority: "0.7", changefreq: "weekly" },
   { url: "/authors/lee-evans", priority: "0.5", changefreq: "monthly" },
   { url: "/authors/rossa-browne", priority: "0.5", changefreq: "monthly" },
+  { url: "/newsroom/editorial-policy", priority: "0.5", changefreq: "monthly" },
 ];
 
 type StaticMeta = { title: string; description: string };
@@ -114,6 +115,10 @@ const STATIC_META: Record<string, StaticMeta> = {
   "/events": {
     title: "Tezos Events | Editor-Reviewed Calendar | XTZ.News",
     description: "Browse editor-reviewed Tezos event listings with source links and calendar downloads from XTZ.News.",
+  },
+  "/newsroom/editorial-policy": {
+    title: "Newsroom Editorial Policy | XTZ.News",
+    description: "Read how XTZ.News approaches source-led Tezos reporting, corrections, author attribution, and transparent first-party promotions.",
   },
 };
 

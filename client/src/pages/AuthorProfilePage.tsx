@@ -61,6 +61,7 @@ export default function AuthorProfilePage() {
               </div>
               <p style={{ color: "rgba(255,255,255,0.76)", lineHeight: 1.75, maxWidth: "690px", fontSize: "1rem", margin: "1.25rem 0 0" }}>{author.description}</p>
               {author.websiteUrl && <a href={author.websiteUrl} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: "0.45rem", color: "#fff", background: "#2c7df7", padding: "0.7rem 1rem", borderRadius: "5px", fontSize: "0.78rem", fontWeight: 800, textDecoration: "none", marginTop: "1.25rem" }}>Visit personal website <ExternalLink size={14} /></a>}
+              <Link href="/newsroom/editorial-policy" style={{ display: "inline-flex", alignItems: "center", marginLeft: author.websiteUrl ? "0.65rem" : 0, marginTop: "1.25rem", color: "#8cbcff", fontSize: "0.78rem", fontWeight: 800, textDecoration: "none" }}>Read editorial policy →</Link>
             </div>
           </div>
         </div>

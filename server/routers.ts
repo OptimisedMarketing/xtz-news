@@ -809,6 +809,34 @@ const settingsRouter = router({
       ]);
       return { success: true };
     }),
+  getFirstPartyPromotion: publicProcedure.query(async () => {
+    const [title, description, url, ctaLabel, active] = await Promise.all([
+      db.getSetting("first_party_promotion_title"),
+      db.getSetting("first_party_promotion_description"),
+      db.getSetting("first_party_promotion_url"),
+      db.getSetting("first_party_promotion_cta_label"),
+      db.getSetting("first_party_promotion_active"),
+    ]);
+    return { title, description, url, ctaLabel, active: active === "true" };
+  }),
+  setFirstPartyPromotion: adminProcedure
+    .input(z.object({
+      title: z.string().trim().min(1).max(100),
+      description: z.string().trim().max(280),
+      url: z.string().trim().min(1).max(500).refine((value) => value.startsWith("/") || /^https:\/\//.test(value), "Use an internal path or an HTTPS URL."),
+      ctaLabel: z.string().trim().min(1).max(40),
+      active: z.boolean(),
+    }))
+    .mutation(async ({ input }) => {
+      await Promise.all([
+        db.setSetting("first_party_promotion_title", input.title),
+        db.setSetting("first_party_promotion_description", input.description),
+        db.setSetting("first_party_promotion_url", input.url),
+        db.setSetting("first_party_promotion_cta_label", input.ctaLabel),
+        db.setSetting("first_party_promotion_active", input.active ? "true" : "false"),
+      ]);
+      return { success: true } as const;
+    }),
 });
 
 // ─── Audio Router (on-demand ElevenLabs generation) ──────────────────────────
