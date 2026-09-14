@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MOBILE_SECTIONS, NAV_ITEMS, OPTIMISED_MARKETING_HEADER_LINK } from "./Header";
+import { ADVERTISE_HEADER_LINK, MOBILE_SECTIONS, NAV_ITEMS, OPTIMISED_MARKETING_HEADER_LINK } from "./Header";
 
 describe("primary navigation", () => {
   it("keeps Home as the first desktop navigation destination", () => {
@@ -39,6 +39,13 @@ describe("primary navigation", () => {
     expect(OPTIMISED_MARKETING_HEADER_LINK).toEqual({
       label: "OPTIMISED MARKETING",
       href: "https://optimised.marketing",
+    });
+  });
+
+  it("keeps the advertising destination configured for the shared header", () => {
+    expect(ADVERTISE_HEADER_LINK).toEqual({
+      label: "ADVERTISE WITH US",
+      href: "/advertise",
     });
   });
 });

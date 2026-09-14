@@ -554,3 +554,9 @@
 - [x] Add an accessible Optimised Marketing external link in the header utility bar
 - [x] Preserve desktop primary navigation and mobile header clarity
 - [x] Add regression coverage and validate the link at desktop and mobile widths
+
+## Phase 82: Advertising Discovery and Header Enhancement
+- [x] Replace the supplied first-party banner with the new wide Optimised Marketing × XTZ.News creative through the approved media path
+- [x] Add an accessible visual icon and subtle hover state to the Optimised Marketing header link
+- [x] Publish an Advertising page and link it from the shared header utility bar
+- [x] Add regression coverage and validate banner, header, and advertising-page journeys on desktop and mobile

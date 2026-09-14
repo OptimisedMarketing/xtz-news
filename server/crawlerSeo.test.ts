@@ -38,9 +38,16 @@ describe("crawler SEO rendering", () => {
 
   it("keeps priority evergreen routes crawlable and protected from article-slug handling", () => {
     expect(SEO_STATIC_PAGES.map(page => page.url)).toEqual(expect.arrayContaining([
-      "/post-quantum", "/guides/tz5-wallet", "/glossary/tezos-prefixes", "/etherlink", "/etherlink/bridge", "/wallets", "/art-on-tezos",
+      "/post-quantum", "/guides/tz5-wallet", "/glossary/tezos-prefixes", "/etherlink", "/etherlink/bridge", "/wallets", "/art-on-tezos", "/advertise",
     ]));
-    expect(CRAWLER_ROUTE_PREFIXES).toEqual(expect.arrayContaining(["guides", "glossary", "post-quantum", "etherlink", "wallets", "art-on-tezos"]));
+    expect(CRAWLER_ROUTE_PREFIXES).toEqual(expect.arrayContaining(["guides", "glossary", "post-quantum", "etherlink", "wallets", "art-on-tezos", "advertise"]));
+  });
+
+  it("renders unique advertising-page metadata", () => {
+    const output = renderCrawlerHtml({ html, baseUrl: "https://xtz.news", pathname: "/advertise" });
+    expect(getCrawlerStaticMeta("/advertise").title).toBe("Advertise With XTZ.News | Tezos News Partnerships");
+    expect(output).toContain("advertising and partnership enquiries");
+    expect(output).toContain('<link rel="canonical" href="https://xtz.news/advertise" />');
   });
 
   it("renders complete FAQPage schema for priority Tezos tool routes", () => {

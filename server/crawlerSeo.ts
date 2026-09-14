@@ -30,7 +30,7 @@ export type NewsSitemapArticle = {
 export const CRAWLER_ROUTE_PREFIXES = [
   "category", "tag", "projects", "timeline", "events", "contact", "admin", "explorer",
   "staking", "tools", "guides", "glossary", "post-quantum", "art", "prices",
-  "etherlink", "wallets", "art-on-tezos", "search", "unsubscribe", "manage-subscriptions", "authors", "newsroom",
+  "etherlink", "wallets", "art-on-tezos", "search", "unsubscribe", "manage-subscriptions", "authors", "newsroom", "advertise",
 ];
 
 export const SEO_STATIC_PAGES = [
@@ -46,6 +46,7 @@ export const SEO_STATIC_PAGES = [
   { url: "/authors/lee-evans", priority: "0.5", changefreq: "monthly" },
   { url: "/authors/rossa-browne", priority: "0.5", changefreq: "monthly" },
   { url: "/newsroom/editorial-policy", priority: "0.5", changefreq: "monthly" },
+  { url: "/advertise", priority: "0.4", changefreq: "monthly" },
 ];
 
 type StaticMeta = { title: string; description: string };
@@ -119,6 +120,10 @@ const STATIC_META: Record<string, StaticMeta> = {
   "/newsroom/editorial-policy": {
     title: "Newsroom Editorial Policy | XTZ.News",
     description: "Read how XTZ.News approaches source-led Tezos reporting, corrections, author attribution, and transparent first-party promotions.",
+  },
+  "/advertise": {
+    title: "Advertise With XTZ.News | Tezos News Partnerships",
+    description: "Explore advertising and partnership enquiries for XTZ.News, including clearly labelled sponsorship, promotion, and project-directory opportunities.",
   },
 };
 
