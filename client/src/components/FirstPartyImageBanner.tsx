@@ -21,12 +21,12 @@ export function isFirstPartyBannerVisible(campaign: BannerCampaign, now = Date.n
 export function FirstPartyImageBannerPresentation({ placement, campaign, now }: FirstPartyImageBannerProps & { campaign: BannerCampaign; now: number }) {
   if (!isFirstPartyBannerVisible(campaign, now)) return null;
   const isHome = placement === "home";
-  const maxWidth = isHome ? "1100px" : "760px";
+  const maxWidth = isHome ? "100%" : "760px";
   return (
-    <aside aria-label="First-party promotion for Optimised Marketing" style={{ background: isHome ? "#000" : "transparent", padding: isHome ? ".9rem 0 .35rem" : "2rem 0 0" }}>
+    <aside aria-label="First-party promotion for Optimised Marketing" style={{ background: isHome ? "#000" : "transparent", padding: isHome ? ".35rem 0 .15rem" : "2rem 0 0" }}>
       <div className={isHome ? "container" : undefined} style={isHome ? { padding: "0 1.25rem" } : undefined}>
         <div style={{ maxWidth, margin: "0 auto" }}>
-          <p style={{ margin: "0 0 .35rem", color: "#63f7b1", fontSize: ".62rem", fontWeight: 900, letterSpacing: ".12em", textTransform: "uppercase" }}>From our network</p>
+          <p style={{ margin: "0 0 .2rem", color: "#63f7b1", fontSize: ".58rem", fontWeight: 900, letterSpacing: ".12em", textTransform: "uppercase" }}>From our network</p>
           <a
             href="https://optimised.marketing"
             target="_blank"

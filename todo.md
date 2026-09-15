@@ -566,3 +566,8 @@
 - [x] Clarify banner-placement options and pricing on the advertising page without publishing unsupported audience claims
 - [x] Add an administrator-managed campaign end date that hides expired first-party banner creatives automatically
 - [x] Add regression coverage and validate advertiser and administrator workflows on desktop and mobile
+
+## Phase 84: Compact Homepage Banner and Advertising Enquiry Confirmation
+- [x] Refine the homepage banner to use the available content width with a more compact surrounding treatment
+- [x] Send an automatic advertiser enquiry acknowledgement after a valid consented submission
+- [x] Add regression coverage and validate the responsive banner and email workflow

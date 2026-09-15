@@ -19,7 +19,7 @@ import { isValidTezosEventCandidateImportPayload, verifyTezosEventCandidateImpor
 import { TEZOS_EVENT_CANDIDATE_IMPORT_PUBLIC_KEY } from "./tezosEventCandidateImportPublicKey";
 import { stableJson } from "./translationImportRouter";
 import { sendCorrectionReportNotification } from "./correctionReportNotifications";
-import { sendAdvertiserEnquiryNotification } from "./advertiserEnquiryNotifications";
+import { sendAdvertiserEnquiryConfirmation, sendAdvertiserEnquiryNotification } from "./advertiserEnquiryNotifications";
 
 // ─── Admin guard ──────────────────────────────────────────────────────────────
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -504,6 +504,7 @@ const advertiserEnquiriesRouter = router({
       await Promise.allSettled([
         notifyOwner({ title: `XTZ.News advertising enquiry: ${input.companyName}`, content: `A private advertising enquiry is ready for review.\n\nCompany: ${input.companyName}\nContact: ${input.contactName} (${input.contactEmail})\nPlacement: ${input.placementInterest}\n\nCampaign details:\n${input.campaignBrief}` }),
         sendAdvertiserEnquiryNotification(input),
+        sendAdvertiserEnquiryConfirmation(input),
       ]);
       return { success: true } as const;
     }),

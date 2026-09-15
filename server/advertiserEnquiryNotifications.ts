@@ -22,3 +22,17 @@ export async function sendAdvertiserEnquiryNotification(input: {
   const result = await new Resend(apiKey).emails.send({ from: EMAIL_FROM, to: [ADVERTISING_INBOX], subject: `XTZ.News advertising enquiry: ${input.companyName.slice(0, 120)}`, html });
   return !result.error;
 }
+
+export async function sendAdvertiserEnquiryConfirmation(input: {
+  contactName: string;
+  contactEmail: string;
+  companyName: string;
+  placementInterest: string;
+}) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return false;
+  const placement = escapeHtml(input.placementInterest.replace(/_/g, " "));
+  const html = `<!doctype html><html><body style="margin:0;background:#020817;font-family:Arial,sans-serif;color:#eef5ff"><div style="max-width:640px;margin:0 auto;padding:28px 18px"><div style="border-bottom:2px solid #63f7b1;padding-bottom:16px"><img src="https://xtz.news/manus-storage/xtz-logo-square_c6689606.png" alt="XTZ.News" width="56" height="56" style="display:block" /><h1 style="font-size:22px;margin:14px 0 0;color:#ffffff">Thanks for your advertising enquiry</h1></div><div style="margin-top:20px;background:#05152e;border:1px solid rgba(99,247,177,.35);border-radius:10px;padding:20px"><p style="margin-top:0">Hello ${escapeHtml(input.contactName)},</p><p>We received your enquiry for <strong>${escapeHtml(input.companyName)}</strong> about <strong>${placement}</strong>.</p><p>The XTZ.News advertising team will review the details and contact you at this address if there is a suitable next step.</p><p style="margin-bottom:0;color:#9fb4d6;font-size:13px">This acknowledgement does not confirm availability, pricing, placement, or a campaign. Your enquiry remains private while it is reviewed.</p></div></div></body></html>`;
+  const result = await new Resend(apiKey).emails.send({ from: EMAIL_FROM, to: [input.contactEmail], bcc: [ADVERTISING_INBOX], subject: `XTZ.News received your advertising enquiry: ${input.companyName.slice(0, 100)}`, html });
+  return !result.error;
+}

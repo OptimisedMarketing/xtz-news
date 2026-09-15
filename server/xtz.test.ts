@@ -74,6 +74,7 @@ vi.mock("./correctionReportNotifications", () => ({
 }));
 vi.mock("./advertiserEnquiryNotifications", () => ({
   sendAdvertiserEnquiryNotification: vi.fn().mockResolvedValue(true),
+  sendAdvertiserEnquiryConfirmation: vi.fn().mockResolvedValue(true),
 }));
 
 // ─── Context helpers ──────────────────────────────────────────────────────────
