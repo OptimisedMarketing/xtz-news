@@ -575,3 +575,8 @@
 ## Phase 85: Homepage Banner Height Correction
 - [x] Reduce the homepage first-party banner height without changing the supplied banner creative or article placement
 - [x] Validate the compact banner treatment on desktop and mobile
+
+## Phase 86: Half-Height Homepage Banner Correction
+- [x] Reduce the homepage first-party banner to roughly half of its current desktop display height
+- [x] Preserve the original creative and responsive mobile presentation
+- [x] Validate the corrected compact strip on desktop and mobile
