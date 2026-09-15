@@ -964,6 +964,14 @@ const settingsRouter = router({
     }),
 });
 
+// ─── Referral Analytics Router ────────────────────────────────────────────────
+// Public recording captures a successful code copy only; persistence is daily
+// aggregate data with no visitor, account, session, or browser identifiers.
+const referralAnalyticsRouter = router({
+  recordCopy: publicProcedure.mutation(async () => db.recordReferralCodeCopy()),
+  summary: adminProcedure.query(async () => db.getReferralCopyMetrics()),
+});
+
 // ─── Audio Router (on-demand ElevenLabs generation) ──────────────────────────
 const GEORGE_VOICE_ID = 'JBFqnCBsd6RMkjVDRZzb';
 const MAX_CHARS = 4500;
@@ -1086,6 +1094,7 @@ export const appRouter = router({
   explorer: explorerRouter,
   tools: toolsRouter,
   settings: settingsRouter,
+  referralAnalytics: referralAnalyticsRouter,
   audio: audioRouter,
   translations: translationsRouter,
   preferences: preferencesRouter,

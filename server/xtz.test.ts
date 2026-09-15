@@ -60,6 +60,8 @@ vi.mock("./db", () => ({
   updateTezosEventCandidateStatus: vi.fn().mockResolvedValue(undefined),
   createTezosEventSubmission: vi.fn().mockResolvedValue(undefined),
   bulkUpdateTezosEventCandidateStatus: vi.fn().mockResolvedValue({ updated: 2 }),
+  recordReferralCodeCopy: vi.fn().mockResolvedValue({ recorded: true }),
+  getReferralCopyMetrics: vi.fn().mockResolvedValue({ totalCopies: 12, last30DaysCopies: 5, daily: [] }),
   getSetting: vi.fn().mockResolvedValue(null),
   setSetting: vi.fn().mockResolvedValue(undefined),
   upsertUser: vi.fn().mockResolvedValue(undefined),
@@ -400,6 +402,22 @@ describe("first-party promotion settings", () => {
     await expect(readerCaller.settings.setFirstPartyBannerCampaign({ active: true, endAt: "2026-10-01T00:00:00.000Z" })).rejects.toThrow();
     await expect(adminCaller.settings.setFirstPartyBannerCampaign({ active: true, endAt: "2026-10-01T00:00:00.000Z" })).resolves.toEqual({ success: true });
     await expect(adminCaller.settings.setFirstPartyBannerCampaign({ active: true, endAt: "not-a-date" })).rejects.toThrow();
+  });
+});
+
+describe("referral copy analytics", () => {
+  it("records a public successful-copy event without requiring reader authentication", async () => {
+    const caller = appRouter.createCaller(makePublicCtx());
+    await expect(caller.referralAnalytics.recordCopy()).resolves.toEqual({ recorded: true });
+  });
+
+  it("limits aggregate engagement summaries to administrators", async () => {
+    const publicCaller = appRouter.createCaller(makePublicCtx());
+    const readerCaller = appRouter.createCaller(makeUserCtx());
+    const adminCaller = appRouter.createCaller(makeAdminCtx());
+    await expect(publicCaller.referralAnalytics.summary()).rejects.toThrow();
+    await expect(readerCaller.referralAnalytics.summary()).rejects.toThrow();
+    await expect(adminCaller.referralAnalytics.summary()).resolves.toEqual({ totalCopies: 12, last30DaysCopies: 5, daily: [] });
   });
 });
 

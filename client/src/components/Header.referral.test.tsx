@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import Header from "./Header";
 
 const clipboardWriteText = vi.fn().mockResolvedValue(undefined);
+const recordReferralCopy = vi.fn();
 
 vi.mock("wouter", () => ({
   Link: ({ children, href, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) => <a href={href} {...props}>{children}</a>,
@@ -14,10 +15,12 @@ vi.mock("@/_core/hooks/useAuth", () => ({ useAuth: () => ({ user: null, isAuthen
 vi.mock("@/lib/readerAuth", () => ({ getReaderLoginUrl: () => "/login" }));
 vi.mock("@/lib/mediaUrl", () => ({ getMediaUrl: (url: string) => url }));
 vi.mock("@/components/DonateButton", () => ({ default: () => <button type="button">Donate</button> }));
+vi.mock("@/lib/trpc", () => ({ trpc: { referralAnalytics: { recordCopy: { useMutation: () => ({ mutate: recordReferralCopy }) } } } }));
 
 afterEach(() => {
   cleanup();
   clipboardWriteText.mockClear();
+  recordReferralCopy.mockClear();
   Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: clipboardWriteText } });
 });
 
@@ -35,6 +38,7 @@ describe("Header referral attribution", () => {
     expect(copyButton).toBeTruthy();
     fireEvent.click(copyButton!);
     await waitFor(() => expect(clipboardWriteText).toHaveBeenCalledWith("XTZ2026"));
-    expect(await screen.findByText("Copied")).toBeTruthy();
+    expect(recordReferralCopy).toHaveBeenCalledWith(undefined);
+    expect(await screen.findByText("Copied!")).toBeTruthy();
   });
 });

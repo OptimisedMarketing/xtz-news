@@ -601,3 +601,9 @@
 - [x] Add an accessible referral tooltip with the stated 25% offer and copyable XTZ2026 code
 - [x] Lower the homepage-only attribution contrast while preserving non-homepage readability
 - [x] Refine mobile logo-row alignment and validate tooltip, copy action, and responsive header behaviour
+
+## Phase 91: Referral Copy Usability and Aggregate Engagement Analytics
+- [x] Remove the tooltip hover gap so the referral copy button is reliably reachable
+- [x] Show a green-check “Copied!” state after a successful referral-code copy action
+- [x] Record privacy-preserving aggregate referral-code copy events without personal identifiers or third-party scripts
+- [x] Add regression coverage and validate the copy interaction, feedback state, and analytics event flow

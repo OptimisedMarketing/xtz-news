@@ -30,6 +30,20 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
+// ─── Referral Copy Metrics ────────────────────────────────────────────────────
+// Daily aggregate only: no IP address, session identifier, user ID, or browser data.
+export const referralCopyMetrics = mysqlTable(
+  "referral_copy_metrics",
+  {
+    day: varchar("day", { length: 10 }).primaryKey(),
+    copyCount: int("copyCount").notNull().default(0),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  (t) => [index("referral_copy_metrics_updated_idx").on(t.updatedAt)]
+);
+
+export type ReferralCopyMetric = typeof referralCopyMetrics.$inferSelect;
+
 // ─── Categories ───────────────────────────────────────────────────────────────
 export const categories = mysqlTable(
   "categories",

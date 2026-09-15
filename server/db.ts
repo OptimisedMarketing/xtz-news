@@ -16,6 +16,7 @@ import {
   artProjectSubmissions, ArtProjectSubmission,
   correctionReports, CorrectionReport,
   advertiserEnquiries, AdvertiserEnquiry,
+  referralCopyMetrics,
   siteSettings,
   postTranslations,
   translationImportDeliveries,
@@ -869,6 +870,32 @@ export async function bulkUpdateTezosEventCandidateStatus(ids: number[], status:
   if (!uniqueIds.length) return { updated: 0 };
   await db.update(tezosEventCandidates).set({ status, ...(notes !== undefined ? { adminNotes: notes || null } : {}) }).where(inArray(tezosEventCandidates.id, uniqueIds));
   return { updated: uniqueIds.length };
+}
+
+// ─── Referral Copy Metrics ────────────────────────────────────────────────────
+// This stores a UTC daily counter only. No visitor, session, IP, or browser data
+// is collected, and each rendered header records at most one successful copy.
+export async function recordReferralCodeCopy(now = new Date()) {
+  const db = await getDb();
+  if (!db) return { recorded: false as const };
+  const day = now.toISOString().slice(0, 10);
+  await db
+    .insert(referralCopyMetrics)
+    .values({ day, copyCount: 1 })
+    .onDuplicateKeyUpdate({ set: { copyCount: sql`${referralCopyMetrics.copyCount} + 1` } });
+  return { recorded: true as const };
+}
+
+export async function getReferralCopyMetrics() {
+  const db = await getDb();
+  if (!db) return { totalCopies: 0, last30DaysCopies: 0, daily: [] as Array<{ day: string; copyCount: number }> };
+  const [totals, daily] = await Promise.all([
+    db.select({ total: sql<number>`coalesce(sum(${referralCopyMetrics.copyCount}), 0)` }).from(referralCopyMetrics),
+    db.select({ day: referralCopyMetrics.day, copyCount: referralCopyMetrics.copyCount }).from(referralCopyMetrics).orderBy(desc(referralCopyMetrics.day)).limit(30),
+  ]);
+  const totalCopies = Number(totals[0]?.total ?? 0);
+  const last30DaysCopies = daily.reduce((sum, item) => sum + Number(item.copyCount), 0);
+  return { totalCopies, last30DaysCopies, daily };
 }
 
 // ─── Site Settings ────────────────────────────────────────────────────────────
