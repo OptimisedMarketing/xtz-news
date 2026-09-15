@@ -55,6 +55,8 @@ export const OPTIMISED_MARKETING_HEADER_LINK = {
   label: "Optimised Marketing",
   href: "https://optimised.marketing",
 };
+
+export const OPTIMISED_MARKETING_BRAND_MARK = "OM";
 export const ADVERTISE_HEADER_LINK = {
   label: "ADVERTISE WITH US",
   href: "/advertise",
@@ -166,7 +168,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
               <img src={HEADER_LOGO_URL} alt="XTZ.News" style={{ height: "90px", width: "auto", marginTop: "-36px" }} className="hidden lg:block" />
               <img src={HEADER_LOGO_URL} alt="XTZ.News" style={{ height: "56px", width: "auto" }} className="lg:hidden" />
             </Link>
-            <span className="optimised-logo-attribution" style={{ color: "rgba(255,255,255,0.48)", fontSize: "0.64rem", fontWeight: 700, letterSpacing: "0.04em", display: "inline-flex", alignItems: "center", gap: "0.18rem", whiteSpace: "nowrap" }}><span>Built by</span><a href={OPTIMISED_MARKETING_HEADER_LINK.href} target="_blank" rel="noopener noreferrer" aria-label="Visit Optimised Marketing, the team building XTZ.News" className="optimised-header-link" style={{ color: "rgba(255,255,255,0.62)", fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "0.25rem", padding: "0.25rem 0.3rem", borderRadius: "4px" }}><Link2 size={11} aria-hidden="true" /><span>{OPTIMISED_MARKETING_HEADER_LINK.label}</span><ExternalLink size={9} aria-hidden="true" className="hidden sm:block" /></a></span>
+            <span className="optimised-logo-attribution" style={{ color: "rgba(255,255,255,0.44)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.035em", display: "inline-flex", alignItems: "center", gap: "0.18rem", whiteSpace: "nowrap" }}><span>Built by</span><a href={OPTIMISED_MARKETING_HEADER_LINK.href} target="_blank" rel="noopener noreferrer" aria-label="Visit Optimised Marketing, the team building XTZ.News" className="optimised-header-link" style={{ color: "rgba(255,255,255,0.60)", fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "0.28rem", padding: "0.22rem 0.28rem", borderRadius: "4px" }}><span aria-hidden="true" className="optimised-brand-mark">{OPTIMISED_MARKETING_BRAND_MARK}</span><span>{OPTIMISED_MARKETING_HEADER_LINK.label}</span><ExternalLink size={8} aria-hidden="true" className="hidden sm:block" /></a></span>
           </div>
 
           <nav className="hidden lg:flex" aria-label="Primary navigation" style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
@@ -213,7 +215,8 @@ export default function Header({ onSearchOpen }: HeaderProps) {
         .mobile-menu-trigger { display: flex; }
         @media (min-width: 1024px) { .mobile-menu-trigger { display: none !important; } }
         .optimised-header-link, .advertise-header-link { transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 160ms cubic-bezier(0.23, 1, 0.32, 1), color 160ms cubic-bezier(0.23, 1, 0.32, 1); }
-        @media (max-width: 1023px) { .optimised-logo-attribution { font-size: 0.55rem !important; letter-spacing: 0.02em !important; } }
+        @media (max-width: 1023px) { .optimised-logo-attribution { font-size: 0.54rem !important; letter-spacing: 0.02em !important; } }
+        .optimised-brand-mark { align-items: center; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.22); border-radius: 3px; color: rgba(255,255,255,0.82); display: inline-flex; font-size: 0.45rem; font-weight: 900; height: 0.9rem; justify-content: center; letter-spacing: -0.03em; line-height: 1; width: 0.9rem; }
         .optimised-header-link:hover, .optimised-header-link:focus-visible { transform: translateY(-1px); background: rgba(255,255,255,0.09); color: rgba(255,255,255,0.92) !important; }
         .advertise-header-link:hover, .advertise-header-link:focus-visible { transform: translateY(-1px); background: rgba(185, 211, 255, 0.13); color: #fff !important; }
         .optimised-header-link:focus-visible, .advertise-header-link:focus-visible { outline: 2px solid rgba(255,255,255,0.8); outline-offset: 2px; }

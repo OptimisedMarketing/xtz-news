@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ADVERTISE_HEADER_LINK, MOBILE_SECTIONS, NAV_ITEMS, OPTIMISED_MARKETING_HEADER_LINK } from "./Header";
+import { ADVERTISE_HEADER_LINK, MOBILE_SECTIONS, NAV_ITEMS, OPTIMISED_MARKETING_BRAND_MARK, OPTIMISED_MARKETING_HEADER_LINK } from "./Header";
 
 describe("primary navigation", () => {
   it("keeps Home as the first desktop navigation destination", () => {
@@ -40,6 +40,7 @@ describe("primary navigation", () => {
       label: "Optimised Marketing",
       href: "https://optimised.marketing",
     });
+    expect(OPTIMISED_MARKETING_BRAND_MARK).toBe("OM");
   });
 
   it("keeps the advertising destination configured for the shared header", () => {

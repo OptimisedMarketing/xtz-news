@@ -590,3 +590,8 @@
 - [x] Make only the words “Optimised Marketing” an external link beside the logo
 - [x] Apply a subtler gray treatment to the “Built by Optimised Marketing” attribution
 - [x] Validate accessible hover/focus behaviour and responsive header clarity
+
+## Phase 89: Header Brand Mark and Typography Refinement
+- [x] Add a subtle brand mark alongside the Optimised Marketing header link
+- [x] Reduce the attribution font size on desktop while preserving mobile readability
+- [x] Validate responsive header clarity and accessible link states
