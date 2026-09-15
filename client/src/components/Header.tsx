@@ -52,7 +52,7 @@ export const NAV_ITEMS = [
 
 const HEADER_LOGO_URL = getMediaUrl("/manus-storage/xtz-logo-square_c6689606.png");
 export const OPTIMISED_MARKETING_HEADER_LINK = {
-  label: "OPTIMISED MARKETING",
+  label: "Built by Optimised Marketing",
   href: "https://optimised.marketing",
 };
 export const ADVERTISE_HEADER_LINK = {
@@ -146,7 +146,6 @@ export default function Header({ onSearchOpen }: HeaderProps) {
         <div className="container" style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "1rem" }}>
           <DonateButton variant="header" />
           <Link href="/" style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.8)", textDecoration: "none" }}>XTZ.NEWS</Link>
-          <a href={OPTIMISED_MARKETING_HEADER_LINK.href} target="_blank" rel="noopener noreferrer" aria-label="Visit Optimised Marketing, the team building XTZ.News" className="optimised-header-link" style={{ fontSize: "0.68rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "#63f7b1", display: "inline-flex", alignItems: "center", gap: "0.35rem", textDecoration: "none", whiteSpace: "nowrap", padding: "0.2rem 0.35rem", borderRadius: "4px" }}><Link2 size={12} aria-hidden="true" />{OPTIMISED_MARKETING_HEADER_LINK.label}<ExternalLink size={9} aria-hidden="true" /></a>
           <Link href={ADVERTISE_HEADER_LINK.href} aria-label="Advertise with XTZ.News" className="advertise-header-link" style={{ fontSize: "0.68rem", fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: "#b9d3ff", display: "inline-flex", alignItems: "center", gap: "0.3rem", textDecoration: "none", whiteSpace: "nowrap", padding: "0.2rem 0.35rem", borderRadius: "4px" }}><Megaphone size={11} aria-hidden="true" />{ADVERTISE_HEADER_LINK.label}</Link>
           <Link href="/prices" style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.8)", display: "flex", alignItems: "center", gap: "0.35rem", textDecoration: "none" }}><ExternalLink size={10} />TEZOS TOKEN TRACKER</Link>
           {!loading && (isAuthenticated ? <button onClick={() => logout()} style={accountButtonStyle}><LogOut size={11} /> Sign out</button> : <Link href={loginHref} style={accountButtonStyle}><LogIn size={11} /> Sign in</Link>)}
@@ -162,10 +161,13 @@ export default function Header({ onSearchOpen }: HeaderProps) {
 
       <div style={{ background: "#05152e", borderBottom: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "stretch" }}>
         <div className="container" style={{ display: "flex", alignItems: "center", height: "72px", flex: 1 }}>
-          <Link href="/" style={{ flexShrink: 0, marginRight: "1.2rem", display: "flex", alignItems: "center", position: "relative", zIndex: 10 }}>
-            <img src={HEADER_LOGO_URL} alt="XTZ.News" style={{ height: "90px", width: "auto", marginTop: "-36px" }} className="hidden lg:block" />
-            <img src={HEADER_LOGO_URL} alt="XTZ.News" style={{ height: "56px", width: "auto" }} className="lg:hidden" />
-          </Link>
+          <div style={{ flexShrink: 0, marginRight: "1.2rem", display: "flex", alignItems: "center", minWidth: 0 }}>
+            <Link href="/" style={{ flexShrink: 0, marginRight: "0.7rem", display: "flex", alignItems: "center", position: "relative", zIndex: 10 }}>
+              <img src={HEADER_LOGO_URL} alt="XTZ.News" style={{ height: "90px", width: "auto", marginTop: "-36px" }} className="hidden lg:block" />
+              <img src={HEADER_LOGO_URL} alt="XTZ.News" style={{ height: "56px", width: "auto" }} className="lg:hidden" />
+            </Link>
+            <a href={OPTIMISED_MARKETING_HEADER_LINK.href} target="_blank" rel="noopener noreferrer" aria-label="Visit Optimised Marketing, the team building XTZ.News" className="optimised-header-link optimised-logo-attribution" style={{ color: "#63f7b1", fontSize: "0.64rem", fontWeight: 800, letterSpacing: "0.055em", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "0.3rem", padding: "0.3rem 0.4rem", borderRadius: "4px", whiteSpace: "nowrap" }}><Link2 size={12} aria-hidden="true" /><span>{OPTIMISED_MARKETING_HEADER_LINK.label}</span><ExternalLink size={10} aria-hidden="true" className="hidden sm:block" /></a>
+          </div>
 
           <nav className="hidden lg:flex" aria-label="Primary navigation" style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
             {NAV_ITEMS.map((item) => <div key={item.label} style={{ position: "relative" }}>
@@ -199,7 +201,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
           <div style={{ display: "flex", gap: "0.5rem", padding: "0.35rem 0.75rem 0.8rem" }}>
             {!loading && (isAuthenticated ? <button onClick={() => logout()} style={{ ...mobileAccountStyle, flex: 1 }}><UserRound size={14} /> {user?.name || "Signed in"}<span style={{ marginLeft: "auto", color: "rgba(255,255,255,0.55)" }}>Sign out</span></button> : <><Link href={loginHref} style={{ ...mobileAccountStyle, flex: 1 }}><LogIn size={14} /> Sign in</Link><Link href={`/register?returnTo=${encodeURIComponent(location)}`} style={{ ...mobileAccountStyle, flex: 1, background: "#2c7df7", borderColor: "#2c7df7", color: "#fff" }}>Create account</Link></>)}
           </div>
-          <div style={{ padding: "0.5rem 0.75rem 0.75rem", display: "flex", flexWrap: "wrap", alignItems: "center", gap: ".7rem" }}><DonateButton variant="article" /><a href={OPTIMISED_MARKETING_HEADER_LINK.href} target="_blank" rel="noopener noreferrer" aria-label="Visit Optimised Marketing, the team building XTZ.News" className="optimised-header-link" style={{ color: "#63f7b1", fontSize: ".7rem", fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: ".3rem", padding: ".3rem .4rem", borderRadius: "4px" }}><Link2 size={13} aria-hidden="true" />Built by Optimised Marketing<ExternalLink size={11} aria-hidden="true" /></a><Link href={ADVERTISE_HEADER_LINK.href} className="advertise-header-link" style={{ color: "#b9d3ff", fontSize: ".7rem", fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: ".3rem", padding: ".3rem .4rem", borderRadius: "4px" }}><Megaphone size={13} aria-hidden="true" />Advertise with us</Link></div>
+          <div style={{ padding: "0.5rem 0.75rem 0.75rem", display: "flex", flexWrap: "wrap", alignItems: "center", gap: ".7rem" }}><DonateButton variant="article" /><Link href={ADVERTISE_HEADER_LINK.href} className="advertise-header-link" style={{ color: "#b9d3ff", fontSize: ".7rem", fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: ".3rem", padding: ".3rem .4rem", borderRadius: "4px" }}><Megaphone size={13} aria-hidden="true" />Advertise with us</Link></div>
           {MOBILE_SECTIONS.map((section) => <section key={section.label} style={{ padding: "0.75rem", borderTop: "1px solid rgba(255,255,255,0.07)" }}>
             <p style={{ margin: "0 0 0.4rem", color: "#5a9fff", fontSize: "0.6rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.13em" }}>{section.label}</p>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "0.35rem" }}>{section.items.map((item) => <Link key={item.label} href={item.href} style={{ padding: "0.72rem", borderRadius: "5px", background: "rgba(255,255,255,0.045)", color: "rgba(255,255,255,0.85)", fontSize: "0.74rem", fontWeight: 700, textDecoration: "none" }}>{item.label}</Link>)}</div>
@@ -211,6 +213,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
         .mobile-menu-trigger { display: flex; }
         @media (min-width: 1024px) { .mobile-menu-trigger { display: none !important; } }
         .optimised-header-link, .advertise-header-link { transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 160ms cubic-bezier(0.23, 1, 0.32, 1), color 160ms cubic-bezier(0.23, 1, 0.32, 1); }
+        @media (max-width: 1023px) { .optimised-logo-attribution { font-size: 0.55rem !important; letter-spacing: 0.025em !important; padding: 0.28rem 0.3rem !important; } }
         .optimised-header-link:hover, .optimised-header-link:focus-visible { transform: translateY(-1px); background: rgba(99, 247, 177, 0.13); color: #a2ffce !important; }
         .advertise-header-link:hover, .advertise-header-link:focus-visible { transform: translateY(-1px); background: rgba(185, 211, 255, 0.13); color: #fff !important; }
         .optimised-header-link:focus-visible, .advertise-header-link:focus-visible { outline: 2px solid #63f7b1; outline-offset: 2px; }

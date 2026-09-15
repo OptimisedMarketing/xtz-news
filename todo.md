@@ -580,3 +580,8 @@
 - [x] Reduce the homepage first-party banner to roughly half of its current desktop display height
 - [x] Preserve the original creative and responsive mobile presentation
 - [x] Validate the corrected compact strip on desktop and mobile
+
+## Phase 87: Header Attribution Relocation
+- [x] Remove the utility-bar Optimised Marketing link
+- [x] Add a “Built by Optimised Marketing” external link to the right of the XTZ.News logo
+- [x] Validate the unified header treatment on desktop and mobile

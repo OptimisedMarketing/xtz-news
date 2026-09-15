@@ -37,7 +37,7 @@ describe("primary navigation", () => {
 
   it("keeps the Optimised Marketing utility destination configured for the shared header", () => {
     expect(OPTIMISED_MARKETING_HEADER_LINK).toEqual({
-      label: "OPTIMISED MARKETING",
+      label: "Built by Optimised Marketing",
       href: "https://optimised.marketing",
     });
   });
