@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CRAWLER_ROUTE_PREFIXES, SEO_STATIC_PAGES, getCrawlerStaticFaqs, getCrawlerStaticMeta, renderCrawlerHtml, renderNewsSitemapXml, toRelayedMediaUrl } from "./crawlerSeo";
+import { CRAWLER_ROUTE_PREFIXES, SEO_STATIC_PAGES, getCrawlerStaticFaqs, getCrawlerStaticMeta, renderCrawlerHtml, renderNewsSitemapXml, renderTranslationSitemapXml, toRelayedMediaUrl } from "./crawlerSeo";
 
 const html = `<!doctype html><html lang="en"><head><title>Default title</title><meta name="description" content="Default description" /><link rel="canonical" href="https://xtz.news/" /><meta property="og:title" content="Default title" /><meta property="og:description" content="Default description" /><meta property="og:image" content="https://xtz.news/manus-storage/logo.png" /><meta property="og:url" content="https://xtz.news/" /><meta property="og:type" content="website" /></head><body></body></html>`;
 
@@ -96,6 +96,22 @@ describe("crawler SEO rendering", () => {
     expect(output).toContain('https://xtz.news/hek-tezos-foundation-digital-art-partnership-2026');
     expect(output).toContain('HEK &amp; Tezos &lt; Digital Art');
     expect(output).not.toContain('archive-story');
+  });
+
+  it("renders translated article URLs in a distinct escaped sitemap", () => {
+    const output = renderTranslationSitemapXml({
+      baseUrl: "https://xtz.news",
+      generatedAt: new Date("2026-09-15T12:00:00.000Z"),
+      translations: [
+        { locale: "fr", slug: "tezos-guide", translatedAt: new Date("2026-09-14T10:00:00.000Z") },
+        { locale: "de", slug: "wallet & safety", translatedAt: null },
+      ],
+    });
+
+    expect(output).toContain('https://xtz.news/fr/tezos-guide');
+    expect(output).toContain('https://xtz.news/de/wallet &amp; safety');
+    expect(output).toContain('<lastmod>2026-09-15</lastmod>');
+    expect(output).not.toContain('<news:news>');
   });
 
   it("renders a named Person schema for editorial author pages and assigned article bylines", () => {

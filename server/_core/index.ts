@@ -16,7 +16,7 @@ import { createTranslationJobRouter } from "../translationJobRouter";
 import { createTezOracleStatusImportRouter } from "../tezoracleStatusImportRouter";
 import { TEZORACLE_STATUS_IMPORT_PUBLIC_KEY } from "../tezoracleStatusImportPublicKey";
 import { importTezOracleStatus } from "../db";
-import { CRAWLER_ROUTE_PREFIXES, SEO_STATIC_PAGES, renderCrawlerHtml, renderNewsSitemapXml } from "../crawlerSeo";
+import { CRAWLER_ROUTE_PREFIXES, SEO_STATIC_PAGES, renderCrawlerHtml, renderNewsSitemapXml, renderTranslationSitemapXml } from "../crawlerSeo";
 import { createMonthlyDigestRouter } from "../monthlyDigestRouter";
 import { MONTHLY_DIGEST_SCHEDULER_PUBLIC_KEY } from "../monthlyDigestSchedulerPublicKey";
 
@@ -42,6 +42,16 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
+  type SitemapCache = { xml: string; expiresAt: number };
+  let primarySitemapCache: SitemapCache | null = null;
+  let newsSitemapCache: SitemapCache | null = null;
+  let translationSitemapCache: SitemapCache | null = null;
+
+  const respondWithCachedXml = (res: express.Response, cache: SitemapCache, maxAgeSeconds: number) => {
+    res.set("Content-Type", "application/xml");
+    res.set("Cache-Control", `public, max-age=${maxAgeSeconds}`);
+    res.send(cache.xml);
+  };
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
@@ -319,6 +329,9 @@ ${items}
 
   app.get("/sitemap.xml", async (req, res) => {
     try {
+      if (primarySitemapCache && primarySitemapCache.expiresAt > Date.now()) {
+        return respondWithCachedXml(res, primarySitemapCache, 3600);
+      }
       const { getDb } = await import("../db");
       const { posts, categories, tags } = await import("../../drizzle/schema");
       const { eq, desc } = await import("drizzle-orm");
@@ -363,7 +376,6 @@ ${items}
       let allPosts: { slug: string; title: string; publishedAt: Date | null; updatedAt: Date | null }[] = [];
       let allCats: { slug: string }[] = [];
       let allTagsList: { slug: string }[] = [];
-      let allTranslations: { locale: string; slug: string; translatedAt: Date }[] = [];
 
       if (db) {
         allPosts = await db
@@ -375,16 +387,6 @@ ${items}
 
         allCats = await db.select({ slug: categories.slug }).from(categories);
         allTagsList = await db.select({ slug: tags.slug }).from(tags);
-
-        // Fetch translated articles for sitemap
-        try {
-          const { postTranslations } = await import("../../drizzle/schema");
-          allTranslations = await db
-            .select({ locale: postTranslations.locale, slug: postTranslations.slug, translatedAt: postTranslations.translatedAt })
-            .from(postTranslations)
-            .where(eq(postTranslations.status, "published"))
-            .limit(20000);
-        } catch (e) { /* table may not exist yet */ }
       }
 
       const formatDate = (d: Date | null) =>
@@ -392,12 +394,9 @@ ${items}
 
       const today = new Date().toISOString().split("T")[0];
 
-      const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
-      const recentPosts = allPosts.filter(p => p.publishedAt && new Date(p.publishedAt) >= twoDaysAgo);
-
       const lines: string[] = [
         '<?xml version="1.0" encoding="UTF-8"?>',
-        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"\n        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
       ];
 
       // Static pages
@@ -421,15 +420,12 @@ ${items}
         );
       }
 
-      // Article pages — recent ones get Google News tags
+      // Canonical article pages. Recent Google News entries are emitted only by
+      // the dedicated, smaller /news-sitemap.xml endpoint.
       for (const post of allPosts) {
         const lastmod = formatDate(post.updatedAt || post.publishedAt);
-        const isRecent = post.publishedAt && new Date(post.publishedAt) >= twoDaysAgo;
-        const newsTag = isRecent
-          ? `\n    <news:news>\n      <news:publication>\n        <news:name>XTZ.News</news:name>\n        <news:language>en</news:language>\n      </news:publication>\n      <news:publication_date>${new Date(post.publishedAt!).toISOString()}</news:publication_date>\n      <news:title>${post.title.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')}</news:title>\n    </news:news>`
-          : '';
         lines.push(
-          `  <url>\n    <loc>${baseUrl}/${post.slug}</loc>${newsTag}\n    <changefreq>monthly</changefreq>\n    <priority>${isRecent ? '0.9' : '0.8'}</priority>\n    <lastmod>${lastmod}</lastmod>\n  </url>`
+          `  <url>\n    <loc>${baseUrl}/${post.slug}</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n    <lastmod>${lastmod}</lastmod>\n  </url>`
         );
       }
 
@@ -441,22 +437,38 @@ ${items}
         );
       }
 
-      // Translated article pages
-      for (const t of allTranslations) {
-        const lastmod = t.translatedAt ? new Date(t.translatedAt).toISOString().split("T")[0] : today;
-        lines.push(
-          `  <url>\n    <loc>${baseUrl}/${t.locale}/${t.slug}</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n    <lastmod>${lastmod}</lastmod>\n  </url>`
-        );
-      }
-
       lines.push("</urlset>");
-
-      res.set("Content-Type", "application/xml");
-      res.set("Cache-Control", "public, max-age=3600"); // Cache 1 hour
-      res.send(lines.join("\n"));
+      primarySitemapCache = { xml: lines.join("\n"), expiresAt: Date.now() + 60 * 60 * 1000 };
+      respondWithCachedXml(res, primarySitemapCache, 3600);
     } catch (err) {
       console.error("[Sitemap] Error generating sitemap:", err);
       res.status(500).send("Error generating sitemap");
+    }
+  });
+
+  app.get("/translations-sitemap.xml", async (req, res) => {
+    try {
+      if (translationSitemapCache && translationSitemapCache.expiresAt > Date.now()) {
+        return respondWithCachedXml(res, translationSitemapCache, 21600);
+      }
+      const { getDb } = await import("../db");
+      const { postTranslations } = await import("../../drizzle/schema");
+      const { eq } = await import("drizzle-orm");
+      const db = await getDb();
+      const translations = db
+        ? await db.select({ locale: postTranslations.locale, slug: postTranslations.slug, translatedAt: postTranslations.translatedAt })
+            .from(postTranslations)
+            .where(eq(postTranslations.status, "published"))
+            .limit(20000)
+        : [];
+      translationSitemapCache = {
+        xml: renderTranslationSitemapXml({ translations, baseUrl: "https://xtz.news" }),
+        expiresAt: Date.now() + 6 * 60 * 60 * 1000,
+      };
+      respondWithCachedXml(res, translationSitemapCache, 21600);
+    } catch (err) {
+      console.error("[Translations sitemap] Error generating sitemap:", err);
+      res.status(500).send("Error generating translation sitemap");
     }
   });
 
@@ -464,6 +476,9 @@ ${items}
   // Google News Sitemap — articles from last 2 days for fast Google News indexing
   app.get("/news-sitemap.xml", async (req, res) => {
     try {
+      if (newsSitemapCache && newsSitemapCache.expiresAt > Date.now()) {
+        return respondWithCachedXml(res, newsSitemapCache, 900);
+      }
       const { getDb } = await import("../db");
       const { posts } = await import("../../drizzle/schema");
       const { eq, desc } = await import("drizzle-orm");
@@ -474,9 +489,11 @@ ${items}
         publishedPosts = await db.select({ slug: posts.slug, title: posts.title, publishedAt: posts.publishedAt })
           .from(posts).where(eq(posts.status, "publish")).orderBy(desc(posts.publishedAt)).limit(500);
       }
-      res.set("Content-Type", "application/xml");
-      res.set("Cache-Control", "public, max-age=900");
-      res.send(renderNewsSitemapXml({ articles: publishedPosts, baseUrl }));
+      newsSitemapCache = {
+        xml: renderNewsSitemapXml({ articles: publishedPosts, baseUrl }),
+        expiresAt: Date.now() + 15 * 60 * 1000,
+      };
+      respondWithCachedXml(res, newsSitemapCache, 900);
     } catch (err) {
       res.status(500).send("Error");
     }
@@ -499,6 +516,7 @@ ${items}
       "# Sitemaps",
       "Sitemap: https://xtz.news/sitemap.xml",
       "Sitemap: https://xtz.news/news-sitemap.xml",
+      "Sitemap: https://xtz.news/translations-sitemap.xml",
       "",
       "# Google News Bot",
       "User-agent: Googlebot-News",

@@ -27,6 +27,12 @@ export type NewsSitemapArticle = {
   publishedAt: Date | null;
 };
 
+export type TranslationSitemapEntry = {
+  locale: string;
+  slug: string;
+  translatedAt: Date | null;
+};
+
 export const CRAWLER_ROUTE_PREFIXES = [
   "category", "tag", "projects", "timeline", "events", "contact", "admin", "explorer",
   "staking", "tools", "guides", "glossary", "post-quantum", "art", "prices",
@@ -207,6 +213,35 @@ export function renderNewsSitemapXml({
   return [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">',
+    ...entries,
+    '</urlset>',
+  ].join("\n");
+}
+
+/**
+ * Keep translated URLs separate from the primary canonical sitemap. This keeps
+ * the canonical map compact and lets the substantially larger translated set
+ * use a longer, independent cache lifetime.
+ */
+export function renderTranslationSitemapXml({
+  translations,
+  baseUrl,
+  generatedAt = new Date(),
+}: {
+  translations: TranslationSitemapEntry[];
+  baseUrl: string;
+  generatedAt?: Date;
+}): string {
+  const fallbackDate = generatedAt.toISOString().split("T")[0];
+  const entries = translations.map((translation) => {
+    const lastmod = translation.translatedAt
+      ? new Date(translation.translatedAt).toISOString().split("T")[0]
+      : fallbackDate;
+    return `  <url>\n    <loc>${escapeXml(`${baseUrl}/${translation.locale}/${translation.slug}`)}</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n    <lastmod>${lastmod}</lastmod>\n  </url>`;
+  });
+  return [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
     ...entries,
     '</urlset>',
   ].join("\n");

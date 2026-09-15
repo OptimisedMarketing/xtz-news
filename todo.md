@@ -607,3 +607,14 @@
 - [x] Show a green-check “Copied!” state after a successful referral-code copy action
 - [x] Record privacy-preserving aggregate referral-code copy events without personal identifiers or third-party scripts
 - [x] Add regression coverage and validate the copy interaction, feedback state, and analytics event flow
+
+## Phase 92: Technical Workload and Efficiency Audit
+- [x] Inventory active XTZ.News scheduled and persistent-cloud workloads without estimating provider charges
+- [x] Review application request paths, database usage, and automated jobs for avoidable work or duplication
+- [x] Produce a prioritized technical optimization report with safe pause, consolidation, or code-improvement recommendations
+
+## Phase 93: Approved Workload Reduction and Sitemap Optimization
+- [x] Pause the duplicate weekly digest and defer translation, Art recap, and Spotlight recurring execution
+- [x] Retire the unreferenced continuous pre-render and audio-video services after crawler validation
+- [x] Reduce repeated sitemap work with bounded in-memory cache lifetimes and a dedicated translation sitemap
+- [x] Validate retained scheduled workloads, Googlebot output, sitemap discovery, regression coverage, and TypeScript
