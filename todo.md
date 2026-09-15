@@ -585,3 +585,8 @@
 - [x] Remove the utility-bar Optimised Marketing link
 - [x] Add a “Built by Optimised Marketing” external link to the right of the XTZ.News logo
 - [x] Validate the unified header treatment on desktop and mobile
+
+## Phase 88: Header Attribution Link and Color Refinement
+- [x] Make only the words “Optimised Marketing” an external link beside the logo
+- [x] Apply a subtler gray treatment to the “Built by Optimised Marketing” attribution
+- [x] Validate accessible hover/focus behaviour and responsive header clarity
