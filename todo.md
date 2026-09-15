@@ -595,3 +595,9 @@
 - [x] Add a subtle brand mark alongside the Optimised Marketing header link
 - [x] Reduce the attribution font size on desktop while preserving mobile readability
 - [x] Validate responsive header clarity and accessible link states
+
+## Phase 90: Header Referral Tooltip and Homepage Attribution Refinement
+- [x] Remove the Optimised Marketing monogram mark from the header attribution
+- [x] Add an accessible referral tooltip with the stated 25% offer and copyable XTZ2026 code
+- [x] Lower the homepage-only attribution contrast while preserving non-homepage readability
+- [x] Refine mobile logo-row alignment and validate tooltip, copy action, and responsive header behaviour

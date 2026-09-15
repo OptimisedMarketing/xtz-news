@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Search, X, ChevronDown, ExternalLink, Globe, LogIn, LogOut, UserRound, Link2, Megaphone } from "lucide-react";
+import { Search, X, ChevronDown, ExternalLink, Globe, LogIn, LogOut, UserRound, Megaphone, Copy } from "lucide-react";
 import { SUPPORTED_LOCALES, LOCALE_FLAGS, LOCALE_NAMES, type SupportedLocale } from "@shared/locales";
 import DonateButton from "@/components/DonateButton";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -56,7 +56,10 @@ export const OPTIMISED_MARKETING_HEADER_LINK = {
   href: "https://optimised.marketing",
 };
 
-export const OPTIMISED_MARKETING_BRAND_MARK = "OM";
+export const OPTIMISED_MARKETING_REFERRAL = {
+  message: "Get 25% websites & Marketing",
+  code: "XTZ2026",
+};
 export const ADVERTISE_HEADER_LINK = {
   label: "ADVERTISE WITH US",
   href: "/advertise",
@@ -122,7 +125,18 @@ export default function Header({ onSearchOpen }: HeaderProps) {
   const [location] = useLocation();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user, isAuthenticated, loading, logout } = useAuth();
+  const [referralCopied, setReferralCopied] = useState(false);
   const loginHref = getReaderLoginUrl(location.startsWith("/login") || location.startsWith("/register") ? "/" : location);
+
+  const copyReferralCode = async () => {
+    try {
+      await navigator.clipboard.writeText(OPTIMISED_MARKETING_REFERRAL.code);
+      setReferralCopied(true);
+      window.setTimeout(() => setReferralCopied(false), 1800);
+    } catch {
+      setReferralCopied(false);
+    }
+  };
 
   useEffect(() => {
     document.body.classList.remove("light-mode");
@@ -168,7 +182,7 @@ export default function Header({ onSearchOpen }: HeaderProps) {
               <img src={HEADER_LOGO_URL} alt="XTZ.News" style={{ height: "90px", width: "auto", marginTop: "-36px" }} className="hidden lg:block" />
               <img src={HEADER_LOGO_URL} alt="XTZ.News" style={{ height: "56px", width: "auto" }} className="lg:hidden" />
             </Link>
-            <span className="optimised-logo-attribution" style={{ color: "rgba(255,255,255,0.44)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.035em", display: "inline-flex", alignItems: "center", gap: "0.18rem", whiteSpace: "nowrap" }}><span>Built by</span><a href={OPTIMISED_MARKETING_HEADER_LINK.href} target="_blank" rel="noopener noreferrer" aria-label="Visit Optimised Marketing, the team building XTZ.News" className="optimised-header-link" style={{ color: "rgba(255,255,255,0.60)", fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "0.28rem", padding: "0.22rem 0.28rem", borderRadius: "4px" }}><span aria-hidden="true" className="optimised-brand-mark">{OPTIMISED_MARKETING_BRAND_MARK}</span><span>{OPTIMISED_MARKETING_HEADER_LINK.label}</span><ExternalLink size={8} aria-hidden="true" className="hidden sm:block" /></a></span>
+            <span className={`optimised-logo-attribution ${location === "/" ? "optimised-logo-attribution-home" : ""}`} style={{ color: "rgba(255,255,255,0.44)", fontSize: "0.58rem", fontWeight: 700, letterSpacing: "0.035em", display: "inline-flex", alignItems: "center", gap: "0.18rem", whiteSpace: "nowrap" }}><span>Built by</span><span className="optimised-referral"><a href={OPTIMISED_MARKETING_HEADER_LINK.href} target="_blank" rel="noopener noreferrer" aria-label="Visit Optimised Marketing, the team building XTZ.News" className="optimised-header-link" style={{ color: "rgba(255,255,255,0.60)", fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "0.25rem", padding: "0.22rem 0.28rem", borderRadius: "4px" }}><span>{OPTIMISED_MARKETING_HEADER_LINK.label}</span><ExternalLink size={8} aria-hidden="true" className="hidden sm:block" /></a><span className="optimised-referral-tooltip" role="dialog" aria-label="Optimised Marketing referral offer"><span>{OPTIMISED_MARKETING_REFERRAL.message}</span><span className="optimised-referral-code">{OPTIMISED_MARKETING_REFERRAL.code}</span><button type="button" onClick={copyReferralCode} className="optimised-referral-copy" aria-label={`Copy referral code ${OPTIMISED_MARKETING_REFERRAL.code}`}><Copy size={10} aria-hidden="true" />{referralCopied ? "Copied" : "Copy"}</button></span></span></span>
           </div>
 
           <nav className="hidden lg:flex" aria-label="Primary navigation" style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
@@ -215,8 +229,15 @@ export default function Header({ onSearchOpen }: HeaderProps) {
         .mobile-menu-trigger { display: flex; }
         @media (min-width: 1024px) { .mobile-menu-trigger { display: none !important; } }
         .optimised-header-link, .advertise-header-link { transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 160ms cubic-bezier(0.23, 1, 0.32, 1), color 160ms cubic-bezier(0.23, 1, 0.32, 1); }
-        @media (max-width: 1023px) { .optimised-logo-attribution { font-size: 0.54rem !important; letter-spacing: 0.02em !important; } }
-        .optimised-brand-mark { align-items: center; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.22); border-radius: 3px; color: rgba(255,255,255,0.82); display: inline-flex; font-size: 0.45rem; font-weight: 900; height: 0.9rem; justify-content: center; letter-spacing: -0.03em; line-height: 1; width: 0.9rem; }
+        @media (max-width: 1023px) { .optimised-logo-attribution { align-items: center !important; font-size: 0.54rem !important; justify-content: center; letter-spacing: 0.02em !important; } }
+        .optimised-logo-attribution-home { color: rgba(255,255,255,0.32) !important; }
+        .optimised-logo-attribution-home .optimised-header-link { color: rgba(255,255,255,0.44) !important; }
+        .optimised-referral { display: inline-flex; position: relative; }
+        .optimised-referral-tooltip { background: #0b2144; border: 1px solid rgba(255,255,255,0.18); border-radius: 6px; box-shadow: 0 10px 24px rgba(0,0,0,0.36); color: rgba(255,255,255,0.92); display: flex; font-size: 0.66rem; font-weight: 700; gap: 0.45rem; left: 0; line-height: 1.2; opacity: 0; padding: 0.45rem 0.5rem; pointer-events: none; position: absolute; top: calc(100% + 0.4rem); transform: translateY(-3px); transition: opacity 160ms cubic-bezier(0.23, 1, 0.32, 1), transform 160ms cubic-bezier(0.23, 1, 0.32, 1); visibility: hidden; width: max-content; z-index: 120; }
+        .optimised-referral:hover .optimised-referral-tooltip, .optimised-referral:focus-within .optimised-referral-tooltip { opacity: 1; pointer-events: auto; transform: translateY(0); visibility: visible; }
+        .optimised-referral-code { color: #b9d3ff; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0.04em; }
+        .optimised-referral-copy { align-items: center; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 3px; color: #fff; cursor: pointer; display: inline-flex; font-size: 0.6rem; font-weight: 800; gap: 0.2rem; padding: 0.15rem 0.3rem; }
+        .optimised-referral-copy:hover, .optimised-referral-copy:focus-visible { background: rgba(255,255,255,0.18); outline: 2px solid rgba(255,255,255,0.75); outline-offset: 2px; }
         .optimised-header-link:hover, .optimised-header-link:focus-visible { transform: translateY(-1px); background: rgba(255,255,255,0.09); color: rgba(255,255,255,0.92) !important; }
         .advertise-header-link:hover, .advertise-header-link:focus-visible { transform: translateY(-1px); background: rgba(185, 211, 255, 0.13); color: #fff !important; }
         .optimised-header-link:focus-visible, .advertise-header-link:focus-visible { outline: 2px solid rgba(255,255,255,0.8); outline-offset: 2px; }
