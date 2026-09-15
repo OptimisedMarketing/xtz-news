@@ -571,3 +571,7 @@
 - [x] Refine the homepage banner to use the available content width with a more compact surrounding treatment
 - [x] Send an automatic advertiser enquiry acknowledgement after a valid consented submission
 - [x] Add regression coverage and validate the responsive banner and email workflow
+
+## Phase 85: Homepage Banner Height Correction
+- [x] Reduce the homepage first-party banner height without changing the supplied banner creative or article placement
+- [x] Validate the compact banner treatment on desktop and mobile

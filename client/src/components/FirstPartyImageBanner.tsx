@@ -21,7 +21,7 @@ export function isFirstPartyBannerVisible(campaign: BannerCampaign, now = Date.n
 export function FirstPartyImageBannerPresentation({ placement, campaign, now }: FirstPartyImageBannerProps & { campaign: BannerCampaign; now: number }) {
   if (!isFirstPartyBannerVisible(campaign, now)) return null;
   const isHome = placement === "home";
-  const maxWidth = isHome ? "100%" : "760px";
+  const maxWidth = isHome ? "980px" : "760px";
   return (
     <aside aria-label="First-party promotion for Optimised Marketing" style={{ background: isHome ? "#000" : "transparent", padding: isHome ? ".35rem 0 .15rem" : "2rem 0 0" }}>
       <div className={isHome ? "container" : undefined} style={isHome ? { padding: "0 1.25rem" } : undefined}>
