@@ -618,3 +618,9 @@
 - [x] Retire the unreferenced continuous pre-render and audio-video services after crawler validation
 - [x] Reduce repeated sitemap work with bounded in-memory cache lifetimes and a dedicated translation sitemap
 - [x] Validate retained scheduled workloads, Googlebot output, sitemap discovery, regression coverage, and TypeScript
+
+## Phase 94: Additional Approved Cloud Cadence Reduction
+- [x] Pause automated audio generation while retaining manual selected-story generation
+- [x] Reduce SEO and IndexNow pings to a weekly schedule
+- [x] Reduce governance alerts and TezOracle status monitoring to weekly schedules
+- [x] Validate the revised unit states, retained site behavior, and documented rollback paths
