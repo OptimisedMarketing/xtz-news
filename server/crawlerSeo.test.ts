@@ -98,6 +98,31 @@ describe("crawler SEO rendering", () => {
     expect(output).not.toContain('archive-story');
   });
 
+  it("keeps a News sitemap parser-safe during an editorial gap", () => {
+    const output = renderNewsSitemapXml({
+      baseUrl: "https://xtz.news",
+      now: new Date("2026-09-14T12:00:00.000Z"),
+      articles: [
+        { slug: "most-recent-story", title: "Most recent story", publishedAt: new Date("2026-09-10T10:00:00.000Z") },
+      ],
+    });
+
+    expect(output).toContain("<url>");
+    expect(output).toContain("https://xtz.news/most-recent-story");
+    expect(output).toContain("<news:news>");
+  });
+
+  it("uses a valid canonical fallback when no dated articles are available", () => {
+    const output = renderNewsSitemapXml({
+      baseUrl: "https://xtz.news",
+      articles: [],
+    });
+
+    expect(output).toContain("<url>");
+    expect(output).toContain("<loc>https://xtz.news</loc>");
+    expect(output).toContain("</urlset>");
+  });
+
   it("renders translated article URLs in a distinct escaped sitemap", () => {
     const output = renderTranslationSitemapXml({
       baseUrl: "https://xtz.news",

@@ -636,3 +636,9 @@
 - [x] Generate an original text-free editorial image and publish a source-grounded article with Key Takeaways, risk-aware custody context, Lee Evans byline, and SEO fields
 - [x] Add a source-linked Anchorage Digital Web3 Infrastructure project profile limited to its confirmed selected Etherlink-asset support
 - [x] Validate crawler metadata, Google News and canonical sitemaps, first-party media relay, desktop/mobile header coverage, TypeScript, and regression tests
+
+## Phase 97: Google News Sitemap Resilience and Optimised Marketing Profile
+- [x] Diagnose the Search Console missing-`url` error as an empty News sitemap during a 48-hour editorial gap
+- [x] Add parser-safe News sitemap fallback entries without fabricating Google News recency, plus targeted regression coverage
+- [x] Publish a clearly labelled first-party Optimised Marketing Community profile with website, app and marketing services plus the XTZ2026 25% offer
+- [x] Validate local/current sitemap structure, media relay, public profile data, desktop/mobile display, TypeScript, and 176 regression tests

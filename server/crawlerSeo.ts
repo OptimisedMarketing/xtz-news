@@ -204,18 +204,31 @@ export function renderNewsSitemapXml({
   now?: Date;
 }): string {
   const cutoff = now.getTime() - 2 * 24 * 60 * 60 * 1000;
-  const entries = articles
+  const datedArticles = articles
+    .filter((article) => article.publishedAt)
+    .sort((a, b) => new Date(b.publishedAt!).getTime() - new Date(a.publishedAt!).getTime());
+  const recentArticles = datedArticles
     .filter((article) => article.publishedAt && new Date(article.publishedAt).getTime() >= cutoff)
+  // Google Search Console rejects an empty <urlset>. During an editorial gap,
+  // retain the most recent article as a parser-safe placeholder; Google News
+  // can ignore it as outside its recency window, while canonical discovery
+  // remains on /sitemap.xml.
+  const feedArticles = recentArticles.length ? recentArticles : datedArticles.slice(0, 1);
+  const entries = feedArticles
     .map((article) => {
       const publishedAt = new Date(article.publishedAt!).toISOString();
       return `  <url>\n    <loc>${escapeXml(`${baseUrl}/${article.slug}`)}</loc>\n    <news:news>\n      <news:publication><news:name>XTZ.News</news:name><news:language>en</news:language></news:publication>\n      <news:publication_date>${publishedAt}</news:publication_date>\n      <news:title>${escapeXml(article.title)}</news:title>\n    </news:news>\n  </url>`;
     });
+  const fallbackUrl = entries.length === 0
+    ? `  <url>\n    <loc>${escapeXml(baseUrl)}</loc>\n  </url>`
+    : "";
   return [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">',
     ...entries,
+    fallbackUrl,
     '</urlset>',
-  ].join("\n");
+  ].filter(Boolean).join("\n");
 }
 
 /**
