@@ -630,3 +630,9 @@
 - [x] Publish a source-grounded 0xTzKT article with the supplied featured image, bullet Key Takeaways, Lee Evans byline, and SEO fields
 - [x] Add the 0xTzKT Block Explorer project profile with official teaser, GitHub, and social links plus accurate in-development status
 - [x] Synchronize existing directory presentation fields with the Drizzle schema and validate responsive article/profile rendering, Google News markup, sitemaps, media relay, TypeScript, and regression tests
+
+## Phase 96: Anchorage Digital Etherlink Custody Publication
+- [x] Verify Anchorage’s official Etherlink custody announcement, social statement, supported asset set, and xU3O8 documentation
+- [x] Generate an original text-free editorial image and publish a source-grounded article with Key Takeaways, risk-aware custody context, Lee Evans byline, and SEO fields
+- [x] Add a source-linked Anchorage Digital Web3 Infrastructure project profile limited to its confirmed selected Etherlink-asset support
+- [x] Validate crawler metadata, Google News and canonical sitemaps, first-party media relay, desktop/mobile header coverage, TypeScript, and regression tests
