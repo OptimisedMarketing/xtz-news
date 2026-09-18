@@ -20,7 +20,7 @@ export default function ProjectsPage() {
 
   const availableCategories = useMemo(() => {
     const cats = new Set(projects.map((p) => p.category).filter(Boolean));
-    const ordered = ["DeFi","NFTs","Gaming","Dev Tools","Wallets","Stablecoins","Layer 2","Block Explorer","DAOs","Governance","Digital Identity","Baking Tools","Core Development","Foundation","Community","Privacy","Payments","Security Tokens","RWA","Web3 Infrastructure"];
+    const ordered = ["DeFi","NFTs","Gaming","Dev Tools","Wallets","Stablecoins","Layer 2","Block Explorer","DAOs","Governance","Digital Identity","Baking Tools","Core Development","Foundation","Community","Community Services","Privacy","Payments","Security Tokens","RWA","Web3 Infrastructure"];
     return ["All", ...ordered.filter((c) => cats.has(c)), ...Array.from(cats).filter((c) => !ordered.includes(c as string))];
   }, [projects]);
 

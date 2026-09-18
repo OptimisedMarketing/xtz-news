@@ -642,3 +642,9 @@
 - [x] Add parser-safe News sitemap fallback entries without fabricating Google News recency, plus targeted regression coverage
 - [x] Publish a clearly labelled first-party Optimised Marketing Community profile with website, app and marketing services plus the XTZ2026 25% offer
 - [x] Validate local/current sitemap structure, media relay, public profile data, desktop/mobile display, TypeScript, and 176 regression tests
+
+## Phase 98: Community Services Directory and Profile Referral Control
+- [x] Add Community Services as a dedicated Tezos Projects filter for agencies, development studios, and marketing providers
+- [x] Move Optimised Marketing into the new category while preserving its first-party disclosure and service description
+- [x] Add an accessible Optimised Marketing profile button that copies XTZ2026, shows temporary green confirmation, and uses the existing aggregate-only metric
+- [x] Validate category data, directory rendering, desktop/mobile profile controls, browser copy feedback, TypeScript, and 176 regression tests

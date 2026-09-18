@@ -17,7 +17,7 @@ const project = {
 `,
   featuredImageUrl: "/manus-storage/optimised-marketing-xtz-news-wide_fbd697e0.png",
   featuredImageAlt: "Optimised Marketing and XTZ.News first-party promotion artwork",
-  category: "Community",
+  category: "Community Services",
   websiteUrl: "https://optimised.marketing",
   tags: JSON.stringify(["Website development", "Web applications", "Marketing", "Tezos community", "XTZ2026"]),
 };

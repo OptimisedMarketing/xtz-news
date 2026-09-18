@@ -1,5 +1,6 @@
+import { useState, useRef } from "react";
 import { useParams, Link } from "wouter";
-import { ExternalLink, Globe, ChevronRight, Home, ArrowLeft } from "lucide-react";
+import { ExternalLink, Globe, ChevronRight, Home, ArrowLeft, Copy, Check } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useSEO, buildWebPageSchema } from "@/hooks/useSEO";
 import { getMediaUrl } from "@/lib/mediaUrl";
@@ -16,10 +17,27 @@ export default function ProjectDetailPage() {
   const isTezOracleProject = slug === "tezoracle";
   const isKentoProject = slug === "kento";
   const isXtzktProject = slug === "0xtzkt";
+  const isOptimisedMarketingProject = slug === "optimised-marketing";
+  const [referralCopied, setReferralCopied] = useState(false);
+  const referralCopyTracked = useRef(false);
+  const recordReferralCopy = trpc.referralAnalytics.recordCopy.useMutation();
   const { data: tezoracleStatus } = trpc.projects.tezoracleStatus.useQuery(undefined, {
     enabled: isTezOracleProject,
     staleTime: 60_000,
   });
+  const copyReferralCode = async () => {
+    try {
+      await navigator.clipboard.writeText("XTZ2026");
+      setReferralCopied(true);
+      if (!referralCopyTracked.current) {
+        referralCopyTracked.current = true;
+        recordReferralCopy.mutate(undefined);
+      }
+      window.setTimeout(() => setReferralCopied(false), 1800);
+    } catch {
+      setReferralCopied(false);
+    }
+  };
   useSEO({
     title: project ? `${project.title} — Tezos Project | XTZ.News` : "Tezos Project | XTZ.News",
     description: project?.excerpt?.replace(/<[^>]*>/g, "").slice(0, 155) || "Explore Tezos ecosystem projects on XTZ.News.",
@@ -105,6 +123,16 @@ export default function ProjectDetailPage() {
                   >
                     <Globe size={14} /> Visit Website
                   </a>
+                )}
+                {isOptimisedMarketingProject && (
+                  <button
+                    type="button"
+                    onClick={copyReferralCode}
+                    aria-label={referralCopied ? "Referral code copied" : "Copy Optimised Marketing referral code XTZ2026"}
+                    style={{ display: "inline-flex", alignItems: "center", gap: "0.45rem", padding: "0.65rem 1rem", borderRadius: "3px", border: referralCopied ? "1px solid rgba(74,222,128,0.75)" : "1px solid rgba(74,222,128,0.4)", background: referralCopied ? "rgba(34,197,94,0.18)" : "rgba(34,197,94,0.1)", color: referralCopied ? "#86efac" : "#bbf7d0", cursor: "pointer", fontSize: "0.75rem", fontWeight: 800, letterSpacing: "0.04em" }}
+                  >
+                    <span aria-live="polite">{referralCopied ? <><Check size={14} aria-hidden="true" /> Copied!</> : <><Copy size={13} aria-hidden="true" /> Copy XTZ2026</>}</span>
+                  </button>
                 )}
                 {(project as any).twitter && (
                   <a href={(project as any).twitter} target="_blank" rel="nofollow noopener noreferrer"
