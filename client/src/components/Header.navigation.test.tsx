@@ -11,6 +11,13 @@ describe("primary navigation", () => {
     expect(readSection?.items[0]).toMatchObject({ label: "Home", href: "/" });
   });
 
+  it("keeps Community Services discoverable in desktop and mobile navigation", () => {
+    const readSection = MOBILE_SECTIONS.find((section) => section.label === "Read");
+
+    expect(NAV_ITEMS).toEqual(expect.arrayContaining([{ label: "COMMUNITY SERVICES", href: "/community-services" }]));
+    expect(readSection?.items).toEqual(expect.arrayContaining([{ label: "Community Services", href: "/community-services" }]));
+  });
+
   it("keeps the Etherlink hub discoverable in desktop and mobile Explore navigation", () => {
     const desktopExplore = NAV_ITEMS.find((item) => item.label === "EXPLORE");
     const mobileExplore = MOBILE_SECTIONS.find((section) => section.label === "Explore");

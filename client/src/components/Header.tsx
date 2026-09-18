@@ -29,6 +29,7 @@ export const NAV_ITEMS = [
     ],
   },
   { label: "PROJECTS", href: "/projects" },
+  { label: "COMMUNITY SERVICES", href: "/community-services" },
   { label: "TIMELINE", href: "/timeline" },
   {
     label: "EXPLORE",
@@ -74,6 +75,7 @@ export const MOBILE_SECTIONS = [
       { label: "Latest News", href: "/category/latest-news" },
       { label: "Categories", href: "/categories" },
       { label: "Projects", href: "/projects" },
+      { label: "Community Services", href: "/community-services" },
       { label: "Timeline", href: "/timeline" },
     ],
   },

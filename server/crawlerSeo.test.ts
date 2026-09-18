@@ -38,9 +38,17 @@ describe("crawler SEO rendering", () => {
 
   it("keeps priority evergreen routes crawlable and protected from article-slug handling", () => {
     expect(SEO_STATIC_PAGES.map(page => page.url)).toEqual(expect.arrayContaining([
-      "/post-quantum", "/guides/tz5-wallet", "/glossary/tezos-prefixes", "/etherlink", "/etherlink/bridge", "/wallets", "/art-on-tezos", "/advertise",
+      "/post-quantum", "/guides/tz5-wallet", "/glossary/tezos-prefixes", "/etherlink", "/etherlink/bridge", "/wallets", "/art-on-tezos", "/community-services", "/advertise",
     ]));
-    expect(CRAWLER_ROUTE_PREFIXES).toEqual(expect.arrayContaining(["guides", "glossary", "post-quantum", "etherlink", "wallets", "art-on-tezos", "advertise"]));
+    expect(CRAWLER_ROUTE_PREFIXES).toEqual(expect.arrayContaining(["guides", "glossary", "post-quantum", "etherlink", "wallets", "art-on-tezos", "community-services", "advertise"]));
+  });
+
+  it("renders unique metadata for the Community Services directory", () => {
+    const output = renderCrawlerHtml({ html, baseUrl: "https://xtz.news", pathname: "/community-services" });
+
+    expect(getCrawlerStaticMeta("/community-services").title).toBe("Tezos Community Services | Agencies, Studios & Marketing | XTZ.News");
+    expect(output).toContain("Tezos-facing agencies, development studios and marketing providers");
+    expect(output).toContain('<link rel="canonical" href="https://xtz.news/community-services" />');
   });
 
   it("renders unique advertising-page metadata", () => {

@@ -648,3 +648,9 @@
 - [x] Move Optimised Marketing into the new category while preserving its first-party disclosure and service description
 - [x] Add an accessible Optimised Marketing profile button that copies XTZ2026, shows temporary green confirmation, and uses the existing aggregate-only metric
 - [x] Validate category data, directory rendering, desktop/mobile profile controls, browser copy feedback, TypeScript, and 176 regression tests
+
+## Phase 99: Community Services Discovery Landing
+- [x] Build a dedicated Community Services project-directory landing page with category description, listing context, and first-party disclosure guidance
+- [x] Add a Submit your agency action that opens the existing project submission workflow with Community Services preselected
+- [x] Surface Community Services in the shared desktop primary navigation and mobile Read navigation
+- [x] Add crawler metadata, static sitemap discovery, route protection, desktop/mobile and browser submission-flow validation, and 178 regression tests

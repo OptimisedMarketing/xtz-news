@@ -16,7 +16,12 @@ const inputStyle: React.CSSProperties = {
   boxSizing: "border-box" as const,
 };
 
-const CATEGORIES = ["DeFi", "NFTs", "Gaming", "Dev Tools", "Wallets", "Stablecoins", "Layer 2", "Block Explorer", "DAOs", "Governance", "Digital Identity", "Baking Tools", "Core Development", "Foundation", "Community", "Privacy", "Payments", "Security Tokens", "RWA", "Web3 Infrastructure", "Other"];
+const CATEGORIES = ["DeFi", "NFTs", "Gaming", "Dev Tools", "Wallets", "Stablecoins", "Layer 2", "Block Explorer", "DAOs", "Governance", "Digital Identity", "Baking Tools", "Core Development", "Foundation", "Community", "Community Services", "Privacy", "Payments", "Security Tokens", "RWA", "Web3 Infrastructure", "Other"];
+
+const initialCategory = () => {
+  const requestedCategory = new URLSearchParams(window.location.search).get("category");
+  return requestedCategory && CATEGORIES.includes(requestedCategory) ? requestedCategory : "";
+};
 
 function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
   return (
@@ -29,7 +34,7 @@ function FieldLabel({ children, required }: { children: React.ReactNode; require
 export default function SubmitProjectPage() {
   const [form, setForm] = useState({
     projectName: "",
-    category: "",
+    category: initialCategory(),
     website: "",
     twitter: "",
     github: "",
