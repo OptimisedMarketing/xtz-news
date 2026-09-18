@@ -15,6 +15,7 @@ export default function ProjectDetailPage() {
   );
   const isTezOracleProject = slug === "tezoracle";
   const isKentoProject = slug === "kento";
+  const isXtzktProject = slug === "0xtzkt";
   const { data: tezoracleStatus } = trpc.projects.tezoracleStatus.useQuery(undefined, {
     enabled: isTezOracleProject,
     staleTime: 60_000,
@@ -142,7 +143,7 @@ export default function ProjectDetailPage() {
           {/* Info grid */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
             <InfoCard label="Category" value={project.category || "—"} />
-            <InfoCard label="Status" value={isTezOracleProject ? "In development" : "✅ Live & Verified"} />
+            <InfoCard label="Status" value={isTezOracleProject || isXtzktProject ? "In development" : "✅ Live & Verified"} />
             {project.websiteUrl && (
               <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "8px", padding: "1.25rem" }}>
                 <p style={{ fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(255,255,255,0.35)", margin: "0 0 0.5rem" }}>Website</p>

@@ -624,3 +624,9 @@
 - [x] Reduce SEO and IndexNow pings to a weekly schedule
 - [x] Reduce governance alerts and TezOracle status monitoring to weekly schedules
 - [x] Validate the revised unit states, retained site behavior, and documented rollback paths
+
+## Phase 95: 0xTzKT Explorer Preview Publication
+- [x] Verify the 0xTzKT teaser page and Baking Bad repository, including its in-development limitations
+- [x] Publish a source-grounded 0xTzKT article with the supplied featured image, bullet Key Takeaways, Lee Evans byline, and SEO fields
+- [x] Add the 0xTzKT Block Explorer project profile with official teaser, GitHub, and social links plus accurate in-development status
+- [x] Synchronize existing directory presentation fields with the Drizzle schema and validate responsive article/profile rendering, Google News markup, sitemaps, media relay, TypeScript, and regression tests

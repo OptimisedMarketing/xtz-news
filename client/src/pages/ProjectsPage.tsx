@@ -61,7 +61,7 @@ export default function ProjectsPage() {
             <div>
               <h1 style={{ fontSize: "clamp(2.5rem, 6vw, 4rem)", fontWeight: 900, color: "#fff", textTransform: "uppercase", letterSpacing: "0.04em", margin: 0, lineHeight: 1 }}>Tezos Projects</h1>
               <p style={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.45)", margin: "0.4rem 0 0" }}>
-                {projects.length} verified live projects across the Tezos ecosystem
+                {projects.length} source-linked Tezos projects and works in progress
               </p>
             </div>
           </div>
