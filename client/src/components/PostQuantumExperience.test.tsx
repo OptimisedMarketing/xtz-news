@@ -6,6 +6,7 @@ import PostQuantumTopicFilter from "./PostQuantumTopicFilter";
 import Tz5WalletGuideLink from "./Tz5WalletGuideLink";
 import Tz5WalletGuidePage from "@/pages/Tz5WalletGuidePage";
 import ToolsPage from "@/pages/tools/ToolsPage";
+import { POST_QUANTUM_FEATURED_RESOURCES } from "@/pages/PostQuantumPage";
 
 describe("post-quantum reader discovery", () => {
   it("provides a labelled sidebar filter for the post-quantum topic archive", () => {
@@ -22,6 +23,16 @@ describe("post-quantum reader discovery", () => {
     const { container } = render(<ToolsPage />);
     expect(screen.getByRole("heading", { name: "tz5 wallet guide" })).toBeTruthy();
     expect(container.querySelector('a[aria-label="Read the tz5 wallet guide"]')?.getAttribute("href")).toBe("/guides/tz5-wallet");
+  });
+
+  it("features the published Quantumnet reporting in the post-quantum resource collection", () => {
+    expect(POST_QUANTUM_FEATURED_RESOURCES).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        title: "Quantumnet: experimental testnet",
+        href: "/quantumnet-live-tezos-experimental-post-quantum-testnet",
+        label: "Read the Quantumnet story",
+      }),
+    ]));
   });
 
   it("keeps the tz5 guide clear that the feature is not an ordinary Mainnet wallet product", () => {

@@ -660,3 +660,8 @@
 - [x] Generate a unique text-free GPT Image 2.5 Quantumnet editorial feature image and upload it through managed media storage
 - [x] Publish a source-grounded Quantumnet article with bullet Key Takeaways, Lee Evans byline, Infrastructure and Latest News categories, and post-quantum tags
 - [x] Validate the live article record, same-origin media relay, Google News metadata, dynamic News sitemap, desktop/mobile layouts, TypeScript, and 178 regression tests
+
+## Phase 101: Quantumnet Post-Quantum Hub Feature
+- [x] Add the published Quantumnet story as a dedicated feature card in the post-quantum hub’s Featured resources collection
+- [x] Keep the existing dynamically tagged post-quantum coverage grid alongside the direct featured-story resource
+- [x] Validate desktop/mobile layouts, browser-level article navigation, crawler metadata and canonical sitemap presence, TypeScript, and 179 regression tests
