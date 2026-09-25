@@ -6,7 +6,7 @@ import PostQuantumTopicFilter from "./PostQuantumTopicFilter";
 import Tz5WalletGuideLink from "./Tz5WalletGuideLink";
 import Tz5WalletGuidePage from "@/pages/Tz5WalletGuidePage";
 import ToolsPage from "@/pages/tools/ToolsPage";
-import { POST_QUANTUM_FEATURED_RESOURCES } from "@/pages/PostQuantumPage";
+import { POST_QUANTUM_FEATURED_RESOURCES, POST_QUANTUM_VISUAL_GLOSSARY } from "@/pages/PostQuantumPage";
 
 describe("post-quantum reader discovery", () => {
   it("provides a labelled sidebar filter for the post-quantum topic archive", () => {
@@ -32,6 +32,20 @@ describe("post-quantum reader discovery", () => {
         href: "/quantumnet-live-tezos-experimental-post-quantum-testnet",
         label: "Read the Quantumnet story",
       }),
+    ]));
+  });
+
+  it("explains Quantumnet's key post-quantum terms in a source-linked visual glossary", () => {
+    expect(POST_QUANTUM_VISUAL_GLOSSARY.map((item) => item.term)).toEqual([
+      "ML-DSA-44",
+      "XMSS",
+      "STARK aggregation",
+      "ZODA",
+    ]);
+    expect(POST_QUANTUM_VISUAL_GLOSSARY).toEqual(expect.arrayContaining([
+      expect.objectContaining({ term: "ML-DSA-44", sourceHref: "https://csrc.nist.gov/pubs/fips/204/final" }),
+      expect.objectContaining({ term: "XMSS", sourceHref: "https://www.rfc-editor.org/rfc/rfc8391" }),
+      expect.objectContaining({ term: "ZODA", sourceHref: "https://spotlight.tezos.com/introducing-quantumnet/" }),
     ]));
   });
 

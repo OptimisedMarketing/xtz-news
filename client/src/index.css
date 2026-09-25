@@ -1052,6 +1052,24 @@
   .pq-resource-card p { margin: 0.5rem 0 1.1rem; color: rgba(255,255,255,0.65); font-size: 0.82rem; line-height: 1.55; }
   .pq-resource-card a { display: inline-flex; align-items: center; gap: 0.4rem; color: #bdd9ff; font-size: 0.72rem; font-weight: 900; text-decoration: none; }
   .pq-resource-card a:hover { color: #fff; }
+  .pq-visual-glossary { margin-top: 4rem; padding-top: 3.75rem; border-top: 1px solid rgba(135,162,238,0.17); }
+  .pq-visual-glossary__intro { max-width: 31rem; margin: 0; color: rgba(255,255,255,0.63); font-size: 0.8rem; line-height: 1.55; }
+  .pq-visual-glossary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+  .pq-visual-glossary-card { position: relative; display: flex; flex-direction: column; min-height: 19rem; overflow: hidden; padding: 1.25rem; border: 1px solid rgba(141,167,255,0.24); border-radius: 0.85rem; background: linear-gradient(145deg, rgba(16,39,87,0.92), rgba(6,17,43,0.97)); box-shadow: 0 1rem 2.2rem rgba(0,0,0,0.16); }
+  .pq-visual-glossary-card::after { position: absolute; inset: auto -3rem -4.5rem auto; width: 11rem; height: 11rem; border: 1px solid rgba(142,115,255,0.22); border-radius: 50%; box-shadow: 0 0 0 1.25rem rgba(92,121,255,0.04), 0 0 0 2.5rem rgba(92,121,255,0.025); content: ""; pointer-events: none; }
+  .pq-visual-glossary-card__top { display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: 0.6rem; }
+  .pq-visual-glossary-card__step { color: #8faeff; font-size: 0.65rem; font-weight: 900; letter-spacing: 0.1em; }
+  .pq-visual-glossary-card__glyph { display: grid; place-items: center; width: 2.35rem; height: 2.35rem; border: 1px solid rgba(179,159,255,0.3); border-radius: 0.65rem; background: linear-gradient(135deg, rgba(116,91,237,0.35), rgba(55,128,255,0.2)); color: #d8cfff; }
+  .pq-visual-glossary-card__area { color: #a9c8ff; font-size: 0.63rem; font-weight: 900; letter-spacing: 0.09em; text-align: right; text-transform: uppercase; }
+  .pq-visual-glossary-card h3 { position: relative; z-index: 1; margin: 1.1rem 0 0; color: #fff; font-size: 1.34rem; letter-spacing: -0.02em; }
+  .pq-visual-glossary-card p { position: relative; z-index: 1; }
+  .pq-visual-glossary-card__plain { margin: 0.7rem 0 0; color: rgba(255,255,255,0.76); font-size: 0.84rem; line-height: 1.56; }
+  .pq-visual-glossary-card__plain strong { color: #dde7ff; }
+  .pq-visual-glossary-card__role { margin: 0.7rem 0 0; padding: 0.75rem; border-left: 2px solid #9d83ff; background: rgba(122,95,237,0.11); color: #ccddff; font-size: 0.78rem; line-height: 1.52; }
+  .pq-visual-glossary-card__role strong { color: #fff; }
+  .pq-visual-glossary-card__note { margin: 0.75rem 0 0; color: #9ee5ca; font-size: 0.73rem; line-height: 1.48; }
+  .pq-visual-glossary-card > a { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 0.35rem; width: fit-content; margin-top: auto; padding-top: 0.9rem; color: #b8d7ff; font-size: 0.69rem; font-weight: 900; text-decoration: none; }
+  .pq-visual-glossary-card > a:hover, .pq-visual-glossary-card > a:focus-visible { color: #fff; }
   .pq-hub__news { margin-top: 4.25rem; }
   .pq-article-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
   .pq-article-card { display: grid; grid-template-columns: minmax(9rem, 0.76fr) minmax(0, 1fr); min-height: 13.5rem; overflow: hidden; border: 1px solid rgba(146,167,232,0.18); border-radius: 0.75rem; background: #071a39; color: #fff; text-decoration: none; transition: transform 180ms cubic-bezier(0.23, 1, 0.32, 1), border-color 180ms ease; }
@@ -1103,7 +1121,7 @@
     .post-quantum-home-feature__shell, .pq-hero__grid { grid-template-columns: 1fr; }
     .post-quantum-home-feature__mark { display: none; }
     .post-quantum-home-feature__status { border-top: 1px solid rgba(214,197,255,0.28); border-left: 0; }
-    .pq-resource-grid, .pq-glossary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .pq-resource-grid, .pq-glossary-grid, .pq-visual-glossary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
   @media (max-width: 640px) {
     .post-quantum-home-feature { padding: 0.85rem 0; }
@@ -1118,8 +1136,11 @@
     .pq-hub__content, .pq-glossary__content { padding: 2.3rem 0 3.7rem; }
     .pq-section-title { align-items: flex-start; flex-direction: column; }
     .pq-section-title h2 { font-size: 1.5rem; }
-    .pq-resource-grid, .pq-glossary-grid { grid-template-columns: 1fr; }
+    .pq-resource-grid, .pq-glossary-grid, .pq-visual-glossary-grid { grid-template-columns: 1fr; }
     .pq-resource-card, .pq-prefix-card { min-height: auto; }
+    .pq-visual-glossary { margin-top: 3.2rem; padding-top: 2.75rem; }
+    .pq-visual-glossary-card { min-height: auto; }
+    .pq-visual-glossary-card__area { text-align: left; }
     .pq-article-grid { grid-template-columns: 1fr; }
     .pq-article-card { grid-template-columns: 7.5rem minmax(0, 1fr); min-height: 10.5rem; }
     .pq-safety-strip { grid-template-columns: auto minmax(0, 1fr); }

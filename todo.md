@@ -665,3 +665,8 @@
 - [x] Add the published Quantumnet story as a dedicated feature card in the post-quantum hub’s Featured resources collection
 - [x] Keep the existing dynamically tagged post-quantum coverage grid alongside the direct featured-story resource
 - [x] Validate desktop/mobile layouts, browser-level article navigation, crawler metadata and canonical sitemap presence, TypeScript, and 179 regression tests
+
+## Phase 102: Quantumnet Visual Glossary
+- [x] Add a reader-first visual glossary for ML-DSA-44, XMSS, STARK aggregation and ZODA to the post-quantum hub
+- [x] Explain each term’s plain-English meaning, confirmed Quantumnet role, and reader-action boundary with authoritative external sources
+- [x] Validate desktop/mobile card layouts, source-link rendering, crawler metadata, TypeScript, and 180 regression tests

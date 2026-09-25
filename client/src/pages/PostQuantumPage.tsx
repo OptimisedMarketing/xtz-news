@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "wouter";
-import { ArrowRight, BookOpen, ChevronRight, ExternalLink, FlaskConical, Home, KeyRound, LibraryBig, Search, ShieldCheck } from "lucide-react";
+import { ArrowRight, BookOpen, ChevronRight, Database, ExternalLink, FlaskConical, GitBranch, Home, KeyRound, Layers3, LibraryBig, Search, ShieldCheck } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useSEO } from "@/hooks/useSEO";
 import { getMediaUrl } from "@/lib/mediaUrl";
@@ -15,6 +15,53 @@ export const POST_QUANTUM_FEATURED_RESOURCES = [
   { icon: FlaskConical, title: "Quantumnet: experimental testnet", text: "Read XTZ.News reporting on Tezos’ live public testnet for evaluating post-quantum accounts, baking rights, consensus and data availability.", href: "/quantumnet-live-tezos-experimental-post-quantum-testnet", label: "Read the Quantumnet story" },
   { icon: Search, title: "Tezos prefix glossary", text: "Search tz1–tz5, KT1 and sr1 to understand the address families and account types you encounter.", href: "/glossary/tezos-prefixes", label: "Search the glossary" },
   { icon: BookOpen, title: "Official post-quantum explainer", text: "Read the Tezos Spotlight overview of the planned post-quantum previewnet and its technical context.", href: "https://spotlight.tezos.com/why-post-quantum-why-now/", label: "Open official source", external: true },
+];
+
+export const POST_QUANTUM_VISUAL_GLOSSARY = [
+  {
+    icon: KeyRound,
+    step: "01",
+    area: "Account signatures",
+    term: "ML-DSA-44",
+    plainEnglish: "A post-quantum digital-signature algorithm: it helps prove that an authorised account approved a transaction.",
+    quantumnetRole: "Quantumnet uses it for tz5 accounts instead of the elliptic-curve signatures used by current account types.",
+    readerNote: "For readers: it is research-stage account technology, not a request to move funds or replace a wallet today.",
+    sourceLabel: "NIST FIPS 204",
+    sourceHref: "https://csrc.nist.gov/pubs/fips/204/final",
+  },
+  {
+    icon: GitBranch,
+    step: "02",
+    area: "Consensus attestations",
+    term: "XMSS",
+    plainEnglish: "A hash-based digital-signature scheme designed around cryptographic hash functions rather than the usual elliptic-curve approach.",
+    quantumnetRole: "Quantumnet uses XMSS signatures for consensus attestations in place of the BLS signature approach used on Tezos mainnet.",
+    readerNote: "For readers: this is validator and protocol plumbing, not a new public address format.",
+    sourceLabel: "RFC 8391",
+    sourceHref: "https://www.rfc-editor.org/rfc/rfc8391",
+  },
+  {
+    icon: Layers3,
+    step: "03",
+    area: "Batch proof layer",
+    term: "STARK aggregation",
+    plainEnglish: "A compact cryptographic proof for checking a batch of work together, rather than handling every attestation as a separate full-sized record.",
+    quantumnetRole: "The testnet pairs XMSS attestations with a post-quantum STARK aggregation system developed by the LeanEthereum project.",
+    readerNote: "For readers: it is part of the experiment to keep consensus data workable at network scale.",
+    sourceLabel: "Tezos Spotlight",
+    sourceHref: "https://spotlight.tezos.com/introducing-quantumnet/",
+  },
+  {
+    icon: Database,
+    step: "04",
+    area: "Data availability",
+    term: "ZODA",
+    plainEnglish: "A data-availability design based on two-dimensional tensor codes: it is being evaluated as a way for network participants to check that required data is available.",
+    quantumnetRole: "Quantumnet evaluates ZODA instead of the KZG commitments and proofs currently used by Tezos’ Data Availability Layer.",
+    readerNote: "For readers: it concerns how network data is verified and shared, not ownership of an asset.",
+    sourceLabel: "Tezos Spotlight",
+    sourceHref: "https://spotlight.tezos.com/introducing-quantumnet/",
+  },
 ];
 
 export default function PostQuantumPage() {
@@ -48,6 +95,18 @@ export default function PostQuantumPage() {
       <section className="pq-hub__content">
         <div className="container pq-shell">
           <section aria-labelledby="pq-start-title"><div className="pq-section-title"><div><p>Featured resources</p><h2 id="pq-start-title">Start with what you need.</h2></div></div><div className="pq-resource-grid">{POST_QUANTUM_FEATURED_RESOURCES.map(({ icon: Icon, title, text, href, label, external }) => <article key={title} className="pq-resource-card"><span><Icon size={20} aria-hidden="true" /></span><h3>{title}</h3><p>{text}</p>{external ? <a href={href} target="_blank" rel="noopener noreferrer">{label} <ExternalLink size={15} aria-hidden="true" /></a> : <Link href={href}>{label} <ArrowRight size={15} aria-hidden="true" /></Link>}</article>)}</div></section>
+
+          <section className="pq-visual-glossary" aria-labelledby="pq-glossary-title">
+            <div className="pq-section-title"><div><p>Visual glossary</p><h2 id="pq-glossary-title">Four terms behind Quantumnet.</h2></div><p className="pq-visual-glossary__intro">A quick map of what each component does in the experimental testnet—not a guide to moving funds or changing wallets.</p></div>
+            <div className="pq-visual-glossary-grid">{POST_QUANTUM_VISUAL_GLOSSARY.map(({ icon: Icon, step, area, term, plainEnglish, quantumnetRole, readerNote, sourceLabel, sourceHref }) => <article key={term} className="pq-visual-glossary-card">
+              <div className="pq-visual-glossary-card__top"><span className="pq-visual-glossary-card__step" aria-hidden="true">{step}</span><span className="pq-visual-glossary-card__glyph"><Icon size={22} aria-hidden="true" /></span><span className="pq-visual-glossary-card__area">{area}</span></div>
+              <h3>{term}</h3>
+              <p className="pq-visual-glossary-card__plain"><strong>Plain English:</strong> {plainEnglish}</p>
+              <p className="pq-visual-glossary-card__role"><strong>In Quantumnet:</strong> {quantumnetRole}</p>
+              <p className="pq-visual-glossary-card__note">{readerNote}</p>
+              <a href={sourceHref} target="_blank" rel="noopener noreferrer">Source: {sourceLabel} <ExternalLink size={13} aria-hidden="true" /></a>
+            </article>)}</div>
+          </section>
 
           <section className="pq-hub__news" aria-labelledby="pq-news-title"><div className="pq-section-title"><div><p>XTZ.News coverage</p><h2 id="pq-news-title">Post-quantum reporting and context</h2></div><Link href="/tag/post-quantum">View the topic archive <ArrowRight size={15} aria-hidden="true" /></Link></div>{isLoading ? <div className="pq-article-grid" aria-label="Loading post-quantum articles"><div className="skeleton pq-card-skeleton" /><div className="skeleton pq-card-skeleton" /></div> : posts.length ? <div className="pq-article-grid">{posts.map((post) => <Link key={post.id} href={`/${post.slug}`} className="pq-article-card"><div className="pq-article-card__image">{post.featuredImageUrl ? <img src={getMediaUrl(post.featuredImageUrl)} alt={post.featuredImageAlt || post.title} /> : <div aria-hidden="true" />}</div><div className="pq-article-card__body"><span>{formatDate(post.publishedAt)}</span><h3>{post.title}</h3><p>{post.excerpt}</p><b>Read article <ArrowRight size={15} aria-hidden="true" /></b></div></Link>)}</div> : <div className="pq-empty"><LibraryBig size={22} aria-hidden="true" /><h2>More coverage is on the way</h2><p>Use the guide and official reading links while XTZ.News continues to follow public post-quantum updates.</p></div>}</section>
 
