@@ -24,4 +24,15 @@ describe("automatic article glossary links", () => {
     expect(output).toContain('data-technical-term="EVM"');
     expect(output).toContain('href="/glossary/tezos-prefixes#tz1"');
   });
+
+  it("links Quantumnet's specialist terms to the visual glossary once per article", () => {
+    const output = linkArticleGlossaryTerms("<p>ML-DSA-44, XMSS, STARK aggregation and ZODA are each being evaluated in Quantumnet.</p><p>XMSS appears again.</p>");
+
+    expect(output).toContain('href="/post-quantum#pq-glossary-ml-dsa-44"');
+    expect(output).toContain('href="/post-quantum#pq-glossary-xmss"');
+    expect(output).toContain('href="/post-quantum#pq-glossary-stark-aggregation"');
+    expect(output).toContain('href="/post-quantum#pq-glossary-zoda"');
+    expect(output.match(/href="\/post-quantum#pq-glossary-xmss"/g)).toHaveLength(1);
+    expect(output).toContain('data-glossary-definition="ML-DSA-44 is a NIST-standardised post-quantum digital-signature scheme used by tz5 testnet accounts."');
+  });
 });

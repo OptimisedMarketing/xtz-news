@@ -6,6 +6,10 @@ export type ArticleGlossaryTerm = {
 };
 
 export const ARTICLE_GLOSSARY_TERMS: ArticleGlossaryTerm[] = [
+  { key: "ml-dsa-44", matcher: /\bML-DSA-44\b/gi, definition: "ML-DSA-44 is a NIST-standardised post-quantum digital-signature scheme used by tz5 testnet accounts.", href: "/post-quantum#pq-glossary-ml-dsa-44" },
+  { key: "stark-aggregation", matcher: /\bSTARK aggregation\b/gi, definition: "STARK aggregation combines many attestations into a proof that can be checked together; Quantumnet is testing a post-quantum approach.", href: "/post-quantum#pq-glossary-stark-aggregation" },
+  { key: "xmss", matcher: /\bXMSS\b/gi, definition: "XMSS is a hash-based digital-signature scheme that Quantumnet is testing for consensus attestations.", href: "/post-quantum#pq-glossary-xmss" },
+  { key: "zoda", matcher: /\bZODA\b/gi, definition: "ZODA is a two-dimensional tensor-code data-availability approach being evaluated in Quantumnet.", href: "/post-quantum#pq-glossary-zoda" },
   { key: "smart-rollup", matcher: /\bSmart Rollups?\b/gi, definition: "A Tezos Smart Rollup is a layer 2 system with its own sr1 address and commitment tree.", href: "/glossary/tezos-prefixes#sr1" },
   { key: "etherlink", matcher: /\bEtherlink\b/gi, definition: "Etherlink is a Tezos execution layer with EVM and Michelson interfaces.", href: "/etherlink" },
   { key: "michelson", matcher: /\bMichelson\b/gi, definition: "Michelson is Tezos’ smart-contract language.", href: "/glossary/tezos-prefixes#kt1" },

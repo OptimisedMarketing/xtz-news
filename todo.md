@@ -670,3 +670,8 @@
 - [x] Add a reader-first visual glossary for ML-DSA-44, XMSS, STARK aggregation and ZODA to the post-quantum hub
 - [x] Explain each term’s plain-English meaning, confirmed Quantumnet role, and reader-action boundary with authoritative external sources
 - [x] Validate desktop/mobile card layouts, source-link rendering, crawler metadata, TypeScript, and 180 regression tests
+
+## Phase 103: Quantumnet Article Glossary Links
+- [x] Add automatic, keyboard-accessible first-mention glossary links for ML-DSA-44, XMSS, STARK aggregation and ZODA
+- [x] Direct each tooltip link to the matching anchored visual-glossary card on the post-quantum hub
+- [x] Validate all four rendered article anchors and tooltip definitions, desktop/mobile article layouts, TypeScript, and 181 regression tests

@@ -19,6 +19,7 @@ export const POST_QUANTUM_FEATURED_RESOURCES = [
 
 export const POST_QUANTUM_VISUAL_GLOSSARY = [
   {
+    key: "ml-dsa-44",
     icon: KeyRound,
     step: "01",
     area: "Account signatures",
@@ -30,6 +31,7 @@ export const POST_QUANTUM_VISUAL_GLOSSARY = [
     sourceHref: "https://csrc.nist.gov/pubs/fips/204/final",
   },
   {
+    key: "xmss",
     icon: GitBranch,
     step: "02",
     area: "Consensus attestations",
@@ -41,6 +43,7 @@ export const POST_QUANTUM_VISUAL_GLOSSARY = [
     sourceHref: "https://www.rfc-editor.org/rfc/rfc8391",
   },
   {
+    key: "stark-aggregation",
     icon: Layers3,
     step: "03",
     area: "Batch proof layer",
@@ -52,6 +55,7 @@ export const POST_QUANTUM_VISUAL_GLOSSARY = [
     sourceHref: "https://spotlight.tezos.com/introducing-quantumnet/",
   },
   {
+    key: "zoda",
     icon: Database,
     step: "04",
     area: "Data availability",
@@ -98,7 +102,7 @@ export default function PostQuantumPage() {
 
           <section className="pq-visual-glossary" aria-labelledby="pq-glossary-title">
             <div className="pq-section-title"><div><p>Visual glossary</p><h2 id="pq-glossary-title">Four terms behind Quantumnet.</h2></div><p className="pq-visual-glossary__intro">A quick map of what each component does in the experimental testnet—not a guide to moving funds or changing wallets.</p></div>
-            <div className="pq-visual-glossary-grid">{POST_QUANTUM_VISUAL_GLOSSARY.map(({ icon: Icon, step, area, term, plainEnglish, quantumnetRole, readerNote, sourceLabel, sourceHref }) => <article key={term} className="pq-visual-glossary-card">
+            <div className="pq-visual-glossary-grid">{POST_QUANTUM_VISUAL_GLOSSARY.map(({ key, icon: Icon, step, area, term, plainEnglish, quantumnetRole, readerNote, sourceLabel, sourceHref }) => <article key={key} id={`pq-glossary-${key}`} className="pq-visual-glossary-card">
               <div className="pq-visual-glossary-card__top"><span className="pq-visual-glossary-card__step" aria-hidden="true">{step}</span><span className="pq-visual-glossary-card__glyph"><Icon size={22} aria-hidden="true" /></span><span className="pq-visual-glossary-card__area">{area}</span></div>
               <h3>{term}</h3>
               <p className="pq-visual-glossary-card__plain"><strong>Plain English:</strong> {plainEnglish}</p>
