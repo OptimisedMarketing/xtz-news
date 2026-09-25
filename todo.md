@@ -654,3 +654,9 @@
 - [x] Add a Submit your agency action that opens the existing project submission workflow with Community Services preselected
 - [x] Surface Community Services in the shared desktop primary navigation and mobile Read navigation
 - [x] Add crawler metadata, static sitemap discovery, route protection, desktop/mobile and browser submission-flow validation, and 178 regression tests
+
+## Phase 100: Quantumnet Experimental Post-Quantum Testnet Publication
+- [x] Verify Tezos Spotlight’s Quantumnet announcement and earlier post-quantum technical background from primary sources
+- [x] Generate a unique text-free GPT Image 2.5 Quantumnet editorial feature image and upload it through managed media storage
+- [x] Publish a source-grounded Quantumnet article with bullet Key Takeaways, Lee Evans byline, Infrastructure and Latest News categories, and post-quantum tags
+- [x] Validate the live article record, same-origin media relay, Google News metadata, dynamic News sitemap, desktop/mobile layouts, TypeScript, and 178 regression tests
