@@ -675,3 +675,9 @@
 - [x] Add automatic, keyboard-accessible first-mention glossary links for ML-DSA-44, XMSS, STARK aggregation and ZODA
 - [x] Direct each tooltip link to the matching anchored visual-glossary card on the post-quantum hub
 - [x] Validate all four rendered article anchors and tooltip definitions, desktop/mobile article layouts, TypeScript, and 181 regression tests
+
+## Phase 104: Tezos Art Recap Publication
+- [x] Verify the official Tezos Art on Tezos Friday Recap and MoMI Responsive Signals source material
+- [x] Generate a unique text-free editorial cover and publish a source-grounded article with dated-recap context, bullet Key Takeaways and Lee Evans byline
+- [x] Assign Art, Exhibition and Latest News categories plus Art on Tezos, Digital Art, Exhibitions, NFTs, objkt and Tezos tags
+- [x] Validate desktop/mobile article layouts, same-origin cover relay, Google News metadata, canonical and News sitemap discovery, TypeScript, and 181 regression tests
