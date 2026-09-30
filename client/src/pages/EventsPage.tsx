@@ -1,28 +1,121 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CalendarDays, ExternalLink, Filter, MapPin, Plus, Send } from "lucide-react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { getEventCalendarDownloadHref } from "@/lib/eventCalendar";
-import { EVENT_TYPE_LABELS, filterPublishedEvents, getEventDisplayGroups, getEventLocations, getEventTypes } from "@/lib/eventFilters";
+import { EVENT_TYPE_LABELS, type EventDateScope, filterEventsByDateScope, filterPublishedEvents, getEventLocations, getEventTypes } from "@/lib/eventFilters";
 import { buildWebPageSchema, useSEO } from "@/hooks/useSEO";
 import TezosEventSubmissionForm from "@/components/TezosEventSubmissionForm";
 
-function formatEventDate(value: Date | string) { return new Date(value).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" }); }
-function eventSlug(title: string) { return title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "tezos-event"; }
+const DATE_SCOPE_OPTIONS: Array<{ value: EventDateScope; label: string }> = [
+  { value: "all", label: "All event records" },
+  { value: "current", label: "Current & upcoming" },
+  { value: "upcoming", label: "Future scheduled" },
+  { value: "past", label: "Past events" },
+];
+
+function getInitialScope(): EventDateScope {
+  if (typeof window === "undefined") return "all";
+  const scope = new URLSearchParams(window.location.search).get("when");
+  return DATE_SCOPE_OPTIONS.some((option) => option.value === scope) ? scope as EventDateScope : "all";
+}
+
+function getInitialDate(name: "from" | "to") {
+  if (typeof window === "undefined") return "";
+  const value = new URLSearchParams(window.location.search).get(name) || "";
+  return /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : "";
+}
+
+function formatEventDate(value: Date | string, timeZone?: string | null) {
+  const date = new Date(value);
+  const dateTime = new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short", ...(timeZone ? { timeZone } : {}) }).format(date);
+  if (!timeZone) return dateTime;
+  const zone = new Intl.DateTimeFormat("en-GB", { timeZone, timeZoneName: "short" }).formatToParts(date).find((part) => part.type === "timeZoneName")?.value;
+  return zone ? `${dateTime} ${zone}` : dateTime;
+}
+
+function eventSlug(title: string) {
+  return title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "tezos-event";
+}
 
 export default function EventsPage() {
   const { data: events = [], isLoading } = trpc.tezosEventCandidates.published.useQuery();
   const [locationFilter, setLocationFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
-  const { currentOrUpcoming, recentlyPassed } = useMemo(() => getEventDisplayGroups(events), [events]);
-  const visibleEvents = useMemo(() => [...currentOrUpcoming, ...recentlyPassed], [currentOrUpcoming, recentlyPassed]);
-  const locations = useMemo(() => getEventLocations(visibleEvents), [visibleEvents]);
-  const eventTypes = useMemo(() => getEventTypes(visibleEvents), [visibleEvents]);
-  const filteredCurrentOrUpcoming = useMemo(() => filterPublishedEvents(currentOrUpcoming, locationFilter, typeFilter), [currentOrUpcoming, locationFilter, typeFilter]);
-  const filteredRecentlyPassed = useMemo(() => filterPublishedEvents(recentlyPassed, locationFilter, typeFilter), [recentlyPassed, locationFilter, typeFilter]);
-  const filteredEventCount = filteredCurrentOrUpcoming.length + filteredRecentlyPassed.length;
-  useSEO({ title: "Tezos Events | XTZ.News", description: "Editor-reviewed Tezos events, with source links and calendar downloads from XTZ.News.", canonical: "https://xtz.news/events", jsonLd: [buildWebPageSchema({ title: "Tezos Events | XTZ.News", description: "Editor-reviewed Tezos events with primary source links.", url: "https://xtz.news/events", breadcrumbs: [{ name: "Home", url: "https://xtz.news" }, { name: "Events", url: "https://xtz.news/events" }] })] });
-  const EventCard = ({ event }: { event: typeof events[number] }) => <article className="rounded-xl border border-white/10 bg-white/[0.03] p-5"><div className="flex flex-wrap gap-2"><p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-amber-300"><CalendarDays size={15} /> {formatEventDate(event.startAt)}</p>{event.eventType && <span className="rounded-full border border-amber-300/30 px-2 py-0.5 text-[0.65rem] font-black uppercase tracking-wide text-amber-200">{EVENT_TYPE_LABELS[event.eventType] || event.eventType}</span>}</div><h3 className="mt-3 text-xl font-black">{event.title}</h3>{event.location && <p className="mt-2 flex items-center gap-2 text-sm text-white/60"><MapPin size={15} /> {event.location}</p>}{event.description && <p className="mt-3 text-sm leading-6 text-white/70">{event.description}</p>}<div className="mt-5 flex flex-wrap gap-3"><a href={event.sourceUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-10 items-center gap-2 rounded border border-sky-300/35 px-3 text-sm font-bold text-sky-200 hover:bg-sky-300/10">Source listing <ExternalLink size={14} /></a><a href={getEventCalendarDownloadHref({ id: String(event.id), title: event.title, startAt: event.startAt.toISOString(), endAt: event.endAt?.toISOString(), location: event.location ?? undefined, description: event.description ?? undefined, sourceUrl: event.sourceUrl })} download={`${eventSlug(event.title)}.ics`} className="inline-flex min-h-10 items-center gap-2 rounded bg-amber-300 px-3 text-sm font-black text-[#1d1603] hover:bg-amber-200"><Plus size={15} /> Add to calendar</a></div></article>;
+  const [dateScope, setDateScope] = useState<EventDateScope>(getInitialScope);
+  const [dateFrom, setDateFrom] = useState(() => getInitialDate("from"));
+  const [dateTo, setDateTo] = useState(() => getInitialDate("to"));
 
-  return <main className="min-h-screen bg-[#05040c] text-white"><section className="border-b border-white/10 bg-[linear-gradient(135deg,#101037,#071f32)] py-16"><div className="container"><p className="text-xs font-black uppercase tracking-[0.16em] text-amber-300">XTZ.News calendar</p><h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">Tezos events</h1><p className="mt-4 max-w-2xl text-white/70 leading-7">A reader-facing list of events selected and published by the XTZ.News editorial team. Always check the organiser’s own listing before making plans.</p><a href="#submit-event" className="mt-6 inline-flex min-h-10 items-center gap-2 rounded border border-amber-300/35 px-4 text-sm font-bold text-amber-200 hover:bg-amber-300/10"><Send size={15} /> Submit an event</a></div></section><section className="container py-10">{isLoading ? <div className="space-y-4">{Array.from({ length: 3 }).map((_, index) => <div key={index} className="skeleton h-40 rounded-xl" />)}</div> : <><div className="mb-5 grid gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]"><label className="text-xs font-bold uppercase tracking-wide text-white/55">Location<select value={locationFilter} onChange={(event) => setLocationFilter(event.target.value)} className="mt-1 block min-h-10 w-full rounded border border-white/15 bg-[#09152d] px-3 text-sm normal-case tracking-normal text-white"><option value="all">All locations</option>{locations.map((location) => <option key={location} value={location}>{location}</option>)}</select></label><label className="text-xs font-bold uppercase tracking-wide text-white/55">Event type<select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)} className="mt-1 block min-h-10 w-full rounded border border-white/15 bg-[#09152d] px-3 text-sm normal-case tracking-normal text-white"><option value="all">All event types</option>{eventTypes.map((type) => <option key={type} value={type}>{EVENT_TYPE_LABELS[type] || type}</option>)}</select></label><button type="button" onClick={() => { setLocationFilter("all"); setTypeFilter("all"); }} disabled={locationFilter === "all" && typeFilter === "all"} className="self-end min-h-10 rounded border border-white/15 px-3 text-sm font-bold text-white/70 hover:bg-white/5 disabled:opacity-40">Clear filters</button></div><p aria-live="polite" className="mb-5 flex items-center gap-2 text-sm text-white/55"><Filter size={15} /> {filteredEventCount} event{filteredEventCount === 1 ? "" : "s"} shown</p>{filteredEventCount ? <div className="space-y-10">{filteredCurrentOrUpcoming.length > 0 && <section aria-labelledby="current-events-heading"><div className="mb-4 flex items-center gap-3"><h2 id="current-events-heading" className="text-2xl font-black">Current & upcoming</h2><span className="rounded-full bg-emerald-300/10 px-2 py-1 text-xs font-bold text-emerald-200">{filteredCurrentOrUpcoming.length}</span></div><div className="grid gap-4 md:grid-cols-2">{filteredCurrentOrUpcoming.map((event) => <EventCard key={event.id} event={event} />)}</div></section>}{filteredRecentlyPassed.length > 0 && <section aria-labelledby="recent-events-heading"><div className="mb-4"><p className="text-xs font-black uppercase tracking-[0.14em] text-white/45">Editorial record</p><h2 id="recent-events-heading" className="mt-1 text-2xl font-black">Recently passed</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-white/55">These verified events have recently concluded. They remain here briefly as a source-linked record, not as upcoming plans.</p></div><div className="grid gap-4 md:grid-cols-2">{filteredRecentlyPassed.map((event) => <EventCard key={event.id} event={event} />)}</div></section>}</div> : <div className="rounded-xl border border-white/10 bg-white/[0.03] p-10 text-center"><CalendarDays className="mx-auto mb-3 text-amber-300" /><h2 className="text-xl font-black">No editor-published events match these filters</h2><p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-white/60">Try another location or event type, or return later as the editorial team publishes reviewed events.</p><button type="button" onClick={() => { setLocationFilter("all"); setTypeFilter("all"); }} className="mt-5 text-sm font-bold text-amber-200 hover:underline">Reset filters</button></div>}</>}</section><section id="submit-event" className="border-t border-white/10 bg-[linear-gradient(135deg,#101037,#071f32)] py-14"><div className="container grid gap-8 lg:grid-cols-[0.78fr_1.22fr]"><div><p className="text-xs font-black uppercase tracking-[0.16em] text-amber-300">Editorial submissions</p><h2 className="mt-3 text-3xl font-black">Share a Tezos event for review.</h2><p className="mt-4 max-w-md leading-7 text-white/70">Organisers and community members can submit an official event listing. XTZ.News checks the information before deciding whether it belongs on this calendar.</p><p className="mt-4 text-sm leading-6 text-white/50">Submitting an event is free, does not guarantee inclusion, and never publishes the event automatically.</p><Link href="/art-on-tezos" className="mt-6 inline-flex text-sm font-bold text-pink-300 hover:underline">Browse the Art on Tezos timeline</Link></div><TezosEventSubmissionForm /></div></section></main>;
+  useSEO({
+    title: "Tezos Events | XTZ.News",
+    description: "Editor-reviewed Tezos events, with past and future date controls, source links and calendar downloads from XTZ.News.",
+    canonical: "https://xtz.news/events",
+    jsonLd: [buildWebPageSchema({ title: "Tezos Events | XTZ.News", description: "Editor-reviewed Tezos events with primary source links.", url: "https://xtz.news/events", breadcrumbs: [{ name: "Home", url: "https://xtz.news" }, { name: "Events", url: "https://xtz.news/events" }] })],
+  });
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (dateScope !== "all") params.set("when", dateScope);
+    if (dateFrom) params.set("from", dateFrom);
+    if (dateTo) params.set("to", dateTo);
+    const query = params.toString();
+    window.history.replaceState({}, "", `${window.location.pathname}${query ? `?${query}` : ""}`);
+  }, [dateScope, dateFrom, dateTo]);
+
+  const locations = useMemo(() => getEventLocations(events), [events]);
+  const eventTypes = useMemo(() => getEventTypes(events), [events]);
+  const locationAndTypeEvents = useMemo(() => filterPublishedEvents(events, locationFilter, typeFilter), [events, locationFilter, typeFilter]);
+  const scopedEvents = useMemo(() => filterEventsByDateScope(locationAndTypeEvents, { scope: dateScope, from: dateFrom || undefined, to: dateTo || undefined }), [locationAndTypeEvents, dateScope, dateFrom, dateTo]);
+  const currentAndUpcomingEvents = useMemo(() => filterEventsByDateScope(scopedEvents, { scope: "current" }), [scopedEvents]);
+  const pastEvents = useMemo(() => filterEventsByDateScope(scopedEvents, { scope: "past" }), [scopedEvents]);
+  const resetFilters = () => { setLocationFilter("all"); setTypeFilter("all"); setDateScope("all"); setDateFrom(""); setDateTo(""); };
+  const hasFilters = locationFilter !== "all" || typeFilter !== "all" || dateScope !== "all" || Boolean(dateFrom) || Boolean(dateTo);
+
+  const EventCard = ({ event }: { event: typeof events[number] }) => (
+    <article className="rounded-xl border border-white/10 bg-white/[0.03] p-5">
+      <div className="flex flex-wrap gap-2">
+        <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-amber-300"><CalendarDays size={15} /> {formatEventDate(event.startAt, event.timezone)}</p>
+        {event.eventType && <span className="rounded-full border border-amber-300/30 px-2 py-0.5 text-[0.65rem] font-black uppercase tracking-wide text-amber-200">{EVENT_TYPE_LABELS[event.eventType] || event.eventType}</span>}
+      </div>
+      <h3 className="mt-3 text-xl font-black">{event.title}</h3>
+      {event.location && <p className="mt-2 flex items-center gap-2 text-sm text-white/60"><MapPin size={15} /> {event.location}</p>}
+      {event.description && <p className="mt-3 text-sm leading-6 text-white/70">{event.description}</p>}
+      <div className="mt-5 flex flex-wrap gap-3">
+        <a href={event.sourceUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-10 items-center gap-2 rounded border border-sky-300/35 px-3 text-sm font-bold text-sky-200 hover:bg-sky-300/10">Source listing <ExternalLink size={14} /></a>
+        <a href={getEventCalendarDownloadHref({ id: String(event.id), title: event.title, startAt: event.startAt.toISOString(), endAt: event.endAt?.toISOString(), location: event.location ?? undefined, description: event.description ?? undefined, sourceUrl: event.sourceUrl })} download={`${eventSlug(event.title)}.ics`} className="inline-flex min-h-10 items-center gap-2 rounded bg-amber-300 px-3 text-sm font-black text-[#1d1603] hover:bg-amber-200"><Plus size={15} /> Add to calendar</a>
+      </div>
+    </article>
+  );
+
+  const EventSection = ({ title, description, events: sectionEvents, historical = false }: { title: string; description?: string; events: typeof events; historical?: boolean }) => {
+    if (!sectionEvents.length) return null;
+    return <section aria-labelledby={`${historical ? "past" : "current"}-events-heading`}>
+      <div className="mb-4">
+        {historical && <p className="text-xs font-black uppercase tracking-[0.14em] text-white/45">Editorial record</p>}
+        <h2 id={`${historical ? "past" : "current"}-events-heading`} className="mt-1 text-2xl font-black">{title}</h2>
+        {description && <p className="mt-2 max-w-2xl text-sm leading-6 text-white/55">{description}</p>}
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">{sectionEvents.map((event) => <EventCard key={event.id} event={event} />)}</div>
+    </section>;
+  };
+
+  return <main className="min-h-screen bg-[#05040c] text-white">
+    <section className="border-b border-white/10 bg-[linear-gradient(135deg,#101037,#071f32)] py-16"><div className="container"><p className="text-xs font-black uppercase tracking-[0.16em] text-amber-300">XTZ.News calendar</p><h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">Tezos events</h1><p className="mt-4 max-w-2xl text-white/70 leading-7">A reader-facing list of events selected and published by the XTZ.News editorial team. Search current, future and past listings, then check the organiser’s own page before making plans.</p><a href="#submit-event" className="mt-6 inline-flex min-h-10 items-center gap-2 rounded border border-amber-300/35 px-4 text-sm font-bold text-amber-200 hover:bg-amber-300/10"><Send size={15} /> Submit an event</a></div></section>
+    <section className="container py-10">
+      {isLoading ? <div className="space-y-4">{Array.from({ length: 3 }).map((_, index) => <div key={index} className="skeleton h-40 rounded-xl" />)}</div> : <>
+        <div className="mb-5 grid gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
+          <label className="text-xs font-bold uppercase tracking-wide text-white/55">Show<select value={dateScope} onChange={(event) => setDateScope(event.target.value as EventDateScope)} className="mt-1 block min-h-10 w-full rounded border border-white/15 bg-[#09152d] px-3 text-sm normal-case tracking-normal text-white">{DATE_SCOPE_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
+          <label className="text-xs font-bold uppercase tracking-wide text-white/55">Location<select value={locationFilter} onChange={(event) => setLocationFilter(event.target.value)} className="mt-1 block min-h-10 w-full rounded border border-white/15 bg-[#09152d] px-3 text-sm normal-case tracking-normal text-white"><option value="all">All locations</option>{locations.map((location) => <option key={location} value={location}>{location}</option>)}</select></label>
+          <label className="text-xs font-bold uppercase tracking-wide text-white/55">Event type<select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)} className="mt-1 block min-h-10 w-full rounded border border-white/15 bg-[#09152d] px-3 text-sm normal-case tracking-normal text-white"><option value="all">All event types</option>{eventTypes.map((type) => <option key={type} value={type}>{EVENT_TYPE_LABELS[type] || type}</option>)}</select></label>
+          <button type="button" onClick={resetFilters} disabled={!hasFilters} className="self-end min-h-10 rounded border border-white/15 px-3 text-sm font-bold text-white/70 hover:bg-white/5 disabled:opacity-40">Clear filters</button>
+        </div>
+        <div className="mb-5 grid gap-3 rounded-xl border border-white/10 bg-white/[0.02] p-4 sm:grid-cols-2"><label className="text-xs font-bold uppercase tracking-wide text-white/55">Starts on or after<input type="date" value={dateFrom} onChange={(event) => setDateFrom(event.target.value)} className="mt-1 block min-h-10 w-full rounded border border-white/15 bg-[#09152d] px-3 text-sm normal-case tracking-normal text-white" /></label><label className="text-xs font-bold uppercase tracking-wide text-white/55">Starts on or before<input type="date" value={dateTo} min={dateFrom || undefined} onChange={(event) => setDateTo(event.target.value)} className="mt-1 block min-h-10 w-full rounded border border-white/15 bg-[#09152d] px-3 text-sm normal-case tracking-normal text-white" /></label></div>
+        <p aria-live="polite" className="mb-5 flex items-center gap-2 text-sm text-white/55"><Filter size={15} /> {scopedEvents.length} event{scopedEvents.length === 1 ? "" : "s"} shown</p>
+        {scopedEvents.length ? <div className="space-y-10">
+          {dateScope === "all" ? <><EventSection title="Current & upcoming" events={currentAndUpcomingEvents} /><EventSection historical title="Past events" description="Verified listings remain available as an editorial record. Re-check source pages for any later updates." events={pastEvents} /></> : <EventSection title={DATE_SCOPE_OPTIONS.find((option) => option.value === dateScope)?.label || "Events"} historical={dateScope === "past"} description={dateScope === "past" ? "Verified listings from the editor-reviewed event archive." : undefined} events={scopedEvents} />}
+        </div> : <div className="rounded-xl border border-white/10 bg-white/[0.03] p-10 text-center"><CalendarDays className="mx-auto mb-3 text-amber-300" /><h2 className="text-xl font-black">No editor-published events match these filters</h2><p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-white/60">Try another date range, location or event type, or return later as the editorial team publishes reviewed events.</p><button type="button" onClick={resetFilters} className="mt-5 text-sm font-bold text-amber-200 hover:underline">Reset filters</button></div>}
+      </>}
+    </section>
+    <section id="submit-event" className="border-t border-white/10 bg-[linear-gradient(135deg,#101037,#071f32)] py-14"><div className="container grid gap-8 lg:grid-cols-[0.78fr_1.22fr]"><div><p className="text-xs font-black uppercase tracking-[0.16em] text-amber-300">Editorial submissions</p><h2 className="mt-3 text-3xl font-black">Share a Tezos event for review.</h2><p className="mt-4 max-w-md leading-7 text-white/70">Organisers and community members can submit an official event listing. XTZ.News checks the information before deciding whether it belongs on this calendar.</p><p className="mt-4 text-sm leading-6 text-white/50">Submitting an event is free, does not guarantee inclusion, and never publishes the event automatically.</p><Link href="/art-on-tezos" className="mt-6 inline-flex text-sm font-bold text-pink-300 hover:underline">Browse the Art on Tezos timeline</Link></div><TezosEventSubmissionForm /></div></section>
+  </main>;
 }

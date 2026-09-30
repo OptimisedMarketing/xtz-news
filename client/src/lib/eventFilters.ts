@@ -4,6 +4,7 @@ export const EVENT_TYPE_LABELS: Record<string, string> = {
 
 type FilterableEvent = { eventType?: string | null; location?: string | null };
 type TimedEvent = FilterableEvent & { startAt: Date | string; endAt?: Date | string | null };
+export type EventDateScope = "current" | "upcoming" | "past" | "all";
 
 export const RECENT_EVENT_WINDOW_MS = 45 * 24 * 60 * 60 * 1000;
 
@@ -40,4 +41,52 @@ export function getEventDisplayGroups<T extends TimedEvent>(events: T[], now = D
     currentOrUpcoming: currentOrUpcoming.sort((left, right) => new Date(left.startAt).getTime() - new Date(right.startAt).getTime()),
     recentlyPassed: recentlyPassed.sort((left, right) => new Date(right.endAt ?? right.startAt).getTime() - new Date(left.endAt ?? left.startAt).getTime()),
   };
+}
+
+function getEventStart(event: TimedEvent) {
+  return new Date(event.startAt).getTime();
+}
+
+function getEventEnd(event: TimedEvent) {
+  return new Date(event.endAt ?? event.startAt).getTime();
+}
+
+function getStartOfDate(value: string) {
+  return new Date(`${value}T00:00:00`).getTime();
+}
+
+function getEndOfDate(value: string) {
+  return new Date(`${value}T23:59:59.999`).getTime();
+}
+
+export function filterEventsByDateScope<T extends TimedEvent>(events: T[], options: { scope: EventDateScope; from?: string; to?: string; now?: number }) {
+  const now = options.now ?? Date.now();
+  const from = options.from ? getStartOfDate(options.from) : undefined;
+  const to = options.to ? getEndOfDate(options.to) : undefined;
+
+  return events
+    .filter((event) => {
+      const start = getEventStart(event);
+      const end = getEventEnd(event);
+      if (!Number.isFinite(start) || !Number.isFinite(end)) return false;
+      if (options.scope === "current" && end < now) return false;
+      if (options.scope === "upcoming" && start < now) return false;
+      if (options.scope === "past" && end >= now) return false;
+      if (from !== undefined && start < from) return false;
+      if (to !== undefined && start > to) return false;
+      return true;
+    })
+    .sort((left, right) => {
+      if (options.scope === "past") return getEventEnd(right) - getEventEnd(left);
+      return getEventStart(left) - getEventStart(right);
+    });
+}
+
+/** Prefer the next scheduled event; retain a currently running event only when there is no future listing. */
+export function getHomepageEvent<T extends TimedEvent>(events: T[], now = Date.now()) {
+  const upcoming = events.filter((event) => getEventStart(event) >= now).sort((left, right) => getEventStart(left) - getEventStart(right))[0];
+  if (upcoming) return { event: upcoming, state: "upcoming" as const };
+
+  const ongoing = events.filter((event) => getEventStart(event) < now && getEventEnd(event) >= now).sort((left, right) => getEventEnd(left) - getEventEnd(right))[0];
+  return ongoing ? { event: ongoing, state: "ongoing" as const } : undefined;
 }

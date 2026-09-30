@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { EVENT_TYPE_LABELS, filterPublishedEvents, getEventDisplayGroups, getEventLocations, getEventTypes } from "./eventFilters";
+import { EVENT_TYPE_LABELS, filterEventsByDateScope, filterPublishedEvents, getEventDisplayGroups, getEventLocations, getEventTypes, getHomepageEvent } from "./eventFilters";
 
 describe("public Tezos event filters", () => {
   const events = [
@@ -30,5 +30,29 @@ describe("public Tezos event filters", () => {
 
     expect(grouped.currentOrUpcoming.map((event) => event.id)).toEqual([1]);
     expect(grouped.recentlyPassed.map((event) => event.id)).toEqual([2]);
+  });
+
+  it("filters current, future and past records with an optional calendar range", () => {
+    const now = Date.parse("2026-09-30T12:00:00.000Z");
+    const records = [
+      { id: 1, startAt: "2026-08-06T04:00:00.000Z", endAt: "2026-10-26T03:59:59.000Z" },
+      { id: 2, startAt: "2026-10-07T08:20:00.000Z", endAt: "2026-10-07T08:50:00.000Z" },
+      { id: 3, startAt: "2026-09-23T16:00:00.000Z", endAt: "2026-09-23T20:00:00.000Z" },
+    ];
+
+    expect(filterEventsByDateScope(records, { scope: "current", now }).map((event) => event.id)).toEqual([1, 2]);
+    expect(filterEventsByDateScope(records, { scope: "upcoming", now }).map((event) => event.id)).toEqual([2]);
+    expect(filterEventsByDateScope(records, { scope: "past", now }).map((event) => event.id)).toEqual([3]);
+    expect(filterEventsByDateScope(records, { scope: "all", from: "2026-10-01", to: "2026-10-31", now }).map((event) => event.id)).toEqual([2]);
+  });
+
+  it("selects the nearest scheduled event before any still-running event for the homepage", () => {
+    const now = Date.parse("2026-09-30T12:00:00.000Z");
+    const selection = getHomepageEvent([
+      { id: 1, startAt: "2026-08-06T04:00:00.000Z", endAt: "2026-10-26T03:59:59.000Z" },
+      { id: 2, startAt: "2026-10-07T08:20:00.000Z", endAt: "2026-10-07T08:50:00.000Z" },
+    ], now);
+
+    expect(selection).toMatchObject({ state: "upcoming", event: { id: 2 } });
   });
 });

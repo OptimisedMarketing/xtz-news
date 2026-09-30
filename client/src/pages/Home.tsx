@@ -13,6 +13,7 @@ import StakingStarterHomepageFeature from "@/components/StakingStarterHomepageFe
 import ArtOnTezosHomepageFeature from "@/components/ArtOnTezosHomepageFeature";
 import FirstPartyPromotion from "@/components/FirstPartyPromotion";
 import FirstPartyImageBanner from "@/components/FirstPartyImageBanner";
+import NextTezosEventWidget from "@/components/NextTezosEventWidget";
 import { useSEO } from "@/hooks/useSEO";
 import { getMediaUrl } from "@/lib/mediaUrl";
 import { getNewsletterConfirmationCopy } from "@/lib/newsletterConfirmation";
@@ -508,13 +509,14 @@ function LatestNewsSection({ posts, weekPosts, allTimePosts }: { posts: any[]; w
               </>
             )}
           </div>
-          {/* Trending Now sidebar */}
-          {!isMobile && <TrendingNowWidget weekPosts={weekPosts} allTimePosts={allTimePosts} />}
+          {/* Reader tools sidebar */}
+          {!isMobile && <div style={{ display: "grid", gap: "1rem" }}><NextTezosEventWidget /><TrendingNowWidget weekPosts={weekPosts} allTimePosts={allTimePosts} /></div>}
         </div>
-        {/* Trending on mobile — below the grid */}
-        {isMobile && (weekPosts.length > 0 || allTimePosts.length > 0) && (
-          <div style={{ marginTop: "2rem" }}>
-            <TrendingNowWidget weekPosts={weekPosts} allTimePosts={allTimePosts} />
+        {/* Reader tools on mobile — below the grid */}
+        {isMobile && (
+          <div style={{ display: "grid", gap: "1rem", marginTop: "2rem" }}>
+            <NextTezosEventWidget />
+            {(weekPosts.length > 0 || allTimePosts.length > 0) && <TrendingNowWidget weekPosts={weekPosts} allTimePosts={allTimePosts} />}
           </div>
         )}
       </div>
