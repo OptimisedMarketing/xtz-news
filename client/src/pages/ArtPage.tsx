@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "wouter";
-import { ExternalLink, ArrowRight, Palette, Image, Music, Layers, Star, Twitter, Globe } from "lucide-react";
+import { ExternalLink, ArrowRight, Star, Twitter, Globe } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-import PostCard from "@/components/PostCard";
 import { useSEO, buildWebPageSchema } from "@/hooks/useSEO";
+import ArtArchiveFilters from "@/components/ArtArchiveFilters";
 
 // ─── Ecosystem Links ──────────────────────────────────────────────────────────
 const ECOSYSTEM_LINKS = [
@@ -88,18 +88,8 @@ const FEATURED_EXHIBITIONS = [
   },
 ];
 
-// ─── Art Categories ───────────────────────────────────────────────────────────
-const ART_CATEGORIES = [
-  { label: "Art Recap", slug: "art", icon: <Palette size={16} />, color: "#2c7df7" },
-  { label: "Exhibition", slug: "exhibition", icon: <Image size={16} />, color: "#7c3aed" },
-  { label: "Music", slug: "music", icon: <Music size={16} />, color: "#d97706" },
-  { label: "NFT", slug: "nft", icon: <Layers size={16} />, color: "#059669" },
-];
-
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function ArtPage() {
-  const [activeCategory, setActiveCategory] = useState("art");
-
   useSEO({
     title: "Art on Tezos | XTZ.News — Digital Art, NFTs & Exhibitions",
     description: "Explore the Tezos digital art ecosystem — weekly recaps, NFT exhibitions, featured artists, and links to objkt.com, Teia, fxhash, and HEK Basel.",
@@ -116,11 +106,18 @@ export default function ArtPage() {
     }),
   });
 
-  const { data: artPostsData } = trpc.posts.byCategory.useQuery(
-    { slug: activeCategory, limit: 9, offset: 0 },
+  const { data: artPostsData, isLoading: artPostsLoading } = trpc.posts.byCategory.useQuery(
+    { slug: "art", limit: 100, offset: 0 },
     { staleTime: 5 * 60_000 }
   );
-  const artPosts = artPostsData?.posts ?? [];
+  const { data: exhibitionPostsData, isLoading: exhibitionPostsLoading } = trpc.posts.byCategory.useQuery(
+    { slug: "exhibition", limit: 100, offset: 0 },
+    { staleTime: 5 * 60_000 }
+  );
+  const artArchivePosts = useMemo(
+    () => Array.from(new Map([...(artPostsData?.posts ?? []), ...(exhibitionPostsData?.posts ?? [])].map((post) => [post.id, post])).values()),
+    [artPostsData, exhibitionPostsData],
+  );
 
   const { data: featuredArtist } = trpc.tools.featuredArtist.useQuery(undefined, {
     staleTime: 60 * 60_000, // cache 1 hour
@@ -546,60 +543,7 @@ export default function ArtPage() {
         </section>
       )}
 
-      {/* ── Art News ── */}
-      <section style={{ padding: "3rem 0" }}>
-        <div className="container">
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.5rem", flexWrap: "wrap", gap: "0.75rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-              <div style={{ width: "4px", height: "28px", background: "#2c7df7", borderRadius: "2px" }} />
-              <div>
-                <p style={{ margin: 0, fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: "#2c7df7", marginBottom: "2px" }}>Latest</p>
-                <h2 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#fff" }}>Art News & Recaps</h2>
-              </div>
-            </div>
-            {/* Category pills */}
-            <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
-              {ART_CATEGORIES.map((cat) => (
-                <button key={cat.slug} onClick={() => setActiveCategory(cat.slug)}
-                  style={{
-                    display: "inline-flex", alignItems: "center", gap: "0.3rem",
-                    padding: "0.35rem 0.875rem", borderRadius: "4px", cursor: "pointer",
-                    border: activeCategory === cat.slug ? `1px solid ${cat.color}` : "1px solid rgba(255,255,255,0.12)",
-                    background: activeCategory === cat.slug ? `${cat.color}20` : "transparent",
-                    color: activeCategory === cat.slug ? cat.color : "rgba(255,255,255,0.5)",
-                    fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em",
-                    transition: "all 0.15s",
-                  }}>
-                  {cat.icon} {cat.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {artPosts.length > 0 ? (
-            <>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "1rem" }}>
-                {artPosts.map((post) => (
-                  <PostCard key={post.id} post={post} variant="default" />
-                ))}
-              </div>
-              <div style={{ textAlign: "center", marginTop: "2rem" }}>
-                <Link href={`/category/${activeCategory}`}
-                  style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.75rem 2rem", background: "transparent", border: "2px solid rgba(44,125,247,0.5)", borderRadius: "3px", color: "#2c7df7", textDecoration: "none", fontSize: "0.78rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", transition: "all 0.2s" }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(44,125,247,0.1)"; (e.currentTarget as HTMLElement).style.borderColor = "#2c7df7"; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(44,125,247,0.5)"; }}>
-                  View All {ART_CATEGORIES.find(c => c.slug === activeCategory)?.label} Articles <ArrowRight size={14} />
-                </Link>
-              </div>
-            </>
-          ) : (
-            <div style={{ textAlign: "center", padding: "4rem 0", color: "rgba(255,255,255,0.3)" }}>
-              <p style={{ fontSize: "0.9rem" }}>No articles found in this category yet.</p>
-              <p style={{ fontSize: "0.8rem", marginTop: "0.5rem" }}>Check back after the weekly recap publishes every Friday.</p>
-            </div>
-          )}
-        </div>
-      </section>
+      <ArtArchiveFilters posts={artArchivePosts} isLoading={artPostsLoading || exhibitionPostsLoading} />
 
       {/* ── Submit Artwork CTA ── */}
       <section style={{ padding: "2.5rem 0", background: "linear-gradient(90deg, #05152e 0%, #0d1f3c 50%, #05152e 100%)", borderTop: "1px solid rgba(44,125,247,0.15)", borderBottom: "1px solid rgba(44,125,247,0.15)" }}>
@@ -667,10 +611,10 @@ export default function ArtPage() {
       {/* ── Weekly Recap CTA ── */}
       <section style={{ padding: "3rem 0", background: "linear-gradient(135deg, #1a0a3e 0%, #05152e 100%)", borderTop: "1px solid rgba(124,58,237,0.2)" }}>
         <div className="container" style={{ textAlign: "center" }}>
-          <p style={{ margin: "0 0 0.5rem", fontSize: "0.65rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.15em", color: "#7c3aed" }}>Every Friday</p>
-          <h2 style={{ margin: "0 0 0.75rem", fontSize: "clamp(1.5rem, 4vw, 2.5rem)", fontWeight: 900, color: "#fff" }}>Art on Tezos Weekly Recap</h2>
+          <p style={{ margin: "0 0 0.5rem", fontSize: "0.65rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.15em", color: "#7c3aed" }}>Editorial archive</p>
+          <h2 style={{ margin: "0 0 0.75rem", fontSize: "clamp(1.5rem, 4vw, 2.5rem)", fontWeight: 900, color: "#fff" }}>Art on Tezos Recaps</h2>
           <p style={{ margin: "0 0 2rem", fontSize: "0.95rem", color: "rgba(255,255,255,0.55)", maxWidth: "500px", marginLeft: "auto", marginRight: "auto", lineHeight: 1.6 }}>
-            Every Friday we publish a curated recap of the latest Tezos art events, NFT drops, exhibitions, and community highlights — automatically generated from live objkt.com and Teia data.
+            Explore published coverage of Tezos art events, releases, exhibitions and community highlights. New official recaps are added after editorial review.
           </p>
           <div style={{ display: "flex", justifyContent: "center", gap: "1rem", flexWrap: "wrap" }}>
             <Link href="/category/art"
@@ -679,11 +623,11 @@ export default function ArtPage() {
               onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "#7c3aed"; }}>
               Read All Recaps <ArrowRight size={14} />
             </Link>
-            <Link href="/art-on-tezos-friday-recap-may-29-2026"
+            <Link href="/art?type=recaps"
               style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.875rem 2rem", background: "transparent", border: "2px solid rgba(124,58,237,0.5)", borderRadius: "4px", color: "#a78bfa", textDecoration: "none", fontSize: "0.85rem", fontWeight: 700, transition: "all 0.2s" }}
               onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "#7c3aed"; (e.currentTarget as HTMLElement).style.background = "rgba(124,58,237,0.1)"; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(124,58,237,0.5)"; (e.currentTarget as HTMLElement).style.background = "transparent"; }}>
-              Latest Recap
+              Browse recap archive
             </Link>
           </div>
         </div>

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 // @vitest-environment jsdom
 
-import { parseSegments } from "./ArticleContent";
+import { normaliseArticleMediaUrls, parseSegments } from "./ArticleContent";
 import { linkArticleGlossaryTerms } from "@/lib/articleGlossary";
 
 describe("ArticleContent embeds", () => {
@@ -18,5 +18,12 @@ describe("ArticleContent embeds", () => {
     expect(parseSegments(output).some((segment) => segment.type === "newsletter")).toBe(true);
     expect(output).toContain('href="/staking/start"');
     expect(output).toContain('href="/etherlink"');
+  });
+
+  it("routes first-party body images through the same-origin media relay", () => {
+    const output = normaliseArticleMediaUrls('<figure><img src="/manus-storage/art/cover.webp" alt="Source visual" /><img src="https://xtz.news/manus-storage/legacy/image.png" alt="Legacy visual" /></figure>');
+    expect(output).toContain('src="/media/art/cover.webp"');
+    expect(output).toContain('src="/media/legacy/image.png"');
+    expect(output).not.toContain('/manus-storage/');
   });
 });

@@ -35,6 +35,11 @@ const article = {
 
 <p>Tezos also looked back at <strong>Stories We Tell Online</strong>, a one-night exhibition that transformed computers at a Vienna internet café into a distributed exhibition on September 23. The official recap said the project featured 22 artists and was curated by <strong>Postanika</strong>, <strong>Kika Nicolela</strong> and <strong>Micol</strong>.</p>
 
+<figure class="article-source-visual">
+  <a href="https://x.com/artontezos_/status/2102674387048800679" target="_blank" rel="noopener noreferrer"><img src="/manus-storage/stories-we-tell-online_7b675162.webp" alt="Official promotional visual for Stories We Tell Online in Vienna, showing the exhibition title over a vintage computer-screen motif" loading="lazy" /></a>
+  <figcaption><strong>Stories We Tell Online</strong> promotional visual. Source: <a href="https://x.com/artontezos_/status/2102674387048800679" target="_blank" rel="noopener noreferrer">Art on Tezos official announcement</a>. Displayed as credited editorial context; rights remain with the respective owner.</figcaption>
+</figure>
+
 <p>Among the works later singled out in the round-up were <em>Stance</em> by <strong>Emily Edelman</strong>, which turns candid photographs into abstracted human gestures, and <em>One Long Blur</em> by <strong>Joëlle Snaith</strong>, a generative work connecting personal survival mechanisms with online behaviours. Tezos also noted that Juan Rodríguez García’s <em>Estados Posibles</em> and Rhea Myers’ <em>Context Collapse</em> were scheduled for a September 29 release on objkt.one as part of the wider project.</p>
 
 <p>The exhibition format matters as much as the roster: using everyday desktop screens as a temporary exhibition surface places the act of encountering digital art inside one of the internet’s familiar social spaces.</p>
@@ -42,6 +47,16 @@ const article = {
 <h2>Open calls, auctions and collector context</h2>
 
 <p>The roundup included <strong>Art Commission Tezos’</strong> October <em>Texture</em> edition, for which Tezos said submissions were open at the time of its post. The initiative planned to select 20 artists, with curators placing the opening bids on their auctions. It also highlighted <strong>Searching for Balance</strong>, a September 29 generative-art auction featuring 15 artists and curated by Shendrik and MCHX17.</p>
+
+<figure class="article-source-visual">
+  <a href="https://x.com/artontezos_/status/2103152745805197585/photo/1" target="_blank" rel="noopener noreferrer"><img src="/manus-storage/art-commission-texture_13e8f835.jpg" alt="Official Art Commission Tezos promotional artwork for the October Texture edition" loading="lazy" /></a>
+  <figcaption><strong>Texture</strong> open-call visual. Source: <a href="https://x.com/artontezos_/status/2103152745805197585/photo/1" target="_blank" rel="noopener noreferrer">Art on Tezos official announcement</a>. The image represents the call, not a confirmed selected work.</figcaption>
+</figure>
+
+<figure class="article-source-visual">
+  <a href="https://accomparts.com/journal/accompartscomjournalsearching-for-balance-generative-art-auction" target="_blank" rel="noopener noreferrer"><img src="/manus-storage/searching-for-balance_840accc7.png" alt="Representative generative artwork from the Searching for Balance auction" loading="lazy" /></a>
+  <figcaption><strong>Searching for Balance</strong> auction visual. Source: <a href="https://accomparts.com/journal/accompartscomjournalsearching-for-balance-generative-art-auction" target="_blank" rel="noopener noreferrer">ACCOMPART’S official auction note</a>. Displayed as credited editorial context; rights remain with the respective owner.</figcaption>
+</figure>
 
 <p>Collecting received its own spotlight through objkt’s Collector of the Week feature on <strong>UnityOfMulti</strong>. Tezos described the collector as discussing a collection of approximately 50,000 works across Ethereum, Tezos and Base, with an approach led by personal instinct rather than trends. On the platform side, objkt teased a forthcoming project called <strong>PULSE</strong>; the recap did not provide launch detail beyond that early signal.</p>
 

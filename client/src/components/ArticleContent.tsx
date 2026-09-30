@@ -11,6 +11,7 @@ import React, { useMemo } from "react";
 import TweetEmbed from "./TweetEmbed";
 import MidArticleNewsletter from "./MidArticleNewsletter";
 import { linkArticleGlossaryTerms } from "@/lib/articleGlossary";
+import { getMediaUrl } from "@/lib/mediaUrl";
 
 interface ArticleContentProps {
   html: string;
@@ -24,6 +25,18 @@ type Segment =
   | { type: "html"; content: string }
   | { type: "tweet"; url: string }
   | { type: "newsletter" };
+
+/**
+ * Article HTML is stored in the database, so image tags cannot call the React
+ * media helper directly. Normalize first-party storage URLs before rendering
+ * to retain the site's same-origin relay across legacy and newly added media.
+ */
+export function normaliseArticleMediaUrls(html: string): string {
+  return html.replace(
+    /(src\s*=\s*["'])(?:https?:\/\/(?:www\.)?xtz\.news)?\/manus-storage\/([^"']+)(["'])/gi,
+    (_match, prefix: string, storageKey: string, suffix: string) => `${prefix}${getMediaUrl(`/manus-storage/${storageKey}`)}${suffix}`,
+  );
+}
 
 export function parseSegments(html: string): Segment[] {
   const segments: Segment[] = [];
@@ -60,7 +73,7 @@ export function parseSegments(html: string): Segment[] {
 }
 
 export default function ArticleContent({ html, className, style, newsletterPreviewSuccess = false }: ArticleContentProps) {
-  const articleHtml = useMemo(() => linkArticleGlossaryTerms(html), [html]);
+  const articleHtml = useMemo(() => linkArticleGlossaryTerms(normaliseArticleMediaUrls(html)), [html]);
   const segments = useMemo(() => parseSegments(articleHtml), [articleHtml]);
 
   // If no tweets found, render as plain HTML (fast path)

@@ -681,3 +681,12 @@
 - [x] Generate a unique text-free editorial cover and publish a source-grounded article with dated-recap context, bullet Key Takeaways and Lee Evans byline
 - [x] Assign Art, Exhibition and Latest News categories plus Art on Tezos, Digital Art, Exhibitions, NFTs, objkt and Tezos tags
 - [x] Validate desktop/mobile article layouts, same-origin cover relay, Google News metadata, canonical and News sitemap discovery, TypeScript, and 181 regression tests
+
+
+## Phase 105: Art on Tezos Discovery and Recap Visuals
+- [x] Add an editorially curated “Art on Tezos this week” hub module that selects the latest published recap without adding a recurring job
+- [x] Add source-linked contributor cards for Jonas Lund, Yoshi Sodeoka, Kat Zhang and Micol, with internal coverage search routes
+- [x] Add shareable Art archive filters for weekly recaps, exhibitions and artist releases, combining published Art and Exhibition coverage
+- [x] Update legacy recap messaging so it correctly describes editorial review rather than an active automatic Friday generation flow
+- [x] Add three credited, source-linked visuals to the September recap: Stories We Tell Online, Art Commission Tezos Texture and Searching for Balance
+- [x] Normalize first-party article-body image URLs through the same-origin media relay and validate rendered gallery media, Google News metadata, News sitemap discovery, TypeScript, tests and responsive layouts
