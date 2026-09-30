@@ -2,7 +2,7 @@ export const EVENT_TYPE_LABELS: Record<string, string> = {
   community: "Community gathering", conference: "Conference", meetup: "Meetup", workshop: "Workshop", exhibition: "Exhibition", online: "Online event", other: "Other",
 };
 
-type FilterableEvent = { eventType?: string | null; location?: string | null };
+type FilterableEvent = { eventType?: string | null; location?: string | null; speakers?: string[] | null; topics?: string[] | null };
 type TimedEvent = FilterableEvent & { startAt: Date | string; endAt?: Date | string | null };
 export type EventDateScope = "current" | "upcoming" | "past" | "all";
 
@@ -16,8 +16,33 @@ export function getEventTypes<T extends FilterableEvent>(events: T[]) {
   return Array.from(new Set(events.map((event) => event.eventType).filter((type): type is string => Boolean(type)))).sort((left, right) => (EVENT_TYPE_LABELS[left] || left).localeCompare(EVENT_TYPE_LABELS[right] || right));
 }
 
-export function filterPublishedEvents<T extends FilterableEvent>(events: T[], location: string, eventType: string) {
-  return events.filter((event) => (location === "all" || event.location?.trim() === location) && (eventType === "all" || event.eventType === eventType));
+function normaliseDiscoveryLabel(value: string) {
+  return value.trim();
+}
+
+function getDiscoveryLabels(events: Array<FilterableEvent>, field: "speakers" | "topics") {
+  return Array.from(new Set(events.flatMap((event) => event[field] ?? []).map(normaliseDiscoveryLabel).filter(Boolean))).sort((left, right) => left.localeCompare(right));
+}
+
+export function getEventSpeakers<T extends FilterableEvent>(events: T[]) {
+  return getDiscoveryLabels(events, "speakers");
+}
+
+export function getEventTopics<T extends FilterableEvent>(events: T[]) {
+  return getDiscoveryLabels(events, "topics");
+}
+
+function includesDiscoveryLabel(labels: string[] | null | undefined, selected: string) {
+  return selected === "all" || (labels ?? []).some((label) => normaliseDiscoveryLabel(label) === selected);
+}
+
+export function filterPublishedEvents<T extends FilterableEvent>(events: T[], location: string, eventType: string, speaker = "all", topic = "all") {
+  return events.filter((event) => (
+    (location === "all" || event.location?.trim() === location)
+    && (eventType === "all" || event.eventType === eventType)
+    && includesDiscoveryLabel(event.speakers, speaker)
+    && includesDiscoveryLabel(event.topics, topic)
+  ));
 }
 
 /**

@@ -127,6 +127,13 @@
       "when": 1789722229592,
       "tag": "0017_lovely_moon_knight",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "5",
+      "when": 1790789246625,
+      "tag": "0018_mighty_lifeguard",
+      "breakpoints": true
     }
   ]
 }

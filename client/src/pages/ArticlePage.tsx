@@ -30,6 +30,8 @@ import { isKentoStory, prioritiseKentoRelatedStories } from "@/lib/kentoStory";
 import KentoSharePanel from "@/components/KentoSharePanel";
 import { getEditorialAuthor } from "@shared/editorialAuthors";
 import FirstPartyImageBanner from "@/components/FirstPartyImageBanner";
+import ArticleEventCalendarLink from "@/components/ArticleEventCalendarLink";
+import { getArticleEventCalendarCallout } from "@/lib/articleEventCalendar";
 
 /** Injects / updates Open Graph + Twitter Card meta tags in <head> */
 function useOpenGraph(post: {
@@ -500,6 +502,7 @@ export default function ArticlePage() {
   const wordCount = post.content ? post.content.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length : 0;
   const readMins = Math.max(1, Math.round(wordCount / 200));
   const lastUpdatedAt = (post as { updatedAt?: Date | string | null }).updatedAt || post.publishedAt;
+  const eventCalendarCallout = getArticleEventCalendarCallout(post.slug);
 
   return (
     <article aria-labelledby="article-title">
@@ -631,6 +634,7 @@ export default function ArticlePage() {
               style={{ transition: "background 0.3s, color 0.3s, font-size 0.2s", fontSize: fontSizeMap[fontSize] }}
               newsletterPreviewSuccess={newsletterPreviewSuccess}
             />
+            {eventCalendarCallout && <ArticleEventCalendarLink callout={eventCalendarCallout} />}
             {isPostQuantumArticle && <Tz5WalletGuideLink />}
             {isKentoArticle && <div style={{ marginTop: "1.5rem", padding: "1rem 1.1rem", borderRadius: "8px", border: "1px solid rgba(249,168,212,0.22)", background: "rgba(249,168,212,0.05)" }}><p style={{ margin: "0 0 0.3rem", color: "#f9a8d4", fontSize: "0.67rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.1em" }}>Discover more</p><Link href="/art-on-tezos" style={{ color: "#fff", fontWeight: 800, textDecoration: "none", fontSize: "0.9rem" }}>Explore the Art on Tezos collection <ChevronRight size={15} style={{ display: "inline", verticalAlign: "-2px" }} /></Link></div>}
 

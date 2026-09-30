@@ -46,6 +46,7 @@ async function startServer() {
   let primarySitemapCache: SitemapCache | null = null;
   let newsSitemapCache: SitemapCache | null = null;
   let translationSitemapCache: SitemapCache | null = null;
+  let eventsCalendarFeedCache: SitemapCache | null = null;
 
   const respondWithCachedXml = (res: express.Response, cache: SitemapCache, maxAgeSeconds: number) => {
     res.set("Content-Type", "application/xml");
@@ -323,6 +324,47 @@ ${items}
     } catch (err) {
       console.error('[podcast.rss] error:', err);
       res.status(500).send('Error generating podcast feed');
+    }
+  });
+  // ─────────────────────────────────────────────────────────────────────────
+
+  // ─── Tezos Events Calendar Subscription ──────────────────────────────────
+  app.get("/events.ics", async (req, res) => {
+    try {
+      if (eventsCalendarFeedCache && eventsCalendarFeedCache.expiresAt > Date.now()) {
+        res.set("Content-Type", "text/calendar; charset=utf-8");
+        res.set("Content-Disposition", 'inline; filename="xtz-news-tezos-events.ics"');
+        res.set("Cache-Control", "public, max-age=900");
+        return res.send(eventsCalendarFeedCache.xml);
+      }
+
+      const { getDb } = await import("../db");
+      const { tezosEventCandidates } = await import("../../drizzle/schema");
+      const { asc, eq } = await import("drizzle-orm");
+      const { renderEventsCalendarFeed } = await import("../eventCalendarFeed");
+      const db = await getDb();
+      const events = db ? await db.select({
+        id: tezosEventCandidates.id,
+        title: tezosEventCandidates.title,
+        description: tezosEventCandidates.description,
+        startAt: tezosEventCandidates.startAt,
+        endAt: tezosEventCandidates.endAt,
+        location: tezosEventCandidates.location,
+        sourceUrl: tezosEventCandidates.sourceUrl,
+        updatedAt: tezosEventCandidates.updatedAt,
+      }).from(tezosEventCandidates).where(eq(tezosEventCandidates.status, "published")).orderBy(asc(tezosEventCandidates.startAt)) : [];
+
+      eventsCalendarFeedCache = {
+        xml: renderEventsCalendarFeed(events, { baseUrl: "https://xtz.news" }),
+        expiresAt: Date.now() + 15 * 60 * 1000,
+      };
+      res.set("Content-Type", "text/calendar; charset=utf-8");
+      res.set("Content-Disposition", 'inline; filename="xtz-news-tezos-events.ics"');
+      res.set("Cache-Control", "public, max-age=900");
+      res.send(eventsCalendarFeedCache.xml);
+    } catch (error) {
+      console.error("[events.ics] Error generating calendar feed:", error);
+      res.status(500).send("Error generating events calendar");
     }
   });
   // ─────────────────────────────────────────────────────────────────────────

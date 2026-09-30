@@ -28,6 +28,8 @@ const events = [
     endAt: "2026-10-25T23:59:59-04:00",
     location: "Museum of the Moving Image, Astoria, New York, United States",
     timezone: "America/New_York",
+    speakers: ["Jonas Lund", "Yoshi Sodeoka"],
+    topics: ["Art on Tezos", "Digital Art", "Interactive Art", "Exhibitions"],
     eventType: "exhibition",
   },
   {
@@ -39,6 +41,8 @@ const events = [
     endAt: "2026-09-22T21:00:00-04:00",
     location: "William Fox Amphitheater, Museum of the Moving Image, Astoria, New York, United States",
     timezone: "America/New_York",
+    speakers: ["Jonas Lund", "Yoshi Sodeoka", "Kat Zhang", "Nick Fox-Gieg"],
+    topics: ["Art on Tezos", "Digital Art", "Interactive Art", "Artist Talks", "Exhibitions"],
     eventType: "exhibition",
   },
   {
@@ -50,6 +54,8 @@ const events = [
     endAt: "2026-09-23T22:00:00+02:00",
     location: "Click-Net, Martinstraße 91, 1180 Vienna, Austria",
     timezone: "Europe/Vienna",
+    speakers: ["Postanika", "Kika Nicolela", "Micol"],
+    topics: ["Art on Tezos", "Digital Art", "Internet Art", "Exhibitions"],
     eventType: "exhibition",
   },
 ];
@@ -58,8 +64,8 @@ for (const event of events) {
   const sourceHash = createHash("sha256").update(JSON.stringify(event)).digest("hex");
   await connection.execute(
     `INSERT INTO tezos_event_candidates
-      (sourceKey, sourceEventId, sourceUrl, title, description, startAt, endAt, location, timezone, eventType, agreedToReview, sourceHash, sourceCheckedAt, status, adminNotes)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, 'published', ?)
+      (sourceKey, sourceEventId, sourceUrl, title, description, startAt, endAt, location, timezone, speakers, topics, eventType, agreedToReview, sourceHash, sourceCheckedAt, status, adminNotes)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, 'published', ?)
      ON DUPLICATE KEY UPDATE
       sourceUrl = VALUES(sourceUrl),
       title = VALUES(title),
@@ -68,6 +74,8 @@ for (const event of events) {
       endAt = VALUES(endAt),
       location = VALUES(location),
       timezone = VALUES(timezone),
+      speakers = VALUES(speakers),
+      topics = VALUES(topics),
       eventType = VALUES(eventType),
       agreedToReview = VALUES(agreedToReview),
       sourceHash = VALUES(sourceHash),
@@ -84,6 +92,8 @@ for (const event of events) {
       new Date(event.endAt),
       event.location,
       event.timezone,
+      JSON.stringify(event.speakers),
+      JSON.stringify(event.topics),
       event.eventType,
       sourceHash,
       sourceCheckedAt,

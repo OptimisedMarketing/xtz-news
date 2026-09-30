@@ -698,3 +698,12 @@
 - [x] Separate current or upcoming records from recently passed editorial records so completed events are never presented as future plans
 - [x] Promote Events into the first-view desktop primary navigation and the mobile Read menu, removing the duplicate Explore entry
 - [x] Validate public event API data, Googlebot event metadata, desktop/mobile layouts, scroll reset/shared-header coverage, TypeScript and 189 regression tests
+
+
+## Phase 107: Events Calendar Subscription and Discovery
+- [x] Add a public standards-compatible `/events.ics` subscription feed containing current and future editor-published events only
+- [x] Add a clear Subscribe control and visible `.ics` fallback on the Events page without introducing a recurring cloud process
+- [x] Add structured source-grounded speaker and topic labels for existing editor-published Art on Tezos and TOKEN2049 records
+- [x] Add speaker/topic select filters, clickable event-card tags, URL-persisted discovery state, and existing-filter compatibility
+- [x] Add targeted visual Events calendar callouts to the TOKEN2049 and latest Tezos Art Recap articles
+- [x] Apply database migration `0018_mighty_lifeguard.sql`; validate calendar HTTP output, desktop/mobile layouts, TypeScript, and 198 regression tests

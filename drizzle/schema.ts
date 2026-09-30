@@ -373,6 +373,8 @@ export const tezosEventCandidates = mysqlTable("tezos_event_candidates", {
   endAt: timestamp("endAt"),
   location: varchar("location", { length: 500 }),
   timezone: varchar("timezone", { length: 64 }),
+  speakers: json("speakers").$type<string[]>(),
+  topics: json("topics").$type<string[]>(),
   eventType: mysqlEnum("eventType", ["community", "conference", "meetup", "workshop", "exhibition", "online", "other"]).default("community").notNull(),
   submitterName: varchar("submitterName", { length: 255 }),
   submitterEmail: varchar("submitterEmail", { length: 320 }),

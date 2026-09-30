@@ -814,6 +814,8 @@ export async function getPublishedTezosEventCandidates(): Promise<TezosEventCand
     endAt: tezosEventCandidates.endAt,
     location: tezosEventCandidates.location,
     timezone: tezosEventCandidates.timezone,
+    speakers: tezosEventCandidates.speakers,
+    topics: tezosEventCandidates.topics,
     eventType: tezosEventCandidates.eventType,
   }).from(tezosEventCandidates).where(eq(tezosEventCandidates.status, "published")).orderBy(asc(tezosEventCandidates.startAt)) as unknown as TezosEventCandidate[];
 }

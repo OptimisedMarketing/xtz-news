@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { EVENT_TYPE_LABELS, filterEventsByDateScope, filterPublishedEvents, getEventDisplayGroups, getEventLocations, getEventTypes, getHomepageEvent } from "./eventFilters";
+import { EVENT_TYPE_LABELS, filterEventsByDateScope, filterPublishedEvents, getEventDisplayGroups, getEventLocations, getEventSpeakers, getEventTopics, getEventTypes, getHomepageEvent } from "./eventFilters";
 
 describe("public Tezos event filters", () => {
   const events = [
@@ -54,5 +54,17 @@ describe("public Tezos event filters", () => {
     ], now);
 
     expect(selection).toMatchObject({ state: "upcoming", event: { id: 2 } });
+  });
+
+  it("derives and applies verified speaker and topic labels alongside existing filters", () => {
+    const records = [
+      { id: 1, location: "Singapore", eventType: "conference", speakers: ["Arthur Breitman", "Eli Ben-Sasson"], topics: ["Post-Quantum", "Cryptography"] },
+      { id: 2, location: "New York", eventType: "exhibition", speakers: ["Jonas Lund"], topics: ["Art on Tezos", "Digital Art"] },
+    ];
+
+    expect(getEventSpeakers(records)).toEqual(["Arthur Breitman", "Eli Ben-Sasson", "Jonas Lund"]);
+    expect(getEventTopics(records)).toEqual(["Art on Tezos", "Cryptography", "Digital Art", "Post-Quantum"]);
+    expect(filterPublishedEvents(records, "all", "all", "Arthur Breitman", "Post-Quantum").map((event) => event.id)).toEqual([1]);
+    expect(filterPublishedEvents(records, "all", "all", "all", "Art on Tezos").map((event) => event.id)).toEqual([2]);
   });
 });

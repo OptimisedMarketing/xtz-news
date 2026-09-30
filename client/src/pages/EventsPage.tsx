@@ -3,9 +3,10 @@ import { CalendarDays, ExternalLink, Filter, MapPin, Plus, Send } from "lucide-r
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { getEventCalendarDownloadHref } from "@/lib/eventCalendar";
-import { EVENT_TYPE_LABELS, type EventDateScope, filterEventsByDateScope, filterPublishedEvents, getEventLocations, getEventTypes } from "@/lib/eventFilters";
+import { EVENT_TYPE_LABELS, type EventDateScope, filterEventsByDateScope, filterPublishedEvents, getEventLocations, getEventSpeakers, getEventTopics, getEventTypes } from "@/lib/eventFilters";
 import { buildWebPageSchema, useSEO } from "@/hooks/useSEO";
 import TezosEventSubmissionForm from "@/components/TezosEventSubmissionForm";
+import EventCalendarSubscription from "@/components/EventCalendarSubscription";
 
 const DATE_SCOPE_OPTIONS: Array<{ value: EventDateScope; label: string }> = [
   { value: "all", label: "All event records" },
@@ -20,10 +21,10 @@ function getInitialScope(): EventDateScope {
   return DATE_SCOPE_OPTIONS.some((option) => option.value === scope) ? scope as EventDateScope : "all";
 }
 
-function getInitialDate(name: "from" | "to") {
+function getInitialParam(name: "from" | "to" | "speaker" | "topic") {
   if (typeof window === "undefined") return "";
   const value = new URLSearchParams(window.location.search).get(name) || "";
-  return /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : "";
+  return name === "from" || name === "to" ? (/^\d{4}-\d{2}-\d{2}$/.test(value) ? value : "") : value;
 }
 
 function formatEventDate(value: Date | string, timeZone?: string | null) {
@@ -43,8 +44,10 @@ export default function EventsPage() {
   const [locationFilter, setLocationFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [dateScope, setDateScope] = useState<EventDateScope>(getInitialScope);
-  const [dateFrom, setDateFrom] = useState(() => getInitialDate("from"));
-  const [dateTo, setDateTo] = useState(() => getInitialDate("to"));
+  const [dateFrom, setDateFrom] = useState(() => getInitialParam("from"));
+  const [dateTo, setDateTo] = useState(() => getInitialParam("to"));
+  const [speakerFilter, setSpeakerFilter] = useState(() => getInitialParam("speaker") || "all");
+  const [topicFilter, setTopicFilter] = useState(() => getInitialParam("topic") || "all");
 
   useSEO({
     title: "Tezos Events | XTZ.News",
@@ -58,18 +61,22 @@ export default function EventsPage() {
     if (dateScope !== "all") params.set("when", dateScope);
     if (dateFrom) params.set("from", dateFrom);
     if (dateTo) params.set("to", dateTo);
+    if (speakerFilter !== "all") params.set("speaker", speakerFilter);
+    if (topicFilter !== "all") params.set("topic", topicFilter);
     const query = params.toString();
     window.history.replaceState({}, "", `${window.location.pathname}${query ? `?${query}` : ""}`);
-  }, [dateScope, dateFrom, dateTo]);
+  }, [dateScope, dateFrom, dateTo, speakerFilter, topicFilter]);
 
   const locations = useMemo(() => getEventLocations(events), [events]);
   const eventTypes = useMemo(() => getEventTypes(events), [events]);
-  const locationAndTypeEvents = useMemo(() => filterPublishedEvents(events, locationFilter, typeFilter), [events, locationFilter, typeFilter]);
+  const speakers = useMemo(() => getEventSpeakers(events), [events]);
+  const topics = useMemo(() => getEventTopics(events), [events]);
+  const locationAndTypeEvents = useMemo(() => filterPublishedEvents(events, locationFilter, typeFilter, speakerFilter, topicFilter), [events, locationFilter, typeFilter, speakerFilter, topicFilter]);
   const scopedEvents = useMemo(() => filterEventsByDateScope(locationAndTypeEvents, { scope: dateScope, from: dateFrom || undefined, to: dateTo || undefined }), [locationAndTypeEvents, dateScope, dateFrom, dateTo]);
   const currentAndUpcomingEvents = useMemo(() => filterEventsByDateScope(scopedEvents, { scope: "current" }), [scopedEvents]);
   const pastEvents = useMemo(() => filterEventsByDateScope(scopedEvents, { scope: "past" }), [scopedEvents]);
-  const resetFilters = () => { setLocationFilter("all"); setTypeFilter("all"); setDateScope("all"); setDateFrom(""); setDateTo(""); };
-  const hasFilters = locationFilter !== "all" || typeFilter !== "all" || dateScope !== "all" || Boolean(dateFrom) || Boolean(dateTo);
+  const resetFilters = () => { setLocationFilter("all"); setTypeFilter("all"); setSpeakerFilter("all"); setTopicFilter("all"); setDateScope("all"); setDateFrom(""); setDateTo(""); };
+  const hasFilters = locationFilter !== "all" || typeFilter !== "all" || speakerFilter !== "all" || topicFilter !== "all" || dateScope !== "all" || Boolean(dateFrom) || Boolean(dateTo);
 
   const EventCard = ({ event }: { event: typeof events[number] }) => (
     <article className="rounded-xl border border-white/10 bg-white/[0.03] p-5">
@@ -80,6 +87,7 @@ export default function EventsPage() {
       <h3 className="mt-3 text-xl font-black">{event.title}</h3>
       {event.location && <p className="mt-2 flex items-center gap-2 text-sm text-white/60"><MapPin size={15} /> {event.location}</p>}
       {event.description && <p className="mt-3 text-sm leading-6 text-white/70">{event.description}</p>}
+      {((event.speakers?.length ?? 0) > 0 || (event.topics?.length ?? 0) > 0) && <div className="mt-4 space-y-2">{event.speakers?.length ? <div className="flex flex-wrap items-center gap-1.5"><span className="mr-1 text-[0.62rem] font-black uppercase tracking-[0.12em] text-white/40">Speakers</span>{event.speakers.map((speaker) => <button key={speaker} type="button" onClick={() => setSpeakerFilter(speaker)} className="rounded-full border border-sky-300/25 bg-sky-300/[0.07] px-2 py-1 text-xs font-bold text-sky-100 hover:bg-sky-300/15">{speaker}</button>)}</div> : null}{event.topics?.length ? <div className="flex flex-wrap items-center gap-1.5"><span className="mr-1 text-[0.62rem] font-black uppercase tracking-[0.12em] text-white/40">Topics</span>{event.topics.map((topic) => <button key={topic} type="button" onClick={() => setTopicFilter(topic)} className="rounded-full border border-amber-300/25 bg-amber-300/[0.07] px-2 py-1 text-xs font-bold text-amber-100 hover:bg-amber-300/15">{topic}</button>)}</div> : null}</div>}
       <div className="mt-5 flex flex-wrap gap-3">
         <a href={event.sourceUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-10 items-center gap-2 rounded border border-sky-300/35 px-3 text-sm font-bold text-sky-200 hover:bg-sky-300/10">Source listing <ExternalLink size={14} /></a>
         <a href={getEventCalendarDownloadHref({ id: String(event.id), title: event.title, startAt: event.startAt.toISOString(), endAt: event.endAt?.toISOString(), location: event.location ?? undefined, description: event.description ?? undefined, sourceUrl: event.sourceUrl })} download={`${eventSlug(event.title)}.ics`} className="inline-flex min-h-10 items-center gap-2 rounded bg-amber-300 px-3 text-sm font-black text-[#1d1603] hover:bg-amber-200"><Plus size={15} /> Add to calendar</a>
@@ -103,12 +111,14 @@ export default function EventsPage() {
     <section className="border-b border-white/10 bg-[linear-gradient(135deg,#101037,#071f32)] py-16"><div className="container"><p className="text-xs font-black uppercase tracking-[0.16em] text-amber-300">XTZ.News calendar</p><h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">Tezos events</h1><p className="mt-4 max-w-2xl text-white/70 leading-7">A reader-facing list of events selected and published by the XTZ.News editorial team. Search current, future and past listings, then check the organiser’s own page before making plans.</p><a href="#submit-event" className="mt-6 inline-flex min-h-10 items-center gap-2 rounded border border-amber-300/35 px-4 text-sm font-bold text-amber-200 hover:bg-amber-300/10"><Send size={15} /> Submit an event</a></div></section>
     <section className="container py-10">
       {isLoading ? <div className="space-y-4">{Array.from({ length: 3 }).map((_, index) => <div key={index} className="skeleton h-40 rounded-xl" />)}</div> : <>
-        <div className="mb-5 grid gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
+        <EventCalendarSubscription />
+        <div className="mb-5 mt-5 grid gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
           <label className="text-xs font-bold uppercase tracking-wide text-white/55">Show<select value={dateScope} onChange={(event) => setDateScope(event.target.value as EventDateScope)} className="mt-1 block min-h-10 w-full rounded border border-white/15 bg-[#09152d] px-3 text-sm normal-case tracking-normal text-white">{DATE_SCOPE_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
           <label className="text-xs font-bold uppercase tracking-wide text-white/55">Location<select value={locationFilter} onChange={(event) => setLocationFilter(event.target.value)} className="mt-1 block min-h-10 w-full rounded border border-white/15 bg-[#09152d] px-3 text-sm normal-case tracking-normal text-white"><option value="all">All locations</option>{locations.map((location) => <option key={location} value={location}>{location}</option>)}</select></label>
           <label className="text-xs font-bold uppercase tracking-wide text-white/55">Event type<select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)} className="mt-1 block min-h-10 w-full rounded border border-white/15 bg-[#09152d] px-3 text-sm normal-case tracking-normal text-white"><option value="all">All event types</option>{eventTypes.map((type) => <option key={type} value={type}>{EVENT_TYPE_LABELS[type] || type}</option>)}</select></label>
           <button type="button" onClick={resetFilters} disabled={!hasFilters} className="self-end min-h-10 rounded border border-white/15 px-3 text-sm font-bold text-white/70 hover:bg-white/5 disabled:opacity-40">Clear filters</button>
         </div>
+        {(speakers.length > 0 || topics.length > 0) && <div className="mb-5 grid gap-3 rounded-xl border border-white/10 bg-white/[0.02] p-4 sm:grid-cols-2"><label className="text-xs font-bold uppercase tracking-wide text-white/55">Speaker<select value={speakerFilter} onChange={(event) => setSpeakerFilter(event.target.value)} className="mt-1 block min-h-10 w-full rounded border border-white/15 bg-[#09152d] px-3 text-sm normal-case tracking-normal text-white"><option value="all">All speakers</option>{speakers.map((speaker) => <option key={speaker} value={speaker}>{speaker}</option>)}</select></label><label className="text-xs font-bold uppercase tracking-wide text-white/55">Topic<select value={topicFilter} onChange={(event) => setTopicFilter(event.target.value)} className="mt-1 block min-h-10 w-full rounded border border-white/15 bg-[#09152d] px-3 text-sm normal-case tracking-normal text-white"><option value="all">All topics</option>{topics.map((topic) => <option key={topic} value={topic}>{topic}</option>)}</select></label></div>}
         <div className="mb-5 grid gap-3 rounded-xl border border-white/10 bg-white/[0.02] p-4 sm:grid-cols-2"><label className="text-xs font-bold uppercase tracking-wide text-white/55">Starts on or after<input type="date" value={dateFrom} onChange={(event) => setDateFrom(event.target.value)} className="mt-1 block min-h-10 w-full rounded border border-white/15 bg-[#09152d] px-3 text-sm normal-case tracking-normal text-white" /></label><label className="text-xs font-bold uppercase tracking-wide text-white/55">Starts on or before<input type="date" value={dateTo} min={dateFrom || undefined} onChange={(event) => setDateTo(event.target.value)} className="mt-1 block min-h-10 w-full rounded border border-white/15 bg-[#09152d] px-3 text-sm normal-case tracking-normal text-white" /></label></div>
         <p aria-live="polite" className="mb-5 flex items-center gap-2 text-sm text-white/55"><Filter size={15} /> {scopedEvents.length} event{scopedEvents.length === 1 ? "" : "s"} shown</p>
         {scopedEvents.length ? <div className="space-y-10">
