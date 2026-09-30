@@ -1,4 +1,4 @@
-import { useState, type CSSProperties, type FormEvent } from "react";
+import React, { useState, type CSSProperties, type FormEvent } from "react";
 import { CheckCircle2, Loader2, Send } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 

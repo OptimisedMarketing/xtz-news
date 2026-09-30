@@ -53,6 +53,9 @@ const event = {
   endAt: "2026-10-07T16:50:00+08:00",
   location: "BingX Labs Stage, TOKEN2049 Singapore",
   timezone: "Asia/Singapore",
+  imageUrl: "/manus-storage/token2049-quantum-panel-tezos_54c590ff.webp",
+  imageAlt: "Official Tezos TOKEN2049 announcement graphic showing Arthur Breitman and the BingX Stage panel time",
+  imageCredit: "Tezos",
   speakers: ["Arthur Breitman", "Eli Ben-Sasson", "Alex Pruden", "Ren CF"],
   topics: ["Post-Quantum", "Cryptography", "Quantum Computing", "Tezos", "TOKEN2049"],
   eventType: "conference",
@@ -96,14 +99,14 @@ try {
   const reviewedNote = "Editor-published from the official Tezos announcement and TOKEN2049 agenda on 30 September 2026. Timing and availability should be reconfirmed with the organiser.";
   await connection.execute(
     `INSERT INTO tezos_event_candidates
-      (sourceKey, sourceEventId, sourceUrl, title, description, startAt, endAt, location, timezone, speakers, topics, eventType, agreedToReview, sourceHash, sourceCheckedAt, status, adminNotes)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, 'published', ?)
+      (sourceKey, sourceEventId, sourceUrl, title, description, startAt, endAt, location, timezone, imageUrl, imageAlt, imageCredit, speakers, topics, eventType, agreedToReview, sourceHash, sourceCheckedAt, status, adminNotes)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, 'published', ?)
      ON DUPLICATE KEY UPDATE
       sourceUrl = VALUES(sourceUrl), title = VALUES(title), description = VALUES(description),
-      startAt = VALUES(startAt), endAt = VALUES(endAt), location = VALUES(location), timezone = VALUES(timezone), speakers = VALUES(speakers), topics = VALUES(topics),
+      startAt = VALUES(startAt), endAt = VALUES(endAt), location = VALUES(location), timezone = VALUES(timezone), imageUrl = VALUES(imageUrl), imageAlt = VALUES(imageAlt), imageCredit = VALUES(imageCredit), speakers = VALUES(speakers), topics = VALUES(topics),
       eventType = VALUES(eventType), agreedToReview = VALUES(agreedToReview), sourceHash = VALUES(sourceHash),
       sourceCheckedAt = VALUES(sourceCheckedAt), status = 'published', adminNotes = VALUES(adminNotes)`,
-    [event.sourceKey, event.sourceEventId, event.sourceUrl, event.title, event.description, new Date(event.startAt), new Date(event.endAt), event.location, event.timezone, JSON.stringify(event.speakers), JSON.stringify(event.topics), event.eventType, sourceHash, sourceCheckedAt, reviewedNote],
+    [event.sourceKey, event.sourceEventId, event.sourceUrl, event.title, event.description, new Date(event.startAt), new Date(event.endAt), event.location, event.timezone, event.imageUrl, event.imageAlt, event.imageCredit, JSON.stringify(event.speakers), JSON.stringify(event.topics), event.eventType, sourceHash, sourceCheckedAt, reviewedNote],
   );
 
   await connection.commit();

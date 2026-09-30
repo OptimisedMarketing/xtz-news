@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { CalendarDays, ExternalLink, Filter, MapPin, Plus, Send } from "lucide-react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { getEventCalendarDownloadHref } from "@/lib/eventCalendar";
 import { EVENT_TYPE_LABELS, type EventDateScope, filterEventsByDateScope, filterPublishedEvents, getEventLocations, getEventSpeakers, getEventTopics, getEventTypes } from "@/lib/eventFilters";
 import { buildWebPageSchema, useSEO } from "@/hooks/useSEO";
+import { getMediaUrl } from "@/lib/mediaUrl";
 import TezosEventSubmissionForm from "@/components/TezosEventSubmissionForm";
 import EventCalendarSubscription from "@/components/EventCalendarSubscription";
 
@@ -80,6 +81,12 @@ export default function EventsPage() {
 
   const EventCard = ({ event }: { event: typeof events[number] }) => (
     <article className="rounded-xl border border-white/10 bg-white/[0.03] p-5">
+      {event.imageUrl && <figure className="mb-4 overflow-hidden rounded-lg border border-white/10 bg-black/20">
+        <a href={event.sourceUrl} target="_blank" rel="noopener noreferrer" aria-label={`Open the official source for ${event.title}`} className="block overflow-hidden bg-[#071121]">
+          <img src={getMediaUrl(event.imageUrl)} alt={event.imageAlt || `${event.title} event visual`} loading="lazy" className="block aspect-[16/9] w-full object-cover transition-transform duration-200 hover:scale-[1.02]" />
+        </a>
+        {event.imageCredit && <figcaption className="border-t border-white/10 px-3 py-2 text-[0.68rem] leading-5 text-white/45">Image: {event.imageCredit}</figcaption>}
+      </figure>}
       <div className="flex flex-wrap gap-2">
         <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-amber-300"><CalendarDays size={15} /> {formatEventDate(event.startAt, event.timezone)}</p>
         {event.eventType && <span className="rounded-full border border-amber-300/30 px-2 py-0.5 text-[0.65rem] font-black uppercase tracking-wide text-amber-200">{EVENT_TYPE_LABELS[event.eventType] || event.eventType}</span>}

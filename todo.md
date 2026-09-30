@@ -707,3 +707,11 @@
 - [x] Add speaker/topic select filters, clickable event-card tags, URL-persisted discovery state, and existing-filter compatibility
 - [x] Add targeted visual Events calendar callouts to the TOKEN2049 and latest Tezos Art Recap articles
 - [x] Apply database migration `0018_mighty_lifeguard.sql`; validate calendar HTTP output, desktop/mobile layouts, TypeScript, and 198 regression tests
+
+
+## Phase 108: Published Event Imagery
+- [x] Source four credited official visuals for every current editor-published event listing
+- [x] Add nullable image URL, alternative text and credit fields to event records with migration `0019_damp_joystick.sql`
+- [x] Update current Art on Tezos and TOKEN2049 editorial publications with same-origin image assets and credits
+- [x] Render accessible, source-linked responsive visuals on event cards through the `/media/*` relay
+- [x] Validate desktop/mobile layouts, four media responses, public event data, TypeScript, and focused visual-card coverage
