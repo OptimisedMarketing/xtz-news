@@ -18,6 +18,14 @@ describe("primary navigation", () => {
     expect(readSection?.items).toEqual(expect.arrayContaining([{ label: "Community Services", href: "/community-services" }]));
   });
 
+  it("promotes Events to the first-view desktop and mobile Read navigation", () => {
+    const readSection = MOBILE_SECTIONS.find((section) => section.label === "Read");
+
+    expect(NAV_ITEMS).toEqual(expect.arrayContaining([{ label: "EVENTS", href: "/events" }]));
+    expect(readSection?.items).toEqual(expect.arrayContaining([{ label: "Events", href: "/events" }]));
+    expect(MOBILE_SECTIONS.find((section) => section.label === "Explore")?.items).not.toEqual(expect.arrayContaining([{ label: "Tezos Events", href: "/events" }]));
+  });
+
   it("keeps the Etherlink hub discoverable in desktop and mobile Explore navigation", () => {
     const desktopExplore = NAV_ITEMS.find((item) => item.label === "EXPLORE");
     const mobileExplore = MOBILE_SECTIONS.find((section) => section.label === "Explore");

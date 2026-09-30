@@ -690,3 +690,11 @@
 - [x] Update legacy recap messaging so it correctly describes editorial review rather than an active automatic Friday generation flow
 - [x] Add three credited, source-linked visuals to the September recap: Stories We Tell Online, Art Commission Tezos Texture and Searching for Balance
 - [x] Normalize first-party article-body image URLs through the same-origin media relay and validate rendered gallery media, Google News metadata, News sitemap discovery, TypeScript, tests and responsive layouts
+
+
+## Phase 106: Art on Tezos Events and Primary Navigation
+- [x] Verify MoMI’s Terms of Agreement and Responsive Signals listings, plus the Art on Tezos Stories We Tell Online announcement
+- [x] Publish three source-linked Art on Tezos exhibition records to the editor-reviewed event calendar
+- [x] Separate current or upcoming records from recently passed editorial records so completed events are never presented as future plans
+- [x] Promote Events into the first-view desktop primary navigation and the mobile Read menu, removing the duplicate Explore entry
+- [x] Validate public event API data, Googlebot event metadata, desktop/mobile layouts, scroll reset/shared-header coverage, TypeScript and 189 regression tests

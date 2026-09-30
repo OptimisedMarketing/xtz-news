@@ -29,6 +29,7 @@ export const NAV_ITEMS = [
     ],
   },
   { label: "PROJECTS", href: "/projects" },
+  { label: "EVENTS", href: "/events" },
   { label: "COMMUNITY SERVICES", href: "/community-services" },
   { label: "TIMELINE", href: "/timeline" },
   {
@@ -75,6 +76,7 @@ export const MOBILE_SECTIONS = [
       { label: "Latest News", href: "/category/latest-news" },
       { label: "Categories", href: "/categories" },
       { label: "Projects", href: "/projects" },
+      { label: "Events", href: "/events" },
       { label: "Community Services", href: "/community-services" },
       { label: "Timeline", href: "/timeline" },
     ],
@@ -86,7 +88,6 @@ export const MOBILE_SECTIONS = [
       { label: "Staking", href: "/staking" },
       { label: "Art & Culture", href: "/art" },
       { label: "Art on Tezos Hub", href: "/art-on-tezos" },
-      { label: "Tezos Events", href: "/events" },
       { label: "Tools", href: "/tools" },
       { label: "Tezos Wallet Starter", href: "/wallets" },
       { label: "Tezos Staking Starter", href: "/staking/start" },
