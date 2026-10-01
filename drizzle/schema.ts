@@ -127,6 +127,8 @@ export const posts = mysqlTable(
     excerpt: text("excerpt"),
     featuredImageUrl: text("featuredImageUrl"),
     featuredImageAlt: text("featuredImageAlt"),
+    featuredImageCredit: varchar("featuredImageCredit", { length: 255 }),
+    featuredImageSourceUrl: text("featuredImageSourceUrl"),
     status: mysqlEnum("status", ["publish", "draft", "private"]).default("publish").notNull(),
     isFeatured: boolean("isFeatured").default(false).notNull(),
     viewCount: int("viewCount").default(0).notNull(),

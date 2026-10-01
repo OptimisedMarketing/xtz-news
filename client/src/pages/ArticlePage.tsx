@@ -32,6 +32,7 @@ import { getEditorialAuthor } from "@shared/editorialAuthors";
 import FirstPartyImageBanner from "@/components/FirstPartyImageBanner";
 import ArticleEventCalendarLink from "@/components/ArticleEventCalendarLink";
 import { getArticleEventCalendarCallout } from "@/lib/articleEventCalendar";
+import ArticleFeaturedImageCredit from "@/components/ArticleFeaturedImageCredit";
 
 /** Injects / updates Open Graph + Twitter Card meta tags in <head> */
 function useOpenGraph(post: {
@@ -553,6 +554,10 @@ export default function ArticlePage() {
           />
           {/* Skeleton shimmer while image loads */}
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, #05152e 25%, #0d2a5e 50%, #05152e 75%)", backgroundSize: "200% 100%", animation: "shimmer 1.5s infinite", zIndex: -1 }} />
+          <ArticleFeaturedImageCredit
+            credit={(post as { featuredImageCredit?: string | null }).featuredImageCredit}
+            sourceUrl={(post as { featuredImageSourceUrl?: string | null }).featuredImageSourceUrl}
+          />
         </figure>
       )}
 

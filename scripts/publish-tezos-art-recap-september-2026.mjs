@@ -3,14 +3,16 @@ import { createConnection } from "mysql2/promise";
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) throw new Error("DATABASE_URL is not configured");
 
-const featuredImageUrl = "/manus-storage/tezos-art-recap-september-2026-hero-b_1cfb1833.jpg";
+const featuredImageUrl = "/manus-storage/responsive-signals-art-on-tezos_b065c215.webp";
 const article = {
   title: "Tezos Art Recap: Museum Signals, Vienna Screens and New Digital Works",
   slug: "tezos-art-recap-responsive-signals-vienna-digital-works",
   excerpt: "Tezos’ latest Art on Tezos recap looks back at Responsive Signals in New York, the Stories We Tell Online one-night exhibition in Vienna, and a run of digital-art releases, auctions and open calls.",
   seoTitle: "Tezos Art Recap: Responsive Signals, Vienna & New Digital Works | XTZ.News",
   seoDescription: "A source-grounded Tezos art recap covering Responsive Signals at New York’s Museum of the Moving Image, Vienna’s Stories We Tell Online, objkt.one releases, calls and auctions.",
-  featuredImageAlt: "Original editorial illustration of a contemporary digital-art gallery with glowing computer displays and an abstract teal-violet signal sculpture",
+  featuredImageAlt: "Official Responsive Signals event poster from Art on Tezos and the Museum of the Moving Image",
+  featuredImageCredit: "Art on Tezos / Museum of the Moving Image",
+  featuredImageSourceUrl: "https://movingimage.org/event/responsive-signals/",
   authorSlug: "lee-evans",
   keyTakeaways: [
     "Tezos’ September 25 Art on Tezos recap put Responsive Signals at New York’s Museum of the Moving Image alongside a one-night, 22-artist internet-café exhibition in Vienna.",
@@ -92,16 +94,17 @@ try {
   await connection.beginTransaction();
   await connection.execute(
     `INSERT INTO posts (
-      title, slug, content, excerpt, featuredImageUrl, featuredImageAlt, status,
+      title, slug, content, excerpt, featuredImageUrl, featuredImageAlt, featuredImageCredit, featuredImageSourceUrl, status,
       isFeatured, publishedAt, seoTitle, seoDescription, keyTakeaways, authorSlug, updatedAt
-    ) VALUES (?, ?, ?, ?, ?, ?, 'publish', false, NOW(), ?, ?, ?, ?, NOW())
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'publish', false, NOW(), ?, ?, ?, ?, NOW())
     ON DUPLICATE KEY UPDATE
       title = VALUES(title), content = VALUES(content), excerpt = VALUES(excerpt),
       featuredImageUrl = VALUES(featuredImageUrl), featuredImageAlt = VALUES(featuredImageAlt),
+      featuredImageCredit = VALUES(featuredImageCredit), featuredImageSourceUrl = VALUES(featuredImageSourceUrl),
       status = 'publish', seoTitle = VALUES(seoTitle), seoDescription = VALUES(seoDescription),
       keyTakeaways = VALUES(keyTakeaways), authorSlug = VALUES(authorSlug), updatedAt = NOW()`,
     [
-      article.title, article.slug, article.content, article.excerpt, featuredImageUrl, article.featuredImageAlt,
+      article.title, article.slug, article.content, article.excerpt, featuredImageUrl, article.featuredImageAlt, article.featuredImageCredit, article.featuredImageSourceUrl,
       article.seoTitle, article.seoDescription, article.keyTakeaways, article.authorSlug,
     ],
   );

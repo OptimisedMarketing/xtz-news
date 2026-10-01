@@ -141,6 +141,13 @@
       "when": 1790789865008,
       "tag": "0019_damp_joystick",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "5",
+      "when": 1790839654570,
+      "tag": "0020_bizarre_spectrum",
+      "breakpoints": true
     }
   ]
 }

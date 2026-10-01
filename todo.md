@@ -715,3 +715,10 @@
 - [x] Update current Art on Tezos and TOKEN2049 editorial publications with same-origin image assets and credits
 - [x] Render accessible, source-linked responsive visuals on event cards through the `/media/*` relay
 - [x] Validate desktop/mobile layouts, four media responses, public event data, TypeScript, and focused visual-card coverage
+
+
+## Phase 109: Official Art Recap Cover Attribution
+- [x] Replace the AI-generated recap cover with the official Responsive Signals poster
+- [x] Add reusable featured-image credit and source metadata fields for source-led editorial covers
+- [x] Render a visible linked credit below credited article covers
+- [x] Validate media relay, Google News metadata, desktop/mobile presentation, TypeScript, and 201 regression tests
