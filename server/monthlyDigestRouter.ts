@@ -3,7 +3,7 @@ import { and, asc, eq, gte, gt, isNull, lt, or } from "drizzle-orm";
 import { getDb } from "./db";
 import { newsletterMonthlyDigestDeliveries, newsletterSubscribers, posts, tezosEventCandidates } from "../drizzle/schema";
 import { getPreviousCalendarMonth } from "./monthlyDigest";
-import { formatMonthlyDigestEventDate, getEventsInDigestMonth, getUpcomingDigestEvents, type MonthlyDigestEvent } from "./monthlyDigestEvents";
+import { formatMonthlyDigestEventDate, getEventsInDigestMonth, getMonthlyDigestEventBadge, getMonthlyDigestEventOfTheMonth, getUpcomingDigestEvents, type MonthlyDigestEvent } from "./monthlyDigestEvents";
 import { isValidMonthlyDigestPayload, verifyMonthlyDigestScheduleSignature, type MonthlyDigestSchedulePayload } from "./monthlyDigestScheduler";
 
 const baseUrl = "https://xtz.news";
@@ -21,6 +21,7 @@ type MonthlyDigestEmailOptions = {
   posts: MonthlyDigestPost[];
   pastEvents: MonthlyDigestEvent[];
   upcomingEvents: MonthlyDigestEvent[];
+  eventsOnly?: boolean;
   token: string | null;
 };
 
@@ -35,11 +36,19 @@ function pluralize(count: number, singular: string, plural = `${singular}s`) {
 function renderMonthlyDigestEvent(event: MonthlyDigestEvent) {
   const date = escapeHtml(formatMonthlyDigestEventDate(event));
   const location = event.location ? `<span style="color:rgba(255,255,255,0.54);font-size:13px"> · ${escapeHtml(event.location)}</span>` : "";
-  const type = event.eventType ? `<span style="color:#99f6e4;font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase">${escapeHtml(event.eventType)}</span>` : "";
+  const badge = getMonthlyDigestEventBadge(event.eventType);
+  const type = `<span style="display:inline-block;padding:4px 7px;border-radius:999px;background:${badge.background};color:${badge.color};font-size:10px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase">${escapeHtml(badge.label)}</span>`;
   return `<div style="margin-bottom:16px;padding:16px;border:1px solid rgba(153,246,228,0.2);border-radius:6px;background:#06142b"><div style="margin-bottom:6px">${type}</div><a href="${escapeHtml(event.sourceUrl)}" style="color:#fff;font-size:16px;font-weight:700;text-decoration:none;line-height:1.35">${escapeHtml(event.title)}</a><p style="color:rgba(255,255,255,0.7);font-size:13px;line-height:1.5;margin:7px 0 0">${date}${location}</p><a href="${escapeHtml(event.sourceUrl)}" style="color:#99f6e4;font-size:12px;font-weight:700;text-decoration:none;display:inline-block;margin-top:9px">Event details →</a></div>`;
 }
 
-export function renderMonthlyDigestEmail({ label, posts, pastEvents, upcomingEvents, token }: MonthlyDigestEmailOptions) {
+function renderMonthlyDigestEventOfTheMonth(event: MonthlyDigestEvent, month: "past" | "upcoming") {
+  const badge = getMonthlyDigestEventBadge(event.eventType);
+  const context = month === "past" ? "Selected from this month's editor-published listings" : "Nearest upcoming editor-published listing";
+  const location = event.location ? ` · ${escapeHtml(event.location)}` : "";
+  return `<section style="margin:0 0 28px;padding:16px 18px;border:1px solid rgba(153,246,228,0.32);border-radius:8px;background:linear-gradient(135deg,#07172d 0%,#0b2446 100%)"><div style="color:#99f6e4;font-size:10px;font-weight:800;letter-spacing:0.13em;text-transform:uppercase;margin-bottom:8px">Event of the month</div><div style="margin-bottom:8px"><span style="display:inline-block;padding:4px 7px;border-radius:999px;background:${badge.background};color:${badge.color};font-size:10px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase">${escapeHtml(badge.label)}</span></div><a href="${escapeHtml(event.sourceUrl)}" style="color:#fff;font-size:18px;font-weight:800;text-decoration:none;line-height:1.3">${escapeHtml(event.title)}</a><p style="color:rgba(255,255,255,0.72);font-size:13px;line-height:1.5;margin:8px 0 0">${escapeHtml(formatMonthlyDigestEventDate(event))}${location}</p><p style="color:rgba(255,255,255,0.48);font-size:12px;line-height:1.45;margin:7px 0 0">${context}</p></section>`;
+}
+
+export function renderMonthlyDigestEmail({ label, posts, pastEvents, upcomingEvents, eventsOnly = false, token }: MonthlyDigestEmailOptions) {
   const articlesHtml = posts.map((post) => {
     const excerpt = escapeHtml((post.excerpt || "").replace(/<[^>]*>/g, "").slice(0, 120));
     const imageUrl = post.featuredImageUrl?.startsWith("/")
@@ -54,13 +63,20 @@ export function renderMonthlyDigestEmail({ label, posts, pastEvents, upcomingEve
   const unsubUrl = token ? `${baseUrl}/unsubscribe?token=${token}` : baseUrl;
   const pastEventsHtml = pastEvents.map(renderMonthlyDigestEvent).join("");
   const upcomingEventsHtml = upcomingEvents.map(renderMonthlyDigestEvent).join("");
+  const eventOfTheMonth = getMonthlyDigestEventOfTheMonth(pastEvents, upcomingEvents);
+  const eventOfTheMonthHtml = eventOfTheMonth ? renderMonthlyDigestEventOfTheMonth(eventOfTheMonth, eventOfTheMonth.month) : "";
   const roundup = [
     posts.length ? pluralize(posts.length, "published story") : null,
     pastEvents.length ? pluralize(pastEvents.length, "past editor-published event") : null,
     upcomingEvents.length ? pluralize(upcomingEvents.length, "upcoming confirmed event") : null,
   ].filter(Boolean).join(", ");
 
-  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:0;background:#000;font-family:Arial,sans-serif"><div style="max-width:600px;margin:0 auto;padding:20px"><div style="text-align:center;padding:24px 0;border-bottom:2px solid #2c7df7;margin-bottom:28px"><img src="${baseUrl}/media/xtz-logo-square_c6689606.png" alt="XTZ.News" style="height:60px" /><h1 style="color:#fff;font-size:22px;margin:12px 0 4px">XTZ.News Monthly Digest</h1><p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0">News and editor-published Tezos events for ${escapeHtml(label)}</p></div><p style="color:rgba(255,255,255,0.7);font-size:14px;line-height:1.6;margin:0 0 24px">Here is your complete Tezos monthly roundup: ${escapeHtml(roundup || "editorial updates")}.</p>${posts.length ? `<h2 style="color:#fff;font-size:20px;margin:0 0 16px">News published in ${escapeHtml(label)}</h2>${articlesHtml}` : ""}${pastEvents.length ? `<section style="margin:8px 0 28px;padding:22px 0 4px;border-top:2px solid rgba(153,246,228,0.5)"><h2 style="color:#fff;font-size:20px;margin:0 0 8px">Events from ${escapeHtml(label)}</h2><p style="color:rgba(255,255,255,0.62);font-size:13px;line-height:1.5;margin:0 0 16px">A record of editor-published Tezos events that took place during the month.</p>${pastEventsHtml}</section>` : ""}${upcomingEvents.length ? `<section style="margin:8px 0 28px;padding:22px 0 4px;border-top:2px solid rgba(44,125,247,0.7)"><h2 style="color:#fff;font-size:20px;margin:0 0 8px">Upcoming Tezos events</h2><p style="color:rgba(255,255,255,0.62);font-size:13px;line-height:1.5;margin:0 0 16px">Confirmed editor-published listings after this digest was prepared. Times and availability can change, so check the organiser link before attending.</p>${upcomingEventsHtml}<a href="${baseUrl}/events" style="color:#2c7df7;font-size:13px;font-weight:700;text-decoration:none">Browse the Tezos events calendar →</a></section>` : ""}<div style="text-align:center;padding:20px 0;border-top:1px solid rgba(255,255,255,0.08);margin-top:8px"><p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0 0 8px">You're receiving this because you subscribed to XTZ.News. <a href="${baseUrl}" style="color:#2c7df7">Visit XTZ.News</a></p><p style="color:rgba(255,255,255,0.2);font-size:11px;margin:0"><a href="${escapeHtml(manageUrl)}" style="color:#2c7df7;text-decoration:none">Manage preferences</a> &nbsp;·&nbsp; <a href="${escapeHtml(unsubUrl)}" style="color:rgba(255,255,255,0.3);text-decoration:none">Unsubscribe</a></p></div></div></body></html>`;
+  const digestLabel = eventsOnly ? "Verified Tezos events for" : "News and editor-published Tezos events for";
+  const intro = eventsOnly
+    ? "Your events-only preference is active. Here are the verified Tezos listings selected for this monthly edition."
+    : `Here is your complete Tezos monthly roundup: ${roundup || "editorial updates"}.`;
+
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:0;background:#000;font-family:Arial,sans-serif"><div style="max-width:600px;margin:0 auto;padding:20px"><div style="text-align:center;padding:24px 0;border-bottom:2px solid #2c7df7;margin-bottom:28px"><img src="${baseUrl}/media/xtz-logo-square_c6689606.png" alt="XTZ.News" style="height:60px" /><h1 style="color:#fff;font-size:22px;margin:12px 0 4px">XTZ.News Monthly Digest</h1><p style="color:rgba(255,255,255,0.5);font-size:13px;margin:0">${digestLabel} ${escapeHtml(label)}</p></div><p style="color:rgba(255,255,255,0.7);font-size:14px;line-height:1.6;margin:0 0 24px">${escapeHtml(intro)}</p>${eventOfTheMonthHtml}${posts.length ? `<h2 style="color:#fff;font-size:20px;margin:0 0 16px">News published in ${escapeHtml(label)}</h2>${articlesHtml}` : ""}${pastEvents.length ? `<section style="margin:8px 0 28px;padding:22px 0 4px;border-top:2px solid rgba(153,246,228,0.5)"><h2 style="color:#fff;font-size:20px;margin:0 0 8px">Events from ${escapeHtml(label)}</h2><p style="color:rgba(255,255,255,0.62);font-size:13px;line-height:1.5;margin:0 0 16px">A record of editor-published Tezos events that took place during the month.</p>${pastEventsHtml}</section>` : ""}${upcomingEvents.length ? `<section style="margin:8px 0 28px;padding:22px 0 4px;border-top:2px solid rgba(44,125,247,0.7)"><h2 style="color:#fff;font-size:20px;margin:0 0 8px">Upcoming Tezos events</h2><p style="color:rgba(255,255,255,0.62);font-size:13px;line-height:1.5;margin:0 0 16px">Confirmed editor-published listings after this digest was prepared. Times and availability can change, so check the organiser link before attending.</p>${upcomingEventsHtml}<a href="${baseUrl}/events" style="color:#2c7df7;font-size:13px;font-weight:700;text-decoration:none">Browse the Tezos events calendar →</a></section>` : ""}<div style="text-align:center;padding:20px 0;border-top:1px solid rgba(255,255,255,0.08);margin-top:8px"><p style="color:rgba(255,255,255,0.3);font-size:12px;margin:0 0 8px">You're receiving this because you subscribed to XTZ.News. <a href="${baseUrl}" style="color:#2c7df7">Visit XTZ.News</a></p><p style="color:rgba(255,255,255,0.2);font-size:11px;margin:0"><a href="${escapeHtml(manageUrl)}" style="color:#2c7df7;text-decoration:none">Manage preferences</a> &nbsp;·&nbsp; <a href="${escapeHtml(unsubUrl)}" style="color:rgba(255,255,255,0.3);text-decoration:none">Unsubscribe</a></p></div></div></body></html>`;
 }
 
 export async function executeMonthlyDigest(payload: MonthlyDigestSchedulePayload, now: Date = new Date()) {
@@ -124,6 +140,7 @@ export async function executeMonthlyDigest(payload: MonthlyDigestSchedulePayload
     id: newsletterSubscribers.id,
     email: newsletterSubscribers.email,
     unsubToken: newsletterSubscribers.unsubToken,
+    eventsOnly: newsletterSubscribers.eventsOnly,
   }).from(newsletterSubscribers).where(eq(newsletterSubscribers.status, "active"));
 
   if (!subscribers.length) return { ok: true, digestPeriod, skipped: "no-subscribers" as const };
@@ -159,6 +176,8 @@ export async function executeMonthlyDigest(payload: MonthlyDigestSchedulePayload
         alreadyDelivered += 1;
         continue;
       }
+      const subscriberPosts = subscriber.eventsOnly ? [] : monthlyPosts;
+      if (!subscriberPosts.length && !pastEvents.length && !upcomingEvents.length) continue;
       const resendResponse = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
@@ -170,7 +189,7 @@ export async function executeMonthlyDigest(payload: MonthlyDigestSchedulePayload
           from: "XTZ.News <newsletter@xtz.news>",
           to: [subscriber.email],
           subject: `📰 XTZ.News Monthly Digest — ${label}`,
-          html: renderMonthlyDigestEmail({ label, posts: monthlyPosts, pastEvents, upcomingEvents, token: subscriber.unsubToken }),
+          html: renderMonthlyDigestEmail({ label, posts: subscriberPosts, pastEvents, upcomingEvents, eventsOnly: subscriber.eventsOnly, token: subscriber.unsubToken }),
         }),
       });
       if (!resendResponse.ok) {

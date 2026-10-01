@@ -1,0 +1,277 @@
+{
+  "artistCount": 40,
+  "artists": [
+    {
+      "name": "ADHD USA",
+      "kentoUrl": "https://kento.art/artists/adhd/",
+      "objktProfiles": [
+        "https://objkt.com/@adhd"
+      ]
+    },
+    {
+      "name": "Adiw Indonesia",
+      "kentoUrl": "https://kento.art/artists/adiw/",
+      "objktProfiles": [
+        "https://objkt.com/@adiw/"
+      ]
+    },
+    {
+      "name": "albertine meunier France",
+      "kentoUrl": "https://kento.art/artists/albertine-meunier/",
+      "objktProfiles": [
+        "https://objkt.com/@albertine"
+      ]
+    },
+    {
+      "name": "ALIENQUEEN USA",
+      "kentoUrl": "https://kento.art/artists/alienqueen/",
+      "objktProfiles": []
+    },
+    {
+      "name": "Amber Vittoria United States",
+      "kentoUrl": "https://kento.art/artists/amber-vittoria/",
+      "objktProfiles": []
+    },
+    {
+      "name": "Anna Lucia Germany",
+      "kentoUrl": "https://kento.art/artists/anna-lucia/",
+      "objktProfiles": [
+        "https://objkt.com/users/tz1M7dt8sWC64ZXkmiWbttVCtgFrFU6Do9x9"
+      ]
+    },
+    {
+      "name": "Axstone Turkey",
+      "kentoUrl": "https://kento.art/artists/axstone/",
+      "objktProfiles": [
+        "https://objkt.com/@axstone"
+      ]
+    },
+    {
+      "name": "Canek Zapata Mexico",
+      "kentoUrl": "https://kento.art/artists/canek-zapata/",
+      "objktProfiles": [
+        "https://objkt.com/@canekzapata"
+      ]
+    },
+    {
+      "name": "cemhah United Kingdom",
+      "kentoUrl": "https://kento.art/artists/cemhah/",
+      "objktProfiles": []
+    },
+    {
+      "name": "Diela Indonesia",
+      "kentoUrl": "https://kento.art/artists/diela/",
+      "objktProfiles": [
+        "https://objkt.com/@diela"
+      ]
+    },
+    {
+      "name": "Elna Frederick",
+      "kentoUrl": "https://kento.art/artists/elna-frederick/",
+      "objktProfiles": [
+        "https://objkt.com/@elnafrederick"
+      ]
+    },
+    {
+      "name": "enigmatriz Argentina",
+      "kentoUrl": "https://kento.art/artists/enigmatriz/",
+      "objktProfiles": [
+        "https://objkt.com/users/tz1dAU7TWwosvt7J1Xw1pcuKUxH9Getn7rFb"
+      ]
+    },
+    {
+      "name": "Esra Eslen Turkey",
+      "kentoUrl": "https://kento.art/artists/esra-eslen/",
+      "objktProfiles": [
+        "https://objkt.com/users/tz1hWgeCVVXDWBPLC9qf4PrXrwLYL2sa4pjt"
+      ]
+    },
+    {
+      "name": "FelixFelixFelix France",
+      "kentoUrl": "https://kento.art/artists/felixfelixfelix/",
+      "objktProfiles": [
+        "https://objkt.com/@felixfelixfelix"
+      ]
+    },
+    {
+      "name": "Ganbrood Netherlands",
+      "kentoUrl": "https://kento.art/artists/ganbrood/",
+      "objktProfiles": [
+        "https://objkt.com/@ganbrood"
+      ]
+    },
+    {
+      "name": "Hayden Clay USA",
+      "kentoUrl": "https://kento.art/artists/hayden-clay/",
+      "objktProfiles": [
+        "https://objkt.com/@haydenclay"
+      ]
+    },
+    {
+      "name": "hAyDiRoKeT Germany",
+      "kentoUrl": "https://kento.art/artists/haydiroket/",
+      "objktProfiles": [
+        "https://objkt.com/@haydiroket"
+      ]
+    },
+    {
+      "name": "khwampa India",
+      "kentoUrl": "https://kento.art/artists/khwampa/",
+      "objktProfiles": [
+        "https://objkt.com/users/tz1Qr6zYF9hNiQRfxktLdNhqdGXFQziFsBsW"
+      ]
+    },
+    {
+      "name": "Kior South Korea",
+      "kentoUrl": "https://kento.art/artists/kior/",
+      "objktProfiles": [
+        "https://objkt.com/users/tz1Nhmph9sWNYoYbmiTQX61g7NxbyN5mdJha"
+      ]
+    },
+    {
+      "name": "kiszkiloszki Poland",
+      "kentoUrl": "https://kento.art/artists/kiszkiloszki/",
+      "objktProfiles": [
+        "https://objkt.com/@kiszkiloszki/"
+      ]
+    },
+    {
+      "name": "Lewis Osborne United Kingdom",
+      "kentoUrl": "https://kento.art/artists/lewis-osborne/",
+      "objktProfiles": [
+        "https://objkt.com/@lewisosb"
+      ]
+    },
+    {
+      "name": "Louis Dazy France",
+      "kentoUrl": "https://kento.art/artists/louis-dazy/",
+      "objktProfiles": [
+        "https://objkt.com/users/tz1Nf7SejopXzH4KQ3cZmgousGJeUNSjqyee"
+      ]
+    },
+    {
+      "name": "MACBETH USA",
+      "kentoUrl": "https://kento.art/artists/macbeth/",
+      "objktProfiles": [
+        "https://objkt.com/@macbeth/"
+      ]
+    },
+    {
+      "name": "Marcelo Pinel Brazil",
+      "kentoUrl": "https://kento.art/artists/marcelo-pinel/",
+      "objktProfiles": [
+        "https://objkt.com/@marcelopinel"
+      ]
+    },
+    {
+      "name": "Mariah Serbia",
+      "kentoUrl": "https://kento.art/artists/mariah/",
+      "objktProfiles": [
+        "https://objkt.com/users/tz1Seby85cUvYPdS7RYZr9c8fXrAhFBbBmJ3"
+      ]
+    },
+    {
+      "name": "MEK.txt Indonesia",
+      "kentoUrl": "https://kento.art/artists/mek-txt/",
+      "objktProfiles": [
+        "https://objkt.com/@micasso"
+      ]
+    },
+    {
+      "name": "OELHAN France",
+      "kentoUrl": "https://kento.art/artists/oelhan/",
+      "objktProfiles": [
+        "https://objkt.com/users/tz1dTQ6KLvARRsu4X5gPLiFuSoTYWP3mrEPB"
+      ]
+    },
+    {
+      "name": "OMGiDRAWEDit England",
+      "kentoUrl": "https://kento.art/artists/omgidrawedit/",
+      "objktProfiles": [
+        "https://objkt.com/@omgidrawedit"
+      ]
+    },
+    {
+      "name": "PERFECTL00P USA",
+      "kentoUrl": "https://kento.art/artists/perfectl00p/",
+      "objktProfiles": [
+        "https://objkt.com/@perfectloop"
+      ]
+    },
+    {
+      "name": "qubibi Japan",
+      "kentoUrl": "https://kento.art/artists/qubibi/",
+      "objktProfiles": [
+        "https://objkt.com/@qubibi"
+      ]
+    },
+    {
+      "name": "Reza Afshar Turkey",
+      "kentoUrl": "https://kento.art/artists/reza-afshar/",
+      "objktProfiles": [
+        "https://objkt.com/users/tz1KymkNcKeeBGVT9TB4afkoxq5eQFkcLvvT"
+      ]
+    },
+    {
+      "name": "Riniifish China/Canada",
+      "kentoUrl": "https://kento.art/artists/riniifish/",
+      "objktProfiles": [
+        "https://objkt.com/@riniifish"
+      ]
+    },
+    {
+      "name": "Sabato US",
+      "kentoUrl": "https://kento.art/artists/sabato/",
+      "objktProfiles": [
+        "https://objkt.com/@sabatobox"
+      ]
+    },
+    {
+      "name": "Salawaki Philippines",
+      "kentoUrl": "https://kento.art/artists/salawaki/",
+      "objktProfiles": [
+        "https://objkt.com/@salawaki"
+      ]
+    },
+    {
+      "name": "Spøgelsesmaskinen Denmark",
+      "kentoUrl": "https://kento.art/artists/spogelsesmaskinen/",
+      "objktProfiles": [
+        "https://objkt.com/@spogel"
+      ]
+    },
+    {
+      "name": "Strano Canada",
+      "kentoUrl": "https://kento.art/artists/strano/",
+      "objktProfiles": [
+        "https://objkt.com/@strano"
+      ]
+    },
+    {
+      "name": "Travess Smalley USA",
+      "kentoUrl": "https://kento.art/artists/travess-smalley/",
+      "objktProfiles": []
+    },
+    {
+      "name": "UBERMORGEN Austria",
+      "kentoUrl": "https://kento.art/artists/ubermorgen/",
+      "objktProfiles": [
+        "https://objkt.com/@ubermorgen"
+      ]
+    },
+    {
+      "name": "Violet Forest USA",
+      "kentoUrl": "https://kento.art/artists/violet-forest/",
+      "objktProfiles": [
+        "https://objkt.com/@violetforest"
+      ]
+    },
+    {
+      "name": "zancan France",
+      "kentoUrl": "https://kento.art/artists/zancan/",
+      "objktProfiles": [
+        "https://objkt.com/@zancan"
+      ]
+    }
+  ]
+}

@@ -43,6 +43,9 @@ describe("monthly digest newsletter rendering", () => {
     expect(html).toContain("Stories We Tell Online");
     expect(html).toContain("Quantum: An Existential Threat to Crypto?");
     expect(html).toContain("https://xtz.news/events");
+    expect(html).toContain("Event of the month");
+    expect(html).toContain(">Art<");
+    expect(html).toContain(">Conference<");
     expect(html).toContain("A &lt;safe&gt; Tezos story");
     expect(html).toContain("https://xtz.news/media/example.png");
   });
@@ -59,5 +62,21 @@ describe("monthly digest newsletter rendering", () => {
     expect(html).toContain("Events from September 2026");
     expect(html).not.toContain("News published in September 2026");
     expect(html).not.toContain("Upcoming Tezos events");
+  });
+
+  it("renders the events-only edition without news stories", () => {
+    const html = renderMonthlyDigestEmail({
+      label: "September 2026",
+      posts: [],
+      pastEvents: [pastEvent],
+      upcomingEvents: [upcomingEvent],
+      eventsOnly: true,
+      token: "subscriber-token",
+    });
+
+    expect(html).toContain("events-only preference is active");
+    expect(html).toContain("Verified Tezos events for September 2026");
+    expect(html).not.toContain("News published in September 2026");
+    expect(html).toContain("Event of the month");
   });
 });

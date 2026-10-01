@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useSearch } from "wouter";
-import { CheckCircle, Mail, Vote, Bell, XCircle, Loader, Save } from "lucide-react";
+import { CalendarDays, CheckCircle, Mail, Vote, Bell, XCircle, Loader, Save } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
@@ -10,6 +10,7 @@ export default function ManageSubscriptionsPage() {
   const token = params.get("token") || "";
 
   const [govAlerts, setGovAlerts] = useState(false);
+  const [eventsOnly, setEventsOnly] = useState(false);
   const [status, setStatus] = useState<"active" | "unsubscribed">("active");
   const [saved, setSaved] = useState(false);
 
@@ -21,6 +22,7 @@ export default function ManageSubscriptionsPage() {
   useEffect(() => {
     if (prefs) {
       setGovAlerts(prefs.govAlerts ?? false);
+      setEventsOnly(prefs.eventsOnly ?? false);
       setStatus(prefs.status as "active" | "unsubscribed");
     }
   }, [prefs]);
@@ -37,7 +39,7 @@ export default function ManageSubscriptionsPage() {
   });
 
   const handleSave = () => {
-    updateMutation.mutate({ token, govAlerts, status });
+    updateMutation.mutate({ token, govAlerts, eventsOnly, status });
   };
 
   if (!token) {
@@ -113,6 +115,28 @@ export default function ManageSubscriptionsPage() {
                       </div>
                       <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)", margin: 0, lineHeight: 1.5 }}>
                         Top Tezos stories from the previous calendar month, delivered on the first of each month.
+                      </p>
+                    </div>
+                  </label>
+                </div>
+
+                {/* Events-only monthly digest */}
+                <div style={{ marginBottom: "0.75rem" }}>
+                  <label style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem", cursor: "pointer", padding: "0.9rem 1rem", background: eventsOnly ? "rgba(153,246,228,0.06)" : "rgba(255,255,255,0.03)", border: `1px solid ${eventsOnly ? "rgba(153,246,228,0.25)" : "rgba(255,255,255,0.08)"}`, borderRadius: "8px", transition: "all 0.15s" }}>
+                    <input
+                      type="checkbox"
+                      checked={eventsOnly}
+                      onChange={(event) => setEventsOnly(event.target.checked)}
+                      aria-label="Receive the events-only monthly digest"
+                      style={{ width: "20px", height: "20px", accentColor: "#2dd4bf", cursor: "pointer", flexShrink: 0, marginTop: "1px" }}
+                    />
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.2rem" }}>
+                        <CalendarDays size={14} style={{ color: eventsOnly ? "#99f6e4" : "rgba(255,255,255,0.4)" }} />
+                        <span style={{ fontWeight: 700, color: eventsOnly ? "#fff" : "rgba(255,255,255,0.5)", fontSize: "0.88rem" }}>Events-only Monthly Digest</span>
+                      </div>
+                      <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)", margin: 0, lineHeight: 1.5 }}>
+                        Receive the same monthly send with verified past and upcoming Tezos events, without the news-story list. No edition is sent if there are no confirmed event listings.
                       </p>
                     </div>
                   </label>

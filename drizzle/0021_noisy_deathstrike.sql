@@ -1,0 +1,1 @@
+ALTER TABLE `newsletter_subscribers` ADD `eventsOnly` boolean DEFAULT false NOT NULL;

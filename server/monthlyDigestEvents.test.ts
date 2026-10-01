@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getPreviousCalendarMonth } from "./monthlyDigest";
-import { formatMonthlyDigestEventDate, getEventsInDigestMonth, getUpcomingDigestEvents, type MonthlyDigestEvent } from "./monthlyDigestEvents";
+import { formatMonthlyDigestEventDate, getEventsInDigestMonth, getMonthlyDigestEventBadge, getMonthlyDigestEventOfTheMonth, getUpcomingDigestEvents, type MonthlyDigestEvent } from "./monthlyDigestEvents";
 
 const event = (overrides: Partial<MonthlyDigestEvent> = {}): MonthlyDigestEvent => ({
   title: "Example Tezos event",
@@ -40,5 +40,17 @@ describe("monthly digest event selection", () => {
   it("formats dates in the organiser's declared timezone", () => {
     expect(formatMonthlyDigestEventDate(event())).toContain("23 Sept 2026");
     expect(formatMonthlyDigestEventDate(event())).toContain("CEST");
+  });
+
+  it("selects a compact Event of the Month and reader-facing category badges", () => {
+    const past = event({ title: "September exhibition", eventType: "exhibition" });
+    const upcoming = event({ title: "October conference", startAt: new Date("2026-10-07T08:20:00.000Z"), eventType: "conference" });
+
+    expect(getMonthlyDigestEventOfTheMonth([past], [upcoming])).toMatchObject({ title: "September exhibition", month: "past" });
+    expect(getMonthlyDigestEventOfTheMonth([], [upcoming])).toMatchObject({ title: "October conference", month: "upcoming" });
+    expect(getMonthlyDigestEventBadge("exhibition").label).toBe("Art");
+    expect(getMonthlyDigestEventBadge("conference").label).toBe("Conference");
+    expect(getMonthlyDigestEventBadge("workshop").label).toBe("Workshop");
+    expect(getMonthlyDigestEventBadge("meetup").label).toBe("Meetup");
   });
 });

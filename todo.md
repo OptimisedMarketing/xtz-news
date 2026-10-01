@@ -746,3 +746,12 @@
 - [x] Allow a useful events-only edition when there are no articles, while retaining the no-content delivery skip
 - [x] Keep the existing monthly cloud timer and signed runner unchanged; no new timer, agent task, AI call or always-on process added
 - [x] Validate month-overlap selection, upcoming-event bounds, email rendering, TypeScript, 210 regression tests, and a real 1 October dry run selecting 8 articles, 3 past events and 1 upcoming event without sending mail
+
+
+## Phase 114: Events Digest Preferences and Kento Funding Follow-up
+- [x] Add a compact Event of the Month lead, reviewed event-type badges, and events-only monthly digest rendering
+- [x] Add a token-based Events-only Monthly Digest setting while preserving the existing full digest as the default; apply the `eventsOnly` schema migration
+- [x] Publish the Kento Season 01 funding follow-up with the announced 951-backers / approximately US$215,920 result, campaign caveats, and reciprocal link to prior coverage
+- [x] Check all 40 Kento artist pages; include 36 Kento-linked direct Objkt profiles and use official Kento artist-page fallbacks for the four unlinked profiles
+- [x] Create and upload an edited editorial Kento product cover based on the supplied asset; retain and credit the source product marks
+- [x] Validate Google News metadata, News sitemap discovery, same-origin media relay, responsive article layouts, TypeScript, and 213 tests across 73 files

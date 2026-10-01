@@ -568,6 +568,7 @@ const newsletterRouter = router({
       email: z.string().email(),
       name: z.string().optional(),
       govAlerts: z.boolean().optional().default(false),
+      eventsOnly: z.boolean().optional().default(false),
     }))
     .mutation(async ({ input }) => {
       const { getDb } = await import('./db');
@@ -586,10 +587,11 @@ const newsletterRouter = router({
             name: input.name ?? null,
             status: 'active',
             govAlerts: input.govAlerts ?? false,
+            eventsOnly: input.eventsOnly ?? false,
             unsubToken,
           })
           .onDuplicateKeyUpdate({
-            set: { status: 'active', govAlerts: input.govAlerts ?? false },
+            set: { status: 'active', govAlerts: input.govAlerts ?? false, eventsOnly: input.eventsOnly ?? false },
           });
 
         // Fetch the actual token (may have been existing if duplicate)
@@ -622,7 +624,7 @@ const newsletterRouter = router({
 
         await notifyOwner({
           title: 'New Newsletter Subscriber',
-          content: `${input.name ? input.name + ' (' + input.email + ')' : input.email} subscribed to the XTZ.News newsletter.${input.govAlerts ? ' (Governance Alerts: ON)' : ''}`,
+          content: `${input.name ? input.name + ' (' + input.email + ')' : input.email} subscribed to the XTZ.News newsletter.${input.govAlerts ? ' (Governance Alerts: ON)' : ''}${input.eventsOnly ? ' (Events-only Monthly Digest: ON)' : ''}`,
         }).catch(() => {});
         return { success: true, welcomeEmailRequested };
       } catch {
@@ -662,6 +664,7 @@ const newsletterRouter = router({
         name: newsletterSubscribers.name,
         status: newsletterSubscribers.status,
         govAlerts: newsletterSubscribers.govAlerts,
+        eventsOnly: newsletterSubscribers.eventsOnly,
       })
         .from(newsletterSubscribers)
         .where(eq(newsletterSubscribers.unsubToken, input.token))
@@ -674,6 +677,7 @@ const newsletterRouter = router({
     .input(z.object({
       token: z.string(),
       govAlerts: z.boolean(),
+      eventsOnly: z.boolean(),
       status: z.enum(['active', 'unsubscribed']),
     }))
     .mutation(async ({ input }) => {
@@ -688,7 +692,7 @@ const newsletterRouter = router({
         .limit(1);
       if (!row) throw new TRPCError({ code: 'NOT_FOUND', message: 'Invalid or expired link.' });
       await dbConn.update(newsletterSubscribers)
-        .set({ govAlerts: input.govAlerts, status: input.status })
+        .set({ govAlerts: input.govAlerts, eventsOnly: input.eventsOnly, status: input.status })
         .where(eq(newsletterSubscribers.unsubToken, input.token));
       return { success: true };
     }),

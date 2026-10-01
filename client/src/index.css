@@ -496,6 +496,26 @@
     font-style: italic;
     line-height: 1.5;
   }
+  .post-content .article-artist-directory {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem 1.25rem;
+    margin: 1.25rem 0 2rem;
+    padding: 1rem 1.1rem 1rem 2rem;
+    border: 1px solid rgba(153, 246, 228, 0.18);
+    border-radius: 8px;
+    background: rgba(6, 20, 43, 0.68);
+  }
+  .post-content .article-artist-directory li {
+    margin: 0;
+    padding-right: 0.35rem;
+    font-size: 0.91rem;
+  }
+  .post-content .article-artist-directory a { font-weight: 700; }
+  .post-content .artist-profile-note { color: rgba(255,255,255,0.45); font-size: 0.75rem; }
+  @media (max-width: 640px) {
+    .post-content .article-artist-directory { grid-template-columns: 1fr; }
+  }
   .post-content iframe { max-width: 100%; border-radius: 4px; }
   .post-content strong { font-weight: 700; }
   .post-content em { font-style: italic; }

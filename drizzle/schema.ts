@@ -419,6 +419,7 @@ export const newsletterSubscribers = mysqlTable(
     name: varchar("name", { length: 255 }),
     status: mysqlEnum("status", ["active", "unsubscribed"]).default("active").notNull(),
     govAlerts: boolean("govAlerts").default(false).notNull(),
+    eventsOnly: boolean("eventsOnly").default(false).notNull(),
     unsubToken: varchar("unsubToken", { length: 64 }),
     createdAt: timestamp("createdAt").defaultNow().notNull(),
   },
