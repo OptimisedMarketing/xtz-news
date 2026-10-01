@@ -473,6 +473,14 @@
     margin: 0;
     width: 100%;
   }
+  .post-content figure video {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    border-radius: 6px;
+    margin: 0;
+    background: #020817;
+  }
   @media (max-width: 768px) {
     .post-content figure { margin: 2rem 0; }
   }

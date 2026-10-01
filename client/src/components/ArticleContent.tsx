@@ -33,7 +33,7 @@ type Segment =
  */
 export function normaliseArticleMediaUrls(html: string): string {
   return html.replace(
-    /(src\s*=\s*["'])(?:https?:\/\/(?:www\.)?xtz\.news)?\/manus-storage\/([^"']+)(["'])/gi,
+    /((?:src|poster)\s*=\s*["'])(?:https?:\/\/(?:www\.)?xtz\.news)?\/manus-storage\/([^"']+)(["'])/gi,
     (_match, prefix: string, storageKey: string, suffix: string) => `${prefix}${getMediaUrl(`/manus-storage/${storageKey}`)}${suffix}`,
   );
 }

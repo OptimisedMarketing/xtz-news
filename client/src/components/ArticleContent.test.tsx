@@ -21,9 +21,11 @@ describe("ArticleContent embeds", () => {
   });
 
   it("routes first-party body images through the same-origin media relay", () => {
-    const output = normaliseArticleMediaUrls('<figure><img src="/manus-storage/art/cover.webp" alt="Source visual" /><img src="https://xtz.news/manus-storage/legacy/image.png" alt="Legacy visual" /></figure>');
+    const output = normaliseArticleMediaUrls('<figure><img src="/manus-storage/art/cover.webp" alt="Source visual" /><img src="https://xtz.news/manus-storage/legacy/image.png" alt="Legacy visual" /><video src="/manus-storage/art/recap.mp4" poster="/manus-storage/art/recap-still.webp"></video></figure>');
     expect(output).toContain('src="/media/art/cover.webp"');
     expect(output).toContain('src="/media/legacy/image.png"');
+    expect(output).toContain('src="/media/art/recap.mp4"');
+    expect(output).toContain('poster="/media/art/recap-still.webp"');
     expect(output).not.toContain('/manus-storage/');
   });
 });

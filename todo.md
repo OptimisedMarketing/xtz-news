@@ -729,3 +729,11 @@
 - [x] Convert the X-supplied animation into a responsive animated WebP cover and reduce transfer size from 3.0 MB to approximately 1.04 MB
 - [x] Update the recap article with the exact Tezos post as the linked visible image credit
 - [x] Validate animation frames, same-origin relay, desktop/mobile presentation, and crawler-compatible cover metadata
+
+
+## Phase 111: The Wall Today Genesis Wall Publication
+- [x] Verify THE WALL Today’s public welcome page, early-beta profile, September “frozen” Genesis Wall announcement, and public project boundaries
+- [x] Publish a source-grounded article with the supplied official September Wall composite, bullet Key Takeaways, Lee Evans byline, credit, and SEO fields
+- [x] Add AuRo404’s supplied-post animation as a muted, controllable inline visual with an explicit historical-count caveat and source credit
+- [x] Extend article media normalization to route first-party video `src` and poster attributes through the same-origin relay
+- [x] Validate media relay, Google News schema, News sitemap discovery, desktop/mobile layouts, TypeScript and 201 regression tests
