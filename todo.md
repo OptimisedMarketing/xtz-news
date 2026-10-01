@@ -722,3 +722,10 @@
 - [x] Add reusable featured-image credit and source metadata fields for source-led editorial covers
 - [x] Render a visible linked credit below credited article covers
 - [x] Validate media relay, Google News metadata, desktop/mobile presentation, TypeScript, and 201 regression tests
+
+
+## Phase 110: Official Animated Art Recap Cover
+- [x] Retrieve the animated media attached to the official Tezos Art on Tezos Friday Recap post
+- [x] Convert the X-supplied animation into a responsive animated WebP cover and reduce transfer size from 3.0 MB to approximately 1.04 MB
+- [x] Update the recap article with the exact Tezos post as the linked visible image credit
+- [x] Validate animation frames, same-origin relay, desktop/mobile presentation, and crawler-compatible cover metadata
