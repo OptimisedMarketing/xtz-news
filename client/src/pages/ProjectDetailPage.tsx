@@ -148,6 +148,7 @@ export default function ProjectDetailPage() {
               </div>
               {isTezOracleProject && <TezOracleSharePanel contentType="project" title="TezOracle — Tezos-native oracle infrastructure" url="https://xtz.news/projects/tezoracle" />}
               {isKentoProject && <KentoSharePanel contentType="project" title="Kento — physical art cards from the objkt team" url="https://xtz.news/projects/kento" />}
+              {isKentoProject && <Link href="/kento-season-one-funded-951-backers-215920" style={{ display: "inline-flex", alignItems: "center", gap: "0.45rem", padding: "0.65rem 1rem", borderRadius: "3px", border: "1px solid rgba(249,168,212,0.44)", background: "rgba(249,168,212,0.1)", color: "#f9a8d4", textDecoration: "none", fontSize: "0.75rem", fontWeight: 800, letterSpacing: "0.03em" }}><BookOpenText size={14} aria-hidden="true" /> Season 01 funded: 951 backers →</Link>}
               {isWallTodayProject && <Link href="/the-wall-today-freezes-genesis-board-tezos-archive" style={{ display: "inline-flex", alignItems: "center", gap: "0.45rem", padding: "0.65rem 1rem", borderRadius: "3px", border: "1px solid rgba(153,246,228,0.44)", background: "rgba(153,246,228,0.1)", color: "#99f6e4", textDecoration: "none", fontSize: "0.75rem", fontWeight: 800, letterSpacing: "0.03em" }}><BookOpenText size={14} aria-hidden="true" /> Read the Genesis Wall coverage</Link>}
             </div>
           </div>
@@ -168,6 +169,7 @@ export default function ProjectDetailPage() {
               dangerouslySetInnerHTML={{ __html: project.content || project.excerpt || "" }}
             />
             {isKentoProject && <Link href="/art-on-tezos" style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", marginTop: "1.15rem", color: "#f9a8d4", fontSize: "0.78rem", fontWeight: 800, textDecoration: "none" }}>Explore the Art on Tezos collection <ChevronRight size={14} /></Link>}
+            {isKentoProject && <Link href="/kento-season-one-funded-951-backers-215920" style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", marginTop: "0.9rem", marginLeft: "1rem", color: "#f9a8d4", fontSize: "0.78rem", fontWeight: 800, textDecoration: "none" }}>Read the Season 01 funding update <ChevronRight size={14} /></Link>}
             {isWallTodayProject && <Link href="/onchain-community-archives" style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", marginTop: "1.15rem", color: "#99f6e4", fontSize: "0.78rem", fontWeight: 800, textDecoration: "none" }}>Explore Onchain Community Archives <ChevronRight size={14} /></Link>}
           </div>
 

@@ -1,59 +1,35 @@
-import { readFile } from "node:fs/promises";
 import { createConnection } from "mysql2/promise";
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) throw new Error("DATABASE_URL is not configured");
 
 const featuredImageUrl = "/manus-storage/kento-season-01-funded-feature_992b2d03.png";
-const artistDataUrl = new URL("../references/kento-season-one-artist-profiles-2026-10-01.json", import.meta.url);
-const artistData = JSON.parse(await readFile(artistDataUrl, "utf8"));
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
-
-function displayArtistName(name) {
-  return name.replace(/ (USA|United States|United Kingdom|England|France|Germany|Turkey|Mexico|Indonesia|Argentina|Netherlands|India|South Korea|Poland|Brazil|Serbia|Japan|Philippines|Denmark|Canada|China\/Canada|US|Austria)$/, "");
-}
-
-const artistLinks = artistData.artists.map((artist) => {
-  const objktUrl = artist.objktProfiles[0];
-  const destination = objktUrl || artist.kentoUrl;
-  const label = objktUrl ? "Objkt profile" : "Kento artist page";
-  return `<li><a href="${escapeHtml(destination)}" target="_blank" rel="noopener noreferrer">${escapeHtml(displayArtistName(artist.name))}</a><span class="artist-profile-note"> · ${label}</span></li>`;
-}).join("\n");
-
-const linkedObjktCount = artistData.artists.filter((artist) => artist.objktProfiles.length > 0).length;
+const linkedObjktCount = 36;
 
 const article = {
-  title: "Kento Season 01 Finishes Funded: 951 Backers Pledge About $215,920",
+  title: "Kento Season 01 Finishes Funded: 951 Backers Pledge Over $214,000",
   slug: "kento-season-one-funded-951-backers-215920",
-  excerpt: "Kento says 951 backers pledged approximately $215,920 to fund its First Edition Web Nostalgia art-card collection, which brings 40 artists and 117 cards into the project’s first season.",
-  seoTitle: "Kento Season 01 Funded: 951 Backers Pledge $215,920 | XTZ.News",
-  seoDescription: "Kento says its Web Nostalgia Kickstarter ended funded with 951 backers pledging approximately $215,920. See the 40-artist roster and verified Objkt profile links.",
+  excerpt: "Kento says 951 backers pledged over $214,000 to fund its First Edition Web Nostalgia art-card collection, which brings 40 artists and 117 cards into the project’s first season.",
+  seoTitle: "Kento Season 01 Funded: 951 Backers Pledge Over $214,000 | XTZ.News",
+  seoDescription: "Kento says its Web Nostalgia Kickstarter ended funded with 951 backers pledging over $214,000. See the 40-artist roster and verified Objkt profile links.",
   featuredImageAlt: "Kento Season 1 Web Nostalgia physical art-card display box and foil packs presented on a dark neon editorial set",
   featuredImageCredit: "XTZ.News image edit based on a Kento product image supplied by XTZ.News",
   featuredImageSourceUrl: "https://kento.art/",
   authorSlug: "lee-evans",
   keyTakeaways: [
-    "Kento says 951 backers pledged approximately US$215,920 to fund Season 01: Web Nostalgia.",
+    "Kento says 951 backers pledged over US$214,000 to fund Season 01: Web Nostalgia.",
     "The Kickstarter First Edition is exclusive to campaign backers; Kento says pre-sales will open later through kento.art.",
     "The finished Season 01 roster includes 117 physical cards by 40 artists across seven rarities.",
     `Kento artist pages publicly linked ${linkedObjktCount} of the 40 artists to Objkt profiles when XTZ.News checked them on 1 October 2026.`,
   ].map((item) => `- ${item}`).join("\n"),
   content: `
-<p><strong>Kento says its first Kickstarter campaign has closed funded, with 951 backers pledging approximately US$215,920 for Season 01: Web Nostalgia.</strong> The physical art-card project, created by the team behind Tezos digital-art marketplace <a href="https://objkt.com/" target="_blank" rel="noopener noreferrer">objkt</a>, announced the final figure on 1 October and thanked the campaign’s supporters and 40 participating artists.</p>
+<p><strong>Kento says its first Kickstarter campaign has closed funded, with 951 backers pledging over US$214,000 for Season 01: Web Nostalgia.</strong> The physical art-card project, created by the team behind Tezos digital-art marketplace <a href="https://objkt.com/" target="_blank" rel="noopener noreferrer">objkt</a>, announced the final figure on 1 October and thanked the campaign’s supporters and 40 participating artists.</p>
 
 <p>The figure is attributed to <a href="https://x.com/kentocards/status/2105642726704435640" target="_blank" rel="noopener noreferrer">Kento’s campaign-close post</a>, which describes the First Edition as funded. Kento also says that while pre-sales will open later at <a href="https://kento.art/" target="_blank" rel="noopener noreferrer">kento.art</a>, the Kickstarter First Edition will remain exclusive to people who backed the campaign.</p>
 
 <h2>From early momentum to a funded first season</h2>
 
-<p>This is the next chapter after Kento’s early campaign momentum, which XTZ.News covered when the project had passed $100,000 in its first 24 hours. The campaign-close announcement moves the story from a live crowdfunding milestone to a stated funded outcome: 951 backers and approximately $215,920 pledged.</p>
+<p>This is the next chapter after Kento’s early campaign momentum, which XTZ.News covered when the project had passed $100,000 in its first 24 hours. The campaign-close announcement moves the story from a live crowdfunding milestone to a stated funded outcome: 951 backers and over $214,000 pledged.</p>
 
 <p>The closing post also confirms the season’s scope: <strong>Web Nostalgia</strong>, a collection of physical cards built around original work by 40 artists. Kento’s official catalogue lists <strong>117 cards</strong> across Common, Uncommon, Rare, Ultra Rare, Secret Rare, Grail and Promo rarities. The project presents the cards as physical collecting objects with a route back to the linked digital art through its published QR and scratch-off claim system.</p>
 
@@ -70,11 +46,9 @@ const article = {
 
 <h2>Season 01 artist roster and Objkt links</h2>
 
-<p>Kento’s official artist directory lists 40 artists. XTZ.News checked the public profile pages on 1 October 2026: <strong>${linkedObjktCount} pages linked directly to Objkt profiles</strong>. Where a direct Objkt profile was not linked from Kento’s public page, the name below instead goes to Kento’s artist page rather than guessing an address. This is a directory for discovery, not a claim that every artist has the same marketplace activity or availability.</p>
+<p>Kento’s official artist directory lists 40 artists. XTZ.News checked the public profile pages on 1 October 2026: <strong>${linkedObjktCount} pages linked directly to Objkt profiles</strong>. Use the filter below to show those direct profile links, search artists by name, or view the four official Kento artist-page fallbacks rather than an inferred Objkt address. This is a discovery directory, not a claim that every artist has the same marketplace activity or availability.</p>
 
-<ul class="article-artist-directory">
-${artistLinks}
-</ul>
+<div data-kento-artist-directory="season-one" aria-hidden="true"></div>
 
 <h2>Where to read more</h2>
 
@@ -138,11 +112,21 @@ try {
     await connection.execute("INSERT INTO post_tags (postId, tagId) VALUES (?, ?)", [post.id, tag.id]);
   }
 
+  await connection.execute(
+    `UPDATE projects
+      SET content = ?, excerpt = ?, updatedAt = NOW()
+      WHERE slug = 'kento'`,
+    [
+      `<p><strong>Kento</strong> is a physical art-card project from the team behind objkt. Its first season, Web Nostalgia, pairs collectible packs with original work by digital artists and includes a QR and scratch-off claim experience built on objkt infrastructure.</p><p><strong>Season 01 closed funded with 951 backers pledging over US$214,000, according to Kento’s campaign-close announcement.</strong></p><p><a href="/kento-season-one-funded-951-backers-215920">Read XTZ.News: Kento Season 01 Finishes Funded — 951 Backers Pledge Over $214,000 →</a></p><p><a href="/kento-objkt-physical-digital-art-cards-kickstarter">Read XTZ.News: Kento Raises Over $100K in 24 Hours as Objkt Art Cards Hit Kickstarter →</a></p><p><em>Kento says the Kickstarter First Edition is reserved for campaign backers and that pre-sales will open later through kento.art. Check Kento’s official store and campaign updates for current availability, fulfilment information and terms.</em></p>`,
+      "Kento says 951 backers pledged over $214,000 to fund its first Web Nostalgia art-card season, created by the team behind objkt.",
+    ],
+  );
+
   await connection.commit();
   console.log(JSON.stringify({
     articleUrl: `https://xtz.news/${article.slug}`,
     featuredImageUrl,
-    artistCount: artistData.artistCount,
+    artistCount: 40,
     linkedObjktCount,
     categories: categories.map(({ id }) => id),
     tags: tags.map(({ id }) => id),

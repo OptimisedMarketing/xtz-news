@@ -13,6 +13,14 @@ describe("ArticleContent embeds", () => {
     ]);
   });
 
+  it("turns the Kento roster marker into an inline interactive directory segment", () => {
+    expect(parseSegments("<h2>Artists</h2><div data-kento-artist-directory=\"season-one\" aria-hidden=\"true\"></div><h2>Sources</h2>")).toEqual([
+      { type: "html", content: "<h2>Artists</h2>" },
+      { type: "kentoArtists" },
+      { type: "html", content: "<h2>Sources</h2>" },
+    ]);
+  });
+
   it("preserves newsletter placeholders while linking glossary terms in surrounding archive-style content", () => {
     const output = linkArticleGlossaryTerms('<p>Tez can be delegated to a baker.</p><div class="newsletter-cta" data-article-newsletter="weekly"></div><p>Etherlink updates follow.</p>');
     expect(parseSegments(output).some((segment) => segment.type === "newsletter")).toBe(true);

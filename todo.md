@@ -755,3 +755,12 @@
 - [x] Check all 40 Kento artist pages; include 36 Kento-linked direct Objkt profiles and use official Kento artist-page fallbacks for the four unlinked profiles
 - [x] Create and upload an edited editorial Kento product cover based on the supplied asset; retain and credit the source product marks
 - [x] Validate Google News metadata, News sitemap discovery, same-origin media relay, responsive article layouts, TypeScript, and 213 tests across 73 files
+
+
+## Phase 115: Kento Funding Follow-up and Artist Discovery
+- [x] Replace the Kento follow-up’s exact dollar phrasing with **over US$214,000** across its title, metadata, Key Takeaways, excerpt and body
+- [x] Update the Kento project profile from the stale active-campaign state to its reported funded outcome, with availability caveat and reciprocal follow-up links
+- [x] Add a visible Season 01 funding-update card to the Kento profile header
+- [x] Replace the static follow-up roster with a keyboard-accessible interactive creator directory: artist-name search, All artists (40), Verified Objkt (36), and Kento profile (4) filters
+- [x] Preserve source discipline by linking only the 36 direct Objkt profiles publicly linked by Kento; link the other four profiles to their official Kento artist pages
+- [x] Validate desktop/mobile article and profile layouts, Google News metadata, sitemap discovery, TypeScript, and 215 tests across 74 files

@@ -10,6 +10,7 @@
 import React, { useMemo } from "react";
 import TweetEmbed from "./TweetEmbed";
 import MidArticleNewsletter from "./MidArticleNewsletter";
+import KentoArtistDirectory from "./KentoArtistDirectory";
 import { linkArticleGlossaryTerms } from "@/lib/articleGlossary";
 import { getMediaUrl } from "@/lib/mediaUrl";
 
@@ -24,7 +25,8 @@ interface ArticleContentProps {
 type Segment =
   | { type: "html"; content: string }
   | { type: "tweet"; url: string }
-  | { type: "newsletter" };
+  | { type: "newsletter" }
+  | { type: "kentoArtists" };
 
 /**
  * Article HTML is stored in the database, so image tags cannot call the React
@@ -40,7 +42,7 @@ export function normaliseArticleMediaUrls(html: string): string {
 
 export function parseSegments(html: string): Segment[] {
   const segments: Segment[] = [];
-  const EMBED_RE = /<div[^>]+class=["']tweet-embed["'][^>]*data-tweet-url=["']([^"']+)["'][^>]*>[\s\S]*?<\/div>|<div[^>]+data-tweet-url=["']([^"']+)["'][^>]*class=["']tweet-embed["'][^>]*>[\s\S]*?<\/div>|<div[^>]+(?:class=["'][^"']*newsletter-cta[^"']*["']|data-article-newsletter=["'][^"']+["'])[^>]*>\s*<\/div>/gi;
+  const EMBED_RE = /<div[^>]+class=["']tweet-embed["'][^>]*data-tweet-url=["']([^"']+)["'][^>]*>[\s\S]*?<\/div>|<div[^>]+data-tweet-url=["']([^"']+)["'][^>]*class=["']tweet-embed["'][^>]*>[\s\S]*?<\/div>|<div[^>]+(?:class=["'][^"']*newsletter-cta[^"']*["']|data-article-newsletter=["'][^"']+["'])[^>]*>\s*<\/div>|<div[^>]+data-kento-artist-directory=["'][^"']+["'][^>]*>\s*<\/div>/gi;
 
   let lastIndex = 0;
   let match: RegExpExecArray | null;
@@ -52,6 +54,11 @@ export function parseSegments(html: string): Segment[] {
     }
     if (/newsletter-cta|data-article-newsletter/i.test(match[0])) {
       segments.push({ type: "newsletter" });
+      lastIndex = match.index + match[0].length;
+      continue;
+    }
+    if (/data-kento-artist-directory/i.test(match[0])) {
+      segments.push({ type: "kentoArtists" });
       lastIndex = match.index + match[0].length;
       continue;
     }
@@ -77,7 +84,7 @@ export default function ArticleContent({ html, className, style, newsletterPrevi
   const segments = useMemo(() => parseSegments(articleHtml), [articleHtml]);
 
   // If no tweets found, render as plain HTML (fast path)
-  const hasEmbeds = segments.some((s) => s.type === "tweet" || s.type === "newsletter");
+  const hasEmbeds = segments.some((s) => s.type === "tweet" || s.type === "newsletter" || s.type === "kentoArtists");
   if (!hasEmbeds) {
     return (
       <div
@@ -96,6 +103,9 @@ export default function ArticleContent({ html, className, style, newsletterPrevi
         }
         if (seg.type === "newsletter") {
           return <MidArticleNewsletter key={`newsletter-${i}`} previewSuccess={newsletterPreviewSuccess} />;
+        }
+        if (seg.type === "kentoArtists") {
+          return <KentoArtistDirectory key={`kento-artists-${i}`} />;
         }
         if (!seg.content.trim()) return null;
         return (

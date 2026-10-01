@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 describe("Kento related-reading presentation", () => {
   it("recognises the Kento campaign story", () => {
     expect(isKentoStory("kento-objkt-physical-digital-art-cards-kickstarter")).toBe(true);
+    expect(isKentoStory("kento-season-one-funded-951-backers-215920")).toBe(true);
     expect(isKentoStory("art-on-tezos-weekly-recap-2026-08-21")).toBe(false);
   });
 

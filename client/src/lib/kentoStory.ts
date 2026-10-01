@@ -1,9 +1,10 @@
 import type { RelatedStory } from "./ganeshaStory";
 
 export const KENTO_STORY_SLUG = "kento-objkt-physical-digital-art-cards-kickstarter";
+export const KENTO_FUNDING_FOLLOW_UP_SLUG = "kento-season-one-funded-951-backers-215920";
 
 export function isKentoStory(slug: string | null | undefined) {
-  return slug === KENTO_STORY_SLUG;
+  return slug === KENTO_STORY_SLUG || slug === KENTO_FUNDING_FOLLOW_UP_SLUG;
 }
 
 function kentoArtScore(story: RelatedStory) {

@@ -636,7 +636,7 @@ export default function ArticlePage() {
             <ArticleContent
               html={isGaneshaArticle ? annotateGaneshaTechnicalTerms(post.content || "") : post.content || ""}
               className={`post-content${readingMode === "light" ? " reading-light" : ""}`}
-              style={{ transition: "background 0.3s, color 0.3s, font-size 0.2s", fontSize: fontSizeMap[fontSize] }}
+              style={{ transition: "background 0.3s, color 0.3s, fontSize 0.2s", fontSize: fontSizeMap[fontSize] }}
               newsletterPreviewSuccess={newsletterPreviewSuccess}
             />
             {eventCalendarCallout && <ArticleEventCalendarLink callout={eventCalendarCallout} />}
