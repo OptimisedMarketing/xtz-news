@@ -6,11 +6,13 @@ import KentoArtistDirectory from "./KentoArtistDirectory";
 
 describe("KentoArtistDirectory", () => {
   it("filters the Season 01 roster to direct Objkt profiles and supports name search", () => {
-    render(<KentoArtistDirectory />);
+    const { container } = render(<KentoArtistDirectory />);
 
     expect(screen.getByText("Showing 40 artists")).toBeTruthy();
     expect(screen.getByRole("link", { name: /ADHD.*verified Objkt profile/i }).getAttribute("href")).toBe("https://objkt.com/@adhd");
     expect(screen.getByRole("link", { name: /Amber Vittoria.*official Kento artist page/i }).getAttribute("href")).toBe("https://kento.art/artists/amber-vittoria/");
+    expect(container.querySelectorAll("img")).toHaveLength(40);
+    expect(container.querySelector("img")?.getAttribute("src")).toMatch(/^\/media\/kento-season-one-/);
 
     fireEvent.click(screen.getByRole("button", { name: /verified objkt/i }));
     expect(screen.getByText("Showing 36 artists")).toBeTruthy();

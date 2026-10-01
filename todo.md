@@ -764,3 +764,12 @@
 - [x] Replace the static follow-up roster with a keyboard-accessible interactive creator directory: artist-name search, All artists (40), Verified Objkt (36), and Kento profile (4) filters
 - [x] Preserve source discipline by linking only the 36 direct Objkt profiles publicly linked by Kento; link the other four profiles to their official Kento artist pages
 - [x] Validate desktop/mobile article and profile layouts, Google News metadata, sitemap discovery, TypeScript, and 215 tests across 74 files
+
+
+## Phase 116: Kento Artwork Thumbnails and TezTowers Publication
+- [x] Retrieve, resize without cropping, and relay all 40 official Kento Season 01 artist thumbnails from their public Kento profile sources
+- [x] Add compact artwork thumbnails to every searchable, keyboard-accessible Kento creator-directory card while keeping direct Objkt and official Kento destination rules intact
+- [x] Publish the TezTowers launch article: project-reported 79 first-day Main St plot sales, evolving 3D plot-NFT and billboard proposition, project offer to Tezos institutions, explicit terms and partnership caveats, and bullet Key Takeaways
+- [x] Use source-attributed official TezTowers imagery for the featured image and a compact three-visual launch gallery, with click-to-enlarge lightbox, Escape dismissal and direct source links
+- [x] Add TezTowers to the Games project directory, with live product and availability caveats plus reciprocal links between its profile and article
+- [x] Validate responsive public pages, Google News schema, canonical and News sitemap discovery, same-origin media relay, TypeScript, and 217 tests across 75 files

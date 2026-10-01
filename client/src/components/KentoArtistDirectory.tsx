@@ -6,6 +6,8 @@ import {
   KENTO_SEASON_ONE_VERIFIED_OBJKT_COUNT,
   type KentoSeasonOneArtist,
 } from "@/lib/kentoSeasonOneArtists";
+import { getKentoArtistThumbnail } from "@/lib/kentoSeasonOneArtistThumbnails";
+import { getMediaUrl } from "@/lib/mediaUrl";
 
 type ArtistFilter = "all" | "verified" | "kento";
 
@@ -86,6 +88,7 @@ export default function KentoArtistDirectory() {
             {artists.map((artist) => {
               const verified = Boolean(artist.objktProfileUrl);
               const destination = artist.objktProfileUrl || artist.kentoUrl;
+              const thumbnail = getKentoArtistThumbnail(artist.kentoUrl);
               return (
                 <a
                   key={artist.kentoUrl}
@@ -93,12 +96,17 @@ export default function KentoArtistDirectory() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`${getKentoArtistDisplayName(artist.name)} — ${verified ? "verified Objkt profile" : "official Kento artist page"}`}
-                  style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "0.55rem", minHeight: "62px", padding: "0.7rem", borderRadius: "7px", border: verified ? "1px solid rgba(153,246,228,0.23)" : "1px solid rgba(255,255,255,0.12)", background: verified ? "rgba(153,246,228,0.055)" : "rgba(255,255,255,0.035)", color: "#fff", textDecoration: "none" }}
+                  style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "0.55rem", minHeight: "70px", padding: "0.55rem", borderRadius: "7px", border: verified ? "1px solid rgba(153,246,228,0.23)" : "1px solid rgba(255,255,255,0.12)", background: verified ? "rgba(153,246,228,0.055)" : "rgba(255,255,255,0.035)", color: "#fff", textDecoration: "none" }}
                 >
-                  <span style={{ minWidth: 0 }}>
-                    <span style={{ display: "block", fontWeight: 800, fontSize: "0.82rem", overflowWrap: "anywhere" }}>{getKentoArtistDisplayName(artist.name)}</span>
-                    <span style={{ display: "flex", alignItems: "center", gap: "0.27rem", marginTop: "0.25rem", color: verified ? "#99f6e4" : "rgba(255,255,255,0.5)", fontSize: "0.67rem", fontWeight: 700 }}>
-                      {verified && <BadgeCheck size={13} aria-hidden="true" />} {verified ? "Verified Objkt profile" : "Kento artist page"}
+                  <span style={{ display: "flex", minWidth: 0, gap: "0.6rem" }}>
+                    <span style={{ width: "50px", height: "50px", flexShrink: 0, overflow: "hidden", borderRadius: "5px", background: "rgba(255,255,255,0.08)" }}>
+                      {thumbnail && <img src={getMediaUrl(thumbnail)} alt="" loading="lazy" style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }} />}
+                    </span>
+                    <span style={{ minWidth: 0 }}>
+                      <span style={{ display: "block", fontWeight: 800, fontSize: "0.82rem", overflowWrap: "anywhere" }}>{getKentoArtistDisplayName(artist.name)}</span>
+                      <span style={{ display: "flex", alignItems: "center", gap: "0.27rem", marginTop: "0.25rem", color: verified ? "#99f6e4" : "rgba(255,255,255,0.5)", fontSize: "0.67rem", fontWeight: 700 }}>
+                        {verified && <BadgeCheck size={13} aria-hidden="true" />} {verified ? "Verified Objkt profile" : "Kento artist page"}
+                      </span>
                     </span>
                   </span>
                   <ExternalLink size={14} aria-hidden="true" style={{ color: verified ? "#99f6e4" : "rgba(255,255,255,0.52)", flexShrink: 0, marginTop: "0.1rem" }} />

@@ -21,6 +21,14 @@ describe("ArticleContent embeds", () => {
     ]);
   });
 
+  it("turns the TezTowers visual marker into an inline lightbox gallery segment", () => {
+    expect(parseSegments("<p>Before</p><div data-teztowers-gallery=\"launch\"></div><p>After</p>")).toEqual([
+      { type: "html", content: "<p>Before</p>" },
+      { type: "teztowersGallery" },
+      { type: "html", content: "<p>After</p>" },
+    ]);
+  });
+
   it("preserves newsletter placeholders while linking glossary terms in surrounding archive-style content", () => {
     const output = linkArticleGlossaryTerms('<p>Tez can be delegated to a baker.</p><div class="newsletter-cta" data-article-newsletter="weekly"></div><p>Etherlink updates follow.</p>');
     expect(parseSegments(output).some((segment) => segment.type === "newsletter")).toBe(true);
