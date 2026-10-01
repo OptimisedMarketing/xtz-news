@@ -737,3 +737,12 @@
 - [x] Add AuRo404’s supplied-post animation as a muted, controllable inline visual with an explicit historical-count caveat and source credit
 - [x] Extend article media normalization to route first-party video `src` and poster attributes through the same-origin relay
 - [x] Validate media relay, Google News schema, News sitemap discovery, desktop/mobile layouts, TypeScript and 201 regression tests
+
+
+## Phase 113: Monthly Newsletter Event Roundup
+- [x] Extend the existing signed monthly digest with an **Events from the month** section sourced only from editor-published records that overlap the completed calendar month
+- [x] Add a bounded **Upcoming Tezos events** section with the nearest eight confirmed editor-published listings, organiser-local times, locations, source links and an Events calendar CTA
+- [x] Preserve all delivery safety controls: active-subscriber selection, per-subscriber period idempotency, Resend idempotency, preferences and unsubscribe links
+- [x] Allow a useful events-only edition when there are no articles, while retaining the no-content delivery skip
+- [x] Keep the existing monthly cloud timer and signed runner unchanged; no new timer, agent task, AI call or always-on process added
+- [x] Validate month-overlap selection, upcoming-event bounds, email rendering, TypeScript, 210 regression tests, and a real 1 October dry run selecting 8 articles, 3 past events and 1 upcoming event without sending mail
