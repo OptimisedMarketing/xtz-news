@@ -773,3 +773,9 @@
 - [x] Use source-attributed official TezTowers imagery for the featured image and a compact three-visual launch gallery, with click-to-enlarge lightbox, Escape dismissal and direct source links
 - [x] Add TezTowers to the Games project directory, with live product and availability caveats plus reciprocal links between its profile and article
 - [x] Validate responsive public pages, Google News schema, canonical and News sitemap discovery, same-origin media relay, TypeScript, and 217 tests across 75 files
+
+
+## Phase 117: TzEL Project Image Refresh
+- [x] Upload the supplied Tezos Encrypted Ledger visual to project storage and set it as the TzEL project image
+- [x] Add descriptive alternative text and serve the image through the same-origin media relay
+- [x] Verify the project record, media response, public route, and desktop/mobile visual presentation
