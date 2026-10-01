@@ -11,6 +11,7 @@ import PostQuantumHomepageFeature from "@/components/PostQuantumHomepageFeature"
 import WalletStarterHomepageFeature from "@/components/WalletStarterHomepageFeature";
 import StakingStarterHomepageFeature from "@/components/StakingStarterHomepageFeature";
 import ArtOnTezosHomepageFeature from "@/components/ArtOnTezosHomepageFeature";
+import OnchainCommunityArchivesHomepageFeature from "@/components/OnchainCommunityArchivesHomepageFeature";
 import FirstPartyPromotion from "@/components/FirstPartyPromotion";
 import FirstPartyImageBanner from "@/components/FirstPartyImageBanner";
 import NextTezosEventWidget from "@/components/NextTezosEventWidget";
@@ -574,6 +575,7 @@ export default function Home() {
       <WalletStarterHomepageFeature />
       <StakingStarterHomepageFeature />
       <ArtOnTezosHomepageFeature />
+      <OnchainCommunityArchivesHomepageFeature />
       <FirstPartyPromotion />
       <PostQuantumHomepageFeature />
       <TezosSystemsNetworkPulse />

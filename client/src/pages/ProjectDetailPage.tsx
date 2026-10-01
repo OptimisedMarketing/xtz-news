@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useParams, Link } from "wouter";
-import { ExternalLink, Globe, ChevronRight, Home, ArrowLeft, Copy, Check } from "lucide-react";
+import { ExternalLink, Globe, ChevronRight, Home, ArrowLeft, Copy, Check, BookOpenText } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useSEO, buildWebPageSchema } from "@/hooks/useSEO";
 import { getMediaUrl } from "@/lib/mediaUrl";
@@ -18,6 +18,7 @@ export default function ProjectDetailPage() {
   const isKentoProject = slug === "kento";
   const isXtzktProject = slug === "0xtzkt";
   const isOptimisedMarketingProject = slug === "optimised-marketing";
+  const isWallTodayProject = slug === "the-wall-today";
   const [referralCopied, setReferralCopied] = useState(false);
   const referralCopyTracked = useRef(false);
   const recordReferralCopy = trpc.referralAnalytics.recordCopy.useMutation();
@@ -147,6 +148,7 @@ export default function ProjectDetailPage() {
               </div>
               {isTezOracleProject && <TezOracleSharePanel contentType="project" title="TezOracle — Tezos-native oracle infrastructure" url="https://xtz.news/projects/tezoracle" />}
               {isKentoProject && <KentoSharePanel contentType="project" title="Kento — physical art cards from the objkt team" url="https://xtz.news/projects/kento" />}
+              {isWallTodayProject && <Link href="/the-wall-today-freezes-genesis-board-tezos-archive" style={{ display: "inline-flex", alignItems: "center", gap: "0.45rem", padding: "0.65rem 1rem", borderRadius: "3px", border: "1px solid rgba(153,246,228,0.44)", background: "rgba(153,246,228,0.1)", color: "#99f6e4", textDecoration: "none", fontSize: "0.75rem", fontWeight: 800, letterSpacing: "0.03em" }}><BookOpenText size={14} aria-hidden="true" /> Read the Genesis Wall coverage</Link>}
             </div>
           </div>
         </div>
@@ -166,12 +168,13 @@ export default function ProjectDetailPage() {
               dangerouslySetInnerHTML={{ __html: project.content || project.excerpt || "" }}
             />
             {isKentoProject && <Link href="/art-on-tezos" style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", marginTop: "1.15rem", color: "#f9a8d4", fontSize: "0.78rem", fontWeight: 800, textDecoration: "none" }}>Explore the Art on Tezos collection <ChevronRight size={14} /></Link>}
+            {isWallTodayProject && <Link href="/onchain-community-archives" style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", marginTop: "1.15rem", color: "#99f6e4", fontSize: "0.78rem", fontWeight: 800, textDecoration: "none" }}>Explore Onchain Community Archives <ChevronRight size={14} /></Link>}
           </div>
 
           {/* Info grid */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
             <InfoCard label="Category" value={project.category || "—"} />
-            <InfoCard label="Status" value={isTezOracleProject || isXtzktProject ? "In development" : "✅ Live & Verified"} />
+            <InfoCard label="Status" value={isWallTodayProject ? "Early beta (invite-only)" : isTezOracleProject || isXtzktProject ? "In development" : "✅ Live & Verified"} />
             {project.websiteUrl && (
               <div style={{ background: "#05152e", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "8px", padding: "1.25rem" }}>
                 <p style={{ fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "rgba(255,255,255,0.35)", margin: "0 0 0.5rem" }}>Website</p>

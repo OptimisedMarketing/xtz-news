@@ -36,7 +36,7 @@ export type TranslationSitemapEntry = {
 export const CRAWLER_ROUTE_PREFIXES = [
   "category", "tag", "projects", "timeline", "events", "contact", "admin", "explorer",
   "staking", "tools", "guides", "glossary", "post-quantum", "art", "prices",
-  "etherlink", "wallets", "art-on-tezos", "community-services", "search", "unsubscribe", "manage-subscriptions", "authors", "newsroom", "advertise",
+  "etherlink", "wallets", "art-on-tezos", "community-services", "onchain-community-archives", "search", "unsubscribe", "manage-subscriptions", "authors", "newsroom", "advertise",
 ];
 
 export const SEO_STATIC_PAGES = [
@@ -49,6 +49,7 @@ export const SEO_STATIC_PAGES = [
   { url: "/staking/start", priority: "0.8", changefreq: "monthly" },
   { url: "/art-on-tezos", priority: "0.8", changefreq: "weekly" },
   { url: "/community-services", priority: "0.6", changefreq: "monthly" },
+  { url: "/onchain-community-archives", priority: "0.7", changefreq: "weekly" },
   { url: "/events", priority: "0.7", changefreq: "weekly" },
   { url: "/authors/lee-evans", priority: "0.5", changefreq: "monthly" },
   { url: "/authors/rossa-browne", priority: "0.5", changefreq: "monthly" },
@@ -123,6 +124,10 @@ const STATIC_META: Record<string, StaticMeta> = {
   "/community-services": {
     title: "Tezos Community Services | Agencies, Studios & Marketing | XTZ.News",
     description: "Discover Tezos-facing agencies, development studios and marketing providers in the XTZ.News Community Services directory.",
+  },
+  "/onchain-community-archives": {
+    title: "Onchain Community Archives | Tezos Culture Projects | XTZ.News",
+    description: "Discover Tezos culture projects and editorial coverage that preserve community-made work, shared digital art, and recurring onchain records.",
   },
   "/events": {
     title: "Tezos Events | Editor-Reviewed Calendar | XTZ.News",

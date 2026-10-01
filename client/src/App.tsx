@@ -14,6 +14,7 @@ import CategoriesPage from "./pages/CategoriesPage";
 import ProjectsPage from "./pages/ProjectsPage";
 import ProjectDetailPage from "./pages/ProjectDetailPage";
 import CommunityServicesPage from "./pages/CommunityServicesPage";
+import OnchainCommunityArchivesPage from "./pages/OnchainCommunityArchivesPage";
 import TimelinePage from "./pages/TimelinePage";
 import WatchPage from "./pages/WatchPage";
 import SubmitArticlePage from "./pages/SubmitArticlePage";
@@ -100,6 +101,7 @@ function Router() {
       <Route path="/category/:slug" component={CategoryPage} />
       <Route path="/tag/:slug" component={TagPage} />
       <Route path="/community-services" component={CommunityServicesPage} />
+      <Route path="/onchain-community-archives" component={OnchainCommunityArchivesPage} />
       <Route path="/projects" component={ProjectsPage} />
       <Route path="/projects/:slug" component={ProjectDetailPage} />
       <Route path="/tezos-projects" component={ProjectsPage} />

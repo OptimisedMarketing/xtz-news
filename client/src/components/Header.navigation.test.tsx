@@ -50,6 +50,14 @@ describe("primary navigation", () => {
     expect(mobileExplore?.items).toEqual(expect.arrayContaining([{ label: "Art on Tezos Hub", href: "/art-on-tezos" }]));
   });
 
+  it("keeps Onchain Community Archives discoverable in desktop and mobile Explore navigation", () => {
+    const desktopExplore = NAV_ITEMS.find((item) => item.label === "EXPLORE");
+    const mobileExplore = MOBILE_SECTIONS.find((section) => section.label === "Explore");
+
+    expect(desktopExplore?.children).toEqual(expect.arrayContaining([{ label: "ONCHAIN COMMUNITY ARCHIVES", href: "/onchain-community-archives" }]));
+    expect(mobileExplore?.items).toEqual(expect.arrayContaining([{ label: "Onchain Community Archives", href: "/onchain-community-archives" }]));
+  });
+
   it("keeps the Optimised Marketing utility destination configured for the shared header", () => {
     expect(OPTIMISED_MARKETING_HEADER_LINK).toEqual({
       label: "Optimised Marketing",

@@ -38,9 +38,9 @@ describe("crawler SEO rendering", () => {
 
   it("keeps priority evergreen routes crawlable and protected from article-slug handling", () => {
     expect(SEO_STATIC_PAGES.map(page => page.url)).toEqual(expect.arrayContaining([
-      "/post-quantum", "/guides/tz5-wallet", "/glossary/tezos-prefixes", "/etherlink", "/etherlink/bridge", "/wallets", "/art-on-tezos", "/community-services", "/advertise",
+      "/post-quantum", "/guides/tz5-wallet", "/glossary/tezos-prefixes", "/etherlink", "/etherlink/bridge", "/wallets", "/art-on-tezos", "/community-services", "/onchain-community-archives", "/advertise",
     ]));
-    expect(CRAWLER_ROUTE_PREFIXES).toEqual(expect.arrayContaining(["guides", "glossary", "post-quantum", "etherlink", "wallets", "art-on-tezos", "community-services", "advertise"]));
+    expect(CRAWLER_ROUTE_PREFIXES).toEqual(expect.arrayContaining(["guides", "glossary", "post-quantum", "etherlink", "wallets", "art-on-tezos", "community-services", "onchain-community-archives", "advertise"]));
   });
 
   it("renders unique metadata for the Community Services directory", () => {
@@ -49,6 +49,14 @@ describe("crawler SEO rendering", () => {
     expect(getCrawlerStaticMeta("/community-services").title).toBe("Tezos Community Services | Agencies, Studios & Marketing | XTZ.News");
     expect(output).toContain("Tezos-facing agencies, development studios and marketing providers");
     expect(output).toContain('<link rel="canonical" href="https://xtz.news/community-services" />');
+  });
+
+  it("renders unique metadata for the Onchain Community Archives hub", () => {
+    const output = renderCrawlerHtml({ html, baseUrl: "https://xtz.news", pathname: "/onchain-community-archives" });
+
+    expect(getCrawlerStaticMeta("/onchain-community-archives").title).toBe("Onchain Community Archives | Tezos Culture Projects | XTZ.News");
+    expect(output).toContain("Tezos culture projects and editorial coverage");
+    expect(output).toContain('<link rel="canonical" href="https://xtz.news/onchain-community-archives" />');
   });
 
   it("renders unique advertising-page metadata", () => {

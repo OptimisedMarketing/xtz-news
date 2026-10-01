@@ -51,6 +51,8 @@ const article = {
 <p>For now, the next confirmed update is the project’s promised Genesis Wall statistics. Until those arrive, the most reliable public references are THE WALL Today’s own announcement, its invite-only welcome page and the project account’s early-beta status. Readers who are interested can follow the official account or visit the welcome page; anyone considering an invite should use the project’s own redemption path and check any current terms there.</p>
 
 <p>Read the <a href="https://x.com/thewall_today/status/2105452628633321624" target="_blank" rel="noopener noreferrer">official September Wall announcement</a>, visit <a href="https://thewalltoday.com/welcome" target="_blank" rel="noopener noreferrer">THE WALL Today’s welcome page</a>, or follow <a href="https://x.com/thewall_today" target="_blank" rel="noopener noreferrer">@thewall_today</a> for the promised Genesis Wall update.</p>
+
+<p>XTZ.News has also added a <a href="/projects/the-wall-today">THE WALL Today project profile</a> with the currently available public beta information. For adjacent culture projects and related reading, visit the <a href="/onchain-community-archives">Onchain Community Archives</a> hub.</p>
 `,
 };
 
